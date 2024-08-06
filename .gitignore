@@ -1,0 +1,8 @@
+# clion idea folder
+**/.idea/
+
+# clion cmake-build folder
+**/cmake-build-*/
+
+# build folder
+**/build/
