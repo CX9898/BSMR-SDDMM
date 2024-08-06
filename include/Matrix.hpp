@@ -89,6 +89,17 @@ class Matrix {
          size_t col,
          size_t size,
          MatrixStorageOrder matrixOrder,
+         size_t leadingDimension)
+      : _row(row),
+        _col(col),
+        _size(size),
+        _storageOrder(matrixOrder),
+        _leadingDimension(leadingDimension) { _values.resize(size); }
+
+  Matrix(size_t row,
+         size_t col,
+         size_t size,
+         MatrixStorageOrder matrixOrder,
          size_t leadingDimension,
          const std::vector<T> &values)
       : _row(row),
@@ -99,7 +110,7 @@ class Matrix {
         _values(values) {}
 
   bool initializeFromSparseMatrix(const SparseMatrix<T> &matrixS);
-  void changeMajorOrder();
+  void changeStorageOrder();
 
   /**
    * getOneValueForMultiplication

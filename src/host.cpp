@@ -2,7 +2,7 @@
 
 #include "host.hpp"
 
-void sddmm_cpu_coo(
+void sddmm_cpu_coo_isratnisa(
     const Matrix<float> &matrixA,
     const Matrix<float> &matrixB,
     const SparseMatrix<float> &matrixS,
@@ -29,7 +29,7 @@ void sddmm_cpu_coo(
     printf("\nomp time CPU : %.4f \n\n", CPU_time * 1000);
 }
 
-void sddmm_cpu_coo2(
+void sddmm_cpu_coo(
     const Matrix<float> &matrixA,
     const Matrix<float> &matrixB,
     const SparseMatrix<float> &matrixS,
@@ -55,6 +55,10 @@ void sddmm_cpu_coo2(
                 row, col, kIter);
             val += valA * valB;
         }
+
+//        for(int kIter = 0; kIter < K; ++kIter){
+//            val += matrixA.values()[row * matrixA.ld() + kIter] * matrixB.values()[kIter * matrixB.ld() + col];
+//        }
 
 //        val *= matrixS.values()[matrixSIdx];
         matrixP.setValues()[matrixSIdx] = val;

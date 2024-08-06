@@ -31,26 +31,18 @@ int main() {
 
     Matrix<float> matrixS2D;
     matrixS2D.initializeFromSparseMatrix(matrixS);
-    matrixS2D.changeMajorOrder();
+//    matrixS2D.changeStorageOrder();
 
-    std::vector<float> valuesA(MATRIX_A_SIZE);
-    initial(valuesA, M, K);
-    std::vector<float> valuesB(MATRIX_B_SIZE);
-    initial(valuesB, N, K);
-
-    Matrix<float> matrixA(M, K, M * K, MatrixStorageOrder::row_major, K, valuesA);
-    Matrix<float> matrixB(K, N, K * N, MatrixStorageOrder::row_major, N, valuesB);
-
-    SparseMatrix<float> matrixP0
-        (matrixS.row(), matrixS.col(), matrixS.nnz(), matrixS.rowIndex(), matrixS.colIndex());
-    sddmm_cpu_coo(matrixA, matrixB, matrixS, matrixP0);
-    std::cout << "matrixP0.values() : " << std::endl;
-    matrixP0.printfValue();
+    Matrix<float> matrixA(M, K, MATRIX_A_SIZE, MatrixStorageOrder::row_major, K);
+    initial(matrixA.setValues(), M, K);
+    Matrix<float> matrixB(K, N, MATRIX_B_SIZE, MatrixStorageOrder::row_major, N);
+    initial(matrixB.setValues(), N, K);
+//    matrixA.changeStorageOrder();
+    matrixB.changeStorageOrder();
 
     SparseMatrix<float> matrixP
         (matrixS.row(), matrixS.col(), matrixS.nnz(), matrixS.rowIndex(), matrixS.colIndex());
-    matrixB.changeMajorOrder();
-    sddmm_cpu_coo2(matrixA, matrixB, matrixS, matrixP);
+    sddmm_cpu_coo(matrixA, matrixB, matrixS, matrixP);
     std::cout << "matrixP.values() : " << std::endl;
     matrixP.printfValue();
 
@@ -61,21 +53,21 @@ int main() {
     float *valuesS_d;
     float *valuesP_d;
 
-    cudaErrCheck(cudaMalloc(reinterpret_cast<void **>(&valuesA_d), valuesA.size() * sizeof(float)));
-    cudaErrCheck(cudaMalloc(reinterpret_cast<void **>(&valuesAfp16_d), valuesA.size() * sizeof(half)));
-    cudaErrCheck(cudaMalloc(reinterpret_cast<void **>(&valuesB_d), valuesB.size() * sizeof(float)));
-    cudaErrCheck(cudaMalloc(reinterpret_cast<void **>(&valuesBfp16_d), valuesB.size() * sizeof(half)));
+    cudaErrCheck(cudaMalloc(reinterpret_cast<void **>(&valuesA_d), matrixA.size() * sizeof(float)));
+    cudaErrCheck(cudaMalloc(reinterpret_cast<void **>(&valuesAfp16_d), matrixA.size() * sizeof(half)));
+    cudaErrCheck(cudaMalloc(reinterpret_cast<void **>(&valuesB_d), matrixB.size() * sizeof(float)));
+    cudaErrCheck(cudaMalloc(reinterpret_cast<void **>(&valuesBfp16_d), matrixB.size() * sizeof(half)));
     cudaErrCheck(cudaMalloc(reinterpret_cast<void **>(&valuesS_d), matrixS2D.size() * sizeof(float)));
     cudaErrCheck(cudaMalloc(reinterpret_cast<void **>(&valuesP_d), matrixS2D.size() * sizeof(float)));
 
-    dev::H2D(valuesA_d, valuesA.data(), valuesA.size());
-    dev::H2D(valuesB_d, valuesB.data(), valuesB.size());
+    dev::H2D(valuesA_d, matrixA.values().data(), matrixA.size());
+    dev::H2D(valuesB_d, matrixB.values().data(), matrixA.size());
 
     const int numThreadPerBlock = 1024;
-    convertFp32ToFp16<<< (valuesA.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
-        valuesA.size(), valuesA_d, valuesAfp16_d);
-    convertFp32ToFp16<<< (valuesB.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
-        valuesB.size(), valuesB_d, valuesBfp16_d);
+    convertFp32ToFp16<<< (matrixA.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
+        matrixA.size(), valuesA_d, valuesAfp16_d);
+    convertFp32ToFp16<<< (matrixB.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
+        matrixB.size(), valuesB_d, valuesBfp16_d);
 
     dim3 grid;
     dim3 block;
@@ -102,6 +94,6 @@ int main() {
     isratnisaMatrixS.copyFromMatrix(matrixS);
 
     float *valuesP_isratnisa = nullptr;
-    preprocessing(isratnisaMatrixS, valuesA, valuesB, valuesP_isratnisa);
+    preprocessing(isratnisaMatrixS, matrixA.values(), matrixB.values(), valuesP_isratnisa);
     return 0;
 }

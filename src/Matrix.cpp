@@ -95,7 +95,7 @@ bool Matrix<float>::initializeFromSparseMatrix(const SparseMatrix<float> &matrix
 }
 
 template<>
-void Matrix<float>::changeMajorOrder() {
+void Matrix<float>::changeStorageOrder() {
     const auto oldMajorOrder = _storageOrder;
     const auto oldLd = _leadingDimension;
     const auto &oldValues = _values;
