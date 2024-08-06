@@ -17,10 +17,14 @@ const std::string fileName = ("test1.mtx");
 const std::string filePath = folderPath + fileName;
 
 int main() {
-    const int K = 256;
-
     SparseMatrix<float> matrixS;
     matrixS.initializeFromMatrixMarketFile(filePath);
+
+    const int K = 256;
+    const int M = matrixS.row();
+    const int N = matrixS.col();
+    const int MATRIX_A_SIZE = M * K;
+    const int MATRIX_B_SIZE = K * N;
 
     std::cout << "matrixS : " << std::endl;
     matrixS.printfValue();
@@ -29,13 +33,13 @@ int main() {
     matrixS2D.initializeFromSparseMatrix(matrixS);
     matrixS2D.changeMajorOrder();
 
-    std::vector<float> valuesA(matrixS2D.row() * K);
-    initial(valuesA, matrixS2D.row(), K);
-    std::vector<float> valuesB(K * matrixS2D.col());
-    initial(valuesB, matrixS2D.col(), K);
+    std::vector<float> valuesA(MATRIX_A_SIZE);
+    initial(valuesA, M, K);
+    std::vector<float> valuesB(MATRIX_B_SIZE);
+    initial(valuesB, N, K);
 
-    Matrix<float> matrixA(matrixS2D.row(), K, matrixS2D.row() * K, MatrixOrder::row_major, K, valuesA);
-    Matrix<float> matrixB(K, matrixS2D.col(), K * matrixS2D.col(), MatrixOrder::row_major, matrixS2D.col(), valuesB);
+    Matrix<float> matrixA(M, K, M * K, MatrixStorageOrder::row_major, K, valuesA);
+    Matrix<float> matrixB(K, N, K * N, MatrixStorageOrder::row_major, N, valuesB);
 
     SparseMatrix<float> matrixP0
         (matrixS.row(), matrixS.col(), matrixS.nnz(), matrixS.rowIndex(), matrixS.colIndex());
@@ -45,6 +49,7 @@ int main() {
 
     SparseMatrix<float> matrixP
         (matrixS.row(), matrixS.col(), matrixS.nnz(), matrixS.rowIndex(), matrixS.colIndex());
+    matrixB.changeMajorOrder();
     sddmm_cpu_coo2(matrixA, matrixB, matrixS, matrixP);
     std::cout << "matrixP.values() : " << std::endl;
     matrixP.printfValue();
@@ -72,15 +77,10 @@ int main() {
     convertFp32ToFp16<<< (valuesB.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
         valuesB.size(), valuesB_d, valuesBfp16_d);
 
-    const int M = matrixS2D.row();
-    const int N = matrixS2D.col();
-
     dim3 grid;
     dim3 block;
-
     block.x = 128;
     block.y = 4;
-
     grid.x = (matrixS2D.row() + (WMMA_M * block.x / 32 - 1)) / (WMMA_M * block.x / 32);
     grid.y = (matrixS2D.col() + WMMA_N * block.y - 1) / (WMMA_N * block.y);
 

@@ -73,7 +73,7 @@ bool Matrix<float>::initializeFromSparseMatrix(const SparseMatrix<float> &matrix
     _col = matrixS.col();
     const int size = matrixS.row() * matrixS.col();
     _size = size;
-    _matrixOrder = MatrixOrder::row_major;
+    _storageOrder = MatrixStorageOrder::row_major;
     const int ld = matrixS.col();
     _leadingDimension = ld;
 
@@ -96,15 +96,15 @@ bool Matrix<float>::initializeFromSparseMatrix(const SparseMatrix<float> &matrix
 
 template<>
 void Matrix<float>::changeMajorOrder() {
-    const auto oldMajorOrder = _matrixOrder;
+    const auto oldMajorOrder = _storageOrder;
     const auto oldLd = _leadingDimension;
     const auto &oldValues = _values;
 
-    MatrixOrder newMatrixOrder;
+    MatrixStorageOrder newMatrixOrder;
     size_t newLd;
     std::vector<float> newValues(_size);
-    if (oldMajorOrder == MatrixOrder::row_major) {
-        newMatrixOrder = MatrixOrder::col_major;
+    if (oldMajorOrder == MatrixStorageOrder::row_major) {
+        newMatrixOrder = MatrixStorageOrder::col_major;
         newLd = _row;
 
         for (int idx = 0; idx < oldValues.size(); ++idx) {
@@ -114,8 +114,8 @@ void Matrix<float>::changeMajorOrder() {
 
             newValues[col * newLd + row] = val;
         }
-    } else if (oldMajorOrder == MatrixOrder::col_major) {
-        newMatrixOrder = MatrixOrder::row_major;
+    } else if (oldMajorOrder == MatrixStorageOrder::col_major) {
+        newMatrixOrder = MatrixStorageOrder::row_major;
         newLd = _col;
 
         for (int idx = 0; idx < _values.size(); ++idx) {
@@ -127,7 +127,57 @@ void Matrix<float>::changeMajorOrder() {
         }
     }
 
-    _matrixOrder = newMatrixOrder;
+    _storageOrder = newMatrixOrder;
     _leadingDimension = newLd;
     _values = newValues;
 }
+
+template<typename T>
+void SparseMatrix<T>::printfValue() {
+    std::cout << "row :\t";
+    for (auto iter : _rowIndex) {
+        std::cout << iter << "\t";
+    }
+    std::cout << std::endl;
+    std::cout << "col :\t";
+    for (auto iter : _colIndex) {
+        std::cout << iter << "\t";
+    }
+    std::cout << std::endl;
+    std::cout << "value :\t";
+    for (auto iter : _values) {
+        std::cout << iter << "\t";
+    }
+    std::cout << std::endl;
+}
+
+template<typename T>
+void Matrix<T>::printfValue() {
+    for (auto iter : _values) {
+        std::cout << iter << " ";
+    }
+    std::cout << std::endl;
+}
+
+template<typename T>
+T Matrix<T>::getOneValueForMultiplication(MatrixMultiplicationOrder multiplicationOrder,
+                                          size_t row,
+                                          size_t col,
+                                          size_t k) const {
+    if (multiplicationOrder == MatrixMultiplicationOrder::Left_multiplication) {
+        if (_storageOrder == MatrixStorageOrder::row_major) {
+            return _values[row * _leadingDimension + k];
+        } else {
+            return _values[k * _leadingDimension + row];
+        }
+    } else {
+        if (_storageOrder == MatrixStorageOrder::row_major) {
+            return _values[k * _leadingDimension + col];
+        } else {
+            return _values[col * _leadingDimension + k];
+        }
+    }
+}
+
+template class Matrix<float>;
+template class SparseMatrix<float>;

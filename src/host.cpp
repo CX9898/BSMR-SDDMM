@@ -42,8 +42,18 @@ void sddmm_cpu_coo2(
 
         float val = 0.0f;
         const int K = matrixA.col();
-        for(int kIter = 0; kIter < K; ++kIter){
-            val += matrixA.values()[row * matrixA.ld() + kIter] * matrixB.values()[kIter * matrixB.ld() + col];
+//        for(int kIter = 0; kIter < K; ++kIter){
+//            val += matrixA.values()[row * matrixA.ld() + kIter] * matrixB.values()[kIter * matrixB.ld() + col];
+//        }
+
+        for (int kIter = 0; kIter < K; ++kIter) {
+            const auto valA = matrixA.getOneValueForMultiplication(
+                MatrixMultiplicationOrder::Left_multiplication,
+                row, col, kIter);
+            const auto valB = matrixB.getOneValueForMultiplication(
+                MatrixMultiplicationOrder::right_multiplication,
+                row, col, kIter);
+            val += valA * valB;
         }
 
 //        val *= matrixS.values()[matrixSIdx];

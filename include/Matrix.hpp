@@ -4,9 +4,14 @@
 #include <string>
 #include <vector>
 
-enum MatrixOrder {
+enum MatrixStorageOrder {
   row_major,
   col_major
+};
+
+enum MatrixMultiplicationOrder {
+  Left_multiplication,
+  right_multiplication
 };
 
 /**
@@ -34,23 +39,7 @@ class SparseMatrix {
    **/
   bool initializeFromMatrixMarketFile(const std::string &filePath);
 
-  void printfValue() {
-      std::cout << "row :\t";
-      for (auto iter : _rowIndex) {
-          std::cout << iter << "\t";
-      }
-      std::cout << std::endl;
-      std::cout << "col :\t";
-      for (auto iter : _colIndex) {
-          std::cout << iter << "\t";
-      }
-      std::cout << std::endl;
-      std::cout << "value :\t";
-      for (auto iter : _values) {
-          std::cout << iter << "\t";
-      }
-      std::cout << std::endl;
-  }
+  void printfValue();
 
   size_t nnz() const {
       return _nnz;
@@ -99,31 +88,34 @@ class Matrix {
   Matrix(size_t row,
          size_t col,
          size_t size,
-         MatrixOrder matrixOrder,
+         MatrixStorageOrder matrixOrder,
          size_t leadingDimension,
          const std::vector<T> &values)
       : _row(row),
         _col(col),
         _size(size),
-        _matrixOrder(matrixOrder),
+        _storageOrder(matrixOrder),
         _leadingDimension(leadingDimension),
         _values(values) {}
 
   bool initializeFromSparseMatrix(const SparseMatrix<T> &matrixS);
   void changeMajorOrder();
 
-  void printfValue() {
-      for (auto iter : _values) {
-          std::cout << iter << " ";
-      }
-      std::cout << std::endl;
-  }
+  /**
+   * getOneValueForMultiplication
+   * Input whether to be used as left or right multiplication in matrix multiplication,
+   * the number of rows and columns in which the multiplication is performed and the current iteration k
+   **/
+  T getOneValueForMultiplication(MatrixMultiplicationOrder multiplicationOrder, size_t row, size_t col, size_t k) const;
+
+  // TODO : Overloads operator <<
+  void printfValue();
 
   size_t size() const {
       return _size;
   }
-  MatrixOrder matrixOrder() const {
-      return _matrixOrder;
+  MatrixStorageOrder matrixOrder() const {
+      return _storageOrder;
   }
   size_t ld() const {
       return _leadingDimension;
@@ -138,19 +130,19 @@ class Matrix {
       return _values;
   }
 
-  void setSize(size_t size) {
-      _size = size;
-      _values.resize(size);
-  }
-  void setld(size_t ld) {
-      _leadingDimension = ld;
-  }
-  void setRow(size_t row) {
-      _row = row;
-  }
-  void setCol(size_t col) {
-      _row = col;
-  }
+//  void setSize(size_t size) {
+//      _size = size;
+//      _values.resize(size);
+//  }
+//  void setld(size_t ld) {
+//      _leadingDimension = ld;
+//  }
+//  void setRow(size_t row) {
+//      _row = row;
+//  }
+//  void setCol(size_t col) {
+//      _row = col;
+//  }
   std::vector<T> &setValues() {
       return _values;
   }
@@ -159,7 +151,7 @@ class Matrix {
   size_t _row;
   size_t _col;
   size_t _size;
-  MatrixOrder _matrixOrder;
+  MatrixStorageOrder _storageOrder;
   size_t _leadingDimension;
 
   std::vector<T> _values;
