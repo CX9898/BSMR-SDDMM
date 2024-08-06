@@ -2,7 +2,7 @@
 
 #include "host.hpp"
 
-void sddmm_CPU_COO(
+void sddmm_cpu_coo(
     const Matrix<float> &matrixA,
     const Matrix<float> &matrixB,
     const SparseMatrix<float> &matrixS,
@@ -29,7 +29,7 @@ void sddmm_CPU_COO(
     printf("\nomp time CPU : %.4f \n\n", CPU_time * 1000);
 }
 
-void sddmm_CPU_COO2(
+void sddmm_cpu_coo2(
     const Matrix<float> &matrixA,
     const Matrix<float> &matrixB,
     const SparseMatrix<float> &matrixS,

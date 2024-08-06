@@ -11,7 +11,7 @@
 #include "CudaTimeCalculator.cuh"
 #include "host.hpp"
 
-const std::string folderPath("../../dataset/");
+const std::string folderPath("../dataset/");
 //const std::string fileName = ("nips.mtx");
 const std::string fileName = ("test1.mtx");
 const std::string filePath = folderPath + fileName;
@@ -39,13 +39,13 @@ int main() {
 
     SparseMatrix<float> matrixP0
         (matrixS.row(), matrixS.col(), matrixS.nnz(), matrixS.rowIndex(), matrixS.colIndex());
-    sddmm_CPU_COO(matrixA, matrixB, matrixS, matrixP0);
+    sddmm_cpu_coo(matrixA, matrixB, matrixS, matrixP0);
     std::cout << "matrixP0.values() : " << std::endl;
     matrixP0.printfValue();
 
     SparseMatrix<float> matrixP
         (matrixS.row(), matrixS.col(), matrixS.nnz(), matrixS.rowIndex(), matrixS.colIndex());
-    sddmm_CPU_COO2(matrixA, matrixB, matrixS, matrixP);
+    sddmm_cpu_coo2(matrixA, matrixB, matrixS, matrixP);
     std::cout << "matrixP.values() : " << std::endl;
     matrixP.printfValue();
 

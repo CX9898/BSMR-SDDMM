@@ -15,13 +15,13 @@ bool checkData(const int num, const float *dataDev1, const std::vector<float> &d
 
 bool checkDevData(const int num, const float *dataDev1, const float *dataDev2);
 
-void sddmm_CPU_COO(
+void sddmm_cpu_coo(
     const Matrix<float> &matrixA,
     const Matrix<float> &matrixB,
     const SparseMatrix<float> &matrixS,
     SparseMatrix<float> &matrixP);
 
-void sddmm_CPU_COO2(
+void sddmm_cpu_coo2(
     const Matrix<float> &matrixA,
     const Matrix<float> &matrixB,
     const SparseMatrix<float> &matrixS,
