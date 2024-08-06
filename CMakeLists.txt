@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.26)
 
 # Project Information
-project(SDDMM_GPU_zcx)
+project(sddmm-gpu)
 
 # Add languages needed when building the project
 enable_language(CXX)
