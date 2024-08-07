@@ -1,6 +1,6 @@
 #pragma once
 
-#include "util.h"
+#include "util_isratnisa.h"
 
 int mainTmp(int argc, char *argv[]);
 
