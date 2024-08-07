@@ -8,8 +8,8 @@
 #include <math.h>
 #include <omp.h>
 #include <cuda.h>
-#include "util.h"
-#include "kernel.h"
+#include "util_isratnisa.h"
+#include "kernel_isratnisa.h"
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -255,11 +255,11 @@ void sddmm_CPU_COO(const vector<int> row_ind,
     //correctness check
 
     // printf("\nomp time CPU : %.4f \n\n", CPU_time*1000);
-    printf("p_ind : ");
-    for(int idx = 0; idx < S.nnz; ++idx){
-        printf("%f ", p_ind[idx]);
-    }
-    printf("\n");
+//    printf("p_ind : ");
+//    for(int idx = 0; idx < S.nnz; ++idx){
+//        printf("%f ", p_ind[idx]);
+//    }
+//    printf("\n");
 }
 
 void preprocessing(const isratnisa::Matrix S,
