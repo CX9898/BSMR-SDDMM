@@ -87,19 +87,6 @@ class Matrix {
       return _values;
   }
 
-//  void setSize(size_t size) {
-//      _size = size;
-//      _values.resize(size);
-//  }
-//  void setld(size_t ld) {
-//      _leadingDimension = ld;
-//  }
-//  void setRow(size_t row) {
-//      _row = row;
-//  }
-//  void setCol(size_t col) {
-//      _row = col;
-//  }
   std::vector<T> &setValues() {
       return _values;
   }
