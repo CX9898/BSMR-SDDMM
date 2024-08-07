@@ -14,6 +14,12 @@ enum MatrixMultiplicationOrder {
   right_multiplication
 };
 
+template<typename T>
+class Matrix;
+
+template<typename T>
+class SparseMatrix;
+
 /**
  * SparseMatrix class
  *
@@ -38,6 +44,8 @@ class SparseMatrix {
    *    3) Each after line has three numbers separated by a space: current row, current column, and value.
    **/
   bool initializeFromMatrixMarketFile(const std::string &filePath);
+
+  bool initializeValuesFromDenseMatrix(const Matrix<T> &matrixS);
 
   void printfValue();
 

@@ -12,8 +12,8 @@
 #include "host.hpp"
 
 const std::string folderPath("../dataset/");
-//const std::string fileName = ("nips.mtx");
-const std::string fileName = ("test1.mtx");
+const std::string fileName = ("nips.mtx");
+//const std::string fileName = ("test1.mtx");
 const std::string filePath = folderPath + fileName;
 
 int main() {
@@ -26,8 +26,8 @@ int main() {
     const int MATRIX_A_SIZE = M * K;
     const int MATRIX_B_SIZE = K * N;
 
-    std::cout << "matrixS : " << std::endl;
-    matrixS.printfValue();
+//    std::cout << "matrixS : " << std::endl;
+//    matrixS.printfValue();
 
     Matrix<float> matrixS2D;
     matrixS2D.initializeFromSparseMatrix(matrixS);
@@ -40,11 +40,11 @@ int main() {
 //    matrixA.changeStorageOrder();
     matrixB.changeStorageOrder();
 
-    SparseMatrix<float> matrixP
-        (matrixS.row(), matrixS.col(), matrixS.nnz(), matrixS.rowIndex(), matrixS.colIndex());
-    sddmm_cpu_coo(matrixA, matrixB, matrixS, matrixP);
-    std::cout << "matrixP.values() : " << std::endl;
-    matrixP.printfValue();
+    SparseMatrix<float> matrixP_cpu_res(matrixS.row(), matrixS.col(), matrixS.nnz(),
+                                        matrixS.rowIndex(), matrixS.colIndex());
+    sddmm_cpu_coo(matrixA, matrixB, matrixS, matrixP_cpu_res);
+//    std::cout << "matrixP.values() : " << std::endl;
+//    matrixP_host.printfValue();
 
     float *valuesA_d;
     half *valuesAfp16_d;
@@ -78,22 +78,24 @@ int main() {
 
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
-    compSddmm<<<grid, block>>>(M, N, K, valuesAfp16_d, valuesBfp16_d, valuesS_d, valuesP_d);
+    comp_sddmm_gpu<<<grid, block>>>(M, N, K, valuesAfp16_d, valuesBfp16_d, valuesS_d, valuesP_d);
     timeCalculator.endClock();
     std::cout << "Func compSddmm time : " << timeCalculator.getTime() << "ms" << std::endl;
 
-    std::vector<float> valuesP(matrixS2D.size());
-    dev::D2H(valuesP.data(), valuesP_d, valuesP.size());
-    std::cout << "valuesP_zcx : " << std::endl;
-    for (int idx = 0; idx < valuesP.size(); ++idx) {
-        std::cout << valuesP[idx] << " ";
-    }
-    std::cout << std::endl;
+    SparseMatrix<float> matrixP_gpu_res(matrixS.row(), matrixS.col(), matrixS.nnz(),
+                                        matrixS.rowIndex(), matrixS.colIndex());
+
+    dev::D2H(matrixP_gpu_res.setValues().data(), valuesP_d, matrixP_gpu_res.values().size());
+
+
+    std::cout << "matrixP_gpu_res : " << std::endl;
+    matrixP_gpu_res.printfValue();
 
     isratnisa::Matrix isratnisaMatrixS;
     isratnisaMatrixS.copyFromMatrix(matrixS);
 
     float *valuesP_isratnisa = nullptr;
     preprocessing(isratnisaMatrixS, matrixA.values(), matrixB.values(), valuesP_isratnisa);
+
     return 0;
 }

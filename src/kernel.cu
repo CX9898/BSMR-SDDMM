@@ -14,10 +14,10 @@ __global__ void convertFp32ToFp16(const int n, const float *in, half *out) {
     }
 }
 
-__global__ void compSddmm(const int M, const int N, const int K,
-                          const half *matrixA, const half *matrixB,
-                          const float *matrixS,
-                          float *matrixP) {
+__global__ void comp_sddmm_gpu(const int M, const int N, const int K,
+                               const half *matrixA, const half *matrixB,
+                               const float *matrixS,
+                               float *matrixP) {
     const int warpM = (int) (blockDim.x * blockIdx.x + threadIdx.x) / WARP_SIZE;
     const int warpN = (int) (blockDim.x * blockIdx.x + threadIdx.x);
 
@@ -62,11 +62,11 @@ __global__ void compSddmm(const int M, const int N, const int K,
         }
     }
 
-    for (int idx = 0; idx < cFrag.num_elements; ++idx) {
-        const int sIdx = cRow * ldc + cCol + idx;
-
-        cFrag.x[idx] *= matrixS[sIdx];
-    }
+//    for (int idx = 0; idx < cFrag.num_elements; ++idx) {
+//        const int sIdx = cRow * ldc + cCol + idx;
+//
+//        cFrag.x[idx] *= matrixS[sIdx];
+//    }
 
     const auto pOffsetPtr = matrixP + cRow * ldc + cCol;
     store_matrix_sync(pOffsetPtr, cFrag, ldp, mem_row_major);
