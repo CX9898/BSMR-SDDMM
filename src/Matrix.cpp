@@ -120,26 +120,31 @@ void Matrix<T>::changeStorageOrder() {
 }
 
 template<typename T>
-void SparseMatrix<T>::printfValue() {
-    std::cout << "row :\t";
-    for (auto iter : _rowIndex) {
-        std::cout << iter << "\t";
+void SparseMatrix<T>::print() {
+    for (int idx = 0; idx < _nnz; ++idx) {
+        std::cout << "[" << _rowIndex[idx] << ","
+                  << _colIndex[idx] << ","
+                  << _values[idx] << "] ";
     }
-    std::cout << std::endl;
-    std::cout << "col :\t";
-    for (auto iter : _colIndex) {
-        std::cout << iter << "\t";
-    }
-    std::cout << std::endl;
-    std::cout << "value :\t";
-    for (auto iter : _values) {
-        std::cout << iter << "\t";
-    }
+//    std::cout << "row :\t";
+//    for (auto iter : _rowIndex) {
+//        std::cout << iter << "\t";
+//    }
+//    std::cout << std::endl;
+//    std::cout << "col :\t";
+//    for (auto iter : _colIndex) {
+//        std::cout << iter << "\t";
+//    }
+//    std::cout << std::endl;
+//    std::cout << "value :\t";
+//    for (auto iter : _values) {
+//        std::cout << iter << "\t";
+//    }
     std::cout << std::endl;
 }
 
 template<typename T>
-void Matrix<T>::printfValue() {
+void Matrix<T>::print() {
     for (auto iter : _values) {
         std::cout << iter << " ";
     }
@@ -166,5 +171,36 @@ T Matrix<T>::getOneValueForMultiplication(MatrixMultiplicationOrder multiplicati
     }
 }
 
-template class Matrix<float>;
-template class SparseMatrix<float>;
+template<typename T>
+T Matrix<T>::getOneValue(int row, int col) const {
+    if (_storageOrder == MatrixStorageOrder::row_major) {
+        return _values[row * _leadingDimension + col];
+    } else {
+        return _values[col * _leadingDimension + row];
+    }
+}
+
+template<typename T>
+bool SparseMatrix<T>::setValuesFromMatrix(const Matrix<T> &inputMatrix) {
+    _values.clear();
+    _values.resize(_nnz);
+
+    for (int matrixIdx = 0; matrixIdx < values().size(); ++matrixIdx) {
+        const int row = _rowIndex[matrixIdx];
+        const int col = _colIndex[matrixIdx];
+
+        _values[matrixIdx] = inputMatrix.getOneValue(row, col);
+    }
+}
+
+template<typename T>
+void SparseMatrix<T>::getSpareMatrixOneDataByCOO(const int idx, size_t &row, size_t &col, T &value) const {
+    row = _rowIndex[idx];
+    col = _colIndex[idx];
+    value = _values[idx];
+}
+
+template
+class Matrix<float>;
+template
+class SparseMatrix<float>;
