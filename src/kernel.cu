@@ -1,16 +1,29 @@
+#include <cstdio>
+
 #include <mma.h>
 
 #include "kernel.cuh"
-#include "matrixSetting.hpp"
+#include "wmmaSetting.hpp"
 
 const int WARP_SIZE = 32;
 
 using namespace nvcuda::wmma;
 
+template<typename T>
+__global__ void test(int n, T *a) {
+    for (int i = 0; i < n; ++i) {
+        printf("%f ", a[i]);
+    }
+}
+
+template __global__ void test<float>(int n, float *a);
+template __global__ void test<half>(int n, half *a);
+
 __global__ void convertFp32ToFp16(const int n, const float *in, half *out) {
     int idx = (int) (blockDim.x * blockIdx.x + threadIdx.x);
     if (idx < n) {
         out[idx] = in[idx];
+//        printf("in : %f, out : %f ", in[idx], out[idx]);
     }
 }
 
@@ -23,10 +36,10 @@ __global__ void comp_sddmm_gpu(const int M, const int N, const int K,
 
     // Compute dense matrix multiplication using Tensor core
 
-    const int cRow = warpM * WMMA_M;
-    const int cCol = warpN * WMMA_N;
+    const int pRowId = warpM * WMMA_M;
+    const int pColId = warpN * WMMA_N;
 
-    if (cRow >= M || cCol >= N) {
+    if (pRowId >= M || pColId >= N) {
         return;
     }
 
@@ -39,21 +52,20 @@ __global__ void comp_sddmm_gpu(const int M, const int N, const int K,
     // Leading dimensions. Packed with no transpositions.
     const int lda = K;
     const int ldb = N;
-    const int ldc = N;
     const int ldp = N;
 
     // Loop over k
     for (int kIter = 0; kIter < K; kIter += WMMA_K) {
-        const int aRow = cRow;
-        const int aCol = kIter;
+        const int aRowId = pRowId;
+        const int aColId = kIter;
 
-        const int bRow = kIter;
-        const int bCol = cCol;
+        const int bRowId = kIter;
+        const int bColId = pColId;
 
         // Bounds checking
-        if (aRow < M && aCol < K && bRow < K && bCol < N) {
-            const auto aOffsetPtr = matrixA + aRow * lda + aCol;
-            const auto bOffsetPtr = matrixB + bRow * ldb + bCol;
+        if (aRowId < M && aColId < K && bRowId < K && bColId < N) {
+            const auto aOffsetPtr = matrixA + aRowId * lda + aColId;
+            const auto bOffsetPtr = matrixB + bRowId * ldb + bColId;
 
             load_matrix_sync(aFrag, aOffsetPtr, lda);
             load_matrix_sync(bFrag, bOffsetPtr, ldb);
@@ -63,11 +75,15 @@ __global__ void comp_sddmm_gpu(const int M, const int N, const int K,
     }
 
 //    for (int idx = 0; idx < cFrag.num_elements; ++idx) {
-//        const int sIdx = cRow * ldc + cCol + idx;
+//        const int sIdx = pRowId * ldc + pColId + idx;
 //
 //        cFrag.x[idx] *= matrixS[sIdx];
 //    }
+//    for (int idx = 0; idx < cFrag.num_elements; ++idx) {
+//
+//        printf("%f ", aFrag.x[idx]);
+//    }
 
-    const auto pOffsetPtr = matrixP + cRow * ldc + cCol;
+    const auto pOffsetPtr = matrixP + pRowId * ldp + pColId;
     store_matrix_sync(pOffsetPtr, cFrag, ldp, mem_row_major);
 }

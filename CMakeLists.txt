@@ -15,7 +15,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CUDA_STANDARD 11)
 
 # Specifies which GPU architectures are supported when compiling CUDA code (optional)
-set(CMAKE_CUDA_ARCHITECTURES 90)
+set(CMAKE_CUDA_ARCHITECTURES 70)
 
 # Save the folder path in a variable
 set(INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")
@@ -49,7 +49,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE CUDA::cudart)
 #target_link_libraries(${PROJECT_NAME} PRIVATE CUDA::cufft)
 
 # Linked cuRAND library
-#target_link_libraries(${PROJECT_NAME} PRIVATE CUDA::curand)
+target_link_libraries(${PROJECT_NAME} PRIVATE CUDA::curand)
 
 # Linked cuSOLVER library
 #target_link_libraries(${PROJECT_NAME} PRIVATE CUDA::cusolver)
