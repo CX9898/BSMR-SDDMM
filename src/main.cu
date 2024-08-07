@@ -4,7 +4,7 @@
 #include "Matrix.hpp"
 #include "sddmm.h"
 #include "kernel.cuh"
-#include "util.h"
+#include "util_isratnisa.h"
 #include "wmmaSetting.hpp"
 #include "cudaErrorCheck.cuh"
 #include "cudaUtil.cuh"
@@ -89,7 +89,7 @@ int main() {
 
 
     std::cout << "matrixP_gpu_res : " << std::endl;
-    matrixP_gpu_res.printfValue();
+//    matrixP_gpu_res.printfValue();
 
     isratnisa::Matrix isratnisaMatrixS;
     isratnisaMatrixS.copyFromMatrix(matrixS);

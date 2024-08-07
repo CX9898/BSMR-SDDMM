@@ -3,27 +3,14 @@
 #include <string>
 
 #include "Matrix.hpp"
+#include "util.hpp"
 
-/**
- *
- **/
-std::string iterateOneWord(const std::string &line, int &lineIter) {
-    const int begin = lineIter;
-    while (lineIter < line.size() && line[lineIter] != ' ') {
-        ++lineIter;
-    }
-    const int end = lineIter;
-    ++lineIter;
-
-    return line.substr(begin, end - begin);
-}
-
-template<>
-bool SparseMatrix<float>::initializeFromMatrixMarketFile(const std::string &filePath) {
+template<typename T>
+bool SparseMatrix<T>::initializeFromMatrixMarketFile(const std::string &filePath) {
     std::ifstream inFile;
     inFile.open(filePath, std::ios::in); // open file
     if (!inFile.is_open()) {
-        std::cout << "Error,Matrix Market file cannot be opened." << std::endl;
+        std::cout << "Error, Matrix Market file cannot be opened." << std::endl;
         return false;
     }
 
@@ -31,12 +18,12 @@ bool SparseMatrix<float>::initializeFromMatrixMarketFile(const std::string &file
     getline(inFile, line); // First line does not operate
 
     getline(inFile, line);
-    int lineIter = 0;
-    _row = std::stoi(iterateOneWord(line, lineIter));
-    _col = std::stoi(iterateOneWord(line, lineIter));
-    _nnz = std::stoi(iterateOneWord(line, lineIter));
+    int wordIter = 0;
+    _row = std::stoi(iterateOneWordFromLine(line, wordIter));
+    _col = std::stoi(iterateOneWordFromLine(line, wordIter));
+    _nnz = std::stoi(iterateOneWordFromLine(line, wordIter));
 
-    if (lineIter < line.size()) {
+    if (wordIter < line.size()) {
         std::cerr << "Error, Matrix Market file " << line << " line format is incorrect!" << std::endl;
     }
 
@@ -46,12 +33,12 @@ bool SparseMatrix<float>::initializeFromMatrixMarketFile(const std::string &file
 
     int idx = 0;
     while (getline(inFile, line)) {
-        lineIter = 0;
-        const int row = std::stoi(iterateOneWord(line, lineIter)) - 1;
-        const int col = std::stoi(iterateOneWord(line, lineIter)) - 1;
-        const float val = (float) std::stof(iterateOneWord(line, lineIter));
+        wordIter = 0;
+        const int row = std::stoi(iterateOneWordFromLine(line, wordIter)) - 1;
+        const int col = std::stoi(iterateOneWordFromLine(line, wordIter)) - 1;
+        const T val = (T) std::stod(iterateOneWordFromLine(line, wordIter));
 
-        if (lineIter < line.size()) {
+        if (wordIter < line.size()) {
             std::cerr << "Error, Matrix Market file " << line << " line format is incorrect!" << std::endl;
         }
 
@@ -67,8 +54,8 @@ bool SparseMatrix<float>::initializeFromMatrixMarketFile(const std::string &file
     return true;
 }
 
-template<>
-bool Matrix<float>::initializeFromSparseMatrix(const SparseMatrix<float> &matrixS) {
+template<typename T>
+bool Matrix<T>::initializeFromSparseMatrix(const SparseMatrix<T> &matrixS) {
     _row = matrixS.row();
     _col = matrixS.col();
     const int size = matrixS.row() * matrixS.col();
@@ -94,8 +81,8 @@ bool Matrix<float>::initializeFromSparseMatrix(const SparseMatrix<float> &matrix
     return true;
 }
 
-template<>
-void Matrix<float>::changeStorageOrder() {
+template<typename T>
+void Matrix<T>::changeStorageOrder() {
     const auto oldMajorOrder = _storageOrder;
     const auto oldLd = _leadingDimension;
     const auto &oldValues = _values;
