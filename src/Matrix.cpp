@@ -200,6 +200,54 @@ void SparseMatrix<T>::getSpareMatrixOneDataByCOO(const int idx, size_t &row, siz
     value = _values[idx];
 }
 
+template<typename T>
+bool SparseMatrix<T>::outputToMarketMatrixFile(const std::string &fileName) {
+    std::string fileFormat(".mtx");
+
+    std::string fileString(fileName + fileFormat);
+
+    // check fileExists
+    if (io::fileExists(fileString)) {
+        std::cout << fileName + fileFormat << " file already exists" << std::endl;
+        int fileId = 1;
+        while (io::fileExists(fileName + std::to_string(fileId) + fileFormat)) {
+            ++fileId;
+        }
+        fileString = fileName + std::to_string(fileId) + fileFormat;
+
+        std::cout << "Change file name form \"" << fileName + fileFormat
+                  << "\" to \""
+                  << fileString << "\"" << std::endl;
+    }
+
+    // creat file
+    std::ofstream outfile(fileString);
+    if (outfile.is_open()) {
+        std::cout << "File created successfully: " << fileString << std::endl;
+    } else {
+        std::cerr << "Unable to create file: " << fileString << std::endl;
+        return false;
+    }
+
+    std::string firstLine("%%MatrixMarket matrix coordinate real general\n");
+    outfile << firstLine;
+
+    std::string secondLine(std::to_string(_row) + " " + std::to_string(_col) + " " + std::to_string(_nnz) + "\n");
+    outfile << secondLine;
+
+    for (int matrixIter = 0; matrixIter < _nnz; ++matrixIter) {
+        outfile << std::to_string(_rowIndex[matrixIter]) << " ";
+        outfile << std::to_string(_colIndex[matrixIter]) << " ";
+        outfile << std::to_string(_values[matrixIter]);
+
+        if (matrixIter < _nnz - 1) {
+            outfile << "\n";
+        }
+    }
+
+    outfile.close();
+}
+
 template
 class Matrix<float>;
 template

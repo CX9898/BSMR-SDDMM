@@ -107,7 +107,7 @@ class Matrix {
  * Store in COO format.
  **/
 template<typename T>
-class SparseMatrix : public Matrix<T> {
+class SparseMatrix {
  public:
   SparseMatrix() = default;
   ~SparseMatrix() = default;
@@ -136,6 +136,13 @@ class SparseMatrix : public Matrix<T> {
 
   // TODO : Overloads operator <<
   void print();
+
+  /**
+   * Used as a test comparison result
+   *
+   * @fileN
+   **/
+  bool outputToMarketMatrixFile(const std::string &fileName);
 
   size_t nnz() const {
       return _nnz;

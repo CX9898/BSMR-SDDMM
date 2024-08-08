@@ -3,11 +3,27 @@
 #include <string>
 #include <vector>
 
+
+/**
+ * Including file IO functions
+ **/
+namespace io {
+
+/**
+ * Checks if the file exists
+ **/
+inline bool fileExists(const std::string &filename) {
+    std::ifstream file(filename);
+    file.close();
+    return file.good();
+}
+} // namespace io
+
+
 /**
  *
  **/
 std::string iterateOneWordFromLine(const std::string &line, int &wordIter);
-
 
 /**
  *
