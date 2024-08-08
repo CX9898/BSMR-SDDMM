@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <random>
 
 #include "Matrix.hpp"
 #include "util.hpp"
@@ -36,7 +37,7 @@ bool SparseMatrix<T>::initializeFromMatrixMarketFile(const std::string &filePath
         wordIter = 0;
         const int row = std::stoi(iterateOneWordFromLine(line, wordIter)) - 1;
         const int col = std::stoi(iterateOneWordFromLine(line, wordIter)) - 1;
-        const T val = (T) std::stod(iterateOneWordFromLine(line, wordIter));
+        const T val = static_cast<T>(std::stod(iterateOneWordFromLine(line, wordIter)));
 
         if (wordIter < line.size()) {
             std::cerr << "Error, Matrix Market file " << line << " line format is incorrect!" << std::endl;
@@ -121,25 +122,12 @@ void Matrix<T>::changeStorageOrder() {
 
 template<typename T>
 void SparseMatrix<T>::print() {
+    std::cout << "SparseMatrix : [row,col,value]" << std::endl;
     for (int idx = 0; idx < _nnz; ++idx) {
         std::cout << "[" << _rowIndex[idx] << ","
                   << _colIndex[idx] << ","
                   << _values[idx] << "] ";
     }
-//    std::cout << "row :\t";
-//    for (auto iter : _rowIndex) {
-//        std::cout << iter << "\t";
-//    }
-//    std::cout << std::endl;
-//    std::cout << "col :\t";
-//    for (auto iter : _colIndex) {
-//        std::cout << iter << "\t";
-//    }
-//    std::cout << std::endl;
-//    std::cout << "value :\t";
-//    for (auto iter : _values) {
-//        std::cout << iter << "\t";
-//    }
     std::cout << std::endl;
 }
 
@@ -156,7 +144,7 @@ T Matrix<T>::getOneValueForMultiplication(MatrixMultiplicationOrder multiplicati
                                           size_t row,
                                           size_t col,
                                           size_t k) const {
-    if (multiplicationOrder == MatrixMultiplicationOrder::Left_multiplication) {
+    if (multiplicationOrder == MatrixMultiplicationOrder::left_multiplication) {
         if (_storageOrder == MatrixStorageOrder::row_major) {
             return _values[row * _leadingDimension + k];
         } else {
@@ -185,11 +173,11 @@ bool SparseMatrix<T>::setValuesFromMatrix(const Matrix<T> &inputMatrix) {
     _values.clear();
     _values.resize(_nnz);
 
-    for (int matrixIdx = 0; matrixIdx < values().size(); ++matrixIdx) {
-        const int row = _rowIndex[matrixIdx];
-        const int col = _colIndex[matrixIdx];
+    for (int idx = 0; idx < _nnz; ++idx) {
+        const int row = _rowIndex[idx];
+        const int col = _colIndex[idx];
 
-        _values[matrixIdx] = inputMatrix.getOneValue(row, col);
+        _values[idx] = inputMatrix.getOneValue(row, col);
     }
 }
 
@@ -235,17 +223,39 @@ bool SparseMatrix<T>::outputToMarketMatrixFile(const std::string &fileName) {
     std::string secondLine(std::to_string(_row) + " " + std::to_string(_col) + " " + std::to_string(_nnz) + "\n");
     outfile << secondLine;
 
-    for (int matrixIter = 0; matrixIter < _nnz; ++matrixIter) {
-        outfile << std::to_string(_rowIndex[matrixIter]) << " ";
-        outfile << std::to_string(_colIndex[matrixIter]) << " ";
-        outfile << std::to_string(_values[matrixIter]);
+    for (int idx = 0; idx < _nnz; ++idx) {
+        outfile << std::to_string(_rowIndex[idx] + 1) << " ";
+        outfile << std::to_string(_colIndex[idx] + 1) << " ";
+        outfile << std::to_string(_values[idx]);
 
-        if (matrixIter < _nnz - 1) {
+        if (idx < _nnz - 1) {
             outfile << "\n";
         }
     }
 
     outfile.close();
+}
+
+template<typename T>
+void SparseMatrix<T>::makeData(const int row, const int col, const int nnz) {
+    _row = row;
+    _col = col;
+    _nnz = nnz;
+
+    _rowIndex.resize(nnz);
+    _colIndex.resize(nnz);
+    _values.resize(nnz);
+
+    std::mt19937 generator;
+    std::uniform_int_distribution<int> distributionRow(0, row);
+    std::uniform_int_distribution<int> distributionCol(0, col);
+    std::uniform_real_distribution<T> distributionValue(0, 10);
+
+    for (int idx = 0; idx < nnz; ++idx) {
+        _rowIndex[idx] = distributionRow(generator);
+        _colIndex[idx] = distributionCol(generator);
+        _values[idx] = distributionValue(generator);
+    }
 }
 
 template

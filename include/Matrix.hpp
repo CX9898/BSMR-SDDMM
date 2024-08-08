@@ -10,7 +10,7 @@ enum MatrixStorageOrder {
 };
 
 enum MatrixMultiplicationOrder {
-  Left_multiplication,
+  left_multiplication,
   right_multiplication
 };
 
@@ -128,6 +128,9 @@ class SparseMatrix {
 
   bool setValuesFromMatrix(const Matrix<T> &inputMatrix);
 
+
+  void makeData(const int row, const int col, const int nnz);
+
   /**
    * input : idx
    * output : row, col, value
@@ -139,8 +142,6 @@ class SparseMatrix {
 
   /**
    * Used as a test comparison result
-   *
-   * @fileN
    **/
   bool outputToMarketMatrixFile(const std::string &fileName);
 

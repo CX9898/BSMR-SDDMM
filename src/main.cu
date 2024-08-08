@@ -12,18 +12,22 @@
 #include "cudaUtil.cuh"
 #include "CudaTimeCalculator.cuh"
 #include "host.hpp"
+#include "checkData.hpp"
 
 const std::string folderPath("../dataset/");
 //const std::string fileName = ("nips");
+//const std::string fileName = ("nips_wmma");
 const std::string fileName = ("test3");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 
 int main() {
     SparseMatrix<float> matrixS;
-    matrixS.initializeFromMatrixMarketFile(filePath);
+    matrixS.makeData(1504,1504,746316);
+//    matrixS.initializeFromMatrixMarketFile(filePath);
 
-    const int K = 1 * WMMA_K;
+    const int K = 16 * WMMA_K;
+//    const int K = 17;
     const int M = matrixS.row();
     const int N = matrixS.col();
     const int MATRIX_A_SIZE = M * K;
@@ -94,7 +98,9 @@ int main() {
 
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
+
     comp_sddmm_gpu<<<grid, block>>>(M, N, K, valuesAfp16_d, valuesBfp16_d, valuesS_d, valuesP_d);
+
     timeCalculator.endClock();
     std::cout << "Func comp_sddmm_gpu time : " << timeCalculator.getTime() << "ms" << std::endl;
 
@@ -107,7 +113,7 @@ int main() {
 
 //    matrixP_gpu_res.outputToMarketMatrixFile("matrixP_gpu_res");
 
-    checkData(matrixP_cpu_res.values(),matrixP_gpu_res.values());
+    checkData(matrixP_cpu_res.values(), matrixP_gpu_res.values());
 
 //    std::cout << "matrixP_gpu_res : " << std::endl;
 //    matrixP_gpu_res.print();
@@ -117,6 +123,13 @@ int main() {
 
 //    float *valuesP_isratnisa = nullptr;
 //    preprocessing(isratnisaMatrixS, matrixA.values(), matrixB.values(), valuesP_isratnisa);
+
+    cudaFree(valuesA_d);
+    cudaFree(valuesAfp16_d);
+    cudaFree(valuesB_d);
+    cudaFree(valuesBfp16_d);
+    cudaFree(valuesS_d);
+    cudaFree(valuesP_d);
 
     return 0;
 }
