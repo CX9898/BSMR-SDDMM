@@ -48,17 +48,13 @@ void sddmm_cpu_coo(
 
         for (int kIter = 0; kIter < K; ++kIter) {
             const auto valA = matrixA.getOneValueForMultiplication(
-                MatrixMultiplicationOrder::Left_multiplication,
+                MatrixMultiplicationOrder::left_multiplication,
                 row, col, kIter);
             const auto valB = matrixB.getOneValueForMultiplication(
                 MatrixMultiplicationOrder::right_multiplication,
                 row, col, kIter);
             val += valA * valB;
         }
-
-//        for(int kIter = 0; kIter < K; ++kIter){
-//            val += matrixA.values()[row * matrixA.ld() + kIter] * matrixB.values()[kIter * matrixB.ld() + col];
-//        }
 
 //        val *= matrixS.values()[matrixSIdx];
         matrixP.setValues()[matrixSIdx] = val;
