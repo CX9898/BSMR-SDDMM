@@ -107,7 +107,7 @@ class Matrix {
  * Store in COO format.
  **/
 template<typename T>
-class SparseMatrix {
+class SparseMatrix : public Matrix<T> {
  public:
   SparseMatrix() = default;
   ~SparseMatrix() = default;
@@ -171,3 +171,7 @@ class SparseMatrix {
   std::vector<int> _colIndex;
   std::vector<T> _values;
 };
+
+namespace dev {
+
+} // namespace dev

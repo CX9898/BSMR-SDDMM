@@ -5,14 +5,12 @@
 #include "kernel.cuh"
 #include "wmmaSetting.hpp"
 
-const int WARP_SIZE = 32;
-
 using namespace nvcuda::wmma;
 
 template<typename T>
 __global__ void test(int n, T *a) {
     for (int i = 0; i < n; ++i) {
-        printf("%f ", a[i]);
+        printf("%f ", static_cast<float>(a[i]));
     }
 }
 
@@ -23,7 +21,6 @@ __global__ void convertFp32ToFp16(const int n, const float *in, half *out) {
     int idx = (int) (blockDim.x * blockIdx.x + threadIdx.x);
     if (idx < n) {
         out[idx] = in[idx];
-//        printf("in : %f, out : %f ", in[idx], out[idx]);
     }
 }
 
@@ -32,7 +29,7 @@ __global__ void comp_sddmm_gpu(const int M, const int N, const int K,
                                const float *matrixS,
                                float *matrixP) {
     const int warpM = (int) (blockDim.x * blockIdx.x + threadIdx.x) / WARP_SIZE;
-    const int warpN = (int) (blockDim.x * blockIdx.x + threadIdx.x);
+    const int warpN = (int) (blockDim.y * blockIdx.y + threadIdx.y);
 
     // Compute dense matrix multiplication using Tensor core
 
@@ -74,6 +71,7 @@ __global__ void comp_sddmm_gpu(const int M, const int N, const int K,
         }
     }
 
+//#pragma unroll
 //    for (int idx = 0; idx < cFrag.num_elements; ++idx) {
 //        const int sIdx = pRowId * ldc + pColId + idx;
 //
@@ -81,7 +79,7 @@ __global__ void comp_sddmm_gpu(const int M, const int N, const int K,
 //    }
 //    for (int idx = 0; idx < cFrag.num_elements; ++idx) {
 //
-//        printf("%f ", aFrag.x[idx]);
+//        printf("%f ", static_cast<float>(cFrag.x[idx]));
 //    }
 
     const auto pOffsetPtr = matrixP + pRowId * ldp + pColId;

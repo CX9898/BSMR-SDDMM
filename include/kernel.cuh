@@ -2,6 +2,8 @@
 
 #include <cuda_fp16.h>
 
+#define WARP_SIZE 32;
+
 template<typename T>
 __global__ void test(int n, T *a);
 

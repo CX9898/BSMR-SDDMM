@@ -40,6 +40,7 @@ int main() {
     initial(matrixA.setValues(), M, K);
 //    std::cout << "matrixA : ";
 //    matrixA.print();
+
     Matrix<float> matrixB(K, N, MATRIX_B_SIZE, MatrixStorageOrder::row_major, N);
     initial(matrixB.setValues(), N, K);
 //    std::cout << "matrixB : ";
@@ -50,11 +51,12 @@ int main() {
 
     SparseMatrix<float> matrixP_cpu_res(matrixS.row(), matrixS.col(), matrixS.nnz(),
                                         matrixS.rowIndex(), matrixS.colIndex());
-//    std::cout << "matrixP.values() : " << std::endl;
-//    matrixP_cpu_res.print();
 
     // comp by cpu
     sddmm_cpu_coo(matrixA, matrixB, matrixS, matrixP_cpu_res);
+
+    std::cout << "matrixP_cpu_res.values() : " << std::endl;
+    matrixP_cpu_res.print();
 
     float *valuesA_d;
     half *valuesAfp16_d;
@@ -71,8 +73,6 @@ int main() {
     cudaErrCheck(cudaMalloc(reinterpret_cast<void **>(&valuesP_d), matrixS2D.size() * sizeof(float)));
 
     dev::H2D(valuesA_d, matrixA.values().data(), matrixA.size());
-//    test<<<1, 1>>>(matrixA.size(), valuesA_d);
-//    matrixA.print();
     dev::H2D(valuesB_d, matrixB.values().data(), matrixA.size());
 
     const int numThreadPerBlock = 1024;
@@ -83,23 +83,22 @@ int main() {
 
     dim3 grid;
     dim3 block;
-    block.x = 128;
-    block.y = 4;
-    grid.x = (M + (WMMA_M * block.x / 32 - 1)) / (WMMA_M * block.x / 32);
-    grid.y = (N + WMMA_N * block.y - 1) / (WMMA_N * block.y);
-    printf("grid : [%d %d %d]\n", grid.x, grid.y, grid.z);
-
-//    test<<<1, 1>>>(matrixA.size(), valuesA_d);
+    block.x = WARP_SIZE;
+    block.y = WARP_SIZE;
+    const int numCountRowOfOutputMatrixPerBlock = (int) (WMMA_M * block.x / 32);
+    const int numCountColOfOutputMatrixPerBlock = (int) (WMMA_N * block.y);
+    grid.x = (M + numCountRowOfOutputMatrixPerBlock - 1) / numCountRowOfOutputMatrixPerBlock;
+    grid.y = (N + numCountColOfOutputMatrixPerBlock - 1) / numCountColOfOutputMatrixPerBlock;
+    printf("grid : [%d %d %d] block : [%d %d %d]\n", grid.x, grid.y, grid.z, block.x, block.y, block.z);
 
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
     comp_sddmm_gpu<<<grid, block>>>(M, N, K, valuesAfp16_d, valuesBfp16_d, valuesS_d, valuesP_d);
     timeCalculator.endClock();
-    std::cout << "Func compSddmm time : " << timeCalculator.getTime() << "ms" << std::endl;
+    std::cout << "Func comp_sddmm_gpu time : " << timeCalculator.getTime() << "ms" << std::endl;
 
     Matrix<float> matrixP_gpu_res_tmp(M, N, M * N, MatrixStorageOrder::row_major, N);
     dev::D2H(matrixP_gpu_res_tmp.setValues().data(), valuesP_d, matrixP_gpu_res_tmp.size());
-    matrixP_gpu_res_tmp.print();
 
     SparseMatrix<float> matrixP_gpu_res(matrixS.row(), matrixS.col(), matrixS.nnz(),
                                         matrixS.rowIndex(), matrixS.colIndex());
@@ -108,8 +107,8 @@ int main() {
     std::cout << "matrixP_gpu_res : " << std::endl;
     matrixP_gpu_res.print();
 
-    isratnisa::Matrix isratnisaMatrixS;
-    isratnisaMatrixS.copyFromMatrix(matrixS);
+//    isratnisa::Matrix isratnisaMatrixS;
+//    isratnisaMatrixS.copyFromMatrix(matrixS);
 
 //    float *valuesP_isratnisa = nullptr;
 //    preprocessing(isratnisaMatrixS, matrixA.values(), matrixB.values(), valuesP_isratnisa);
