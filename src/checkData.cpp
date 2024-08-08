@@ -3,7 +3,7 @@
 #include "host.hpp"
 #include "cudaErrorCheck.cuh"
 
-bool checkData(const int num, const float *data1, const float *data2) {
+bool checkData(const size_t num, const float *data1, const float *data2) {
     printf("\n---------------------------\n"
            "Checking results...\n");
 
@@ -35,7 +35,14 @@ bool checkData(const int num, const float *data1, const float *data2) {
     return true;
 }
 
-bool checkDevData(const int num, const float *dataDev1, const float *dataDev2) {
+bool checkData(const std::vector<float> &data1, const std::vector<float> &data2) {
+    if (data1.size() != data2.size()) {
+        return false;
+    }
+    return checkData(data1.size(), data1.data(), data2.data());
+}
+
+bool checkDevData(const size_t num, const float *dataDev1, const float *dataDev2) {
     auto dataHost1 = static_cast<float *>(malloc(num * sizeof(float)));
     auto dataHost2 = static_cast<float *>(malloc(num * sizeof(float)));
 
@@ -50,7 +57,7 @@ bool checkDevData(const int num, const float *dataDev1, const float *dataDev2) {
     return res;
 }
 
-bool checkData(const int num, const std::vector<float> &dataHost1, const float *dataDev2) {
+bool checkData(const size_t num, const std::vector<float> &dataHost1, const float *dataDev2) {
 
     auto dataHost2 = static_cast<float *>(malloc(num * sizeof(float)));
     cudaErrCheck(cudaMemcpy(dataHost2, dataDev2, num * sizeof(float), cudaMemcpyDeviceToHost));
@@ -62,7 +69,7 @@ bool checkData(const int num, const std::vector<float> &dataHost1, const float *
     return res;
 }
 
-bool checkData(const int num, const float *dataDev1, const std::vector<float> &dataHost2) {
+bool checkData(const size_t num, const float *dataDev1, const std::vector<float> &dataHost2) {
 
     auto dataHost1 = static_cast<float *>(malloc(num * sizeof(float)));
     cudaErrCheck(cudaMemcpy(dataHost1, dataDev1, num * sizeof(float), cudaMemcpyDeviceToHost));

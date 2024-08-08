@@ -14,9 +14,10 @@
 #include "host.hpp"
 
 const std::string folderPath("../dataset/");
-//const std::string fileName = ("nips.mtx");
-const std::string fileName = ("test3.mtx");
-const std::string filePath = folderPath + fileName;
+//const std::string fileName = ("nips");
+const std::string fileName = ("test3");
+const std::string fileFormat(".mtx");
+const std::string filePath = folderPath + fileName + fileFormat;
 
 int main() {
     SparseMatrix<float> matrixS;
@@ -55,8 +56,8 @@ int main() {
     // comp by cpu
     sddmm_cpu_coo(matrixA, matrixB, matrixS, matrixP_cpu_res);
 
-    std::cout << "matrixP_cpu_res.values() : " << std::endl;
-    matrixP_cpu_res.print();
+//    std::cout << "matrixP_cpu_res.values() : " << std::endl;
+//    matrixP_cpu_res.print();
 
     float *valuesA_d;
     half *valuesAfp16_d;
@@ -104,8 +105,12 @@ int main() {
                                         matrixS.rowIndex(), matrixS.colIndex());
     matrixP_gpu_res.setValuesFromMatrix(matrixP_gpu_res_tmp);
 
-    std::cout << "matrixP_gpu_res : " << std::endl;
-    matrixP_gpu_res.print();
+//    matrixP_gpu_res.outputToMarketMatrixFile("matrixP_gpu_res");
+
+    checkData(matrixP_cpu_res.values(),matrixP_gpu_res.values());
+
+//    std::cout << "matrixP_gpu_res : " << std::endl;
+//    matrixP_gpu_res.print();
 
 //    isratnisa::Matrix isratnisaMatrixS;
 //    isratnisaMatrixS.copyFromMatrix(matrixS);
