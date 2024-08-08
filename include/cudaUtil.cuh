@@ -3,6 +3,15 @@
 #include <vector>
 
 namespace dev {
+
+inline void cudaSync() {
+    cudaDeviceSynchronize();
+}
+
+inline void getErrorSync() {
+    printf("%s\n", cudaGetErrorString(cudaDeviceSynchronize()));
+}
+
 template<typename T>
 inline void H2D(T *dev, const T *host, const size_t size) {
     cudaMemcpy(dev, host, size * sizeof(T), cudaMemcpyHostToDevice);
