@@ -1,8 +1,20 @@
 #pragma once
 
+#include <cstdio>
+#include <cuda_runtime.h>
+
 #include <vector>
 
+namespace host {
+
+void sort_by_key(uint64_t *key_first, uint64_t *key_last, uint64_t *value_first);
+void sort_by_key(uint64_t *key_first, uint64_t *key_last, float *value_first);
+
+} // namespace host
+
 namespace dev {
+
+void sort_by_key(uint64_t *key_first, uint64_t *key_last, float *value_first);
 
 inline void cudaSync() {
     cudaDeviceSynchronize();
