@@ -270,9 +270,9 @@ void SparseMatrix<T>::makeData(const int row, const int col, const int nnz) {
     _values.resize(nnz);
 
     std::mt19937 generator;
-    std::uniform_int_distribution<int> distributionRow(0, row);
-    std::uniform_int_distribution<int> distributionCol(0, col);
-    std::uniform_real_distribution<T> distributionValue(0, 10);
+    std::uniform_int_distribution<int> distributionRow(0, row - 1);
+    std::uniform_int_distribution<int> distributionCol(0, col - 1);
+    std::uniform_real_distribution<T> distributionValue(0, 1);
 
     for (int idx = 0; idx < nnz; ++idx) {
         _rowIndex[idx] = distributionRow(generator);
