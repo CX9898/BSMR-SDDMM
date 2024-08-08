@@ -115,7 +115,7 @@ class SparseMatrix {
   ~SparseMatrix() = default;
 
   SparseMatrix(size_t row, size_t col, size_t nnz) : _row(row), _col(col), _nnz(nnz) {}
-  SparseMatrix(size_t row, size_t col, size_t nnz, const std::vector<int> &rowIndex, const std::vector<int> &colIndex)
+  SparseMatrix(size_t row, size_t col, size_t nnz, const std::vector<uint64_t> &rowIndex, const std::vector<uint64_t> &colIndex)
       : _row(row), _col(col), _nnz(nnz), _rowIndex(rowIndex), _colIndex(colIndex) { _values.resize(nnz); }
 
   /**
@@ -157,10 +157,10 @@ class SparseMatrix {
       return _col;
   }
 
-  const std::vector<int> &rowIndex() const {
+  const std::vector<uint64_t> &rowIndex() const {
       return _rowIndex;
   }
-  const std::vector<int> &colIndex() const {
+  const std::vector<uint64_t> &colIndex() const {
       return _colIndex;
   }
   const std::vector<T> &values() const {
@@ -176,8 +176,8 @@ class SparseMatrix {
   size_t _col;
   size_t _nnz;
 
-  std::vector<int> _rowIndex;
-  std::vector<int> _colIndex;
+  std::vector<uint64_t> _rowIndex;
+  std::vector<uint64_t> _colIndex;
   std::vector<T> _values;
 };
 
