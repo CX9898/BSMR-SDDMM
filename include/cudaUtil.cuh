@@ -8,7 +8,7 @@ inline void cudaSync() {
     cudaDeviceSynchronize();
 }
 
-inline void getErrorSync() {
+inline void printErrorStringSync() {
     printf("%s\n", cudaGetErrorString(cudaDeviceSynchronize()));
 }
 
