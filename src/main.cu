@@ -23,7 +23,8 @@ const std::string filePath = folderPath + fileName + fileFormat;
 
 int main() {
     SparseMatrix<float> matrixS;
-    matrixS.makeData(1504,1504,746316);
+    matrixS.makeData(1504, 1504, 746316);
+    matrixS.outputToMarketMatrixFile("matrixS");
 //    matrixS.initializeFromMatrixMarketFile(filePath);
 
     const int K = 16 * WMMA_K;
@@ -42,13 +43,13 @@ int main() {
     matrixS2D.initializeFromSparseMatrix(matrixS);
 
     Matrix<float> matrixA(M, K, MATRIX_A_SIZE, MatrixStorageOrder::row_major, K);
-    matrixA.makeData(M,K,MatrixStorageOrder::row_major);
+    matrixA.makeData(M, K);
 //    initial(matrixA.setValues(), M, K);
 //    std::cout << "matrixA : ";
 //    matrixA.print();
 
     Matrix<float> matrixB(K, N, MATRIX_B_SIZE, MatrixStorageOrder::row_major, N);
-    matrixB.makeData(M,K,MatrixStorageOrder::row_major);
+    matrixB.makeData(K, N);
 //    initial(matrixB.setValues(), N, K);
 //    std::cout << "matrixB : ";
 //    matrixB.print();

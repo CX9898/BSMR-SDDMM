@@ -5,6 +5,7 @@
 
 #include "Matrix.hpp"
 #include "util.hpp"
+#include "cudaUtil.cuh"
 
 template<typename T>
 bool SparseMatrix<T>::initializeFromMatrixMarketFile(const std::string &filePath) {
@@ -200,10 +201,10 @@ bool SparseMatrix<T>::outputToMarketMatrixFile(const std::string &fileName) {
     if (io::fileExists(fileString)) {
         std::cout << fileName + fileFormat << " file already exists" << std::endl;
         int fileId = 1;
-        while (io::fileExists(fileName + std::to_string(fileId) + fileFormat)) {
+        while (io::fileExists(fileName + "_" + std::to_string(fileId) + fileFormat)) {
             ++fileId;
         }
-        fileString = fileName + std::to_string(fileId) + fileFormat;
+        fileString = fileName + "_" + std::to_string(fileId) + fileFormat;
 
         std::cout << "Change file name form \"" << fileName + fileFormat
                   << "\" to \""
@@ -279,6 +280,15 @@ void SparseMatrix<T>::makeData(const int row, const int col, const int nnz) {
         _colIndex[idx] = distributionCol(generator);
         _values[idx] = distributionValue(generator);
     }
+
+    // TODO : change data order
+//    std::vector<uint64_t> rowIndexTmp(_rowIndex);
+//    host::sort_by_key(_rowIndex.data(), _rowIndex.data() + _rowIndex.size(), _colIndex.data());
+//    host::sort_by_key(rowIndexTmp.data(), rowIndexTmp.data() + rowIndexTmp.size(), _values.data());
+//
+//    std::vector<uint64_t> colIndexTmp(_colIndex);
+//    host::sort_by_key(_colIndex.data(), _colIndex.data() + _colIndex.size(), _rowIndex.data());
+//    host::sort_by_key(colIndexTmp.data(), colIndexTmp.data() + colIndexTmp.size(), _values.data());
 }
 
 template
