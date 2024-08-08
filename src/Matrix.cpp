@@ -179,6 +179,8 @@ bool SparseMatrix<T>::setValuesFromMatrix(const Matrix<T> &inputMatrix) {
 
         _values[idx] = inputMatrix.getOneValue(row, col);
     }
+
+    return true;
 }
 
 template<typename T>
@@ -234,6 +236,27 @@ bool SparseMatrix<T>::outputToMarketMatrixFile(const std::string &fileName) {
     }
 
     outfile.close();
+    return true;
+}
+
+template<typename T>
+void Matrix<T>::makeData(int row, size_t col, MatrixStorageOrder storageOrder = MatrixStorageOrder::row_major) {
+    _row = row;
+    _col = col;
+    _size = row * col;
+    _storageOrder = storageOrder;
+    if (storageOrder == MatrixStorageOrder::row_major) {
+        _leadingDimension = col;
+    } else {
+        _leadingDimension = row;
+    }
+    _values.resize(_size);
+
+    std::mt19937 generator;
+    std::uniform_real_distribution<T> distributionValue(0, 10);
+    for (int idx = 0; idx < _values.size(); ++idx) {
+        _values[idx] = distributionValue(generator);
+    }
 }
 
 template<typename T>

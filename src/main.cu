@@ -4,7 +4,7 @@
 #include <cuda_runtime.h>
 
 #include "Matrix.hpp"
-#include "sddmm.h"
+//#include "sddmm_isratnisa.h"
 #include "kernel.cuh"
 //#include "util_isratnisa.h"
 #include "wmmaSetting.hpp"
@@ -42,12 +42,14 @@ int main() {
     matrixS2D.initializeFromSparseMatrix(matrixS);
 
     Matrix<float> matrixA(M, K, MATRIX_A_SIZE, MatrixStorageOrder::row_major, K);
-    initial(matrixA.setValues(), M, K);
+    matrixA.makeData(M,K,MatrixStorageOrder::row_major);
+//    initial(matrixA.setValues(), M, K);
 //    std::cout << "matrixA : ";
 //    matrixA.print();
 
     Matrix<float> matrixB(K, N, MATRIX_B_SIZE, MatrixStorageOrder::row_major, N);
-    initial(matrixB.setValues(), N, K);
+    matrixB.makeData(M,K,MatrixStorageOrder::row_major);
+//    initial(matrixB.setValues(), N, K);
 //    std::cout << "matrixB : ";
 //    matrixB.print();
 

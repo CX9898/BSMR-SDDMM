@@ -65,6 +65,8 @@ class Matrix {
    **/
   T getOneValueForMultiplication(MatrixMultiplicationOrder multiplicationOrder, size_t row, size_t col, size_t k) const;
 
+  void makeData(int row, size_t col, MatrixStorageOrder storageOrder = MatrixStorageOrder::row_major);
+
   // TODO : Overloads operator <<
   void print();
 
@@ -127,7 +129,6 @@ class SparseMatrix {
   bool initializeFromMatrixMarketFile(const std::string &filePath);
 
   bool setValuesFromMatrix(const Matrix<T> &inputMatrix);
-
 
   void makeData(const int row, const int col, const int nnz);
 
