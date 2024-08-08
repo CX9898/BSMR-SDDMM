@@ -1,6 +1,6 @@
 #include <cstdio>
 
-#include "host.hpp"
+#include "checkData.hpp"
 #include "cudaErrorCheck.cuh"
 
 bool checkData(const size_t num, const float *data1, const float *data2) {
