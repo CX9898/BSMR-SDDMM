@@ -4,6 +4,10 @@
 
 namespace host {
 
+void sort(uint64_t *first, uint64_t *last) {
+    thrust::sort(thrust::host, first, last);
+}
+
 void sort_by_key(uint64_t *key_first, uint64_t *key_last, uint64_t *value_first) {
     thrust::sort_by_key(thrust::host, key_first, key_last, value_first);
 }

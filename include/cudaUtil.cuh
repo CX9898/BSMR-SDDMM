@@ -5,22 +5,7 @@
 
 #include <vector>
 
-namespace host {
-
-void sort_by_key(uint64_t *key_first, uint64_t *key_last, uint64_t *value_first);
-void sort_by_key(uint64_t *key_first, uint64_t *key_last, float *value_first);
-
-} // namespace host
-
-namespace dev {
-
-void sort_by_key(uint64_t *key_first, uint64_t *key_last, float *value_first);
-
-inline void cudaSync() {
-    cudaDeviceSynchronize();
-}
-
-inline void printErrorStringSync() {
+inline void printCudaErrorStringSync() {
     printf("%s\n", cudaGetErrorString(cudaDeviceSynchronize()));
 }
 
@@ -45,4 +30,21 @@ inline void D2H(std::vector<T> &host, const T *dev, const size_t size) {
     host.resize(size);
     cudaMemcpy(host.data(), dev, size * sizeof(T), cudaMemcpyDeviceToHost);
 }
+
+namespace host {
+
+void sort(uint64_t *first, uint64_t *last);
+void sort_by_key(uint64_t *key_first, uint64_t *key_last, uint64_t *value_first);
+void sort_by_key(uint64_t *key_first, uint64_t *key_last, float *value_first);
+
+} // namespace host
+
+namespace dev {
+
+void sort_by_key(uint64_t *key_first, uint64_t *key_last, float *value_first);
+
+inline void cudaSync() {
+    cudaDeviceSynchronize();
+}
+
 } // namespace dev
