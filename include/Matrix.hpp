@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+using UIN = uint64_t;
+
 enum MatrixStorageOrder {
   row_major,
   col_major
@@ -65,7 +67,7 @@ class Matrix {
    **/
   T getOneValueForMultiplication(MatrixMultiplicationOrder multiplicationOrder, size_t row, size_t col, size_t k) const;
 
-  void makeData(int row, size_t col, MatrixStorageOrder storageOrder = MatrixStorageOrder::row_major);
+  void makeData(int numRow, size_t numCol, MatrixStorageOrder storageOrder = MatrixStorageOrder::row_major);
 
   // TODO : Overloads operator <<
   void print();
@@ -115,7 +117,7 @@ class SparseMatrix {
   ~SparseMatrix() = default;
 
   SparseMatrix(size_t row, size_t col, size_t nnz) : _row(row), _col(col), _nnz(nnz) {}
-  SparseMatrix(size_t row, size_t col, size_t nnz, const std::vector<uint64_t> &rowIndex, const std::vector<uint64_t> &colIndex)
+  SparseMatrix(size_t row, size_t col, size_t nnz, const std::vector<UIN> &rowIndex, const std::vector<UIN> &colIndex)
       : _row(row), _col(col), _nnz(nnz), _rowIndex(rowIndex), _colIndex(colIndex) { _values.resize(nnz); }
 
   /**
@@ -157,10 +159,10 @@ class SparseMatrix {
       return _col;
   }
 
-  const std::vector<uint64_t> &rowIndex() const {
+  const std::vector<UIN> &rowIndex() const {
       return _rowIndex;
   }
-  const std::vector<uint64_t> &colIndex() const {
+  const std::vector<UIN> &colIndex() const {
       return _colIndex;
   }
   const std::vector<T> &values() const {
@@ -176,8 +178,8 @@ class SparseMatrix {
   size_t _col;
   size_t _nnz;
 
-  std::vector<uint64_t> _rowIndex;
-  std::vector<uint64_t> _colIndex;
+  std::vector<UIN> _rowIndex;
+  std::vector<UIN> _colIndex;
   std::vector<T> _values;
 };
 

@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <random>
+#include <set>
 
 #include "Matrix.hpp"
 #include "util.hpp"
@@ -91,7 +92,7 @@ void Matrix<T>::changeStorageOrder() {
 
     MatrixStorageOrder newMatrixOrder;
     size_t newLd;
-    std::vector<float> newValues(_size);
+    std::vector<T> newValues(_size);
     if (oldMajorOrder == MatrixStorageOrder::row_major) {
         newMatrixOrder = MatrixStorageOrder::col_major;
         newLd = _row;
@@ -241,55 +242,84 @@ bool SparseMatrix<T>::outputToMarketMatrixFile(const std::string &fileName) {
 }
 
 template<typename T>
-void Matrix<T>::makeData(int row, size_t col, MatrixStorageOrder storageOrder = MatrixStorageOrder::row_major) {
-    _row = row;
-    _col = col;
-    _size = row * col;
+void Matrix<T>::makeData(int numRow, size_t numCol, MatrixStorageOrder storageOrder) {
+    _row = numRow;
+    _col = numCol;
+    _size = numRow * numCol;
     _storageOrder = storageOrder;
     if (storageOrder == MatrixStorageOrder::row_major) {
-        _leadingDimension = col;
+        _leadingDimension = numCol;
     } else {
-        _leadingDimension = row;
+        _leadingDimension = numRow;
     }
     _values.resize(_size);
 
     std::mt19937 generator;
-    std::uniform_real_distribution<T> distributionValue(0, 10);
     for (int idx = 0; idx < _values.size(); ++idx) {
-        _values[idx] = distributionValue(generator);
+        _values[idx] = getRandomData<T>(generator, 0, 10);
     }
 }
 
 template<typename T>
-void SparseMatrix<T>::makeData(const int row, const int col, const int nnz) {
-    _row = row;
-    _col = col;
+void SparseMatrix<T>::makeData(const int numRow, const int numCol, const int nnz) {
+    _row = numRow;
+    _col = numCol;
     _nnz = nnz;
 
     _rowIndex.resize(nnz);
     _colIndex.resize(nnz);
     _values.resize(nnz);
 
+    // make data
     std::mt19937 generator;
-    std::uniform_int_distribution<int> distributionRow(0, row - 1);
-    std::uniform_int_distribution<int> distributionCol(0, col - 1);
-    std::uniform_real_distribution<T> distributionValue(0, 1);
+//    std::uniform_int_distribution<UIN> distributionRow(0, numRow - 1);
+//    std::uniform_int_distribution<UIN> distributionCol(0, numCol - 1);
+//    std::uniform_real_distribution<T> distributionValue(0, 1);
+    std::set<std::pair<UIN, UIN>> rowColSet;
+    for (UIN idx = 0; idx < nnz; ++idx) {
 
-    for (int idx = 0; idx < nnz; ++idx) {
-        _rowIndex[idx] = distributionRow(generator);
-        _colIndex[idx] = distributionCol(generator);
-        _values[idx] = distributionValue(generator);
+        UIN row = getRandomData<UIN>(generator, 0, numRow - 1);
+        UIN col = getRandomData<UIN>(generator, 0, numCol - 1);
+        std::pair<UIN, UIN> rowColPair(row, col);
+        auto findSet = rowColSet.find(rowColPair);
+        while (findSet != rowColSet.end()) {
+            row = getRandomData<UIN>(generator, 0, numRow - 1);
+            col = getRandomData<UIN>(generator, 0, numCol - 1);
+            rowColPair.first = row;
+            rowColPair.second = col;
+            findSet = rowColSet.find(rowColPair);
+        }
+
+        rowColSet.insert(rowColPair);
+
+        _rowIndex[idx] = row;
+        _colIndex[idx] = col;
+        _values[idx] = getRandomData<T>(generator, 0, 10);
     }
 
-    // TODO : change data order
-//    std::vector<uint64_t> rowIndexTmp(_rowIndex);
-//    host::sort_by_key(_rowIndex.data(), _rowIndex.data() + _rowIndex.size(), _colIndex.data());
-//    host::sort_by_key(rowIndexTmp.data(), rowIndexTmp.data() + rowIndexTmp.size(), _values.data());
-//
-//    std::vector<uint64_t> colIndexTmp(_colIndex);
-//    host::sort_by_key(_colIndex.data(), _colIndex.data() + _colIndex.size(), _rowIndex.data());
-//    host::sort_by_key(colIndexTmp.data(), colIndexTmp.data() + colIndexTmp.size(), _values.data());
+    // sort rowIndex and colIndex
+    host::sort_by_key(_rowIndex.data(), _rowIndex.data() + _rowIndex.size(), _colIndex.data());
+    UIN lastRowNumber = _rowIndex[0];
+    UIN lastBegin = 0;
+    for (UIN idx = 0; idx < _nnz; ++idx) {
+        const UIN curRowNumber = _rowIndex[idx];
+        if (curRowNumber != lastRowNumber) { // new row
+            host::sort(_colIndex.data() + lastBegin, _colIndex.data() + idx);
+
+            lastBegin = idx + 1;
+            lastRowNumber = curRowNumber;
+        }
+
+        if (idx == _nnz - 1) {
+            host::sort(_colIndex.data() + lastBegin, _colIndex.data() + _colIndex.size());
+        }
+    }
 }
+
+template
+class Matrix<int>;
+template
+class SparseMatrix<int>;
 
 template
 class Matrix<float>;
