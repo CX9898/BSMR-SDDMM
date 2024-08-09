@@ -37,6 +37,71 @@ void sddmm_cpu_coo(
 
 #pragma omp parallel for
     for (int matrixSIdx = 0; matrixSIdx < matrixS.nnz(); ++matrixSIdx) {
+        const UIN row = matrixS.rowIndex()[matrixSIdx];
+        const UIN col = matrixS.colIndex()[matrixSIdx];
+
+        float val = 0.0f;
+        const int K = matrixA.col();
+//        for(int kIter = 0; kIter < K; ++kIter){
+//            val += matrixA.values()[row * matrixA.ld() + kIter] * matrixB.values()[kIter * matrixB.ld() + col];
+//        }
+
+        for (int kIter = 0; kIter < K; ++kIter) {
+            const auto valA = matrixA.getOneValueForMultiplication(
+                MatrixMultiplicationOrder::left_multiplication,
+                row, col, kIter);
+            const auto valB = matrixB.getOneValueForMultiplication(
+                MatrixMultiplicationOrder::right_multiplication,
+                row, col, kIter);
+            val += valA * valB;
+        }
+
+//        val *= matrixS.values()[matrixSIdx];
+        matrixP.setValues()[matrixSIdx] = val;
+    }
+}
+
+template<typename T>
+void sddmm_cpu_coo(
+    const Matrix<T> &matrixA,
+    const Matrix<T> &matrixB,
+    const SparseMatrix<T> &matrixS,
+    SparseMatrix<T> &matrixP) {
+
+#pragma omp parallel for
+    for (int matrixSIdx = 0; matrixSIdx < matrixS.nnz(); ++matrixSIdx) {
+        const UIN row = matrixS.rowIndex()[matrixSIdx];
+        const UIN col = matrixS.colIndex()[matrixSIdx];
+
+        T val = 0.0f;
+        const int K = matrixA.col();
+//        for(int kIter = 0; kIter < K; ++kIter){
+//            val += matrixA.values()[row * matrixA.ld() + kIter] * matrixB.values()[kIter * matrixB.ld() + col];
+//        }
+
+        for (int kIter = 0; kIter < K; ++kIter) {
+            const auto valA = matrixA.getOneValueForMultiplication(
+                MatrixMultiplicationOrder::left_multiplication,
+                row, col, kIter);
+            const auto valB = matrixB.getOneValueForMultiplication(
+                MatrixMultiplicationOrder::right_multiplication,
+                row, col, kIter);
+            val += valA * valB;
+        }
+
+//        val *= matrixS.values()[matrixSIdx];
+        matrixP.setValues()[matrixSIdx] = val;
+    }
+}
+
+void sddmm_cpu_coo(
+    const Matrix<float> &matrixA,
+    const Matrix<float> &matrixB,
+    const SparseMatrix<int> &matrixS,
+    SparseMatrix<int> &matrixP) {
+
+#pragma omp parallel for
+    for (int matrixSIdx = 0; matrixSIdx < matrixS.nnz(); ++matrixSIdx) {
         const int row = matrixS.rowIndex()[matrixSIdx];
         const int col = matrixS.colIndex()[matrixSIdx];
 
