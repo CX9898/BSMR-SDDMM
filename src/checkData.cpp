@@ -19,7 +19,7 @@ bool checkData(const size_t num, const float *data1, const float *data2) {
         if (relativeErr >= eps) {
             ++errors;
             if (errors < 10) {
-                printf("Error : idx = %d data1 = %f, data2 = %f\n", idx, oneData1, oneData2);
+                printf("Error : idx = %d, data1 = %f, data2 = %f\n", idx, oneData1, oneData2);
             }
         }
     }
