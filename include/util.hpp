@@ -19,6 +19,8 @@ inline bool fileExists(const std::string &filename) {
 }
 } // namespace io
 
+template<typename T>
+T getRandomData(std::mt19937 &generator, T min, T max);
 
 /**
  *
