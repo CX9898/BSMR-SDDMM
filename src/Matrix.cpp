@@ -13,9 +13,11 @@ bool SparseMatrix<T>::initializeFromMatrixMarketFile(const std::string &filePath
     std::ifstream inFile;
     inFile.open(filePath, std::ios::in); // open file
     if (!inFile.is_open()) {
-        std::cout << "Error, Matrix Market file cannot be opened." << std::endl;
+        std::cerr << "Error, Matrix Market file cannot be opened : " << filePath << std::endl;
         return false;
     }
+
+    std::cout << "SparseMatrix initialize From MatrixMarketFile : " << filePath << std::endl;
 
     std::string line; // Store the data for each line
     getline(inFile, line); // First line does not operate
@@ -242,7 +244,7 @@ bool SparseMatrix<T>::outputToMarketMatrixFile(const std::string &fileName) {
 }
 
 template<typename T>
-void Matrix<T>::makeData(int numRow, size_t numCol, MatrixStorageOrder storageOrder) {
+void Matrix<T>::makeData(size_t numRow, size_t numCol, MatrixStorageOrder storageOrder) {
     _row = numRow;
     _col = numCol;
     _size = numRow * numCol;
@@ -255,13 +257,35 @@ void Matrix<T>::makeData(int numRow, size_t numCol, MatrixStorageOrder storageOr
     _values.resize(_size);
 
     std::mt19937 generator;
+
+    std::uniform_real_distribution<T> distribution(0, 10);
     for (int idx = 0; idx < _values.size(); ++idx) {
-        _values[idx] = getRandomData<T>(generator, 0, 10);
+        _values[idx] = distribution(generator);
+    }
+}
+
+template<>
+void Matrix<int>::makeData(size_t numRow, size_t numCol, MatrixStorageOrder storageOrder) {
+    _row = numRow;
+    _col = numCol;
+    _size = numRow * numCol;
+    _storageOrder = storageOrder;
+    if (storageOrder == MatrixStorageOrder::row_major) {
+        _leadingDimension = numCol;
+    } else {
+        _leadingDimension = numRow;
+    }
+    _values.resize(_size);
+
+    std::mt19937 generator;
+    std::uniform_int_distribution<int> distributionCol(0, 100);
+    for (int idx = 0; idx < _values.size(); ++idx) {
+        _values[idx] = distributionCol(generator);
     }
 }
 
 template<typename T>
-void SparseMatrix<T>::makeData(const int numRow, const int numCol, const int nnz) {
+void SparseMatrix<T>::makeData(const size_t numRow, const size_t numCol, const size_t nnz) {
     _row = numRow;
     _col = numCol;
     _nnz = nnz;
@@ -272,19 +296,18 @@ void SparseMatrix<T>::makeData(const int numRow, const int numCol, const int nnz
 
     // make data
     std::mt19937 generator;
-//    std::uniform_int_distribution<UIN> distributionRow(0, numRow - 1);
-//    std::uniform_int_distribution<UIN> distributionCol(0, numCol - 1);
-//    std::uniform_real_distribution<T> distributionValue(0, 1);
+    std::uniform_int_distribution<UIN> distributionRow(0, numRow - 1);
+    std::uniform_int_distribution<UIN> distributionCol(0, numCol - 1);
+    std::uniform_real_distribution<T> distributionValue(0, 10);
     std::set<std::pair<UIN, UIN>> rowColSet;
     for (UIN idx = 0; idx < nnz; ++idx) {
-
-        UIN row = getRandomData<UIN>(generator, 0, numRow - 1);
-        UIN col = getRandomData<UIN>(generator, 0, numCol - 1);
+        UIN row = distributionRow(generator);
+        UIN col = distributionCol(generator);
         std::pair<UIN, UIN> rowColPair(row, col);
         auto findSet = rowColSet.find(rowColPair);
         while (findSet != rowColSet.end()) {
-            row = getRandomData<UIN>(generator, 0, numRow - 1);
-            col = getRandomData<UIN>(generator, 0, numCol - 1);
+            row = distributionRow(generator);
+            col = distributionCol(generator);
             rowColPair.first = row;
             rowColPair.second = col;
             findSet = rowColSet.find(rowColPair);
@@ -294,7 +317,62 @@ void SparseMatrix<T>::makeData(const int numRow, const int numCol, const int nnz
 
         _rowIndex[idx] = row;
         _colIndex[idx] = col;
-        _values[idx] = getRandomData<T>(generator, 0, 10);
+        _values[idx] = distributionValue(generator);
+    }
+
+    // sort rowIndex and colIndex
+    host::sort_by_key(_rowIndex.data(), _rowIndex.data() + _rowIndex.size(), _colIndex.data());
+    UIN lastRowNumber = _rowIndex[0];
+    UIN lastBegin = 0;
+    for (UIN idx = 0; idx < _nnz; ++idx) {
+        const UIN curRowNumber = _rowIndex[idx];
+        if (curRowNumber != lastRowNumber) { // new row
+            host::sort(_colIndex.data() + lastBegin, _colIndex.data() + idx);
+
+            lastBegin = idx + 1;
+            lastRowNumber = curRowNumber;
+        }
+
+        if (idx == _nnz - 1) {
+            host::sort(_colIndex.data() + lastBegin, _colIndex.data() + _colIndex.size());
+        }
+    }
+}
+
+template<>
+void SparseMatrix<int>::makeData(const size_t numRow, const size_t numCol, const size_t nnz) {
+    _row = numRow;
+    _col = numCol;
+    _nnz = nnz;
+
+    _rowIndex.resize(nnz);
+    _colIndex.resize(nnz);
+    _values.resize(nnz);
+
+    // make data
+    std::mt19937 generator;
+    std::uniform_int_distribution<UIN> distributionRow(0, numRow - 1);
+    std::uniform_int_distribution<UIN> distributionCol(0, numCol - 1);
+    std::uniform_int_distribution<int> distributionValue(0, 10);
+    std::set<std::pair<UIN, UIN>> rowColSet;
+    for (UIN idx = 0; idx < nnz; ++idx) {
+        UIN row = distributionRow(generator);
+        UIN col = distributionCol(generator);
+        std::pair<UIN, UIN> rowColPair(row, col);
+        auto findSet = rowColSet.find(rowColPair);
+        while (findSet != rowColSet.end()) {
+            row = distributionRow(generator);
+            col = distributionCol(generator);
+            rowColPair.first = row;
+            rowColPair.second = col;
+            findSet = rowColSet.find(rowColPair);
+        }
+
+        rowColSet.insert(rowColPair);
+
+        _rowIndex[idx] = row;
+        _colIndex[idx] = col;
+        _values[idx] = distributionValue(generator);
     }
 
     // sort rowIndex and colIndex

@@ -17,15 +17,24 @@
 const std::string folderPath("../dataset/");
 //const std::string fileName = ("nips");
 //const std::string fileName = ("nips_wmma");
-const std::string fileName = ("test3");
+//const std::string fileName = ("test3");
+const std::string fileName = ("matrixTmp_8000_8000_2560000");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 
 int main() {
+//    // make sparse matrix data
+//    SparseMatrix<int> matrixTmp;
+//    const int makeDataRow = 500 * WMMA_M;
+//    const int makeDataCol = 500 * WMMA_N;
+//    const float sparsity = 0.04f;
+//    const int makeDataNNZ = (int) ((makeDataRow * makeDataCol) * sparsity);
+////    const int makeDataNNZ = 746316;
+//    matrixTmp.makeData(makeDataRow, makeDataCol, makeDataNNZ);
+//    matrixTmp.outputToMarketMatrixFile("matrixTmp");
+
     SparseMatrix<float> matrixS;
-    matrixS.makeData(1504, 1504, 746316);
-    matrixS.outputToMarketMatrixFile("matrixS");
-//    matrixS.initializeFromMatrixMarketFile(filePath);
+    matrixS.initializeFromMatrixMarketFile(filePath);
 
     const int K = 16 * WMMA_K;
 //    const int K = 17;
@@ -34,7 +43,9 @@ int main() {
     const int MATRIX_A_SIZE = M * K;
     const int MATRIX_B_SIZE = K * N;
 
-    std::cout << "M : " << M << ", N : " << N << ", K : " << K << std::endl;
+    const float matrixSSparsity = 1 / (M * N / (float) matrixS.nnz());
+    std::cout << "M : " << M << ", N : " << N << ", K : " << K << ", nnz : " << matrixS.nnz() << ", sparsity : "
+              << (1 - matrixSSparsity) * 100 << "%" << std::endl;
 
 //    std::cout << "matrixS : " << std::endl;
 //    matrixS.print();
@@ -43,13 +54,13 @@ int main() {
     matrixS2D.initializeFromSparseMatrix(matrixS);
 
     Matrix<float> matrixA(M, K, MATRIX_A_SIZE, MatrixStorageOrder::row_major, K);
-    matrixA.makeData(M, K);
+    matrixA.makeData(M, K, MatrixStorageOrder::row_major);
 //    initial(matrixA.setValues(), M, K);
 //    std::cout << "matrixA : ";
 //    matrixA.print();
 
     Matrix<float> matrixB(K, N, MATRIX_B_SIZE, MatrixStorageOrder::row_major, N);
-    matrixB.makeData(K, N);
+    matrixB.makeData(K, N, MatrixStorageOrder::row_major);
 //    initial(matrixB.setValues(), N, K);
 //    std::cout << "matrixB : ";
 //    matrixB.print();
@@ -80,8 +91,8 @@ int main() {
     cudaErrCheck(cudaMalloc(reinterpret_cast<void **>(&valuesS_d), matrixS2D.size() * sizeof(float)));
     cudaErrCheck(cudaMalloc(reinterpret_cast<void **>(&valuesP_d), matrixS2D.size() * sizeof(float)));
 
-    dev::H2D(valuesA_d, matrixA.values().data(), matrixA.size());
-    dev::H2D(valuesB_d, matrixB.values().data(), matrixA.size());
+    H2D(valuesA_d, matrixA.values().data(), matrixA.size());
+    H2D(valuesB_d, matrixB.values().data(), matrixA.size());
 
     const int numThreadPerBlock = 1024;
     convertFp32ToFp16<<< (matrixA.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
@@ -97,7 +108,7 @@ int main() {
     const int numCountColOfOutputMatrixPerBlock = (int) (WMMA_N * block.y);
     grid.x = (M + numCountRowOfOutputMatrixPerBlock - 1) / numCountRowOfOutputMatrixPerBlock;
     grid.y = (N + numCountColOfOutputMatrixPerBlock - 1) / numCountColOfOutputMatrixPerBlock;
-    printf("grid : [%d %d %d] block : [%d %d %d]\n", grid.x, grid.y, grid.z, block.x, block.y, block.z);
+//    printf("grid : [%d %d %d] block : [%d %d %d]\n", grid.x, grid.y, grid.z, block.x, block.y, block.z);
 
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
@@ -105,10 +116,11 @@ int main() {
     comp_sddmm_gpu<<<grid, block>>>(M, N, K, valuesAfp16_d, valuesBfp16_d, valuesS_d, valuesP_d);
 
     timeCalculator.endClock();
-    std::cout << "Func comp_sddmm_gpu time : " << timeCalculator.getTime() << "ms" << std::endl;
+    std::cout << "Func comp_sddmm_gpu time : " << timeCalculator.getTime() << " ms" << std::endl;
+    std::cout << "sddmm_zcx time : " << timeCalculator.getTime() << " ms" << std::endl;
 
     Matrix<float> matrixP_gpu_res_tmp(M, N, M * N, MatrixStorageOrder::row_major, N);
-    dev::D2H(matrixP_gpu_res_tmp.setValues().data(), valuesP_d, matrixP_gpu_res_tmp.size());
+    D2H(matrixP_gpu_res_tmp.setValues().data(), valuesP_d, matrixP_gpu_res_tmp.size());
 
     SparseMatrix<float> matrixP_gpu_res(matrixS.row(), matrixS.col(), matrixS.nnz(),
                                         matrixS.rowIndex(), matrixS.colIndex());
