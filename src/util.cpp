@@ -4,6 +4,17 @@
 
 #include "util.hpp"
 
+template<typename T>
+std::uniform_real_distribution<T> createRandomUniformDistribution(T min, T max) {
+    std::uniform_real_distribution<float> distribution(min, max);
+    return distribution;
+}
+template<typename T>
+std::uniform_int_distribution<int> createRandomUniformDistribution(int min, int max) {
+    std::uniform_int_distribution<int> distribution(min, max);
+    return distribution;
+}
+
 template<>
 float getRandomData(std::mt19937 &generator, float min, float max) {
     std::uniform_real_distribution<float> distribution(min, max);
@@ -14,14 +25,12 @@ float getRandomData(std::mt19937 &generator, float min, float max) {
 template<>
 int getRandomData(std::mt19937 &generator, int min, int max) {
     std::uniform_int_distribution<int> distribution(min, max);
-
     return distribution(generator);
 }
 
 template<>
 uint64_t getRandomData(std::mt19937 &generator, uint64_t min, uint64_t max) {
     std::uniform_int_distribution<uint64_t> distribution(min, max);
-
     return distribution(generator);
 }
 
