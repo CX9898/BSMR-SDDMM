@@ -6,7 +6,7 @@
 #include <vector>
 
 inline void printCudaErrorStringSync() {
-    printf("%s\n", cudaGetErrorString(cudaDeviceSynchronize()));
+    fprintf(stderr, "CUDA Error : %s\n", cudaGetErrorString(cudaDeviceSynchronize()));
 }
 
 template<typename T>
