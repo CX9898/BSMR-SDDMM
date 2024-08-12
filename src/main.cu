@@ -13,6 +13,7 @@
 #include "CudaTimeCalculator.cuh"
 #include "host.hpp"
 #include "checkData.hpp"
+#include "devVector.cuh"
 
 const std::string folderPath("../dataset/");
 //const std::string fileName = ("nips");
@@ -77,28 +78,21 @@ int main() {
 //    std::cout << "matrixP_cpu_res.values() : " << std::endl;
 //    matrixP_cpu_res.print();
 
-    float *valuesA_d;
-    half *valuesAfp16_d;
-    float *valuesB_d;
-    half *valuesBfp16_d;
-    float *valuesS_d;
-    float *valuesP_d;
+    dev::vector<float> valuesA_d(matrixA.size());
+    dev::vector<half> valuesAfp16_d(matrixA.size());
+    dev::vector<float> valuesB_d(matrixB.size());
+    dev::vector<half> valuesBfp16_d(matrixB.size());
+    dev::vector<float> valuesS_d(matrixS2D.size());
+    dev::vector<float> valuesP_d(matrixS2D.size());
 
-    cudaErrCheck(cudaMalloc(reinterpret_cast<void **>(&valuesA_d), matrixA.size() * sizeof(float)));
-    cudaErrCheck(cudaMalloc(reinterpret_cast<void **>(&valuesAfp16_d), matrixA.size() * sizeof(half)));
-    cudaErrCheck(cudaMalloc(reinterpret_cast<void **>(&valuesB_d), matrixB.size() * sizeof(float)));
-    cudaErrCheck(cudaMalloc(reinterpret_cast<void **>(&valuesBfp16_d), matrixB.size() * sizeof(half)));
-    cudaErrCheck(cudaMalloc(reinterpret_cast<void **>(&valuesS_d), matrixS2D.size() * sizeof(float)));
-    cudaErrCheck(cudaMalloc(reinterpret_cast<void **>(&valuesP_d), matrixS2D.size() * sizeof(float)));
-
-    H2D(valuesA_d, matrixA.values().data(), matrixA.size());
-    H2D(valuesB_d, matrixB.values().data(), matrixA.size());
+    H2D(valuesA_d.data(), matrixA.values().data(), matrixA.size());
+    H2D(valuesB_d.data(), matrixB.values().data(), matrixA.size());
 
     const int numThreadPerBlock = 1024;
     convertFp32ToFp16<<< (matrixA.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
-        matrixA.size(), valuesA_d, valuesAfp16_d);
+        matrixA.size(), valuesA_d.data(), valuesAfp16_d.data());
     convertFp32ToFp16<<< (matrixB.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
-        matrixB.size(), valuesB_d, valuesBfp16_d);
+        matrixB.size(), valuesB_d.data(), valuesBfp16_d.data());
 
     dim3 grid;
     dim3 block;
@@ -113,14 +107,15 @@ int main() {
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
 
-    comp_sddmm_gpu<<<grid, block>>>(M, N, K, valuesAfp16_d, valuesBfp16_d, valuesS_d, valuesP_d);
+    comp_sddmm_gpu<<<grid, block>>>(M, N, K,
+                                    valuesAfp16_d.data(), valuesBfp16_d.data(), valuesS_d.data(), valuesP_d.data());
 
     timeCalculator.endClock();
     std::cout << "Func comp_sddmm_gpu time : " << timeCalculator.getTime() << " ms" << std::endl;
     std::cout << "sddmm_zcx time : " << timeCalculator.getTime() << " ms" << std::endl;
 
     Matrix<float> matrixP_gpu_res_tmp(M, N, M * N, MatrixStorageOrder::row_major, N);
-    D2H(matrixP_gpu_res_tmp.setValues().data(), valuesP_d, matrixP_gpu_res_tmp.size());
+    D2H(matrixP_gpu_res_tmp.setValues().data(), valuesP_d.data(), matrixP_gpu_res_tmp.size());
 
     SparseMatrix<float> matrixP_gpu_res(matrixS.row(), matrixS.col(), matrixS.nnz(),
                                         matrixS.rowIndex(), matrixS.colIndex());
@@ -138,13 +133,6 @@ int main() {
 
 //    float *valuesP_isratnisa = nullptr;
 //    preprocessing(isratnisaMatrixS, matrixA.values(), matrixB.values(), valuesP_isratnisa);
-
-    cudaFree(valuesA_d);
-    cudaFree(valuesAfp16_d);
-    cudaFree(valuesB_d);
-    cudaFree(valuesBfp16_d);
-    cudaFree(valuesS_d);
-    cudaFree(valuesP_d);
 
     return 0;
 }
