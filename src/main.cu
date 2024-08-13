@@ -17,12 +17,16 @@
 
 const std::string folderPath("../dataset/");
 //const std::string fileName = ("nips");
-//const std::string fileName = ("nips_wmma");
-//const std::string fileName = ("test3");
 const std::string fileName = ("matrixTmp_8000_8000_2560000");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 
+// TODO :
+//      1: 将 comp_sddmm_gpu 全部使用 Tensor core 执行
+//      2: 测试不同尺寸的 wmma 的速度表现
+//      3: 测试使用稀疏度比较器的速度表现
+//              稀疏度大于50%使用 israt 的方法
+//              稀疏度小于50%使用 Tensor core 方法
 int main() {
 //    // make sparse matrix data
 //    SparseMatrix<int> matrixTmp;
