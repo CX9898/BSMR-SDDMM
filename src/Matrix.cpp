@@ -24,17 +24,17 @@ bool SparseMatrix<T>::initializeFromMatrixMarketFile(const std::string &filePath
 
     getline(inFile, line);
     int wordIter = 0;
-    _row = std::stoi(iterateOneWordFromLine(line, wordIter));
-    _col = std::stoi(iterateOneWordFromLine(line, wordIter));
-    _nnz = std::stoi(iterateOneWordFromLine(line, wordIter));
+    row_ = std::stoi(iterateOneWordFromLine(line, wordIter));
+    col_ = std::stoi(iterateOneWordFromLine(line, wordIter));
+    nnz_ = std::stoi(iterateOneWordFromLine(line, wordIter));
 
     if (wordIter < line.size()) {
         std::cerr << "Error, Matrix Market file " << line << " line format is incorrect!" << std::endl;
     }
 
-    _rowIndex.resize(_nnz);
-    _colIndex.resize(_nnz);
-    _values.resize(_nnz);
+    rowIndex_.resize(nnz_);
+    colIndex_.resize(nnz_);
+    values_.resize(nnz_);
 
     int idx = 0;
     while (getline(inFile, line)) {
@@ -47,9 +47,9 @@ bool SparseMatrix<T>::initializeFromMatrixMarketFile(const std::string &filePath
             std::cerr << "Error, Matrix Market file " << line << " line format is incorrect!" << std::endl;
         }
 
-        _rowIndex[idx] = row;
-        _colIndex[idx] = col;
-        _values[idx] = val;
+        rowIndex_[idx] = row;
+        colIndex_[idx] = col;
+        values_[idx] = val;
 
         ++idx;
     }
@@ -61,26 +61,26 @@ bool SparseMatrix<T>::initializeFromMatrixMarketFile(const std::string &filePath
 
 template<typename T>
 bool Matrix<T>::initializeFromSparseMatrix(const SparseMatrix<T> &matrixS) {
-    _row = matrixS.row();
-    _col = matrixS.col();
+    row_ = matrixS.row();
+    col_ = matrixS.col();
     const int size = matrixS.row() * matrixS.col();
-    _size = size;
-    _storageOrder = MatrixStorageOrder::row_major;
+    size_ = size;
+    storageOrder_ = MatrixStorageOrder::row_major;
     const int ld = matrixS.col();
-    _leadingDimension = ld;
+    leadingDimension_ = ld;
 
     const auto &rowIndexS = matrixS.rowIndex();
     const auto &colIndexS = matrixS.colIndex();
     const auto &valuesS = matrixS.values();
 
-    _values.clear();
-    _values.resize(size);
+    values_.clear();
+    values_.resize(size);
     for (int idx = 0; idx < matrixS.nnz(); ++idx) {
         const int row = rowIndexS[idx];
         const int col = colIndexS[idx];
         const auto val = valuesS[idx];
 
-        _values[row * ld + col] = val;
+        values_[row * ld + col] = val;
     }
 
     return true;
@@ -88,16 +88,16 @@ bool Matrix<T>::initializeFromSparseMatrix(const SparseMatrix<T> &matrixS) {
 
 template<typename T>
 void Matrix<T>::changeStorageOrder() {
-    const auto oldMajorOrder = _storageOrder;
-    const auto oldLd = _leadingDimension;
-    const auto &oldValues = _values;
+    const auto oldMajorOrder = storageOrder_;
+    const auto oldLd = leadingDimension_;
+    const auto &oldValues = values_;
 
     MatrixStorageOrder newMatrixOrder;
     size_t newLd;
-    std::vector<T> newValues(_size);
+    std::vector<T> newValues(size_);
     if (oldMajorOrder == MatrixStorageOrder::row_major) {
         newMatrixOrder = MatrixStorageOrder::col_major;
-        newLd = _row;
+        newLd = row_;
 
         for (int idx = 0; idx < oldValues.size(); ++idx) {
             const int row = idx / oldLd;
@@ -108,36 +108,36 @@ void Matrix<T>::changeStorageOrder() {
         }
     } else if (oldMajorOrder == MatrixStorageOrder::col_major) {
         newMatrixOrder = MatrixStorageOrder::row_major;
-        newLd = _col;
+        newLd = col_;
 
-        for (int idx = 0; idx < _values.size(); ++idx) {
+        for (int idx = 0; idx < values_.size(); ++idx) {
             const int col = idx / oldLd;
             const int row = idx % oldLd;
-            const auto val = _values[idx];
+            const auto val = values_[idx];
 
             newValues[row * newLd + col] = val;
         }
     }
 
-    _storageOrder = newMatrixOrder;
-    _leadingDimension = newLd;
-    _values = newValues;
+    storageOrder_ = newMatrixOrder;
+    leadingDimension_ = newLd;
+    values_ = newValues;
 }
 
 template<typename T>
 void SparseMatrix<T>::print() {
     std::cout << "SparseMatrix : [row,col,value]" << std::endl;
-    for (int idx = 0; idx < _nnz; ++idx) {
-        std::cout << "[" << _rowIndex[idx] << ","
-                  << _colIndex[idx] << ","
-                  << _values[idx] << "] ";
+    for (int idx = 0; idx < nnz_; ++idx) {
+        std::cout << "[" << rowIndex_[idx] << ","
+                  << colIndex_[idx] << ","
+                  << values_[idx] << "] ";
     }
     std::cout << std::endl;
 }
 
 template<typename T>
 void Matrix<T>::print() {
-    for (auto iter : _values) {
+    for (auto iter : values_) {
         std::cout << iter << " ";
     }
     std::cout << std::endl;
@@ -149,39 +149,39 @@ T Matrix<T>::getOneValueForMultiplication(MatrixMultiplicationOrder multiplicati
                                           size_t col,
                                           size_t k) const {
     if (multiplicationOrder == MatrixMultiplicationOrder::left_multiplication) {
-        if (_storageOrder == MatrixStorageOrder::row_major) {
-            return _values[row * _leadingDimension + k];
+        if (storageOrder_ == MatrixStorageOrder::row_major) {
+            return values_[row * leadingDimension_ + k];
         } else {
-            return _values[k * _leadingDimension + row];
+            return values_[k * leadingDimension_ + row];
         }
     } else {
-        if (_storageOrder == MatrixStorageOrder::row_major) {
-            return _values[k * _leadingDimension + col];
+        if (storageOrder_ == MatrixStorageOrder::row_major) {
+            return values_[k * leadingDimension_ + col];
         } else {
-            return _values[col * _leadingDimension + k];
+            return values_[col * leadingDimension_ + k];
         }
     }
 }
 
 template<typename T>
 T Matrix<T>::getOneValue(int row, int col) const {
-    if (_storageOrder == MatrixStorageOrder::row_major) {
-        return _values[row * _leadingDimension + col];
+    if (storageOrder_ == MatrixStorageOrder::row_major) {
+        return values_[row * leadingDimension_ + col];
     } else {
-        return _values[col * _leadingDimension + row];
+        return values_[col * leadingDimension_ + row];
     }
 }
 
 template<typename T>
 bool SparseMatrix<T>::setValuesFromMatrix(const Matrix<T> &inputMatrix) {
-    _values.clear();
-    _values.resize(_nnz);
+    values_.clear();
+    values_.resize(nnz_);
 
-    for (int idx = 0; idx < _nnz; ++idx) {
-        const int row = _rowIndex[idx];
-        const int col = _colIndex[idx];
+    for (int idx = 0; idx < nnz_; ++idx) {
+        const int row = rowIndex_[idx];
+        const int col = colIndex_[idx];
 
-        _values[idx] = inputMatrix.getOneValue(row, col);
+        values_[idx] = inputMatrix.getOneValue(row, col);
     }
 
     return true;
@@ -189,9 +189,9 @@ bool SparseMatrix<T>::setValuesFromMatrix(const Matrix<T> &inputMatrix) {
 
 template<typename T>
 void SparseMatrix<T>::getSpareMatrixOneDataByCOO(const int idx, size_t &row, size_t &col, T &value) const {
-    row = _rowIndex[idx];
-    col = _colIndex[idx];
-    value = _values[idx];
+    row = rowIndex_[idx];
+    col = colIndex_[idx];
+    value = values_[idx];
 }
 
 template<typename T>
@@ -226,15 +226,15 @@ bool SparseMatrix<T>::outputToMarketMatrixFile(const std::string &fileName) {
     std::string firstLine("%%MatrixMarket matrix coordinate real general\n");
     outfile << firstLine;
 
-    std::string secondLine(std::to_string(_row) + " " + std::to_string(_col) + " " + std::to_string(_nnz) + "\n");
+    std::string secondLine(std::to_string(row_) + " " + std::to_string(col_) + " " + std::to_string(nnz_) + "\n");
     outfile << secondLine;
 
-    for (int idx = 0; idx < _nnz; ++idx) {
-        outfile << std::to_string(_rowIndex[idx] + 1) << " ";
-        outfile << std::to_string(_colIndex[idx] + 1) << " ";
-        outfile << std::to_string(_values[idx]);
+    for (int idx = 0; idx < nnz_; ++idx) {
+        outfile << std::to_string(rowIndex_[idx] + 1) << " ";
+        outfile << std::to_string(colIndex_[idx] + 1) << " ";
+        outfile << std::to_string(values_[idx]);
 
-        if (idx < _nnz - 1) {
+        if (idx < nnz_ - 1) {
             outfile << "\n";
         }
     }
@@ -245,54 +245,54 @@ bool SparseMatrix<T>::outputToMarketMatrixFile(const std::string &fileName) {
 
 template<typename T>
 void Matrix<T>::makeData(size_t numRow, size_t numCol, MatrixStorageOrder storageOrder) {
-    _row = numRow;
-    _col = numCol;
-    _size = numRow * numCol;
-    _storageOrder = storageOrder;
+    row_ = numRow;
+    col_ = numCol;
+    size_ = numRow * numCol;
+    storageOrder_ = storageOrder;
     if (storageOrder == MatrixStorageOrder::row_major) {
-        _leadingDimension = numCol;
+        leadingDimension_ = numCol;
     } else {
-        _leadingDimension = numRow;
+        leadingDimension_ = numRow;
     }
-    _values.resize(_size);
+    values_.resize(size_);
 
     std::mt19937 generator;
 
     std::uniform_real_distribution<T> distribution(0, 10);
-    for (int idx = 0; idx < _values.size(); ++idx) {
-        _values[idx] = distribution(generator);
+    for (int idx = 0; idx < values_.size(); ++idx) {
+        values_[idx] = distribution(generator);
     }
 }
 
 template<>
 void Matrix<int>::makeData(size_t numRow, size_t numCol, MatrixStorageOrder storageOrder) {
-    _row = numRow;
-    _col = numCol;
-    _size = numRow * numCol;
-    _storageOrder = storageOrder;
+    row_ = numRow;
+    col_ = numCol;
+    size_ = numRow * numCol;
+    storageOrder_ = storageOrder;
     if (storageOrder == MatrixStorageOrder::row_major) {
-        _leadingDimension = numCol;
+        leadingDimension_ = numCol;
     } else {
-        _leadingDimension = numRow;
+        leadingDimension_ = numRow;
     }
-    _values.resize(_size);
+    values_.resize(size_);
 
     std::mt19937 generator;
     std::uniform_int_distribution<int> distributionCol(0, 100);
-    for (int idx = 0; idx < _values.size(); ++idx) {
-        _values[idx] = distributionCol(generator);
+    for (int idx = 0; idx < values_.size(); ++idx) {
+        values_[idx] = distributionCol(generator);
     }
 }
 
 template<typename T>
 void SparseMatrix<T>::makeData(const size_t numRow, const size_t numCol, const size_t nnz) {
-    _row = numRow;
-    _col = numCol;
-    _nnz = nnz;
+    row_ = numRow;
+    col_ = numCol;
+    nnz_ = nnz;
 
-    _rowIndex.resize(nnz);
-    _colIndex.resize(nnz);
-    _values.resize(nnz);
+    rowIndex_.resize(nnz);
+    colIndex_.resize(nnz);
+    values_.resize(nnz);
 
     // make data
     std::mt19937 generator;
@@ -315,39 +315,39 @@ void SparseMatrix<T>::makeData(const size_t numRow, const size_t numCol, const s
 
         rowColSet.insert(rowColPair);
 
-        _rowIndex[idx] = row;
-        _colIndex[idx] = col;
-        _values[idx] = distributionValue(generator);
+        rowIndex_[idx] = row;
+        colIndex_[idx] = col;
+        values_[idx] = distributionValue(generator);
     }
 
     // sort rowIndex and colIndex
-    host::sort_by_key(_rowIndex.data(), _rowIndex.data() + _rowIndex.size(), _colIndex.data());
-    UIN lastRowNumber = _rowIndex[0];
+    host::sort_by_key(rowIndex_.data(), rowIndex_.data() + rowIndex_.size(), colIndex_.data());
+    UIN lastRowNumber = rowIndex_[0];
     UIN lastBegin = 0;
-    for (UIN idx = 0; idx < _nnz; ++idx) {
-        const UIN curRowNumber = _rowIndex[idx];
+    for (UIN idx = 0; idx < nnz_; ++idx) {
+        const UIN curRowNumber = rowIndex_[idx];
         if (curRowNumber != lastRowNumber) { // new row
-            host::sort(_colIndex.data() + lastBegin, _colIndex.data() + idx);
+            host::sort(colIndex_.data() + lastBegin, colIndex_.data() + idx);
 
             lastBegin = idx + 1;
             lastRowNumber = curRowNumber;
         }
 
-        if (idx == _nnz - 1) {
-            host::sort(_colIndex.data() + lastBegin, _colIndex.data() + _colIndex.size());
+        if (idx == nnz_ - 1) {
+            host::sort(colIndex_.data() + lastBegin, colIndex_.data() + colIndex_.size());
         }
     }
 }
 
 template<>
 void SparseMatrix<int>::makeData(const size_t numRow, const size_t numCol, const size_t nnz) {
-    _row = numRow;
-    _col = numCol;
-    _nnz = nnz;
+    row_ = numRow;
+    col_ = numCol;
+    nnz_ = nnz;
 
-    _rowIndex.resize(nnz);
-    _colIndex.resize(nnz);
-    _values.resize(nnz);
+    rowIndex_.resize(nnz);
+    colIndex_.resize(nnz);
+    values_.resize(nnz);
 
     // make data
     std::mt19937 generator;
@@ -370,26 +370,26 @@ void SparseMatrix<int>::makeData(const size_t numRow, const size_t numCol, const
 
         rowColSet.insert(rowColPair);
 
-        _rowIndex[idx] = row;
-        _colIndex[idx] = col;
-        _values[idx] = distributionValue(generator);
+        rowIndex_[idx] = row;
+        colIndex_[idx] = col;
+        values_[idx] = distributionValue(generator);
     }
 
     // sort rowIndex and colIndex
-    host::sort_by_key(_rowIndex.data(), _rowIndex.data() + _rowIndex.size(), _colIndex.data());
-    UIN lastRowNumber = _rowIndex[0];
+    host::sort_by_key(rowIndex_.data(), rowIndex_.data() + rowIndex_.size(), colIndex_.data());
+    UIN lastRowNumber = rowIndex_[0];
     UIN lastBegin = 0;
-    for (UIN idx = 0; idx < _nnz; ++idx) {
-        const UIN curRowNumber = _rowIndex[idx];
+    for (UIN idx = 0; idx < nnz_; ++idx) {
+        const UIN curRowNumber = rowIndex_[idx];
         if (curRowNumber != lastRowNumber) { // new row
-            host::sort(_colIndex.data() + lastBegin, _colIndex.data() + idx);
+            host::sort(colIndex_.data() + lastBegin, colIndex_.data() + idx);
 
             lastBegin = idx + 1;
             lastRowNumber = curRowNumber;
         }
 
-        if (idx == _nnz - 1) {
-            host::sort(_colIndex.data() + lastBegin, _colIndex.data() + _colIndex.size());
+        if (idx == nnz_ - 1) {
+            host::sort(colIndex_.data() + lastBegin, colIndex_.data() + colIndex_.size());
         }
     }
 }

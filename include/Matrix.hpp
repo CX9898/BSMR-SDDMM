@@ -36,11 +36,11 @@ class Matrix {
          size_t size,
          MatrixStorageOrder matrixOrder,
          size_t leadingDimension)
-      : _row(row),
-        _col(col),
-        _size(size),
-        _storageOrder(matrixOrder),
-        _leadingDimension(leadingDimension) { _values.resize(size); }
+      : row_(row),
+        col_(col),
+        size_(size),
+        storageOrder_(matrixOrder),
+        leadingDimension_(leadingDimension) { values_.resize(size); }
 
   Matrix(size_t row,
          size_t col,
@@ -48,12 +48,12 @@ class Matrix {
          MatrixStorageOrder matrixOrder,
          size_t leadingDimension,
          const std::vector<T> &values)
-      : _row(row),
-        _col(col),
-        _size(size),
-        _storageOrder(matrixOrder),
-        _leadingDimension(leadingDimension),
-        _values(values) {}
+      : row_(row),
+        col_(col),
+        size_(size),
+        storageOrder_(matrixOrder),
+        leadingDimension_(leadingDimension),
+        values_(values) {}
 
   bool initializeFromSparseMatrix(const SparseMatrix<T> &matrixS);
   void changeStorageOrder();
@@ -73,36 +73,36 @@ class Matrix {
   void print();
 
   size_t size() const {
-      return _size;
+      return size_;
   }
   MatrixStorageOrder storageOrder() const {
-      return _storageOrder;
+      return storageOrder_;
   }
   size_t ld() const {
-      return _leadingDimension;
+      return leadingDimension_;
   }
   size_t row() const {
-      return _row;
+      return row_;
   }
   size_t col() const {
-      return _col;
+      return col_;
   }
   const std::vector<T> &values() const {
-      return _values;
+      return values_;
   }
 
   std::vector<T> &setValues() {
-      return _values;
+      return values_;
   }
 
  private:
-  size_t _row;
-  size_t _col;
-  size_t _size;
-  MatrixStorageOrder _storageOrder;
-  size_t _leadingDimension;
+  size_t row_;
+  size_t col_;
+  size_t size_;
+  MatrixStorageOrder storageOrder_;
+  size_t leadingDimension_;
 
-  std::vector<T> _values;
+  std::vector<T> values_;
 };
 
 /**
@@ -116,9 +116,9 @@ class SparseMatrix {
   SparseMatrix() = default;
   ~SparseMatrix() = default;
 
-  SparseMatrix(size_t row, size_t col, size_t nnz) : _row(row), _col(col), _nnz(nnz) {}
+  SparseMatrix(size_t row, size_t col, size_t nnz) : row_(row), col_(col), nnz_(nnz) {}
   SparseMatrix(size_t row, size_t col, size_t nnz, const std::vector<UIN> &rowIndex, const std::vector<UIN> &colIndex)
-      : _row(row), _col(col), _nnz(nnz), _rowIndex(rowIndex), _colIndex(colIndex) { _values.resize(nnz); }
+      : row_(row), col_(col), nnz_(nnz), rowIndex_(rowIndex), colIndex_(colIndex) { values_.resize(nnz); }
 
   /**
    * Initialize from MatrixMarket file.
@@ -149,38 +149,38 @@ class SparseMatrix {
   void print();
 
   size_t nnz() const {
-      return _nnz;
+      return nnz_;
   }
 
   size_t row() const {
-      return _row;
+      return row_;
   }
   size_t col() const {
-      return _col;
+      return col_;
   }
 
   const std::vector<UIN> &rowIndex() const {
-      return _rowIndex;
+      return rowIndex_;
   }
   const std::vector<UIN> &colIndex() const {
-      return _colIndex;
+      return colIndex_;
   }
   const std::vector<T> &values() const {
-      return _values;
+      return values_;
   }
 
   std::vector<T> &setValues() {
-      return _values;
+      return values_;
   }
 
  private:
-  size_t _row;
-  size_t _col;
-  size_t _nnz;
+  size_t row_;
+  size_t col_;
+  size_t nnz_;
 
-  std::vector<UIN> _rowIndex;
-  std::vector<UIN> _colIndex;
-  std::vector<T> _values;
+  std::vector<UIN> rowIndex_;
+  std::vector<UIN> colIndex_;
+  std::vector<T> values_;
 };
 
 namespace dev {
