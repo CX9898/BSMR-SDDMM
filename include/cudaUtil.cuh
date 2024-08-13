@@ -31,6 +31,11 @@ inline void D2H(std::vector<T> &host, const T *dev, const size_t size) {
     cudaMemcpy(host.data(), dev, size * sizeof(T), cudaMemcpyDeviceToHost);
 }
 
+template<typename T>
+inline void D2D(T *dest, const T *src, const size_t size) {
+    cudaMemcpy(dest, src, size * sizeof(T), cudaMemcpyDeviceToHost);
+}
+
 namespace host {
 
 void sort(uint64_t *first, uint64_t *last);
