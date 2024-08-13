@@ -49,7 +49,7 @@ class vector {
 template<typename T>
 inline vector<T>::vector(const size_t size) : vector() {
     size_ = size;
-    cudaMalloc(reinterpret_cast<void **> (data_), size * sizeof(T));
+    cudaMalloc(reinterpret_cast<void **> (&data_), size * sizeof(T));
 }
 
 } // namespace dev
