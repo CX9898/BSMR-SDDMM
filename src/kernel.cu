@@ -8,14 +8,14 @@
 using namespace nvcuda::wmma;
 
 template<typename T>
-__global__ void test(int n, T *a) {
+__global__ void printData(int n, T *a) {
     for (int i = 0; i < n; ++i) {
         printf("%f ", static_cast<float>(a[i]));
     }
 }
 
-template __global__ void test<float>(int n, float *a);
-template __global__ void test<half>(int n, half *a);
+template __global__ void printData<float>(int n, float *a);
+template __global__ void printData<half>(int n, half *a);
 
 __global__ void convertFp32ToFp16(const int n, const float *in, half *out) {
     int idx = (int) (blockDim.x * blockIdx.x + threadIdx.x);
