@@ -67,7 +67,7 @@ class Matrix {
    **/
   T getOneValueForMultiplication(MatrixMultiplicationOrder multiplicationOrder, size_t row, size_t col, size_t k) const;
 
-  void makeData(size_t  numRow, size_t numCol, MatrixStorageOrder storageOrder = MatrixStorageOrder::row_major);
+  void makeData(size_t numRow, size_t numCol, MatrixStorageOrder storageOrder = MatrixStorageOrder::row_major);
 
   // TODO : Overloads operator <<
   void print();
@@ -130,6 +130,11 @@ class SparseMatrix {
    **/
   bool initializeFromMatrixMarketFile(const std::string &filePath);
 
+  /**
+    * Used as a test comparison result
+    **/
+  bool outputToMarketMatrixFile(const std::string &fileName);
+
   bool setValuesFromMatrix(const Matrix<T> &inputMatrix);
 
   void makeData(const size_t row, const size_t col, const size_t nnz);
@@ -142,11 +147,6 @@ class SparseMatrix {
 
   // TODO : Overloads operator <<
   void print();
-
-  /**
-   * Used as a test comparison result
-   **/
-  bool outputToMarketMatrixFile(const std::string &fileName);
 
   size_t nnz() const {
       return _nnz;

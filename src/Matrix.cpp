@@ -196,7 +196,7 @@ void SparseMatrix<T>::getSpareMatrixOneDataByCOO(const int idx, size_t &row, siz
 
 template<typename T>
 bool SparseMatrix<T>::outputToMarketMatrixFile(const std::string &fileName) {
-    std::string fileFormat(".mtx");
+    const std::string fileFormat(".mtx");
 
     std::string fileString(fileName + fileFormat);
 
