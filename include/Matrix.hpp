@@ -145,7 +145,6 @@ class SparseMatrix {
    **/
   void getSpareMatrixOneDataByCOO(const int idx, size_t &row, size_t &col, T &value) const;
 
-  // TODO : Overloads operator <<
   void print();
 
   size_t nnz() const {
@@ -182,6 +181,18 @@ class SparseMatrix {
   std::vector<UIN> colIndex_;
   std::vector<T> values_;
 };
+
+template<typename T>
+inline std::ostream &operator<<(std::ostream &os, const Matrix<T> &mtx) {
+    os << " [row : " << mtx.row() << ", col : " << mtx.col() << "]";
+    return os;
+}
+
+template<typename T>
+inline std::ostream &operator<<(std::ostream &os, const SparseMatrix<T> &mtxS) {
+    os << " [row : " << mtxS.row() << ", col : " << mtxS.col() << ", nnz : " << mtxS.nnz() << "]";
+    return os;
+}
 
 namespace dev {
 
