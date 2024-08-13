@@ -78,7 +78,6 @@ int main() {
 //    std::cout << "matrixP_cpu_res.values() : " << std::endl;
 //    matrixP_cpu_res.print();
 
-    // TODO: 使用 dev::vector 导致内存泄漏
     dev::vector<float> valuesA_d(matrixA.size());
     dev::vector<half> valuesAfp16_d(matrixA.size());
     dev::vector<float> valuesB_d(matrixB.size());
@@ -94,7 +93,7 @@ int main() {
         matrixA.size(), valuesA_d.data(), valuesAfp16_d.data());
     convertFp32ToFp16<<< (matrixB.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
         matrixB.size(), valuesB_d.data(), valuesBfp16_d.data());
-    printCudaErrorStringSync();
+
     dim3 grid;
     dim3 block;
     block.x = WARP_SIZE;
