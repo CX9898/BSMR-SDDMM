@@ -22,6 +22,7 @@ const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 
 // TODO :
+//      测试矩阵的尺寸按照论文中的尺寸
 //      1: 将 comp_sddmm_gpu 全部使用 Tensor core 执行
 //      2: 测试不同尺寸的 wmma 的速度表现
 //      3: 测试使用稀疏度比较器的速度表现
