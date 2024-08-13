@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdio>
+#include <cuda_runtime.h>
 
 namespace cudaTimeCalculator {
 inline void cudaErrCheck_(cudaError_t stat) {
@@ -12,44 +13,44 @@ inline void cudaErrCheck_(cudaError_t stat) {
 
 class CudaTimeCalculator {
  public:
-  CudaTimeCalculator() {
-      _time = 0.0f;
+  inline CudaTimeCalculator() {
+      time_ = 0.0f;
 
-      cudaTimeCalculator::cudaErrCheck_(cudaEventCreate(&_star));
-      cudaTimeCalculator::cudaErrCheck_(cudaEventCreate(&_stop));
+      cudaTimeCalculator::cudaErrCheck_(cudaEventCreate(&star_));
+      cudaTimeCalculator::cudaErrCheck_(cudaEventCreate(&stop_));
   }
 
   ~CudaTimeCalculator() {
-      cudaTimeCalculator::cudaErrCheck_(cudaEventDestroy(_star));
-      cudaTimeCalculator::cudaErrCheck_(cudaEventDestroy(_stop));
+      cudaTimeCalculator::cudaErrCheck_(cudaEventDestroy(star_));
+      cudaTimeCalculator::cudaErrCheck_(cudaEventDestroy(stop_));
   }
 
   inline void reset(){
-      cudaTimeCalculator::cudaErrCheck_(cudaEventDestroy(_star));
-      cudaTimeCalculator::cudaErrCheck_(cudaEventDestroy(_stop));
+      cudaTimeCalculator::cudaErrCheck_(cudaEventDestroy(star_));
+      cudaTimeCalculator::cudaErrCheck_(cudaEventDestroy(stop_));
 
-      cudaTimeCalculator::cudaErrCheck_(cudaEventCreate(&_star));
-      cudaTimeCalculator::cudaErrCheck_(cudaEventCreate(&_stop));
+      cudaTimeCalculator::cudaErrCheck_(cudaEventCreate(&star_));
+      cudaTimeCalculator::cudaErrCheck_(cudaEventCreate(&stop_));
   }
 
   inline void startClock() {
-      cudaTimeCalculator::cudaErrCheck_(cudaEventRecord(_star));
+      cudaTimeCalculator::cudaErrCheck_(cudaEventRecord(star_));
   }
 
   inline void endClock() {
-      cudaTimeCalculator::cudaErrCheck_(cudaEventRecord(_stop));
-      cudaTimeCalculator::cudaErrCheck_(cudaEventSynchronize(_stop));
+      cudaTimeCalculator::cudaErrCheck_(cudaEventRecord(stop_));
+      cudaTimeCalculator::cudaErrCheck_(cudaEventSynchronize(stop_));
   }
 
   inline float getTime() {
-      cudaTimeCalculator::cudaErrCheck_(cudaEventElapsedTime(&_time, _star, _stop));
-      return _time;
+      cudaTimeCalculator::cudaErrCheck_(cudaEventElapsedTime(&time_, star_, stop_));
+      return time_;
   }
 
  private:
-  cudaEvent_t _star;
-  cudaEvent_t _stop;
+  cudaEvent_t star_;
+  cudaEvent_t stop_;
 
-  float _time;
+  float time_;
 };
 
