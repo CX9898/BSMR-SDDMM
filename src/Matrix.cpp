@@ -87,6 +87,16 @@ bool Matrix<T>::initializeFromSparseMatrix(const SparseMatrix<T> &matrixS) {
 }
 
 template<typename T>
+bool Matrix<T>::initializeValue(const std::vector<T> &src) {
+    if(src.size() != size_){
+        std::cerr << "Error! Matrix value size mismatch" << std::endl;
+        return false;
+    }
+    values_ = src;
+    return true;
+}
+
+template<typename T>
 void Matrix<T>::changeStorageOrder() {
     const auto oldMajorOrder = storageOrder_;
     const auto oldLd = leadingDimension_;
@@ -256,12 +266,15 @@ void Matrix<T>::makeData(size_t numRow, size_t numCol, MatrixStorageOrder storag
     }
     values_.resize(size_);
 
-    std::mt19937 generator;
-    auto distribution = util::createRandomUniformDistribution(static_cast<T>(0), static_cast<T>(10));
-
     for (int idx = 0; idx < values_.size(); ++idx) {
-        values_[idx] = distribution(generator);
+        values_[idx] = idx + 1;
     }
+//    std::mt19937 generator;
+//    auto distribution = util::createRandomUniformDistribution(static_cast<T>(0), static_cast<T>(10));
+//
+//    for (int idx = 0; idx < values_.size(); ++idx) {
+//        values_[idx] = distribution(generator);
+//    }
 }
 
 template<typename T>

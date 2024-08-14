@@ -56,6 +56,7 @@ class Matrix {
         values_(values) {}
 
   bool initializeFromSparseMatrix(const SparseMatrix<T> &matrixS);
+  bool initializeValue(const std::vector<T> &src);
   void changeStorageOrder();
 
   T getOneValue(int row, int col) const;
@@ -87,10 +88,6 @@ class Matrix {
       return col_;
   }
   const std::vector<T> &values() const {
-      return values_;
-  }
-
-  std::vector<T> &setValues() {
       return values_;
   }
 
