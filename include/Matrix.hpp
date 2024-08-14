@@ -28,7 +28,7 @@ class SparseMatrix;
 template<typename T>
 class Matrix {
  public:
-  Matrix() = default;
+  Matrix() = delete;
   ~Matrix() = default;
 
   Matrix(size_t row,
@@ -55,10 +55,13 @@ class Matrix {
         leadingDimension_(leadingDimension),
         values_(values) {}
 
-  bool initializeFromSparseMatrix(const SparseMatrix<T> &matrixS);
+  Matrix(const SparseMatrix<T> &matrixS);
+
   bool initializeValue(const std::vector<T> &src);
   void changeStorageOrder();
 
+  size_t rowOfValueIndex(size_t idx);
+  size_t colOfValueIndex(size_t idx);
   T getOneValue(int row, int col) const;
 
   /**
@@ -122,10 +125,14 @@ class Matrix {
 template<typename T>
 class SparseMatrix {
  public:
-  SparseMatrix() = default;
+  SparseMatrix() = delete;
   ~SparseMatrix() = default;
 
-  SparseMatrix(size_t row, size_t col, size_t nnz) : row_(row), col_(col), nnz_(nnz) {}
+  SparseMatrix(size_t row, size_t col, size_t nnz) : row_(row), col_(col), nnz_(nnz) {
+      rowIndex_.resize(nnz);
+      colIndex_.resize(nnz);
+      values_.resize(nnz);
+  }
   SparseMatrix(size_t row, size_t col, size_t nnz, const std::vector<UIN> &rowIndex, const std::vector<UIN> &colIndex)
       : row_(row), col_(col), nnz_(nnz), rowIndex_(rowIndex), colIndex_(colIndex) { values_.resize(nnz); }
 
@@ -137,7 +144,7 @@ class SparseMatrix {
    *    2) The second line has three numbers separated by a space: number of rows, number of columns, and number of non-zeros.
    *    3) Each after line has three numbers separated by a space: current row, current column, and value.
    **/
-  bool initializeFromMatrixMarketFile(const std::string &filePath);
+  SparseMatrix(const std::string &filePath);
 
   /**
     * Used as a test comparison result

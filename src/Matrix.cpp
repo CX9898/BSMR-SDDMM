@@ -9,12 +9,12 @@
 #include "cudaUtil.cuh"
 
 template<typename T>
-bool SparseMatrix<T>::initializeFromMatrixMarketFile(const std::string &filePath) {
+SparseMatrix<T>::SparseMatrix(const std::string &filePath) {
     std::ifstream inFile;
     inFile.open(filePath, std::ios::in); // open file
     if (!inFile.is_open()) {
         std::cerr << "Error, Matrix Market file cannot be opened : " << filePath << std::endl;
-        return false;
+        return;
     }
 
     std::cout << "SparseMatrix initialize From MatrixMarketFile : " << filePath << std::endl;
@@ -55,12 +55,10 @@ bool SparseMatrix<T>::initializeFromMatrixMarketFile(const std::string &filePath
     }
 
     inFile.close();
-
-    return true;
 }
 
 template<typename T>
-bool Matrix<T>::initializeFromSparseMatrix(const SparseMatrix<T> &matrixS) {
+Matrix<T>::Matrix(const SparseMatrix<T> &matrixS) {
     row_ = matrixS.row();
     col_ = matrixS.col();
     const int size = matrixS.row() * matrixS.col();
@@ -82,13 +80,35 @@ bool Matrix<T>::initializeFromSparseMatrix(const SparseMatrix<T> &matrixS) {
 
         values_[row * ld + col] = val;
     }
+}
 
-    return true;
+template<typename T>
+size_t Matrix<T>::rowOfValueIndex(size_t idx) {
+    if (idx == 0) {
+        return 0;
+    }
+    if (storageOrder_ == MatrixStorageOrder::row_major) {
+        return idx / leadingDimension_;
+    } else {
+        return idx % leadingDimension_;
+    }
+}
+
+template<typename T>
+size_t Matrix<T>::colOfValueIndex(size_t idx) {
+    if (idx == 0) {
+        return 0;
+    }
+    if (storageOrder_ == MatrixStorageOrder::row_major) {
+        return idx % leadingDimension_;
+    } else {
+        return idx / leadingDimension_;
+    }
 }
 
 template<typename T>
 bool Matrix<T>::initializeValue(const std::vector<T> &src) {
-    if(src.size() != size_){
+    if (src.size() != size_) {
         std::cerr << "Error! Matrix value size mismatch" << std::endl;
         return false;
     }
