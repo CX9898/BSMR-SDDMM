@@ -334,20 +334,20 @@ void SparseMatrix<T>::makeData(const size_t numRow, const size_t numCol, const s
     }
 
     // sort rowIndex and colIndex
-    host::sort_by_key(rowIndex_.data(), rowIndex_.data() + rowIndex_.size(), colIndex_.data());
+    cuUtil::host::sort_by_key(rowIndex_.data(), rowIndex_.data() + rowIndex_.size(), colIndex_.data());
     UIN lastRowNumber = rowIndex_[0];
     UIN lastBegin = 0;
     for (UIN idx = 0; idx < nnz_; ++idx) {
         const UIN curRowNumber = rowIndex_[idx];
         if (curRowNumber != lastRowNumber) { // new row
-            host::sort(colIndex_.data() + lastBegin, colIndex_.data() + idx);
+            cuUtil::host::sort(colIndex_.data() + lastBegin, colIndex_.data() + idx);
 
             lastBegin = idx + 1;
             lastRowNumber = curRowNumber;
         }
 
         if (idx == nnz_ - 1) {
-            host::sort(colIndex_.data() + lastBegin, colIndex_.data() + colIndex_.size());
+            cuUtil::host::sort(colIndex_.data() + lastBegin, colIndex_.data() + colIndex_.size());
         }
     }
 }
