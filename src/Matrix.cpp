@@ -24,9 +24,9 @@ bool SparseMatrix<T>::initializeFromMatrixMarketFile(const std::string &filePath
 
     getline(inFile, line);
     int wordIter = 0;
-    row_ = std::stoi(iterateOneWordFromLine(line, wordIter));
-    col_ = std::stoi(iterateOneWordFromLine(line, wordIter));
-    nnz_ = std::stoi(iterateOneWordFromLine(line, wordIter));
+    row_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
+    col_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
+    nnz_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
 
     if (wordIter < line.size()) {
         std::cerr << "Error, Matrix Market file " << line << " line format is incorrect!" << std::endl;
@@ -39,9 +39,9 @@ bool SparseMatrix<T>::initializeFromMatrixMarketFile(const std::string &filePath
     int idx = 0;
     while (getline(inFile, line)) {
         wordIter = 0;
-        const int row = std::stoi(iterateOneWordFromLine(line, wordIter)) - 1;
-        const int col = std::stoi(iterateOneWordFromLine(line, wordIter)) - 1;
-        const T val = static_cast<T>(std::stod(iterateOneWordFromLine(line, wordIter)));
+        const int row = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
+        const int col = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
+        const T val = static_cast<T>(std::stod(util::iterateOneWordFromLine(line, wordIter)));
 
         if (wordIter < line.size()) {
             std::cerr << "Error, Matrix Market file " << line << " line format is incorrect!" << std::endl;
@@ -201,10 +201,10 @@ bool SparseMatrix<T>::outputToMarketMatrixFile(const std::string &fileName) {
     std::string fileString(fileName + fileFormat);
 
     // check fileExists
-    if (io::fileExists(fileString)) {
+    if (util::io::fileExists(fileString)) {
         std::cout << fileName + fileFormat << " file already exists" << std::endl;
         int fileId = 1;
-        while (io::fileExists(fileName + "_" + std::to_string(fileId) + fileFormat)) {
+        while (util::io::fileExists(fileName + "_" + std::to_string(fileId) + fileFormat)) {
             ++fileId;
         }
         fileString = fileName + "_" + std::to_string(fileId) + fileFormat;
@@ -257,30 +257,10 @@ void Matrix<T>::makeData(size_t numRow, size_t numCol, MatrixStorageOrder storag
     values_.resize(size_);
 
     std::mt19937 generator;
+    auto distribution = util::createRandomUniformDistribution(static_cast<T>(0), static_cast<T>(10));
 
-    std::uniform_real_distribution<T> distribution(0, 10);
     for (int idx = 0; idx < values_.size(); ++idx) {
         values_[idx] = distribution(generator);
-    }
-}
-
-template<>
-void Matrix<int>::makeData(size_t numRow, size_t numCol, MatrixStorageOrder storageOrder) {
-    row_ = numRow;
-    col_ = numCol;
-    size_ = numRow * numCol;
-    storageOrder_ = storageOrder;
-    if (storageOrder == MatrixStorageOrder::row_major) {
-        leadingDimension_ = numCol;
-    } else {
-        leadingDimension_ = numRow;
-    }
-    values_.resize(size_);
-
-    std::mt19937 generator;
-    std::uniform_int_distribution<int> distributionCol(0, 100);
-    for (int idx = 0; idx < values_.size(); ++idx) {
-        values_[idx] = distributionCol(generator);
     }
 }
 
@@ -296,64 +276,9 @@ void SparseMatrix<T>::makeData(const size_t numRow, const size_t numCol, const s
 
     // make data
     std::mt19937 generator;
-    std::uniform_int_distribution<UIN> distributionRow(0, numRow - 1);
-    std::uniform_int_distribution<UIN> distributionCol(0, numCol - 1);
-    std::uniform_real_distribution<T> distributionValue(0, 10);
-    std::set<std::pair<UIN, UIN>> rowColSet;
-    for (UIN idx = 0; idx < nnz; ++idx) {
-        UIN row = distributionRow(generator);
-        UIN col = distributionCol(generator);
-        std::pair<UIN, UIN> rowColPair(row, col);
-        auto findSet = rowColSet.find(rowColPair);
-        while (findSet != rowColSet.end()) {
-            row = distributionRow(generator);
-            col = distributionCol(generator);
-            rowColPair.first = row;
-            rowColPair.second = col;
-            findSet = rowColSet.find(rowColPair);
-        }
-
-        rowColSet.insert(rowColPair);
-
-        rowIndex_[idx] = row;
-        colIndex_[idx] = col;
-        values_[idx] = distributionValue(generator);
-    }
-
-    // sort rowIndex and colIndex
-    host::sort_by_key(rowIndex_.data(), rowIndex_.data() + rowIndex_.size(), colIndex_.data());
-    UIN lastRowNumber = rowIndex_[0];
-    UIN lastBegin = 0;
-    for (UIN idx = 0; idx < nnz_; ++idx) {
-        const UIN curRowNumber = rowIndex_[idx];
-        if (curRowNumber != lastRowNumber) { // new row
-            host::sort(colIndex_.data() + lastBegin, colIndex_.data() + idx);
-
-            lastBegin = idx + 1;
-            lastRowNumber = curRowNumber;
-        }
-
-        if (idx == nnz_ - 1) {
-            host::sort(colIndex_.data() + lastBegin, colIndex_.data() + colIndex_.size());
-        }
-    }
-}
-
-template<>
-void SparseMatrix<int>::makeData(const size_t numRow, const size_t numCol, const size_t nnz) {
-    row_ = numRow;
-    col_ = numCol;
-    nnz_ = nnz;
-
-    rowIndex_.resize(nnz);
-    colIndex_.resize(nnz);
-    values_.resize(nnz);
-
-    // make data
-    std::mt19937 generator;
-    std::uniform_int_distribution<UIN> distributionRow(0, numRow - 1);
-    std::uniform_int_distribution<UIN> distributionCol(0, numCol - 1);
-    std::uniform_int_distribution<int> distributionValue(0, 10);
+    auto distributionRow = util::createRandomUniformDistribution(static_cast<UIN>(0), static_cast<UIN>(10));
+    auto distributionCol = util::createRandomUniformDistribution(static_cast<UIN>(0), static_cast<UIN>(10));
+    auto distributionValue = util::createRandomUniformDistribution(static_cast<T>(0), static_cast<T>(10));
     std::set<std::pair<UIN, UIN>> rowColSet;
     for (UIN idx = 0; idx < nnz; ++idx) {
         UIN row = distributionRow(generator);
