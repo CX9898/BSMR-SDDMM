@@ -4,6 +4,11 @@
 
 #include "Matrix.hpp"
 
+template<typename T>
+void dmm_cpu(const Matrix<T> &matrixA,
+             const Matrix<T> &matrixB,
+             Matrix<T> &matrixC);
+
 void sddmm_cpu_coo_isratnisa(
     const Matrix<float> &matrixA,
     const Matrix<float> &matrixB,

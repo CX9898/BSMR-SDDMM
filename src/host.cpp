@@ -2,6 +2,35 @@
 
 #include "host.hpp"
 
+template<typename T>
+void dmm_cpu(const Matrix<T> &matrixA,
+             const Matrix<T> &matrixB,
+             Matrix<T> &matrixC) {
+    if (matrixA.col() != matrixB.row() ||
+        matrixA.row() != matrixC.row() ||
+        matrixB.col() != matrixC.col()) {
+        std::cerr << "The storage of the three matrices does not match" << std::endl;
+        return;
+    }
+    const int K = matrixA.col();
+#pragma omp parallel for
+    for (int mtxCIdx = 0; mtxCIdx < matrixC.size(); ++mtxCIdx){
+        const int row = matrixC.rowOfValueIndex(mtxCIdx);
+        const int col = matrixC.colOfValueIndex(mtxCIdx);
+        float val = 0.0f;
+        for(int kIter = 0; kIter < K; ++kIter){
+            const auto valA = matrixA.getOneValueForMultiplication(
+                MatrixMultiplicationOrder::left_multiplication,
+                row, col, kIter);
+            const auto valB = matrixB.getOneValueForMultiplication(
+                MatrixMultiplicationOrder::right_multiplication,
+                row, col, kIter);
+            val += valA * valB;
+        }
+        matrixC[mtxCIdx] = val;
+    }
+}
+
 void sddmm_cpu_coo_isratnisa(
     const Matrix<float> &matrixA,
     const Matrix<float> &matrixB,
@@ -34,18 +63,19 @@ void sddmm_cpu_coo(
     const Matrix<float> &matrixB,
     const SparseMatrix<float> &matrixS,
     SparseMatrix<float> &matrixP) {
-
+    if (matrixA.col() != matrixB.row() ||
+        matrixA.row() != matrixP.row() ||
+        matrixB.col() != matrixP.col()) {
+        std::cerr << "The storage of the three matrices does not match" << std::endl;
+        return;
+    }
+    const int K = matrixA.col();
 #pragma omp parallel for
     for (int matrixSIdx = 0; matrixSIdx < matrixS.nnz(); ++matrixSIdx) {
         const UIN row = matrixS.rowIndex()[matrixSIdx];
         const UIN col = matrixS.colIndex()[matrixSIdx];
 
         float val = 0.0f;
-        const int K = matrixA.col();
-//        for(int kIter = 0; kIter < K; ++kIter){
-//            val += matrixA.values()[row * matrixA.ld() + kIter] * matrixB.values()[kIter * matrixB.ld() + col];
-//        }
-
         for (int kIter = 0; kIter < K; ++kIter) {
             const auto valA = matrixA.getOneValueForMultiplication(
                 MatrixMultiplicationOrder::left_multiplication,
@@ -67,50 +97,20 @@ void sddmm_cpu_coo(
     const Matrix<T> &matrixB,
     const SparseMatrix<T> &matrixS,
     SparseMatrix<T> &matrixP) {
+    if (matrixA.col() != matrixB.row() ||
+        matrixA.row() != matrixP.row() ||
+        matrixB.col() != matrixP.col()) {
+        std::cerr << "The storage of the three matrices does not match" << std::endl;
+        return;
+    }
 
+    const int K = matrixA.col();
 #pragma omp parallel for
     for (int matrixSIdx = 0; matrixSIdx < matrixS.nnz(); ++matrixSIdx) {
         const UIN row = matrixS.rowIndex()[matrixSIdx];
         const UIN col = matrixS.colIndex()[matrixSIdx];
 
         T val = 0.0f;
-        const int K = matrixA.col();
-//        for(int kIter = 0; kIter < K; ++kIter){
-//            val += matrixA.values()[row * matrixA.ld() + kIter] * matrixB.values()[kIter * matrixB.ld() + col];
-//        }
-
-        for (int kIter = 0; kIter < K; ++kIter) {
-            const auto valA = matrixA.getOneValueForMultiplication(
-                MatrixMultiplicationOrder::left_multiplication,
-                row, col, kIter);
-            const auto valB = matrixB.getOneValueForMultiplication(
-                MatrixMultiplicationOrder::right_multiplication,
-                row, col, kIter);
-            val += valA * valB;
-        }
-
-//        val *= matrixS.values()[matrixSIdx];
-        matrixP.setValues()[matrixSIdx] = val;
-    }
-}
-
-void sddmm_cpu_coo(
-    const Matrix<float> &matrixA,
-    const Matrix<float> &matrixB,
-    const SparseMatrix<int> &matrixS,
-    SparseMatrix<int> &matrixP) {
-
-#pragma omp parallel for
-    for (int matrixSIdx = 0; matrixSIdx < matrixS.nnz(); ++matrixSIdx) {
-        const int row = matrixS.rowIndex()[matrixSIdx];
-        const int col = matrixS.colIndex()[matrixSIdx];
-
-        float val = 0.0f;
-        const int K = matrixA.col();
-//        for(int kIter = 0; kIter < K; ++kIter){
-//            val += matrixA.values()[row * matrixA.ld() + kIter] * matrixB.values()[kIter * matrixB.ld() + col];
-//        }
-
         for (int kIter = 0; kIter < K; ++kIter) {
             const auto valA = matrixA.getOneValueForMultiplication(
                 MatrixMultiplicationOrder::left_multiplication,

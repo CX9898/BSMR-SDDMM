@@ -28,6 +28,9 @@ __global__ void comp_sddmm_gpu(const int M, const int N, const int K,
                                const half *matrixA, const half *matrixB,
                                const float *matrixS,
                                float *matrixP) {
+    const int tidX = (blockDim.x * blockIdx.x + threadIdx.x);
+    const int tidY = (blockDim.y * blockIdx.y + threadIdx.y);
+
     const int warpM = (int) (blockDim.x * blockIdx.x + threadIdx.x) / WARP_SIZE;
     const int warpN = (int) (blockDim.y * blockIdx.y + threadIdx.y);
 
@@ -39,7 +42,7 @@ __global__ void comp_sddmm_gpu(const int M, const int N, const int K,
     if (pRowId >= M || pColId >= N) {
         return;
     }
-
+//    printf("pRowId : %d, pColId : %d\n", pRowId,pColId);
     fragment<matrix_a, WMMA_M, WMMA_N, WMMA_K, half, row_major> aFrag;
     fragment<matrix_b, WMMA_M, WMMA_N, WMMA_K, half, row_major> bFrag;
 
@@ -58,9 +61,12 @@ __global__ void comp_sddmm_gpu(const int M, const int N, const int K,
 
         const int bRowId = kIter;
         const int bColId = pColId;
-
+        if(tidX == 0){
+            printf(" cur kIter = %d\n",kIter);
+            printf(" cur aRowId = %d, aColId = %d, bRowId = %d, bColId = %d\n",aRowId, aColId, bRowId, bColId);
+        }
         // Bounds checking
-        if (aRowId < M && aColId < K && bRowId < K && bColId < N) {
+//        if (aRowId < M && aColId < K && bRowId < K && bColId < N) {
             const auto aOffsetPtr = matrixA + aRowId * lda + aColId;
             const auto bOffsetPtr = matrixB + bRowId * ldb + bColId;
 
@@ -68,7 +74,7 @@ __global__ void comp_sddmm_gpu(const int M, const int N, const int K,
             load_matrix_sync(bFrag, bOffsetPtr, ldb);
 
             mma_sync(cFrag, aFrag, bFrag, cFrag);
-        }
+//        }
     }
 
 //#pragma unroll
@@ -77,10 +83,13 @@ __global__ void comp_sddmm_gpu(const int M, const int N, const int K,
 //
 //        cFrag.x[idx] *= matrixS[sIdx];
 //    }
-//    for (int idx = 0; idx < cFrag.num_elements; ++idx) {
-//
-//        printf("%f ", static_cast<float>(cFrag.x[idx]));
-//    }
+    if(tidX == 0){
+        printf(" cFrag.num_elements : %d\n",cFrag.num_elements);
+        for (int idx = 0; idx < cFrag.num_elements; ++idx) {
+
+            printf(" %f ", static_cast<float>(cFrag.x[idx]));
+        }
+    }
 
     const auto pOffsetPtr = matrixP + pRowId * ldp + pColId;
     store_matrix_sync(pOffsetPtr, cFrag, ldp, mem_row_major);

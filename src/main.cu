@@ -17,7 +17,8 @@
 
 const std::string folderPath("../dataset/");
 //const std::string fileName = ("nips");
-const std::string fileName = ("matrixTmp_8000_8000_2560000");
+const std::string fileName = ("test");
+//const std::string fileName = ("matrixTmp_8000_8000_2560000");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 
@@ -39,11 +40,10 @@ int main() {
 //    matrixTmp.makeData(makeDataRow, makeDataCol, makeDataNNZ);
 //    matrixTmp.outputToMarketMatrixFile("matrixTmp");
 
-    SparseMatrix<float> matrixS;
-    matrixS.initializeFromMatrixMarketFile(filePath);
+    SparseMatrix<float> matrixS(filePath);
 
-    const int K = 16 * WMMA_K;
-//    const int K = 17;
+//    const int K = 1 * WMMA_K;
+    const int K = 32;
     const int M = matrixS.row();
     const int N = matrixS.col();
     const int MATRIX_A_SIZE = M * K;
@@ -56,8 +56,7 @@ int main() {
 //    std::cout << "matrixS : " << std::endl;
 //    matrixS.print();
 
-    Matrix<float> matrixS2D;
-    matrixS2D.initializeFromSparseMatrix(matrixS);
+    Matrix<float> matrixS2D(matrixS);
 
     Matrix<float> matrixA(M, K, MATRIX_A_SIZE, MatrixStorageOrder::row_major, K);
     matrixA.makeData(M, K, MatrixStorageOrder::row_major);
@@ -90,8 +89,8 @@ int main() {
     dev::vector<float> valuesS_d(matrixS2D.size());
     dev::vector<float> valuesP_d(matrixS2D.size());
 
-    H2D(valuesA_d.data(), matrixA.values().data(), matrixA.size());
-    H2D(valuesB_d.data(), matrixB.values().data(), matrixA.size());
+    cuUtil::H2D(valuesA_d.data(), matrixA.values().data(), matrixA.size());
+    cuUtil::H2D(valuesB_d.data(), matrixB.values().data(), matrixA.size());
 
     const int numThreadPerBlock = 1024;
     convertFp32ToFp16<<< (matrixA.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
@@ -120,7 +119,7 @@ int main() {
     std::cout << "sddmm_zcx time : " << timeCalculator.getTime() << " ms" << std::endl;
 
     Matrix<float> matrixP_gpu_res_tmp(M, N, M * N, MatrixStorageOrder::row_major, N);
-    D2H(matrixP_gpu_res_tmp.setValues().data(), valuesP_d.data(), matrixP_gpu_res_tmp.size());
+    matrixP_gpu_res_tmp.initializeValue(cuUtil::D2H(valuesP_d.data(), matrixP_gpu_res_tmp.size()));
 
     SparseMatrix<float> matrixP_gpu_res(matrixS.row(), matrixS.col(), matrixS.nnz(),
                                         matrixS.rowIndex(), matrixS.colIndex());
@@ -129,6 +128,8 @@ int main() {
 //    matrixP_gpu_res.outputToMarketMatrixFile("matrixP_gpu_res");
 
     checkData(matrixP_cpu_res.values(), matrixP_gpu_res.values());
+
+//    dmm_cpu(matrixA,matrixB,matrixS2D);
 
 //    std::cout << "matrixP_gpu_res : " << std::endl;
 //    matrixP_gpu_res.print();
