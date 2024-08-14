@@ -4,16 +4,7 @@
 
 #include "util.hpp"
 
-template<typename T>
-std::uniform_real_distribution<T> createRandomUniformDistribution(T min, T max) {
-    std::uniform_real_distribution<float> distribution(min, max);
-    return distribution;
-}
-template<typename T>
-std::uniform_int_distribution<int> createRandomUniformDistribution(int min, int max) {
-    std::uniform_int_distribution<int> distribution(min, max);
-    return distribution;
-}
+namespace util {
 
 template<>
 float getRandomData(std::mt19937 &generator, float min, float max) {
@@ -83,3 +74,5 @@ bool getDenseMatrixFromFile(const std::string &filePath1, const std::string &fil
 
     return true;
 }
+
+} // namespace util

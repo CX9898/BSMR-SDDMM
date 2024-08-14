@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-
+namespace util {
 /**
  * namespace io
  * Including file IO functions
@@ -29,19 +29,27 @@ inline bool fileExists(const std::string &filename) {
 /**
  * @funcitonName: createRandomUniformDistribution
  * @functionInterpretation: Depending on the type passed to the template,
- * create a uniform distribution that is suitable for float-type or int-type
+ * create a uniform distribution that is suitable for float-type or int-type.
+ * parameter must be use `static_cast`.
+ *
  * @input:
  * `min`: minimum value.
  * `max`: maximum value
  * @output:
  * `std::uniform_real_distribution` or `std::uniform_int_distribution`
  **/
-template<typename T>
-std::uniform_real_distribution<T> createRandomUniformDistribution(T min, T max);
-template<typename T>
-std::uniform_int_distribution<int> createRandomUniformDistribution(int min, int max);
-template<typename T>
-std::uniform_int_distribution<uint64_t> createRandomUniformDistribution(uint64_t min, uint64_t max);
+inline std::uniform_real_distribution<float> createRandomUniformDistribution(float min, float max) {
+    return std::uniform_real_distribution<float>(min, max);
+}
+inline std::uniform_real_distribution<double> createRandomUniformDistribution(double min, double max) {
+    return std::uniform_real_distribution<double>(min, max);
+}
+inline std::uniform_int_distribution<int> createRandomUniformDistribution(int min, int max) {
+    return std::uniform_int_distribution<int>(min, max);
+}
+inline std::uniform_int_distribution<uint64_t> createRandomUniformDistribution(uint64_t min, uint64_t max) {
+    return std::uniform_int_distribution<uint64_t>(min, max);
+}
 
 template<typename T>
 T getRandomData(std::mt19937 &generator, T min, T max);
@@ -69,3 +77,4 @@ std::string iterateOneWordFromLine(const std::string &line, int &wordIter);
 template<typename T>
 bool getDenseMatrixFromFile(const std::string &filePath1, const std::string &filePath2,
                             std::vector<T> &data1, std::vector<T> &data2);
+}// namespace util
