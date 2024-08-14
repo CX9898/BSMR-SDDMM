@@ -4,7 +4,7 @@
 #include <cuda_runtime.h>
 
 #include <vector>
-
+namespace cuUtil{
 inline void printCudaErrorStringSync() {
     fprintf(stderr, "CUDA Error : %s\n", cudaGetErrorString(cudaDeviceSynchronize()));
 }
@@ -60,3 +60,5 @@ inline void cudaSync() {
 }
 
 } // namespace dev
+
+}// namespace cuUtil
