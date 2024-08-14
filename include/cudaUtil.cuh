@@ -32,6 +32,13 @@ inline void D2H(std::vector<T> &host, const T *dev, const size_t size) {
 }
 
 template<typename T>
+inline std::vector<T> D2H(const T *dev, const size_t size) {
+    std::vector<T> host(size);
+    cudaMemcpy(host.data(), dev, size * sizeof(T), cudaMemcpyDeviceToHost);
+    return host;
+}
+
+template<typename T>
 inline void D2D(T *dest, const T *src, const size_t size) {
     cudaMemcpy(dest, src, size * sizeof(T), cudaMemcpyDeviceToHost);
 }
