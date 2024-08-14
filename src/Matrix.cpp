@@ -13,11 +13,11 @@ SparseMatrix<T>::SparseMatrix(const std::string &filePath) {
     std::ifstream inFile;
     inFile.open(filePath, std::ios::in); // open file
     if (!inFile.is_open()) {
-        std::cerr << "Error, Matrix Market file cannot be opened : " << filePath << std::endl;
+        std::cerr << "Error, MatrixMarket file cannot be opened : " << filePath << std::endl;
         return;
     }
 
-    std::cout << "SparseMatrix initialize From MatrixMarketFile : " << filePath << std::endl;
+    std::cout << "SparseMatrix initialize From MatrixMarket file : " << filePath << std::endl;
 
     std::string line; // Store the data for each line
     getline(inFile, line); // First line does not operate
