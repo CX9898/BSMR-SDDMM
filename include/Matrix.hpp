@@ -69,7 +69,6 @@ class Matrix {
 
   void makeData(size_t numRow, size_t numCol, MatrixStorageOrder storageOrder = MatrixStorageOrder::row_major);
 
-  // TODO : Overloads operator <<
   void print();
 
   size_t size() const {
@@ -93,6 +92,19 @@ class Matrix {
 
   std::vector<T> &setValues() {
       return values_;
+  }
+
+  const T &operator[](size_t idx) const {
+      if (idx > size_) {
+          std::cerr << "Error! Array access out of bounds" << std::endl;
+      }
+      return values_[idx];
+  }
+  T &operator[](size_t idx) {
+      if (idx > size_) {
+          std::cerr << "Error! Array access out of bounds" << std::endl;
+      }
+      return values_[idx];
   }
 
  private:
@@ -170,6 +182,19 @@ class SparseMatrix {
 
   std::vector<T> &setValues() {
       return values_;
+  }
+
+  const T &operator[](size_t idx) const {
+      if (idx > nnz_) {
+          std::cerr << "Error! Array access out of bounds" << std::endl;
+      }
+      return values_[idx];
+  }
+  T &operator[](size_t idx) {
+      if (idx > nnz_) {
+          std::cerr << "Error! Array access out of bounds" << std::endl;
+      }
+      return values_[idx];
   }
 
  private:
