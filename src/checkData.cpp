@@ -25,12 +25,12 @@ bool checkData(const size_t num, const float *data1, const float *data2) {
     }
 
     if (errors > 0) {
-        printf("Inconsistent data! %d errors!\n", errors);
+        printf("No Pass! Inconsistent data! %d errors!\n", errors);
 
         return false;
     }
 
-    printf("Result validates successfully.\n");
+    printf("Pass! Result validates successfully.\n");
 
     return true;
 }
