@@ -392,6 +392,29 @@ void Matrix<T>::closeTensorCoreMode() {
     values_tensor_.clear();
 }
 
+template<typename T>
+void SparseMatrix<T>::openTensorCoreMode() {
+    if (tensorCoreMode_) {
+        return;
+    }
+    tensorCoreMode_ = true;
+
+    const size_t rowComplement = WMMA_M - row_ % WMMA_M;
+    const size_t colComplement = WMMA_N - col_ % WMMA_N;
+    row_tensor_ = row_ + rowComplement;
+    col_tensor_ = col_ + colComplement;
+}
+
+template<typename T>
+void SparseMatrix<T>::closeTensorCoreMode() {
+    if (!tensorCoreMode_) {
+        return;
+    }
+    tensorCoreMode_ = false;
+    row_tensor_ = 0;
+    col_tensor_ = 0;
+}
+
 template
 class Matrix<int>;
 template

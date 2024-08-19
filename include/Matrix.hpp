@@ -238,6 +238,24 @@ class SparseMatrix {
       return values_[idx];
   }
 
+  /**
+   * tensor core mode
+   **/
+  void openTensorCoreMode();
+  void closeTensorCoreMode();
+  size_t row_tensor() const {
+      if (!tensorCoreMode_) {
+          return 0;
+      }
+      return row_tensor_;
+  }
+  size_t col_tensor() const {
+      if (!tensorCoreMode_) {
+          return 0;
+      }
+      return col_tensor_;
+  }
+
  private:
   size_t row_;
   size_t col_;
@@ -247,9 +265,9 @@ class SparseMatrix {
   std::vector<UIN> colIndex_;
   std::vector<T> values_;
 
+  bool tensorCoreMode_ = false;
   size_t row_tensor_;
   size_t col_tensor_;
-  size_t nnz_tensor_;
 };
 
 template<typename T>
