@@ -7,6 +7,7 @@
 #include "Matrix.hpp"
 #include "util.hpp"
 #include "cudaUtil.cuh"
+#include "wmmaSetting.hpp"
 
 template<typename T>
 SparseMatrix<T>::SparseMatrix(const std::string &filePath) {
@@ -350,6 +351,45 @@ void SparseMatrix<T>::makeData(const size_t numRow, const size_t numCol, const s
             cuUtil::host::sort(colIndex_.data() + lastBegin, colIndex_.data() + colIndex_.size());
         }
     }
+}
+
+template<typename T>
+void Matrix<T>::openTensorCoreMode() {
+    if (tensorCoreMode_) {
+        return;
+    }
+    tensorCoreMode_ = true;
+
+    const size_t rowComplement = WMMA_M - row_ % WMMA_M;
+    const size_t colComplement = WMMA_N - col_ % WMMA_N;
+    row_tensor_ = row_ + rowComplement;
+    col_tensor_ = col_ + colComplement;
+    size_tensor_ = row_tensor_ * col_tensor_;
+
+    values_tensor_ = values_;
+    if (storageOrder_ == MatrixStorageOrder::row_major) {
+        for (int rowIter = 0; rowIter < row_; ++rowIter) {
+            values_tensor_.insert(values_tensor_.begin() + rowIter * row_tensor_ + col_, colComplement, 0);
+        }
+        values_tensor_.insert(values_tensor_.end() - 1, col_tensor_, 0);
+    } else {
+        for (int colIter = 0; colIter < col_; ++colIter) {
+            values_tensor_.insert(values_tensor_.begin() + colIter * col_tensor_ + row_, rowComplement, 0);
+        }
+        values_tensor_.insert(values_tensor_.end() - 1, row_tensor_, 0);
+    }
+}
+
+template<typename T>
+void Matrix<T>::closeTensorCoreMode() {
+    if (!tensorCoreMode_) {
+        return;
+    }
+    tensorCoreMode_ = false;
+    row_tensor_ = 0;
+    col_tensor_ = 0;
+    size_tensor_ = 0;
+    values_tensor_.clear();
 }
 
 template

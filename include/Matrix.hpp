@@ -107,6 +107,36 @@ class Matrix {
       return values_[idx];
   }
 
+  /**
+   * tensor core mode
+   **/
+  void openTensorCoreMode();
+  void closeTensorCoreMode();
+  size_t row_tensor() const {
+      if (!tensorCoreMode_) {
+          return 0;
+      }
+      return row_tensor_;
+  }
+  size_t col_tensor() const {
+      if (!tensorCoreMode_) {
+          return 0;
+      }
+      return col_tensor_;
+  }
+  size_t size_tensor() const {
+      if (!tensorCoreMode_) {
+          return 0;
+      }
+      return size_tensor_;
+  }
+  const std::vector<T> &values_tensor() const {
+      if (!tensorCoreMode_) {
+          return std::vector<T>(0);
+      }
+      return values_tensor_;
+  }
+
  private:
   size_t row_;
   size_t col_;
@@ -115,6 +145,13 @@ class Matrix {
   size_t leadingDimension_;
 
   std::vector<T> values_;
+
+  bool tensorCoreMode_ = false;
+  size_t row_tensor_;
+  size_t col_tensor_;
+  size_t size_tensor_;
+
+  std::vector<T> values_tensor_;
 };
 
 /**
@@ -209,6 +246,10 @@ class SparseMatrix {
   std::vector<UIN> rowIndex_;
   std::vector<UIN> colIndex_;
   std::vector<T> values_;
+
+  size_t row_tensor_;
+  size_t col_tensor_;
+  size_t nnz_tensor_;
 };
 
 template<typename T>
