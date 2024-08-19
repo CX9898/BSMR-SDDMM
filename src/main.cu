@@ -43,7 +43,7 @@ int main() {
     SparseMatrix<float> matrixS(filePath);
 
 //    const int K = 1 * WMMA_K;
-    const int K = 32;
+    const int K = 2;
     const int M = matrixS.row();
     const int N = matrixS.col();
     const int MATRIX_A_SIZE = M * K;
@@ -56,36 +56,32 @@ int main() {
 //    std::cout << "matrixS : " << std::endl;
 //    matrixS.print();
 
-    Matrix<float> matrixS2D(matrixS);
-
     Matrix<float> matrixA(M, K, MATRIX_A_SIZE, MatrixStorageOrder::row_major, K);
     matrixA.makeData(M, K, MatrixStorageOrder::row_major);
 //    initial(matrixA.setValues(), M, K);
-//    std::cout << "matrixA : ";
+//    std::cout << "matrixA.size() : " << matrixA.values().size() << " matrixA : ";
 //    matrixA.print();
 
     Matrix<float> matrixB(K, N, MATRIX_B_SIZE, MatrixStorageOrder::row_major, N);
     matrixB.makeData(K, N, MatrixStorageOrder::row_major);
 //    initial(matrixB.setValues(), N, K);
-//    std::cout << "matrixB : ";
+//    std::cout << "matrixB.size() : " << matrixB.values().size() << " matrixB : ";
 //    matrixB.print();
+
+    matrixA.openTensorCoreMode(MatrixMultiplicationOrder::left_multiplication);
+    matrixB.openTensorCoreMode(MatrixMultiplicationOrder::right_multiplication);
+    matrixS.openTensorCoreModeForSampled();
 
 //    matrixA.changeStorageOrder();
 //    matrixB.changeStorageOrder();
-
-    SparseMatrix<float> matrixP_cpu_res(matrixS.row(), matrixS.col(), matrixS.nnz(),
-                                        matrixS.rowIndex(), matrixS.colIndex());
-
-    // comp by cpu
-    sddmm_cpu_coo(matrixA, matrixB, matrixS, matrixP_cpu_res);
-
-//    std::cout << "matrixP_cpu_res.values() : " << std::endl;
-//    matrixP_cpu_res.print();
 
     dev::vector<float> valuesA_d(matrixA.size());
     dev::vector<half> valuesAfp16_d(matrixA.size());
     dev::vector<float> valuesB_d(matrixB.size());
     dev::vector<half> valuesBfp16_d(matrixB.size());
+
+    Matrix<float> matrixS2D(matrixS);
+
     dev::vector<float> valuesS_d(matrixS2D.size());
     dev::vector<float> valuesP_d(matrixS2D.size());
 
@@ -126,6 +122,19 @@ int main() {
     matrixP_gpu_res.setValuesFromMatrix(matrixP_gpu_res_tmp);
 
 //    matrixP_gpu_res.outputToMarketMatrixFile("matrixP_gpu_res");
+
+    matrixA.closeTensorCoreMode();
+    matrixB.closeTensorCoreMode();
+    matrixS.closeTensorCoreMode();
+
+    SparseMatrix<float> matrixP_cpu_res(matrixS.row(), matrixS.col(), matrixS.nnz(),
+                                        matrixS.rowIndex(), matrixS.colIndex());
+
+    // comp by cpu
+    sddmm_cpu_coo(matrixA, matrixB, matrixS, matrixP_cpu_res);
+
+//    std::cout << "matrixP_cpu_res.values() : " << std::endl;
+//    matrixP_cpu_res.print();
 
     checkData(matrixP_cpu_res.values(), matrixP_gpu_res.values());
 
