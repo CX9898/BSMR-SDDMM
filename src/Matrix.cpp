@@ -439,6 +439,21 @@ void SparseMatrix<T>::openTensorCoreMode(MatrixMultiplicationOrder multiplicatio
 }
 
 template<typename T>
+void SparseMatrix<T>::openTensorCoreModeForSampled() {
+    if (tensorCoreMode_) {
+        return;
+    }
+    tensorCoreMode_ = true;
+    rowBeforeChange_ = row_;
+    colBeforeChange_ = col_;
+
+    const UIN rowComplement = WMMA_M - rowBeforeChange_ % WMMA_M;
+    const UIN colComplement = WMMA_N - colBeforeChange_ % WMMA_N;
+    row_ = rowBeforeChange_ + rowComplement;
+    col_ = colBeforeChange_ + colComplement;
+}
+
+template<typename T>
 void SparseMatrix<T>::closeTensorCoreMode() {
     if (!tensorCoreMode_) {
         return;

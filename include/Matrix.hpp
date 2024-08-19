@@ -215,6 +215,7 @@ class SparseMatrix {
    * tensor core mode
    **/
   void openTensorCoreMode(MatrixMultiplicationOrder multiplicationOrder);
+  void openTensorCoreModeForSampled();
   void closeTensorCoreMode();
 
  private:
