@@ -37,7 +37,10 @@ file(GLOB SRC_FILES "${SRC_DIR}/*.c" "${SRC_DIR}/*.cpp" "${SRC_DIR}/*.cc" "${SRC
 message(STATUS "Src files: ${SRC_FILES}")
 
 # Add generate target
-add_executable(${PROJECT_NAME} ${SRC_FILES})
+add_executable(${PROJECT_NAME})
+
+# Link the source file to the build target
+target_sources(${PROJECT_NAME} PRIVATE ${SRC_FILES})
 
 # test isratnisa code
 if (${testIsratnisaCode})
