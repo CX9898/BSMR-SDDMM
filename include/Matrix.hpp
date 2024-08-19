@@ -146,11 +146,13 @@ class Matrix {
 
   std::vector<T> values_;
 
+  // TODO: Add tensorCoreMode judgements to all function calls
   bool tensorCoreMode_ = false;
   size_t row_tensor_;
   size_t col_tensor_;
   size_t size_tensor_;
 
+  // TODO: delete `values_tensor_` and change `values_`
   std::vector<T> values_tensor_;
 };
 
