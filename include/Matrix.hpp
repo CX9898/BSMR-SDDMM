@@ -132,7 +132,7 @@ class Matrix {
   }
   const std::vector<T> &values_tensor() const {
       if (!tensorCoreMode_) {
-          return std::vector<T>(0);
+          //
       }
       return values_tensor_;
   }
