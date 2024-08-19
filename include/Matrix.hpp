@@ -110,32 +110,8 @@ class Matrix {
   /**
    * tensor core mode
    **/
-  void openTensorCoreMode();
+  void openTensorCoreMode(MatrixMultiplicationOrder multiplicationOrder);
   void closeTensorCoreMode();
-  UIN row_tensor() const {
-      if (!tensorCoreMode_) {
-          return 0;
-      }
-      return row_tensor_;
-  }
-  UIN col_tensor() const {
-      if (!tensorCoreMode_) {
-          return 0;
-      }
-      return col_tensor_;
-  }
-  UIN UINensor() const {
-      if (!tensorCoreMode_) {
-          return 0;
-      }
-      return UINensor_;
-  }
-  const std::vector<T> &values_tensor() const {
-      if (!tensorCoreMode_) {
-          //
-      }
-      return values_tensor_;
-  }
 
  private:
   UIN row_;
@@ -146,14 +122,9 @@ class Matrix {
 
   std::vector<T> values_;
 
-  // TODO: Add tensorCoreMode judgements to all function calls
   bool tensorCoreMode_ = false;
-  UIN row_tensor_;
-  UIN col_tensor_;
-  UIN UINensor_;
-
-  // TODO: delete `values_tensor_` and change `values_`
-  std::vector<T> values_tensor_;
+  UIN rowBeforeChange_;
+  UIN colBeforeChange_;
 };
 
 /**
@@ -243,20 +214,8 @@ class SparseMatrix {
   /**
    * tensor core mode
    **/
-  void openTensorCoreMode();
+  void openTensorCoreMode(MatrixMultiplicationOrder multiplicationOrder);
   void closeTensorCoreMode();
-  UIN row_tensor() const {
-      if (!tensorCoreMode_) {
-          return 0;
-      }
-      return row_tensor_;
-  }
-  UIN col_tensor() const {
-      if (!tensorCoreMode_) {
-          return 0;
-      }
-      return col_tensor_;
-  }
 
  private:
   UIN row_;
@@ -268,8 +227,8 @@ class SparseMatrix {
   std::vector<T> values_;
 
   bool tensorCoreMode_ = false;
-  UIN row_tensor_;
-  UIN col_tensor_;
+  UIN rowBeforeChange_;
+  UIN colBeforeChange_;
 };
 
 template<typename T>

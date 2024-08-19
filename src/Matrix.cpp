@@ -168,29 +168,38 @@ T Matrix<T>::getOneValue(int row, int col) const {
 }
 
 template<typename T>
-void Matrix<T>::openTensorCoreMode() {
+void Matrix<T>::openTensorCoreMode(MatrixMultiplicationOrder multiplicationOrder) {
     if (tensorCoreMode_) {
         return;
     }
     tensorCoreMode_ = true;
+    rowBeforeChange_ = row_;
+    colBeforeChange_ = col_;
 
-    const UIN rowComplement = WMMA_M - row_ % WMMA_M;
-    const UIN colComplement = WMMA_N - col_ % WMMA_N;
-    row_tensor_ = row_ + rowComplement;
-    col_tensor_ = col_ + colComplement;
-    UINensor_ = row_tensor_ * col_tensor_;
-
-    values_tensor_ = values_;
-    if (storageOrder_ == MatrixStorageOrder::row_major) {
-        for (int rowIter = 0; rowIter < row_; ++rowIter) {
-            values_tensor_.insert(values_tensor_.begin() + rowIter * row_tensor_ + col_, colComplement, 0);
-        }
-        values_tensor_.insert(values_tensor_.end() - 1, col_tensor_, 0);
+    UIN rowComplement;
+    UIN colComplement;
+    if (multiplicationOrder == MatrixMultiplicationOrder::left_multiplication) {
+        rowComplement = WMMA_M - rowBeforeChange_ % WMMA_M;
+        colComplement = WMMA_K - colBeforeChange_ % WMMA_K;
     } else {
-        for (int colIter = 0; colIter < col_; ++colIter) {
-            values_tensor_.insert(values_tensor_.begin() + colIter * col_tensor_ + row_, rowComplement, 0);
+        rowComplement = WMMA_K - rowBeforeChange_ % WMMA_K;
+        colComplement = WMMA_N - colBeforeChange_ % WMMA_N;
+    }
+
+    row_ = rowBeforeChange_ + rowComplement;
+    col_ = colBeforeChange_ + colComplement;
+    size_ = row_ * col_;
+
+    if (storageOrder_ == MatrixStorageOrder::row_major) {
+        for (int rowIter = 0; rowIter < rowBeforeChange_; ++rowIter) {
+            values_.insert(values_.begin() + rowIter * row_ + colBeforeChange_, colComplement, 0);
         }
-        values_tensor_.insert(values_tensor_.end() - 1, row_tensor_, 0);
+        values_.insert(values_.end() - 1, rowComplement * col_, 0);
+    } else {
+        for (int colIter = 0; colIter < colBeforeChange_; ++colIter) {
+            values_.insert(values_.begin() + colIter * col_ + rowBeforeChange_, rowComplement, 0);
+        }
+        values_.insert(values_.end() - 1, colComplement * row_, 0);
     }
 }
 
@@ -200,10 +209,25 @@ void Matrix<T>::closeTensorCoreMode() {
         return;
     }
     tensorCoreMode_ = false;
-    row_tensor_ = 0;
-    col_tensor_ = 0;
-    UINensor_ = 0;
-    values_tensor_.clear();
+
+    const UIN rowComplement = abs(row_ - rowBeforeChange_);
+    const UIN colComplement = abs(col_ - colBeforeChange_);
+
+    if (storageOrder_ == MatrixStorageOrder::row_major) {
+        for (int rowIter = 0; rowIter < rowBeforeChange_; ++rowIter) {
+            const auto curRowBeginIter = values_.begin() + rowIter * colBeforeChange_ + colBeforeChange_;
+            values_.erase(curRowBeginIter, curRowBeginIter + colComplement);
+        }
+    } else {
+        for (int colIter = 0; colIter < colBeforeChange_; ++colIter) {
+            const auto curColBeginIter = values_.begin() + colIter * rowBeforeChange_ + rowBeforeChange_;
+            values_.erase(curColBeginIter, curColBeginIter + rowComplement);
+        }
+    }
+    row_ = rowBeforeChange_;
+    col_ = colBeforeChange_;
+    size_ = row_ * col_;
+    values_.resize(size_);
 }
 
 template<typename T>
@@ -393,16 +417,25 @@ void SparseMatrix<T>::makeData(const UIN numRow, const UIN numCol, const UIN nnz
 }
 
 template<typename T>
-void SparseMatrix<T>::openTensorCoreMode() {
+void SparseMatrix<T>::openTensorCoreMode(MatrixMultiplicationOrder multiplicationOrder) {
     if (tensorCoreMode_) {
         return;
     }
     tensorCoreMode_ = true;
+    rowBeforeChange_ = row_;
+    colBeforeChange_ = col_;
 
-    const UIN rowComplement = WMMA_M - row_ % WMMA_M;
-    const UIN colComplement = WMMA_N - col_ % WMMA_N;
-    row_tensor_ = row_ + rowComplement;
-    col_tensor_ = col_ + colComplement;
+    UIN rowComplement;
+    UIN colComplement;
+    if (multiplicationOrder == MatrixMultiplicationOrder::left_multiplication) {
+        rowComplement = WMMA_M - rowBeforeChange_ % WMMA_M;
+        colComplement = WMMA_K - colBeforeChange_ % WMMA_K;
+    } else {
+        rowComplement = WMMA_K - rowBeforeChange_ % WMMA_K;
+        colComplement = WMMA_N - colBeforeChange_ % WMMA_N;
+    }
+    row_ = rowBeforeChange_ + rowComplement;
+    col_ = colBeforeChange_ + colComplement;
 }
 
 template<typename T>
@@ -411,8 +444,8 @@ void SparseMatrix<T>::closeTensorCoreMode() {
         return;
     }
     tensorCoreMode_ = false;
-    row_tensor_ = 0;
-    col_tensor_ = 0;
+    row_ = rowBeforeChange_;
+    col_ = colBeforeChange_;
 }
 
 template
