@@ -35,7 +35,7 @@ Matrix<T>::Matrix(const SparseMatrix<T> &matrixS) {
 }
 
 template<typename T>
-size_t Matrix<T>::rowOfValueIndex(size_t idx) {
+UIN Matrix<T>::rowOfValueIndex(UIN idx) const {
     if (idx == 0) {
         return 0;
     }
@@ -47,7 +47,7 @@ size_t Matrix<T>::rowOfValueIndex(size_t idx) {
 }
 
 template<typename T>
-size_t Matrix<T>::colOfValueIndex(size_t idx) {
+UIN Matrix<T>::colOfValueIndex(UIN idx) const {
     if (idx == 0) {
         return 0;
     }
@@ -75,7 +75,7 @@ void Matrix<T>::changeStorageOrder() {
     const auto &oldValues = values_;
 
     MatrixStorageOrder newMatrixOrder;
-    size_t newLd;
+    UIN newLd;
     std::vector<T> newValues(size_);
     if (oldMajorOrder == MatrixStorageOrder::row_major) {
         newMatrixOrder = MatrixStorageOrder::col_major;
@@ -107,7 +107,7 @@ void Matrix<T>::changeStorageOrder() {
 }
 
 template<typename T>
-void Matrix<T>::makeData(size_t numRow, size_t numCol, MatrixStorageOrder storageOrder) {
+void Matrix<T>::makeData(UIN numRow, UIN numCol, MatrixStorageOrder storageOrder) {
     row_ = numRow;
     col_ = numCol;
     size_ = numRow * numCol;
@@ -131,7 +131,7 @@ void Matrix<T>::makeData(size_t numRow, size_t numCol, MatrixStorageOrder storag
 }
 
 template<typename T>
-void Matrix<T>::print() {
+void Matrix<T>::print() const {
     for (auto iter : values_) {
         std::cout << iter << " ";
     }
@@ -140,9 +140,9 @@ void Matrix<T>::print() {
 
 template<typename T>
 T Matrix<T>::getOneValueForMultiplication(MatrixMultiplicationOrder multiplicationOrder,
-                                          size_t row,
-                                          size_t col,
-                                          size_t k) const {
+                                          UIN row,
+                                          UIN col,
+                                          UIN k) const {
     if (multiplicationOrder == MatrixMultiplicationOrder::left_multiplication) {
         if (storageOrder_ == MatrixStorageOrder::row_major) {
             return values_[row * leadingDimension_ + k];
@@ -174,11 +174,11 @@ void Matrix<T>::openTensorCoreMode() {
     }
     tensorCoreMode_ = true;
 
-    const size_t rowComplement = WMMA_M - row_ % WMMA_M;
-    const size_t colComplement = WMMA_N - col_ % WMMA_N;
+    const UIN rowComplement = WMMA_M - row_ % WMMA_M;
+    const UIN colComplement = WMMA_N - col_ % WMMA_N;
     row_tensor_ = row_ + rowComplement;
     col_tensor_ = col_ + colComplement;
-    size_tensor_ = row_tensor_ * col_tensor_;
+    UINensor_ = row_tensor_ * col_tensor_;
 
     values_tensor_ = values_;
     if (storageOrder_ == MatrixStorageOrder::row_major) {
@@ -202,12 +202,12 @@ void Matrix<T>::closeTensorCoreMode() {
     tensorCoreMode_ = false;
     row_tensor_ = 0;
     col_tensor_ = 0;
-    size_tensor_ = 0;
+    UINensor_ = 0;
     values_tensor_.clear();
 }
 
 template<typename T>
-void SparseMatrix<T>::print() {
+void SparseMatrix<T>::print() const {
     std::cout << "SparseMatrix : [row,col,value]" << std::endl;
     for (int idx = 0; idx < nnz_; ++idx) {
         std::cout << "[" << rowIndex_[idx] << ","
@@ -282,7 +282,7 @@ SparseMatrix<T>::SparseMatrix(const std::string &filePath) {
 }
 
 template<typename T>
-void SparseMatrix<T>::getSpareMatrixOneDataByCOO(const int idx, size_t &row, size_t &col, T &value) const {
+void SparseMatrix<T>::getSpareMatrixOneDataByCOO(const int idx, UIN &row, UIN &col, T &value) const {
     row = rowIndex_[idx];
     col = colIndex_[idx];
     value = values_[idx];
@@ -338,7 +338,7 @@ bool SparseMatrix<T>::outputToMarketMatrixFile(const std::string &fileName) {
 }
 
 template<typename T>
-void SparseMatrix<T>::makeData(const size_t numRow, const size_t numCol, const size_t nnz) {
+void SparseMatrix<T>::makeData(const UIN numRow, const UIN numCol, const UIN nnz) {
     row_ = numRow;
     col_ = numCol;
     nnz_ = nnz;
@@ -399,8 +399,8 @@ void SparseMatrix<T>::openTensorCoreMode() {
     }
     tensorCoreMode_ = true;
 
-    const size_t rowComplement = WMMA_M - row_ % WMMA_M;
-    const size_t colComplement = WMMA_N - col_ % WMMA_N;
+    const UIN rowComplement = WMMA_M - row_ % WMMA_M;
+    const UIN colComplement = WMMA_N - col_ % WMMA_N;
     row_tensor_ = row_ + rowComplement;
     col_tensor_ = col_ + colComplement;
 }
