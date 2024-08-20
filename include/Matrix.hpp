@@ -52,6 +52,9 @@ class Matrix {
         storageOrder_(matrixOrder),
         values_(values) {
       leadingDimension_ = matrixOrder == MatrixStorageOrder::row_major ? col : row;
+      if(row * col != values.size()){
+          std::cout << "Warning! Matrix initialization mismatch" << std::endl;
+      }
       rowBeforeChange_ = row;
       colBeforeChange_ = col;
   }

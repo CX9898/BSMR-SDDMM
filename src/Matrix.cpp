@@ -248,8 +248,8 @@ void SparseMatrix<T>::print() const {
 
 template<typename T>
 bool SparseMatrix<T>::setValuesFromMatrix(const Matrix<T> &inputMatrix) {
-    if(inputMatrix.row() != row_ || inputMatrix.col() != col_){
-        std::cout << "Warning! The rows and columns of the input matrix do not match." << std::endl;
+    if(inputMatrix.row() < row_ || inputMatrix.col() < col_){
+        std::cout << "Warning! The input matrix size is too small." << std::endl;
     }
     values_.clear();
     values_.resize(nnz_);
