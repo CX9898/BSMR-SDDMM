@@ -31,6 +31,9 @@ Matrix<T>::Matrix(const SparseMatrix<T> &matrixS) {
 
         values_[row * ld + col] = val;
     }
+
+    rowBeforeChange_ = row_;
+    colBeforeChange_ = col_;
 }
 
 template<typename T>
@@ -196,7 +199,7 @@ void Matrix<T>::openTensorCoreMode(MatrixMultiplicationOrder multiplicationOrder
         for (int colIter = 0; colIter < colBeforeChange_; ++colIter) {
             values_.insert(values_.begin() + colIter * col_ + rowBeforeChange_, rowComplement, 0);
         }
-        values_.insert(values_.end() , colComplement * row_, 0);
+        values_.insert(values_.end(), colComplement * row_, 0);
     }
 }
 
@@ -299,6 +302,9 @@ SparseMatrix<T>::SparseMatrix(const std::string &filePath) {
     }
 
     inFile.close();
+
+    rowBeforeChange_ = row_;
+    colBeforeChange_ = col_;
 }
 
 template<typename T>

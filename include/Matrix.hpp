@@ -33,23 +33,28 @@ class Matrix {
 
   Matrix(UIN row,
          UIN col,
-         MatrixStorageOrder matrixOrder,
-         UIN leadingDimension)
+         MatrixStorageOrder matrixOrder)
       : row_(row),
         col_(col),
-        storageOrder_(matrixOrder),
-        leadingDimension_(leadingDimension) { values_.resize(row * col); }
+        storageOrder_(matrixOrder) {
+      leadingDimension_ = matrixOrder == MatrixStorageOrder::row_major ? col : row;
+      values_.resize(row * col);
+      rowBeforeChange_ = row;
+      colBeforeChange_ = col;
+  }
 
   Matrix(UIN row,
          UIN col,
          MatrixStorageOrder matrixOrder,
-         UIN leadingDimension,
          const std::vector<T> &values)
       : row_(row),
         col_(col),
         storageOrder_(matrixOrder),
-        leadingDimension_(leadingDimension),
-        values_(values) {}
+        values_(values) {
+      leadingDimension_ = matrixOrder == MatrixStorageOrder::row_major ? col : row;
+      rowBeforeChange_ = row;
+      colBeforeChange_ = col;
+  }
 
   Matrix(const SparseMatrix<T> &matrixS);
 
@@ -137,9 +142,18 @@ class SparseMatrix {
       rowIndex_.resize(nnz);
       colIndex_.resize(nnz);
       values_.resize(nnz);
+      rowBeforeChange_ = row;
+      colBeforeChange_ = col;
   }
   SparseMatrix(UIN row, UIN col, UIN nnz, const std::vector<UIN> &rowIndex, const std::vector<UIN> &colIndex)
-      : row_(row), col_(col), nnz_(nnz), rowIndex_(rowIndex), colIndex_(colIndex) { values_.resize(nnz); }
+      : row_(row), col_(col), nnz_(nnz), rowIndex_(rowIndex), colIndex_(colIndex) {
+      values_.resize(nnz);
+      if(rowIndex.size() != colIndex.size() != values_.size()){
+          std::cerr << "Error! SparseMatrix initialization error!" << std::endl;
+      }
+      rowBeforeChange_ = row;
+      colBeforeChange_ = col;
+  }
 
   /**
    * Initialize from MatrixMarket file.
