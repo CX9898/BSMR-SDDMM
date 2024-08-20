@@ -1,10 +1,13 @@
 #pragma once
 
 #include <cstdio>
+#include <vector>
+
 #include <cuda_runtime.h>
 
-#include <vector>
-namespace cuUtil{
+#include "devVector.cuh"
+
+namespace cuUtil {
 inline void printCudaErrorStringSync() {
     fprintf(stderr, "CUDA Error : %s\n", cudaGetErrorString(cudaDeviceSynchronize()));
 }
@@ -15,13 +18,13 @@ inline void H2D(T *dev, const T *host, const size_t size) {
 }
 
 template<typename T>
-inline void D2H(T *host, const T *dev, const size_t size) {
-    cudaMemcpy(host, dev, size * sizeof(T), cudaMemcpyDeviceToHost);
+inline void H2D(T *dev, const std::vector<T> &host) {
+    cudaMemcpy(dev, host.data(), host.size() * sizeof(T), cudaMemcpyHostToDevice);
 }
 
 template<typename T>
-inline void H2D(T *dev, const std::vector<T> &host) {
-    cudaMemcpy(dev, host.data(), host.size() * sizeof(T), cudaMemcpyHostToDevice);
+inline void D2H(T *host, const T *dev, const size_t size) {
+    cudaMemcpy(host, dev, size * sizeof(T), cudaMemcpyDeviceToHost);
 }
 
 template<typename T>
@@ -41,6 +44,13 @@ inline std::vector<T> D2H(const T *dev, const size_t size) {
 template<typename T>
 inline void D2D(T *dest, const T *src, const size_t size) {
     cudaMemcpy(dest, src, size * sizeof(T), cudaMemcpyDeviceToHost);
+}
+
+template<typename T>
+inline std::vector<T> D2H(const dev::vector<T> &dev) {
+    std::vector<T> host(dev.size());
+    cudaMemcpy(host.data(), dev.data(), sizeof(T) * dev.size(), cudaMemcpyDeviceToHost);
+    return host;
 }
 
 namespace host {
