@@ -174,14 +174,14 @@ void Matrix<T>::openTensorCoreMode(MatrixMultiplicationOrder multiplicationOrder
     rowBeforeChange_ = row_;
     colBeforeChange_ = col_;
 
-    UIN rowComplement;
-    UIN colComplement;
+    UIN rowComplement = 0;
+    UIN colComplement = 0;
     if (multiplicationOrder == MatrixMultiplicationOrder::left_multiplication) {
-        rowComplement = WMMA_M - rowBeforeChange_ % WMMA_M;
-        colComplement = WMMA_K - colBeforeChange_ % WMMA_K;
+        rowComplement = rowBeforeChange_ % WMMA_M == 0 ? 0 : WMMA_M - rowBeforeChange_ % WMMA_M;
+        colComplement = colBeforeChange_ % WMMA_K == 0 ? 0 : WMMA_K - colBeforeChange_ % WMMA_K;
     } else {
-        rowComplement = WMMA_K - rowBeforeChange_ % WMMA_K;
-        colComplement = WMMA_N - colBeforeChange_ % WMMA_N;
+        rowComplement = rowBeforeChange_ % WMMA_K == 0 ? 0 : WMMA_K - rowBeforeChange_ % WMMA_K;
+        colComplement = colBeforeChange_ % WMMA_N == 0 ? 0 : WMMA_N - colBeforeChange_ % WMMA_N;
     }
 
     row_ = rowBeforeChange_ + rowComplement;
@@ -191,12 +191,12 @@ void Matrix<T>::openTensorCoreMode(MatrixMultiplicationOrder multiplicationOrder
         for (int rowIter = 0; rowIter < rowBeforeChange_; ++rowIter) {
             values_.insert(values_.begin() + rowIter * row_ + colBeforeChange_, colComplement, 0);
         }
-        values_.insert(values_.end() - 1, rowComplement * col_, 0);
+        values_.insert(values_.end(), rowComplement * col_, 0);
     } else {
         for (int colIter = 0; colIter < colBeforeChange_; ++colIter) {
             values_.insert(values_.begin() + colIter * col_ + rowBeforeChange_, rowComplement, 0);
         }
-        values_.insert(values_.end() - 1, colComplement * row_, 0);
+        values_.insert(values_.end() , colComplement * row_, 0);
     }
 }
 
