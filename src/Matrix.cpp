@@ -14,7 +14,6 @@ Matrix<T>::Matrix(const SparseMatrix<T> &matrixS) {
     row_ = matrixS.row();
     col_ = matrixS.col();
     const int size = matrixS.row() * matrixS.col();
-    size_ = size;
     storageOrder_ = MatrixStorageOrder::row_major;
     const int ld = matrixS.col();
     leadingDimension_ = ld;
@@ -60,7 +59,7 @@ UIN Matrix<T>::colOfValueIndex(UIN idx) const {
 
 template<typename T>
 bool Matrix<T>::initializeValue(const std::vector<T> &src) {
-    if (src.size() != size_) {
+    if (src.size() != row_ * col_) {
         std::cerr << "Error! Matrix value size mismatch" << std::endl;
         return false;
     }
@@ -76,7 +75,7 @@ void Matrix<T>::changeStorageOrder() {
 
     MatrixStorageOrder newMatrixOrder;
     UIN newLd;
-    std::vector<T> newValues(size_);
+    std::vector<T> newValues(values_.size());
     if (oldMajorOrder == MatrixStorageOrder::row_major) {
         newMatrixOrder = MatrixStorageOrder::col_major;
         newLd = row_;
@@ -110,14 +109,13 @@ template<typename T>
 void Matrix<T>::makeData(UIN numRow, UIN numCol, MatrixStorageOrder storageOrder) {
     row_ = numRow;
     col_ = numCol;
-    size_ = numRow * numCol;
     storageOrder_ = storageOrder;
     if (storageOrder == MatrixStorageOrder::row_major) {
         leadingDimension_ = numCol;
     } else {
         leadingDimension_ = numRow;
     }
-    values_.resize(size_);
+    values_.resize(numRow * numCol);
 
     for (int idx = 0; idx < values_.size(); ++idx) {
         values_[idx] = idx + 1;
@@ -188,7 +186,6 @@ void Matrix<T>::openTensorCoreMode(MatrixMultiplicationOrder multiplicationOrder
 
     row_ = rowBeforeChange_ + rowComplement;
     col_ = colBeforeChange_ + colComplement;
-    size_ = row_ * col_;
 
     if (storageOrder_ == MatrixStorageOrder::row_major) {
         for (int rowIter = 0; rowIter < rowBeforeChange_; ++rowIter) {
@@ -226,8 +223,7 @@ void Matrix<T>::closeTensorCoreMode() {
     }
     row_ = rowBeforeChange_;
     col_ = colBeforeChange_;
-    size_ = row_ * col_;
-    values_.resize(size_);
+    values_.resize(row_ * col_);
 }
 
 template<typename T>

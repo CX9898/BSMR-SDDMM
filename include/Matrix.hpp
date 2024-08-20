@@ -33,24 +33,20 @@ class Matrix {
 
   Matrix(UIN row,
          UIN col,
-         UIN size,
          MatrixStorageOrder matrixOrder,
          UIN leadingDimension)
       : row_(row),
         col_(col),
-        size_(size),
         storageOrder_(matrixOrder),
-        leadingDimension_(leadingDimension) { values_.resize(size); }
+        leadingDimension_(leadingDimension) { values_.resize(row * col); }
 
   Matrix(UIN row,
          UIN col,
-         UIN size,
          MatrixStorageOrder matrixOrder,
          UIN leadingDimension,
          const std::vector<T> &values)
       : row_(row),
         col_(col),
-        size_(size),
         storageOrder_(matrixOrder),
         leadingDimension_(leadingDimension),
         values_(values) {}
@@ -76,7 +72,7 @@ class Matrix {
   void print() const;
 
   UIN size() const {
-      return size_;
+      return values_.size();
   }
   MatrixStorageOrder storageOrder() const {
       return storageOrder_;
@@ -95,13 +91,13 @@ class Matrix {
   }
 
   const T &operator[](UIN idx) const {
-      if (idx > size_) {
+      if (idx > values_.size()) {
           std::cerr << "Error! Array access out of bounds" << std::endl;
       }
       return values_[idx];
   }
   T &operator[](UIN idx) {
-      if (idx > size_) {
+      if (idx > values_.size()) {
           std::cerr << "Error! Array access out of bounds" << std::endl;
       }
       return values_[idx];
@@ -116,7 +112,6 @@ class Matrix {
  private:
   UIN row_;
   UIN col_;
-  UIN size_;
   MatrixStorageOrder storageOrder_;
   UIN leadingDimension_;
 
