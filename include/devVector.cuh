@@ -15,7 +15,7 @@ class vector {
       if (data_) { cudaFree(data_); }
   };
 
-  inline __host__ __device__ size_t size() {
+  inline __host__ __device__ size_t size() const {
       return size_;
   }
   inline __host__ __device__ const T *data() const {
