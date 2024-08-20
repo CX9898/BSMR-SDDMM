@@ -63,7 +63,7 @@ UIN Matrix<T>::colOfValueIndex(UIN idx) const {
 template<typename T>
 bool Matrix<T>::initializeValue(const std::vector<T> &src) {
     if (src.size() != row_ * col_) {
-        std::cerr << "Error! Matrix value size mismatch" << std::endl;
+        std::cout << "Warning! Matrix value size mismatch" << std::endl;
         return false;
     }
     values_ = src;
@@ -144,6 +144,9 @@ T Matrix<T>::getOneValueForMultiplication(MatrixMultiplicationOrder multiplicati
                                           UIN row,
                                           UIN col,
                                           UIN k) const {
+    if (row > row_ || col > col_) {
+        std::cout << "Warning! The input rows or columns exceed the matrix" << std::endl;
+    }
     if (multiplicationOrder == MatrixMultiplicationOrder::left_multiplication) {
         if (storageOrder_ == MatrixStorageOrder::row_major) {
             return values_[row * leadingDimension_ + k];
@@ -161,6 +164,9 @@ T Matrix<T>::getOneValueForMultiplication(MatrixMultiplicationOrder multiplicati
 
 template<typename T>
 T Matrix<T>::getOneValue(int row, int col) const {
+    if (row > row_ || col > col_) {
+        std::cout << "Warning! The input rows or columns exceed the matrix" << std::endl;
+    }
     if (storageOrder_ == MatrixStorageOrder::row_major) {
         return values_[row * leadingDimension_ + col];
     } else {
@@ -242,6 +248,9 @@ void SparseMatrix<T>::print() const {
 
 template<typename T>
 bool SparseMatrix<T>::setValuesFromMatrix(const Matrix<T> &inputMatrix) {
+    if(inputMatrix.row() != row_ || inputMatrix.col() != col_){
+        std::cout << "Warning! The rows and columns of the input matrix do not match." << std::endl;
+    }
     values_.clear();
     values_.resize(nnz_);
 

@@ -148,8 +148,8 @@ class SparseMatrix {
   SparseMatrix(UIN row, UIN col, UIN nnz, const std::vector<UIN> &rowIndex, const std::vector<UIN> &colIndex)
       : row_(row), col_(col), nnz_(nnz), rowIndex_(rowIndex), colIndex_(colIndex) {
       values_.resize(nnz);
-      if(rowIndex.size() != colIndex.size() != values_.size()){
-          std::cerr << "Error! SparseMatrix initialization error!" << std::endl;
+      if (rowIndex.size() != colIndex.size()) {
+          std::cout << "Warning! SparseMatrix initialization error!" << std::endl;
       }
       rowBeforeChange_ = row;
       colBeforeChange_ = col;
