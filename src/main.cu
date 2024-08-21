@@ -43,27 +43,24 @@ int main() {
     SparseMatrix<float> matrixS(filePath);
 
 //    const int K = 1 * WMMA_K;
-    const int K = 16;
-    const int M = matrixS.row();
-    const int N = matrixS.col();
-    const int MATRIX_A_SIZE = M * K;
-    const int MATRIX_B_SIZE = K * N;
+    const int K = 2;
 
-    const float matrixSSparsity = 1 / (M * N / (float) matrixS.nnz());
-    std::cout << "M : " << M << ", N : " << N << ", K : " << K << ", nnz : " << matrixS.nnz() << ", sparsity : "
+    const float matrixSSparsity = 1 / (matrixS.row() * matrixS.col() / (float) matrixS.nnz());
+    std::cout << "M : " << matrixS.row() << ", N : " << matrixS.col() << ", K : " << K << ", nnz : " << matrixS.nnz()
+              << ", sparsity : "
               << (1 - matrixSSparsity) * 100 << "%" << std::endl;
 
 //    std::cout << "matrixS : " << std::endl;
 //    matrixS.print();
 
-    Matrix<float> matrixA(M, K, MatrixStorageOrder::row_major);
-    matrixA.makeData(M, K, MatrixStorageOrder::row_major);
+    Matrix<float> matrixA(matrixS.row(), K, MatrixStorageOrder::row_major);
+    matrixA.makeData(matrixA.row(), K, MatrixStorageOrder::row_major);
 //    initial(matrixA.setValues(), M, K);
 //    std::cout << "matrixA.size() : " << matrixA.values().size() << " matrixA : ";
 //    matrixA.print();
 
-    Matrix<float> matrixB(K, N, MatrixStorageOrder::row_major);
-    matrixB.makeData(K, N, MatrixStorageOrder::row_major);
+    Matrix<float> matrixB(K, matrixS.col(), MatrixStorageOrder::row_major);
+    matrixB.makeData(K, matrixS.col(), MatrixStorageOrder::row_major);
 //    initial(matrixB.setValues(), N, K);
 //    std::cout << "matrixB.size() : " << matrixB.values().size() << " matrixB : ";
 //    matrixB.print();
@@ -104,14 +101,14 @@ int main() {
     block.y = WARP_SIZE;
     const int numCountRowOfOutputMatrixPerBlock = (int) (WMMA_M * block.x / 32);
     const int numCountColOfOutputMatrixPerBlock = (int) (WMMA_N * block.y);
-    grid.x = (M + numCountRowOfOutputMatrixPerBlock - 1) / numCountRowOfOutputMatrixPerBlock;
-    grid.y = (N + numCountColOfOutputMatrixPerBlock - 1) / numCountColOfOutputMatrixPerBlock;
+    grid.x = (matrixS.row() + numCountRowOfOutputMatrixPerBlock - 1) / numCountRowOfOutputMatrixPerBlock;
+    grid.y = (matrixS.col() + numCountColOfOutputMatrixPerBlock - 1) / numCountColOfOutputMatrixPerBlock;
 //    printf("grid : [%d %d %d] block : [%d %d %d]\n", grid.x, grid.y, grid.z, block.x, block.y, block.z);
 
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
 
-    comp_sddmm_gpu<<<grid, block>>>(M, N, K,
+    comp_sddmm_gpu<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(),
                                     valuesAfp16_d.data(), valuesBfp16_d.data(), valuesS_d.data(), valuesP_d.data());
 
     timeCalculator.endClock();
