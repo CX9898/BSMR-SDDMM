@@ -4,8 +4,32 @@
 
 #include "kernel.cuh"
 #include "wmmaSetting.hpp"
+#include "Matrix.hpp"
 
-using namespace nvcuda::wmma;
+const float SPARSITY_BOUND = 0.5f;
+
+template<typename T>
+__device__ int sparsityComparator(const int WMMA_M,
+                                  const int WMMA_N,
+                                  const int ld,
+                                  const MatrixStorageOrder storageOrder,
+                                  const T *matrixPtr) {
+    int nnzCount = 0;
+#pragma unroll
+    for (int rowIter = 0; rowIter < WMMA_M; ++rowIter) {
+#pragma unroll
+        for (int colIter = 0; colIter < WMMA_N; ++colIter) {
+            if (storageOrder == MatrixStorageOrder::row_major) {
+                nnzCount += *(matrixPtr + rowIter * ld + colIter) == 0 ? 0 : 1;
+            } else {
+                nnzCount += *(matrixPtr + colIter * ld + rowIter) == 0 ? 0 : 1;
+            }
+        }
+    }
+    const int numValues = WMMA_M * WMMA_N;
+    const float sparsity = static_cast<float>(numValues - nnzCount) / numValues;
+    return sparsity >= SPARSITY_BOUND ? 1 : 0;
+}
 
 template<typename T>
 __global__ void printData(int n, T *a) {
@@ -43,10 +67,10 @@ __global__ void comp_sddmm_gpu(const int M, const int N, const int K,
         return;
     }
 //    printf("pRowId : %d, pColId : %d\n", pRowId,pColId);
-    fragment<matrix_a, WMMA_M, WMMA_N, WMMA_K, half, row_major> aFrag;
-    fragment<matrix_b, WMMA_M, WMMA_N, WMMA_K, half, row_major> bFrag;
+    nvcuda::wmma::fragment<nvcuda::wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, half, nvcuda::wmma::row_major> aFrag;
+    nvcuda::wmma::fragment<nvcuda::wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, half, nvcuda::wmma::row_major> bFrag;
 
-    fragment<accumulator, WMMA_M, WMMA_N, WMMA_K, float> cFrag;
+    nvcuda::wmma::fragment<nvcuda::wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, float> cFrag;
     fill_fragment(cFrag, 0.0f);
 
     // Leading dimensions. Packed with no transpositions.
@@ -61,20 +85,20 @@ __global__ void comp_sddmm_gpu(const int M, const int N, const int K,
 
         const int bRowId = kIter;
         const int bColId = pColId;
-        if(tidX == 0){
-            printf(" cur kIter = %d\n",kIter);
-            printf(" cur aRowId = %d, aColId = %d, bRowId = %d, bColId = %d\n",aRowId, aColId, bRowId, bColId);
+        if (tidX == 0) {
+            printf(" cur kIter = %d\n", kIter);
+            printf(" cur aRowId = %d, aColId = %d, bRowId = %d, bColId = %d\n", aRowId, aColId, bRowId, bColId);
         }
         // Bounds checking
-//        if (aRowId < M && aColId < K && bRowId < K && bColId < N) {
+        if (aRowId < M && aColId < K && bRowId < K && bColId < N) {
             const auto aOffsetPtr = matrixA + aRowId * lda + aColId;
             const auto bOffsetPtr = matrixB + bRowId * ldb + bColId;
 
-            load_matrix_sync(aFrag, aOffsetPtr, lda);
-            load_matrix_sync(bFrag, bOffsetPtr, ldb);
+            nvcuda::wmma::load_matrix_sync(aFrag, aOffsetPtr, lda);
+            nvcuda::wmma::load_matrix_sync(bFrag, bOffsetPtr, ldb);
 
-            mma_sync(cFrag, aFrag, bFrag, cFrag);
-//        }
+            nvcuda::wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
+        }
     }
 
 //#pragma unroll
@@ -83,14 +107,13 @@ __global__ void comp_sddmm_gpu(const int M, const int N, const int K,
 //
 //        cFrag.x[idx] *= matrixS[sIdx];
 //    }
-    if(tidX == 0){
-        printf(" cFrag.num_elements : %d\n",cFrag.num_elements);
-        for (int idx = 0; idx < cFrag.num_elements; ++idx) {
-
-            printf(" %f ", static_cast<float>(cFrag.x[idx]));
-        }
-    }
+//    if (tidX == 4) {
+//        printf("\n aFrag.num_elements : %d\n", aFrag.num_elements);
+//        for (int idx = 0; idx < aFrag.num_elements; ++idx) {
+//            printf(" %f ", static_cast<float>(aFrag.x[idx]));
+//        }
+//    }
 
     const auto pOffsetPtr = matrixP + pRowId * ldp + pColId;
-    store_matrix_sync(pOffsetPtr, cFrag, ldp, mem_row_major);
+    nvcuda::wmma::store_matrix_sync(pOffsetPtr, cFrag, ldp, nvcuda::wmma::mem_row_major);
 }
