@@ -141,7 +141,7 @@ class Matrix {
 template<typename T>
 class SparseMatrix {
  public:
-  SparseMatrix() = delete;
+  SparseMatrix() = default;
   ~SparseMatrix() = default;
 
   SparseMatrix(UIN row, UIN col, UIN nnz) : row_(row), col_(col), nnz_(nnz) {
