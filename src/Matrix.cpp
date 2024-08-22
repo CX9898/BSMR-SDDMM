@@ -141,26 +141,26 @@ void Matrix<T>::print() const {
 
 template<typename T>
 T Matrix<T>::getOneValueForMultiplication(MatrixMultiplicationOrder multiplicationOrder,
-                                          UIN row,
-                                          UIN col,
-                                          UIN k) const {
+                                          UIN rowMtxC,
+                                          UIN colMtxC,
+                                          UIN positionOfKIter) const {
     if (multiplicationOrder == MatrixMultiplicationOrder::left_multiplication) {
-        if (row > row_) {
+        if (rowMtxC > row_) {
             std::cout << "Warning! The input rows exceed the matrix" << std::endl;
         }
         if (storageOrder_ == MatrixStorageOrder::row_major) {
-            return values_[row * leadingDimension_ + k];
+            return values_[rowMtxC * leadingDimension_ + positionOfKIter];
         } else {
-            return values_[k * leadingDimension_ + row];
+            return values_[positionOfKIter * leadingDimension_ + rowMtxC];
         }
     } else {
-        if (col > col_) {
+        if (colMtxC > col_) {
             std::cout << "Warning! The input columns exceed the matrix" << std::endl;
         }
         if (storageOrder_ == MatrixStorageOrder::row_major) {
-            return values_[k * leadingDimension_ + col];
+            return values_[positionOfKIter * leadingDimension_ + colMtxC];
         } else {
-            return values_[col * leadingDimension_ + k];
+            return values_[colMtxC * leadingDimension_ + positionOfKIter];
         }
     }
 }

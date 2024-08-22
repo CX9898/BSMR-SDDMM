@@ -52,7 +52,7 @@ class Matrix {
         storageOrder_(matrixOrder),
         values_(values) {
       leadingDimension_ = matrixOrder == MatrixStorageOrder::row_major ? col : row;
-      if(row * col != values.size()){
+      if (row * col != values.size()) {
           std::cout << "Warning! Matrix initialization mismatch" << std::endl;
       }
       rowBeforeChange_ = row;
@@ -73,7 +73,10 @@ class Matrix {
    * Input whether to be used as left or right multiplication in matrix multiplication,
    * the number of rows and columns in which the multiplication is performed and the current iteration k
    **/
-  T getOneValueForMultiplication(MatrixMultiplicationOrder multiplicationOrder, UIN row, UIN col, UIN k) const;
+  T getOneValueForMultiplication(MatrixMultiplicationOrder multiplicationOrder,
+                                 UIN rowMtxC,
+                                 UIN colMtxC,
+                                 UIN positionOfKIter) const;
 
   void makeData(UIN numRow, UIN numCol, MatrixStorageOrder storageOrder = MatrixStorageOrder::row_major);
 
