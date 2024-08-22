@@ -123,7 +123,7 @@ class Matrix {
  private:
   UIN row_;
   UIN col_;
-  MatrixStorageOrder storageOrder_;
+  MatrixStorageOrder storageOrder_ = row_major;
   UIN leadingDimension_;
 
   std::vector<T> values_;
