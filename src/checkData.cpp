@@ -3,20 +3,29 @@
 #include "checkData.hpp"
 #include "cudaErrorCheck.cuh"
 
-bool checkData(const size_t num, const float *data1, const float *data2) {
+template<typename T>
+bool checkData(const T data1, const T data2) {
+    return data1 == data2;
+}
+template<>
+bool checkData(const float data1, const float data2) {
+    return abs(data1 - data2) / data1 >= epsilon;
+}
+template<>
+bool checkData(const double data1, const double data2) {
+    return abs(data1 - data2) / data1 >= epsilon;
+}
+
+template<typename T>
+bool checkData(const size_t num, const T *data1, const T *data2) {
     printf("\n---------------------------\n"
            "Checking results...\n");
 
     int errors = 0;
     for (int idx = 0; idx < num; ++idx) {
-        const float oneData1 = data1[idx];
-        const float oneData2 = data2[idx];
-
-        const float diffDats = abs(oneData1 - oneData2);
-
-        const float relativeErr = diffDats / oneData1;
-        const float eps = 1e-4;
-        if (relativeErr >= eps) {
+        const T oneData1 = data1[idx];
+        const T oneData2 = data2[idx];
+        if (checkData(oneData1, oneData2)) {
             ++errors;
             if (errors < 10) {
                 printf("Error : idx = %d, data1 = %f, data2 = %f\n", idx, oneData1, oneData2);
@@ -36,19 +45,21 @@ bool checkData(const size_t num, const float *data1, const float *data2) {
     return true;
 }
 
-bool checkData(const std::vector<float> &data1, const std::vector<float> &data2) {
+template<typename T>
+bool checkData(const std::vector<T> &data1, const std::vector<T> &data2) {
     if (data1.size() != data2.size()) {
         return false;
     }
     return checkData(data1.size(), data1.data(), data2.data());
 }
 
-bool checkDevData(const size_t num, const float *dataDev1, const float *dataDev2) {
-    auto dataHost1 = static_cast<float *>(malloc(num * sizeof(float)));
-    auto dataHost2 = static_cast<float *>(malloc(num * sizeof(float)));
+template<typename T>
+bool checkDevData(const size_t num, const T *dataDev1, const T *dataDev2) {
+    auto dataHost1 = static_cast<T *>(malloc(num * sizeof(float)));
+    auto dataHost2 = static_cast<T *>(malloc(num * sizeof(float)));
 
-    cudaErrCheck(cudaMemcpy(dataHost1, dataDev1, num * sizeof(float), cudaMemcpyDeviceToHost));
-    cudaErrCheck(cudaMemcpy(dataHost2, dataDev2, num * sizeof(float), cudaMemcpyDeviceToHost));
+    cudaErrCheck(cudaMemcpy(dataHost1, dataDev1, num * sizeof(T), cudaMemcpyDeviceToHost));
+    cudaErrCheck(cudaMemcpy(dataHost2, dataDev2, num * sizeof(T), cudaMemcpyDeviceToHost));
 
     bool res = checkData(num, dataHost1, dataHost2);;
 
@@ -58,10 +69,11 @@ bool checkDevData(const size_t num, const float *dataDev1, const float *dataDev2
     return res;
 }
 
-bool checkData(const size_t num, const std::vector<float> &dataHost1, const float *dataDev2) {
+template<typename T>
+bool checkData(const size_t num, const std::vector<T> &dataHost1, const T *dataDev2) {
 
-    auto dataHost2 = static_cast<float *>(malloc(num * sizeof(float)));
-    cudaErrCheck(cudaMemcpy(dataHost2, dataDev2, num * sizeof(float), cudaMemcpyDeviceToHost));
+    auto dataHost2 = static_cast<T *>(malloc(num * sizeof(T)));
+    cudaErrCheck(cudaMemcpy(dataHost2, dataDev2, num * sizeof(T), cudaMemcpyDeviceToHost));
 
     bool res = checkData(num, dataHost1.data(), dataHost2);;
 
@@ -70,10 +82,11 @@ bool checkData(const size_t num, const std::vector<float> &dataHost1, const floa
     return res;
 }
 
-bool checkData(const size_t num, const float *dataDev1, const std::vector<float> &dataHost2) {
+template<typename T>
+bool checkData(const size_t num, const T *dataDev1, const std::vector<T> &dataHost2) {
 
-    auto dataHost1 = static_cast<float *>(malloc(num * sizeof(float)));
-    cudaErrCheck(cudaMemcpy(dataHost1, dataDev1, num * sizeof(float), cudaMemcpyDeviceToHost));
+    auto dataHost1 = static_cast<T *>(malloc(num * sizeof(T)));
+    cudaErrCheck(cudaMemcpy(dataHost1, dataDev1, num * sizeof(T), cudaMemcpyDeviceToHost));
 
     bool res = checkData(num, dataHost1, dataHost2.data());;
 
