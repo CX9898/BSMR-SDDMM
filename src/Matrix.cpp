@@ -195,15 +195,20 @@ void Matrix<T>::openTensorCoreMode(MatrixMultiplicationOrder multiplicationOrder
 
     row_ = rowBeforeChange_ + rowComplement;
     col_ = colBeforeChange_ + colComplement;
+    if (storageOrder_ == MatrixStorageOrder::row_major) {
+        leadingDimension_ = col_;
+    } else {
+        leadingDimension_ = row_;
+    }
 
     if (storageOrder_ == MatrixStorageOrder::row_major) {
         for (int rowIter = 0; rowIter < rowBeforeChange_; ++rowIter) {
-            values_.insert(values_.begin() + rowIter * row_ + colBeforeChange_, colComplement, 0);
+            values_.insert(values_.begin() + rowIter * leadingDimension_ + colBeforeChange_, colComplement, 0);
         }
         values_.insert(values_.end(), rowComplement * col_, 0);
     } else {
         for (int colIter = 0; colIter < colBeforeChange_; ++colIter) {
-            values_.insert(values_.begin() + colIter * col_ + rowBeforeChange_, rowComplement, 0);
+            values_.insert(values_.begin() + colIter * leadingDimension_ + rowBeforeChange_, rowComplement, 0);
         }
         values_.insert(values_.end(), colComplement * row_, 0);
     }
@@ -219,19 +224,24 @@ void Matrix<T>::closeTensorCoreMode() {
     const UIN rowComplement = abs(row_ - rowBeforeChange_);
     const UIN colComplement = abs(col_ - colBeforeChange_);
 
+    row_ = rowBeforeChange_;
+    col_ = colBeforeChange_;
+    if (storageOrder_ == MatrixStorageOrder::row_major) {
+        leadingDimension_ = col_;
+    } else {
+        leadingDimension_ = row_;
+    }
     if (storageOrder_ == MatrixStorageOrder::row_major) {
         for (int rowIter = 0; rowIter < rowBeforeChange_; ++rowIter) {
-            const auto curRowBeginIter = values_.begin() + rowIter * colBeforeChange_ + colBeforeChange_;
+            const auto curRowBeginIter = values_.begin() + rowIter * leadingDimension_ + colBeforeChange_;
             values_.erase(curRowBeginIter, curRowBeginIter + colComplement);
         }
     } else {
         for (int colIter = 0; colIter < colBeforeChange_; ++colIter) {
-            const auto curColBeginIter = values_.begin() + colIter * rowBeforeChange_ + rowBeforeChange_;
+            const auto curColBeginIter = values_.begin() + colIter * leadingDimension_ + rowBeforeChange_;
             values_.erase(curColBeginIter, curColBeginIter + rowComplement);
         }
     }
-    row_ = rowBeforeChange_;
-    col_ = colBeforeChange_;
     values_.resize(row_ * col_);
 }
 
@@ -248,7 +258,7 @@ void SparseMatrix<T>::print() const {
 
 template<typename T>
 bool SparseMatrix<T>::setValuesFromMatrix(const Matrix<T> &inputMatrix) {
-    if(inputMatrix.row() < row_ || inputMatrix.col() < col_){
+    if (inputMatrix.row() < row_ || inputMatrix.col() < col_) {
         std::cout << "Warning! The input matrix size is too small." << std::endl;
     }
     values_.clear();
