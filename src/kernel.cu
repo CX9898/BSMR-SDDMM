@@ -66,17 +66,25 @@ __global__ void comp_sddmm_gpu(const int M, const int N, const int K,
     if (pRowId >= M || pColId >= N) {
         return;
     }
-//    printf("pRowId : %d, pColId : %d\n", pRowId,pColId);
-    nvcuda::wmma::fragment<nvcuda::wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, half, nvcuda::wmma::row_major> aFrag;
-    nvcuda::wmma::fragment<nvcuda::wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, half, nvcuda::wmma::row_major> bFrag;
-
-    nvcuda::wmma::fragment<nvcuda::wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, float> cFrag;
-    fill_fragment(cFrag, 0.0f);
 
     // Leading dimensions. Packed with no transpositions.
     const int lda = K;
     const int ldb = N;
     const int ldp = N;
+    const auto pOffsetPtr = matrixP + pRowId * ldp + pColId;
+
+//    if (sparsityComparator(WMMA_M, WMMA_N, ldp, MatrixStorageOrder::row_major, pOffsetPtr)) {
+//
+//    }
+
+//    printf("pRowId : %d, pColId : %d\n", pRowId,pColId);
+    nvcuda::wmma::fragment<nvcuda::wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE, nvcuda::wmma::row_major>
+        aFrag;
+    nvcuda::wmma::fragment<nvcuda::wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE, nvcuda::wmma::row_major>
+        bFrag;
+
+    nvcuda::wmma::fragment<nvcuda::wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> cFrag;
+    fill_fragment(cFrag, 0.0f);
 
     // Loop over k
     for (int kIter = 0; kIter < K; kIter += WMMA_K) {
@@ -85,10 +93,10 @@ __global__ void comp_sddmm_gpu(const int M, const int N, const int K,
 
         const int bRowId = kIter;
         const int bColId = pColId;
-        if (tidX == 0) {
-            printf(" cur kIter = %d\n", kIter);
-            printf(" cur aRowId = %d, aColId = %d, bRowId = %d, bColId = %d\n", aRowId, aColId, bRowId, bColId);
-        }
+//        if (tidX == 0) {
+//            printf(" cur kIter = %d\n", kIter);
+//            printf(" cur aRowId = %d, aColId = %d, bRowId = %d, bColId = %d\n", aRowId, aColId, bRowId, bColId);
+//        }
         // Bounds checking
         if (aRowId < M && aColId < K && bRowId < K && bColId < N) {
             const auto aOffsetPtr = matrixA + aRowId * lda + aColId;
@@ -114,6 +122,5 @@ __global__ void comp_sddmm_gpu(const int M, const int N, const int K,
 //        }
 //    }
 
-    const auto pOffsetPtr = matrixP + pRowId * ldp + pColId;
     nvcuda::wmma::store_matrix_sync(pOffsetPtr, cFrag, ldp, nvcuda::wmma::mem_row_major);
 }

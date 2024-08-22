@@ -17,14 +17,14 @@
 
 const std::string folderPath("../dataset/");
 //const std::string fileName = ("nips");
-const std::string fileName = ("test");
-//const std::string fileName = ("matrixTmp_8000_8000_2560000");
+//const std::string fileName = ("test2");
+const std::string fileName = ("matrix_3000_7000_313110");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 
 // TODO :
 //      测试矩阵的尺寸按照论文中的尺寸
-//      1: 将 comp_sddmm_gpu 全部使用 Tensor core 执行
+//      1: 将 comp_sddmm_gpu 全部使用 Tensor core 执行 OK
 //      2: 测试不同尺寸的 wmma 的速度表现
 //      3: 测试使用稀疏度比较器的速度表现
 //              稀疏度大于50%使用 israt 的方法
@@ -32,23 +32,21 @@ const std::string filePath = folderPath + fileName + fileFormat;
 int main() {
 //    // make sparse matrix data
 //    SparseMatrix<int> matrixTmp;
-//    const int makeDataRow = 500 * WMMA_M;
-//    const int makeDataCol = 500 * WMMA_N;
-//    const float sparsity = 0.04f;
-//    const int makeDataNNZ = (int) ((makeDataRow * makeDataCol) * sparsity);
-////    const int makeDataNNZ = 746316;
+//    const int makeDataRow = 3000;
+//    const int makeDataCol = 7000;
+//    const float density = 1.491f;
+//    const int makeDataNNZ = static_cast<int> (makeDataRow * makeDataCol * density / 100);
 //    matrixTmp.makeData(makeDataRow, makeDataCol, makeDataNNZ);
-//    matrixTmp.outputToMarketMatrixFile("matrixTmp");
+//    matrixTmp.outputToMarketMatrixFile("matrix_3000_7000_313110");
 
     SparseMatrix<float> matrixS(filePath);
 
-//    const int K = 1 * WMMA_K;
-    const int K = 2;
+    const int K = 256;
 
-    const float matrixSSparsity = 1 / (matrixS.row() * matrixS.col() / (float) matrixS.nnz());
+    const float matrixSSparsity = static_cast<float>(matrixS.row() * matrixS.col() - matrixS.nnz()) /
+        (matrixS.row() * matrixS.col());
     std::cout << "M : " << matrixS.row() << ", N : " << matrixS.col() << ", K : " << K << ", nnz : " << matrixS.nnz()
-              << ", sparsity : "
-              << (1 - matrixSSparsity) * 100 << "%" << std::endl;
+              << ", sparsity : " << matrixSSparsity * 100 << "%" << std::endl;
 
 //    std::cout << "matrixS : " << std::endl;
 //    matrixS.print();
@@ -77,9 +75,9 @@ int main() {
 //    matrixB.changeStorageOrder();
 
     dev::vector<float> valuesA_d(matrixA.size());
-    dev::vector<half> valuesAfp16_d(matrixA.size());
+    dev::vector<MATRIX_A_TYPE> valuesAfp16_d(matrixA.size());
     dev::vector<float> valuesB_d(matrixB.size());
-    dev::vector<half> valuesBfp16_d(matrixB.size());
+    dev::vector<MATRIX_B_TYPE> valuesBfp16_d(matrixB.size());
 
     Matrix<float> matrixS2D(matrixS);
 
@@ -87,7 +85,7 @@ int main() {
     dev::vector<float> valuesP_d(matrixS2D.size());
 
     cuUtil::H2D(valuesA_d.data(), matrixA.values().data(), matrixA.size());
-    cuUtil::H2D(valuesB_d.data(), matrixB.values().data(), matrixA.size());
+    cuUtil::H2D(valuesB_d.data(), matrixB.values().data(), matrixB.size());
 
     const int numThreadPerBlock = 1024;
     convertFp32ToFp16<<< (matrixA.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
@@ -117,17 +115,16 @@ int main() {
 
     Matrix<float> matrixP_gpu_res_tmp(matrixS.row(), matrixS.col(),
                                       MatrixStorageOrder::row_major, cuUtil::D2H(valuesP_d));
+    std::cout << "closeTensorCoreMode" << std::endl;
+    matrixA.closeTensorCoreMode();
+    matrixB.closeTensorCoreMode();
+    matrixS.closeTensorCoreMode();
 
     SparseMatrix<float> matrixP_gpu_res(matrixS.row(), matrixS.col(), matrixS.nnz(),
                                         matrixS.rowIndex(), matrixS.colIndex());
     matrixP_gpu_res.setValuesFromMatrix(matrixP_gpu_res_tmp);
 
 //    matrixP_gpu_res.outputToMarketMatrixFile("matrixP_gpu_res");
-
-    std::cout << "closeTensorCoreMode" << std::endl;
-    matrixA.closeTensorCoreMode();
-    matrixB.closeTensorCoreMode();
-    matrixS.closeTensorCoreMode();
 
     SparseMatrix<float> matrixP_cpu_res(matrixS.row(), matrixS.col(), matrixS.nnz(),
                                         matrixS.rowIndex(), matrixS.colIndex());
