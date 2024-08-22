@@ -25,7 +25,8 @@ bool checkData(const size_t num, const float *data1, const float *data2) {
     }
 
     if (errors > 0) {
-        printf("No Pass! Inconsistent data! %d errors!\n", errors);
+        printf("No Pass! Inconsistent data! %d errors! Error rate : %2.2f%\n",
+               errors, static_cast<float>(errors) / num * 100);
 
         return false;
     }
