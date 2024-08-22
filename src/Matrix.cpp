@@ -120,15 +120,15 @@ void Matrix<T>::makeData(UIN numRow, UIN numCol, MatrixStorageOrder storageOrder
     }
     values_.resize(numRow * numCol);
 
-    for (int idx = 0; idx < values_.size(); ++idx) {
-        values_[idx] = idx + 1;
-    }
-//    std::mt19937 generator;
-//    auto distribution = util::createRandomUniformDistribution(static_cast<T>(0), static_cast<T>(10));
-//
 //    for (int idx = 0; idx < values_.size(); ++idx) {
-//        values_[idx] = distribution(generator);
+//        values_[idx] = idx + 1;
 //    }
+    std::mt19937 generator;
+    auto distribution = util::createRandomUniformDistribution(static_cast<T>(0), static_cast<T>(10));
+
+    for (int idx = 0; idx < values_.size(); ++idx) {
+        values_[idx] = distribution(generator);
+    }
 }
 
 template<typename T>
@@ -144,16 +144,19 @@ T Matrix<T>::getOneValueForMultiplication(MatrixMultiplicationOrder multiplicati
                                           UIN row,
                                           UIN col,
                                           UIN k) const {
-    if (row > row_ || col > col_) {
-        std::cout << "Warning! The input rows or columns exceed the matrix" << std::endl;
-    }
     if (multiplicationOrder == MatrixMultiplicationOrder::left_multiplication) {
+        if (row > row_) {
+            std::cout << "Warning! The input rows exceed the matrix" << std::endl;
+        }
         if (storageOrder_ == MatrixStorageOrder::row_major) {
             return values_[row * leadingDimension_ + k];
         } else {
             return values_[k * leadingDimension_ + row];
         }
     } else {
+        if (col > col_) {
+            std::cout << "Warning! The input columns exceed the matrix" << std::endl;
+        }
         if (storageOrder_ == MatrixStorageOrder::row_major) {
             return values_[k * leadingDimension_ + col];
         } else {
