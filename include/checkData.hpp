@@ -2,7 +2,7 @@
 
 #include <vector>
 
-const float epsilon = 1e-3;
+const float epsilon = 1e-4;
 
 /**
  * error checking
