@@ -1,18 +1,20 @@
 #include <cstdio>
 
+#include <cuda_runtime.h>
+
 #include "checkData.hpp"
 #include "cudaErrorCheck.cuh"
 
 template<typename T>
-bool checkData(const T data1, const T data2) {
+bool checkOneData(const T data1, const T data2) {
     return data1 == data2;
 }
 template<>
-bool checkData(const float data1, const float data2) {
+bool checkOneData(const float data1, const float data2) {
     return abs(data1 - data2) / data1 >= epsilon;
 }
 template<>
-bool checkData(const double data1, const double data2) {
+bool checkOneData(const double data1, const double data2) {
     return abs(data1 - data2) / data1 >= epsilon;
 }
 
@@ -25,7 +27,7 @@ bool checkData(const size_t num, const T *data1, const T *data2) {
     for (int idx = 0; idx < num; ++idx) {
         const T oneData1 = data1[idx];
         const T oneData2 = data2[idx];
-        if (checkData(oneData1, oneData2)) {
+        if (checkOneData(oneData1, oneData2)) {
             ++errors;
             if (errors < 10) {
                 printf("Error : idx = %d, data1 = %f, data2 = %f\n", idx, oneData1, oneData2);
@@ -94,3 +96,5 @@ bool checkData(const size_t num, const T *dataDev1, const std::vector<T> &dataHo
 
     return res;
 }
+
+template bool checkData<float>(const std::vector<float>&, const std::vector<float>&);
