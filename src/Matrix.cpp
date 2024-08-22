@@ -397,8 +397,8 @@ void SparseMatrix<T>::makeData(const UIN numRow, const UIN numCol, const UIN nnz
 
     // make data
     std::mt19937 generator;
-    auto distributionRow = util::createRandomUniformDistribution(static_cast<UIN>(0), static_cast<UIN>(10));
-    auto distributionCol = util::createRandomUniformDistribution(static_cast<UIN>(0), static_cast<UIN>(10));
+    auto distributionRow = util::createRandomUniformDistribution(static_cast<UIN>(0), static_cast<UIN>(numRow - 1));
+    auto distributionCol = util::createRandomUniformDistribution(static_cast<UIN>(0), static_cast<UIN>(numCol - 1));
     auto distributionValue = util::createRandomUniformDistribution(static_cast<T>(0), static_cast<T>(10));
     std::set<std::pair<UIN, UIN>> rowColSet;
     for (UIN idx = 0; idx < nnz; ++idx) {
