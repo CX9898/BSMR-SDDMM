@@ -186,6 +186,10 @@ class SparseMatrix {
    **/
   void getSpareMatrixOneDataByCOO(const int idx, UIN &row, UIN &col, T &value) const;
 
+  inline float getSparsity() const {
+      return static_cast<float>(row_ * col_ - nnz_) / (row_ * col_);
+  }
+
   void print() const;
 
   UIN nnz() const {
