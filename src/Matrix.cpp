@@ -4,6 +4,8 @@
 #include <random>
 #include <set>
 
+#include <omp.h>
+
 #include "Matrix.hpp"
 #include "util.hpp"
 #include "cudaUtil.cuh"
@@ -18,18 +20,15 @@ Matrix<T>::Matrix(const SparseMatrix<T> &matrixS) {
     const size_t ld = matrixS.col();
     leadingDimension_ = ld;
 
-    const auto &rowIndexS = matrixS.rowIndex();
-    const auto &colIndexS = matrixS.colIndex();
-    const auto &valuesS = matrixS.values();
-
     values_.clear();
     values_.resize(size);
+#pragma omp parallel for
     for (size_t idx = 0; idx < matrixS.nnz(); ++idx) {
-        const size_t row = rowIndexS[idx];
-        const size_t col = colIndexS[idx];
-        const auto val = valuesS[idx];
+        const size_t curRow = matrixS.rowIndex()[idx];
+        const size_t curCol = matrixS.colIndex()[idx];
+        const auto curVal = matrixS.values()[idx];
 
-        values_[row * ld + col] = val;
+        values_[curRow * ld + curCol] = curVal;
     }
 
     rowBeforeChange_ = row_;
@@ -83,6 +82,7 @@ void Matrix<T>::changeStorageOrder() {
         newMatrixOrder = MatrixStorageOrder::col_major;
         newLd = row_;
 
+#pragma omp parallel for
         for (size_t idx = 0; idx < oldValues.size(); ++idx) {
             const size_t row = idx / oldLd;
             const size_t col = idx % oldLd;
@@ -94,6 +94,7 @@ void Matrix<T>::changeStorageOrder() {
         newMatrixOrder = MatrixStorageOrder::row_major;
         newLd = col_;
 
+#pragma omp parallel for
         for (size_t idx = 0; idx < values_.size(); ++idx) {
             const size_t col = idx / oldLd;
             const size_t row = idx % oldLd;
@@ -126,6 +127,7 @@ void Matrix<T>::makeData(size_t numRow, size_t numCol, MatrixStorageOrder storag
     std::mt19937 generator;
     auto distribution = util::createRandomUniformDistribution(static_cast<T>(0), static_cast<T>(10));
 
+#pragma omp parallel for
     for (size_t idx = 0; idx < values_.size(); ++idx) {
         values_[idx] = distribution(generator);
     }
@@ -267,6 +269,7 @@ bool SparseMatrix<T>::setValuesFromMatrix(const Matrix<T> &inputMatrix) {
     values_.clear();
     values_.resize(nnz_);
 
+#pragma omp parallel for
     for (size_t idx = 0; idx < nnz_; ++idx) {
         const size_t row = rowIndex_[idx];
         const size_t col = colIndex_[idx];
