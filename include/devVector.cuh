@@ -9,7 +9,8 @@ class vector {
  public:
   vector() : size_(0), data_(nullptr) {};
   vector(size_t size);
-  vector(const vector &src);
+  vector(const vector<T> &src);
+  vector(const std::vector<T> &src);
 
   ~vector() {
       if (data_) { cudaFree(data_); }
@@ -51,7 +52,13 @@ template<typename T>
 inline vector<T>::vector(const vector<T> &src) {
     size_ = src.size_;
     cudaMalloc(reinterpret_cast<void **> (&data_), src.size_ * sizeof(T));
-    D2D(data_, src.data_, src.size_);
+    cudaMemcpy(data_, src.data_, size_ * sizeof(T), cudaMemcpyDeviceToDevice);
+}
+
+template<typename T>
+inline vector<T>::vector(const std::vector<T> &src) {
+    size_ = src.size();
+
 }
 
 template<typename T>
