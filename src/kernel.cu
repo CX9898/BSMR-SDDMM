@@ -115,12 +115,22 @@ __global__ void comp_sddmm_gpu(const size_t M, const size_t N, const size_t K,
 //
 //        cFrag.x[idx] *= matrixS[sIdx];
 //    }
-//    if (tidX == 4) {
-//        printf("\n aFrag.num_elements : %d\n", aFrag.num_elements);
-//        for (int idx = 0; idx < aFrag.num_elements; ++idx) {
-//            printf(" %f ", static_cast<float>(aFrag.x[idx]));
-//        }
-//    }
+    if (tidX == 0) {
+        printf("\n cFrag.num_elements : %d\n", cFrag.num_elements);
+        for (int idx = 0; idx < cFrag.num_elements; ++idx) {
+            printf(" %f ", static_cast<float>(cFrag.x[idx]));
+        }
+
+        nvcuda::wmma::fragment<nvcuda::wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> sFrag;
+        const int lds = N;
+        const auto ptrS = matrixS + pRowId * lds + pColId;
+        nvcuda::wmma::load_matrix_sync(sFrag,ptrS,lds,nvcuda::wmma::mem_row_major);
+
+        printf("\n sFrag.num_elements : %d\n", sFrag.num_elements);
+        for (int idx = 0; idx < sFrag.num_elements; ++idx) {
+            printf(" %f ", static_cast<float>(sFrag.x[idx]));
+        }
+    }
 
     nvcuda::wmma::store_matrix_sync(pOffsetPtr, cFrag, ldp, nvcuda::wmma::mem_row_major);
 }
