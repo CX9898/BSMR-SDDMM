@@ -37,7 +37,7 @@ Matrix<T>::Matrix(const SparseMatrix<T> &matrixS) {
 }
 
 template<typename T>
-UIN Matrix<T>::rowOfValueIndex(UIN idx) const {
+size_t Matrix<T>::rowOfValueIndex(size_t idx) const {
     if (idx == 0) {
         return 0;
     }
@@ -49,7 +49,7 @@ UIN Matrix<T>::rowOfValueIndex(UIN idx) const {
 }
 
 template<typename T>
-UIN Matrix<T>::colOfValueIndex(UIN idx) const {
+size_t Matrix<T>::colOfValueIndex(size_t idx) const {
     if (idx == 0) {
         return 0;
     }
@@ -77,7 +77,7 @@ void Matrix<T>::changeStorageOrder() {
     const auto &oldValues = values_;
 
     MatrixStorageOrder newMatrixOrder;
-    UIN newLd;
+    size_t newLd;
     std::vector<T> newValues(values_.size());
     if (oldMajorOrder == MatrixStorageOrder::row_major) {
         newMatrixOrder = MatrixStorageOrder::col_major;
@@ -109,7 +109,7 @@ void Matrix<T>::changeStorageOrder() {
 }
 
 template<typename T>
-void Matrix<T>::makeData(UIN numRow, UIN numCol, MatrixStorageOrder storageOrder) {
+void Matrix<T>::makeData(size_t numRow, size_t numCol, MatrixStorageOrder storageOrder) {
     row_ = numRow;
     col_ = numCol;
     storageOrder_ = storageOrder;
@@ -141,9 +141,9 @@ void Matrix<T>::print() const {
 
 template<typename T>
 T Matrix<T>::getOneValueForMultiplication(MatrixMultiplicationOrder multiplicationOrder,
-                                          UIN rowMtxC,
-                                          UIN colMtxC,
-                                          UIN positionOfKIter) const {
+                                          size_t rowMtxC,
+                                          size_t colMtxC,
+                                          size_t positionOfKIter) const {
     if (multiplicationOrder == MatrixMultiplicationOrder::left_multiplication) {
         if (rowMtxC > row_) {
             std::cout << "Warning! The input rows exceed the matrix" << std::endl;
@@ -186,8 +186,8 @@ void Matrix<T>::openTensorCoreMode(MatrixMultiplicationOrder multiplicationOrder
     rowBeforeChange_ = row_;
     colBeforeChange_ = col_;
 
-    UIN rowComplement = 0;
-    UIN colComplement = 0;
+    size_t rowComplement = 0;
+    size_t colComplement = 0;
     if (multiplicationOrder == MatrixMultiplicationOrder::left_multiplication) {
         rowComplement = rowBeforeChange_ % WMMA_M == 0 ? 0 : WMMA_M - rowBeforeChange_ % WMMA_M;
         colComplement = colBeforeChange_ % WMMA_K == 0 ? 0 : WMMA_K - colBeforeChange_ % WMMA_K;
@@ -224,8 +224,8 @@ void Matrix<T>::closeTensorCoreMode() {
     }
     tensorCoreMode_ = false;
 
-    const UIN rowComplement = abs(row_ - rowBeforeChange_);
-    const UIN colComplement = abs(col_ - colBeforeChange_);
+    const size_t rowComplement = abs(row_ - rowBeforeChange_);
+    const size_t colComplement = abs(col_ - colBeforeChange_);
 
     row_ = rowBeforeChange_;
     col_ = colBeforeChange_;
@@ -292,7 +292,7 @@ SparseMatrix<T>::SparseMatrix(const std::string &filePath) {
     getline(inFile, line); // First line does not operate
 
     getline(inFile, line);
-    size_t wordIter = 0;
+    int wordIter = 0;
     row_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
     col_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
     nnz_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
@@ -330,7 +330,7 @@ SparseMatrix<T>::SparseMatrix(const std::string &filePath) {
 }
 
 template<typename T>
-void SparseMatrix<T>::getSpareMatrixOneDataByCOO(const size_t idx, UIN &row, UIN &col, T &value) const {
+void SparseMatrix<T>::getSpareMatrixOneDataByCOO(const size_t idx, size_t &row, size_t &col, T &value) const {
     row = rowIndex_[idx];
     col = colIndex_[idx];
     value = values_[idx];
@@ -386,7 +386,7 @@ bool SparseMatrix<T>::outputToMarketMatrixFile(const std::string &fileName) {
 }
 
 template<typename T>
-void SparseMatrix<T>::makeData(const UIN numRow, const UIN numCol, const UIN nnz) {
+void SparseMatrix<T>::makeData(const size_t numRow, const size_t numCol, const size_t nnz) {
     row_ = numRow;
     col_ = numCol;
     nnz_ = nnz;
@@ -397,14 +397,14 @@ void SparseMatrix<T>::makeData(const UIN numRow, const UIN numCol, const UIN nnz
 
     // make data
     std::mt19937 generator;
-    auto distributionRow = util::createRandomUniformDistribution(static_cast<UIN>(0), static_cast<UIN>(numRow - 1));
-    auto distributionCol = util::createRandomUniformDistribution(static_cast<UIN>(0), static_cast<UIN>(numCol - 1));
+    auto distributionRow = util::createRandomUniformDistribution(static_cast<size_t>(0), static_cast<size_t>(numRow - 1));
+    auto distributionCol = util::createRandomUniformDistribution(static_cast<size_t>(0), static_cast<size_t>(numCol - 1));
     auto distributionValue = util::createRandomUniformDistribution(static_cast<T>(0), static_cast<T>(10));
-    std::set<std::pair<UIN, UIN>> rowColSet;
-    for (UIN idx = 0; idx < nnz; ++idx) {
-        UIN row = distributionRow(generator);
-        UIN col = distributionCol(generator);
-        std::pair<UIN, UIN> rowColPair(row, col);
+    std::set<std::pair<size_t, size_t>> rowColSet;
+    for (size_t idx = 0; idx < nnz; ++idx) {
+        size_t row = distributionRow(generator);
+        size_t col = distributionCol(generator);
+        std::pair<size_t, size_t> rowColPair(row, col);
         auto findSet = rowColSet.find(rowColPair);
         while (findSet != rowColSet.end()) {
             row = distributionRow(generator);
@@ -423,10 +423,10 @@ void SparseMatrix<T>::makeData(const UIN numRow, const UIN numCol, const UIN nnz
 
     // sort rowIndex and colIndex
     cuUtil::host::sort_by_key(rowIndex_.data(), rowIndex_.data() + rowIndex_.size(), colIndex_.data());
-    UIN lastRowNumber = rowIndex_[0];
-    UIN lastBegin = 0;
-    for (UIN idx = 0; idx < nnz_; ++idx) {
-        const UIN curRowNumber = rowIndex_[idx];
+    size_t lastRowNumber = rowIndex_[0];
+    size_t lastBegin = 0;
+    for (size_t idx = 0; idx < nnz_; ++idx) {
+        const size_t curRowNumber = rowIndex_[idx];
         if (curRowNumber != lastRowNumber) { // new row
             cuUtil::host::sort(colIndex_.data() + lastBegin, colIndex_.data() + idx);
 
@@ -449,8 +449,8 @@ void SparseMatrix<T>::openTensorCoreMode(MatrixMultiplicationOrder multiplicatio
     rowBeforeChange_ = row_;
     colBeforeChange_ = col_;
 
-    UIN rowComplement;
-    UIN colComplement;
+    size_t rowComplement;
+    size_t colComplement;
     if (multiplicationOrder == MatrixMultiplicationOrder::left_multiplication) {
         rowComplement = rowBeforeChange_ % WMMA_M == 0 ? 0 : WMMA_M - rowBeforeChange_ % WMMA_M;
         colComplement = colBeforeChange_ % WMMA_K == 0 ? 0 : WMMA_K - colBeforeChange_ % WMMA_K;
@@ -471,8 +471,8 @@ void SparseMatrix<T>::openTensorCoreModeForSampled() {
     rowBeforeChange_ = row_;
     colBeforeChange_ = col_;
 
-    const UIN rowComplement = rowBeforeChange_ % WMMA_M == 0 ? 0 : WMMA_M - rowBeforeChange_ % WMMA_M;
-    const UIN colComplement = colBeforeChange_ % WMMA_N == 0 ? 0 : WMMA_N - colBeforeChange_ % WMMA_N;
+    const size_t rowComplement = rowBeforeChange_ % WMMA_M == 0 ? 0 : WMMA_M - rowBeforeChange_ % WMMA_M;
+    const size_t colComplement = colBeforeChange_ % WMMA_N == 0 ? 0 : WMMA_N - colBeforeChange_ % WMMA_N;
     row_ = rowBeforeChange_ + rowComplement;
     col_ = colBeforeChange_ + colComplement;
 }

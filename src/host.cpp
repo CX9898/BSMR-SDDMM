@@ -72,8 +72,8 @@ void sddmm_cpu_coo(
     const int K = matrixA.col();
 #pragma omp parallel for
     for (int matrixSIdx = 0; matrixSIdx < matrixS.nnz(); ++matrixSIdx) {
-        const UIN row = matrixS.rowIndex()[matrixSIdx];
-        const UIN col = matrixS.colIndex()[matrixSIdx];
+        const size_t row = matrixS.rowIndex()[matrixSIdx];
+        const size_t col = matrixS.colIndex()[matrixSIdx];
 
         float val = 0.0f;
         for (int kIter = 0; kIter < K; ++kIter) {
@@ -107,8 +107,8 @@ void sddmm_cpu_coo(
     const int K = matrixA.col();
 #pragma omp parallel for
     for (int matrixSIdx = 0; matrixSIdx < matrixS.nnz(); ++matrixSIdx) {
-        const UIN row = matrixS.rowIndex()[matrixSIdx];
-        const UIN col = matrixS.colIndex()[matrixSIdx];
+        const size_t row = matrixS.rowIndex()[matrixSIdx];
+        const size_t col = matrixS.colIndex()[matrixSIdx];
 
         T val = 0.0f;
         for (int kIter = 0; kIter < K; ++kIter) {

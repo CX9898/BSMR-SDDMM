@@ -4,8 +4,6 @@
 #include <string>
 #include <vector>
 
-using UIN = uint64_t;
-
 enum MatrixStorageOrder {
   row_major,
   col_major
@@ -31,8 +29,8 @@ class Matrix {
   Matrix() = delete;
   ~Matrix() = default;
 
-  Matrix(UIN row,
-         UIN col,
+  Matrix(size_t row,
+         size_t col,
          MatrixStorageOrder matrixOrder)
       : row_(row),
         col_(col),
@@ -43,8 +41,8 @@ class Matrix {
       colBeforeChange_ = col;
   }
 
-  Matrix(UIN row,
-         UIN col,
+  Matrix(size_t row,
+         size_t col,
          MatrixStorageOrder matrixOrder,
          const std::vector<T> &values)
       : row_(row),
@@ -64,9 +62,9 @@ class Matrix {
   bool initializeValue(const std::vector<T> &src);
   void changeStorageOrder();
 
-  UIN rowOfValueIndex(UIN idx) const;
-  UIN colOfValueIndex(UIN idx) const;
-  T getOneValue(int row, int col) const;
+  size_t rowOfValueIndex(size_t idx) const;
+  size_t colOfValueIndex(size_t idx) const;
+  T getOneValue(size_t row, size_t col) const;
 
   /**
    * getOneValueForMultiplication
@@ -74,40 +72,40 @@ class Matrix {
    * the number of rows and columns in which the multiplication is performed and the current iteration k
    **/
   T getOneValueForMultiplication(MatrixMultiplicationOrder multiplicationOrder,
-                                 UIN rowMtxC,
-                                 UIN colMtxC,
-                                 UIN positionOfKIter) const;
+                                 size_t rowMtxC,
+                                 size_t colMtxC,
+                                 size_t positionOfKIter) const;
 
-  void makeData(UIN numRow, UIN numCol, MatrixStorageOrder storageOrder = MatrixStorageOrder::row_major);
+  void makeData(size_t numRow, size_t numCol, MatrixStorageOrder storageOrder = MatrixStorageOrder::row_major);
 
   void print() const;
 
-  UIN size() const {
+  size_t size() const {
       return values_.size();
   }
   MatrixStorageOrder storageOrder() const {
       return storageOrder_;
   }
-  UIN ld() const {
+  size_t ld() const {
       return leadingDimension_;
   }
-  UIN row() const {
+  size_t row() const {
       return row_;
   }
-  UIN col() const {
+  size_t col() const {
       return col_;
   }
   const std::vector<T> &values() const {
       return values_;
   }
 
-  const T &operator[](UIN idx) const {
+  const T &operator[](size_t idx) const {
       if (idx > values_.size()) {
           std::cerr << "Error! Array access out of bounds" << std::endl;
       }
       return values_[idx];
   }
-  T &operator[](UIN idx) {
+  T &operator[](size_t idx) {
       if (idx > values_.size()) {
           std::cerr << "Error! Array access out of bounds" << std::endl;
       }
@@ -121,16 +119,16 @@ class Matrix {
   void closeTensorCoreMode();
 
  private:
-  UIN row_;
-  UIN col_;
+  size_t row_;
+  size_t col_;
   MatrixStorageOrder storageOrder_ = row_major;
-  UIN leadingDimension_;
+  size_t leadingDimension_;
 
   std::vector<T> values_;
 
   bool tensorCoreMode_ = false;
-  UIN rowBeforeChange_;
-  UIN colBeforeChange_;
+  size_t rowBeforeChange_;
+  size_t colBeforeChange_;
 };
 
 /**
@@ -144,14 +142,14 @@ class SparseMatrix {
   SparseMatrix() = default;
   ~SparseMatrix() = default;
 
-  SparseMatrix(UIN row, UIN col, UIN nnz) : row_(row), col_(col), nnz_(nnz) {
+  SparseMatrix(size_t row, size_t col, size_t nnz) : row_(row), col_(col), nnz_(nnz) {
       rowIndex_.resize(nnz);
       colIndex_.resize(nnz);
       values_.resize(nnz);
       rowBeforeChange_ = row;
       colBeforeChange_ = col;
   }
-  SparseMatrix(UIN row, UIN col, UIN nnz, const std::vector<UIN> &rowIndex, const std::vector<UIN> &colIndex)
+  SparseMatrix(size_t row, size_t col, size_t nnz, const std::vector<size_t> &rowIndex, const std::vector<size_t> &colIndex)
       : row_(row), col_(col), nnz_(nnz), rowIndex_(rowIndex), colIndex_(colIndex) {
       values_.resize(nnz);
       if (rowIndex.size() != colIndex.size()) {
@@ -178,13 +176,13 @@ class SparseMatrix {
 
   bool setValuesFromMatrix(const Matrix<T> &inputMatrix);
 
-  void makeData(const UIN row, const UIN col, const UIN nnz);
+  void makeData(const size_t row, const size_t col, const size_t nnz);
 
   /**
    * input : idx
    * output : row, col, value
    **/
-  void getSpareMatrixOneDataByCOO(const int idx, UIN &row, UIN &col, T &value) const;
+  void getSpareMatrixOneDataByCOO(const size_t idx, size_t &row, size_t &col, T &value) const;
 
   inline float getSparsity() const {
       return static_cast<float>(row_ * col_ - nnz_) / (row_ * col_);
@@ -192,21 +190,21 @@ class SparseMatrix {
 
   void print() const;
 
-  UIN nnz() const {
+  size_t nnz() const {
       return nnz_;
   }
 
-  UIN row() const {
+  size_t row() const {
       return row_;
   }
-  UIN col() const {
+  size_t col() const {
       return col_;
   }
 
-  const std::vector<UIN> &rowIndex() const {
+  const std::vector<size_t> &rowIndex() const {
       return rowIndex_;
   }
-  const std::vector<UIN> &colIndex() const {
+  const std::vector<size_t> &colIndex() const {
       return colIndex_;
   }
   const std::vector<T> &values() const {
@@ -217,13 +215,13 @@ class SparseMatrix {
       return values_;
   }
 
-  const T &operator[](UIN idx) const {
+  const T &operator[](size_t idx) const {
       if (idx > nnz_) {
           std::cerr << "Error! Array access out of bounds" << std::endl;
       }
       return values_[idx];
   }
-  T &operator[](UIN idx) {
+  T &operator[](size_t idx) {
       if (idx > nnz_) {
           std::cerr << "Error! Array access out of bounds" << std::endl;
       }
@@ -238,17 +236,17 @@ class SparseMatrix {
   void closeTensorCoreMode();
 
  private:
-  UIN row_;
-  UIN col_;
-  UIN nnz_;
+  size_t row_;
+  size_t col_;
+  size_t nnz_;
 
-  std::vector<UIN> rowIndex_;
-  std::vector<UIN> colIndex_;
+  std::vector<size_t> rowIndex_;
+  std::vector<size_t> colIndex_;
   std::vector<T> values_;
 
   bool tensorCoreMode_ = false;
-  UIN rowBeforeChange_;
-  UIN colBeforeChange_;
+  size_t rowBeforeChange_;
+  size_t colBeforeChange_;
 };
 
 template<typename T>
