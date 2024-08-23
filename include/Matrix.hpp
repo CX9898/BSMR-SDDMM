@@ -98,6 +98,9 @@ class Matrix {
   const std::vector<T> &values() const {
       return values_;
   }
+  const T *data() const {
+      return values_.data();
+  }
 
   const T &operator[](size_t idx) const {
       if (idx > values_.size()) {
@@ -149,7 +152,11 @@ class SparseMatrix {
       rowBeforeChange_ = row;
       colBeforeChange_ = col;
   }
-  SparseMatrix(size_t row, size_t col, size_t nnz, const std::vector<size_t> &rowIndex, const std::vector<size_t> &colIndex)
+  SparseMatrix(size_t row,
+               size_t col,
+               size_t nnz,
+               const std::vector<size_t> &rowIndex,
+               const std::vector<size_t> &colIndex)
       : row_(row), col_(col), nnz_(nnz), rowIndex_(rowIndex), colIndex_(colIndex) {
       values_.resize(nnz);
       if (rowIndex.size() != colIndex.size()) {
