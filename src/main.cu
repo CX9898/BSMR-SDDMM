@@ -1,12 +1,10 @@
 #include <iostream>
 #include <string>
 
-#include <cuda_runtime.h>
-
-#include "Matrix.hpp"
 //#include "sddmm_isratnisa.h"
-#include "kernel.cuh"
 //#include "util_isratnisa.h"
+#include "Matrix.hpp"
+#include "kernel.cuh"
 #include "wmmaSetting.hpp"
 #include "cudaErrorCheck.cuh"
 #include "cudaUtil.cuh"
@@ -17,36 +15,42 @@
 
 const std::string folderPath("../dataset/");
 //const std::string fileName = ("nips");
-//const std::string fileName = ("test2");
-const std::string fileName = ("matrix_3000_7000_313110");
+const std::string fileName = ("test2");
+//const std::string fileName = ("matrix_3000_7000_313110");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 
 // TODO :
 //      测试矩阵的尺寸按照论文中的尺寸
-//      1: 将 comp_sddmm_gpu 全部使用 Tensor core 执行 OK
-//      2: 测试不同尺寸的 wmma 的速度表现
+//      1: 将 comp_sddmm_gpu 全部使用 Tensor core 执行         OK
+//      2: 测试不同尺寸的 wmma 的速度表现                       OK
 //      3: 测试使用稀疏度比较器的速度表现
-//              稀疏度大于50%使用 israt 的方法
+//              稀疏度大于50%使用 isratnisa 的方法
 //              稀疏度小于50%使用 Tensor core 方法
 int main() {
 //    // make sparse matrix data
 //    SparseMatrix<int> matrixTmp;
-//    const int makeDataRow = 3000;
-//    const int makeDataCol = 7000;
-//    const float density = 1.491f;
-//    const int makeDataNNZ = static_cast<int> (makeDataRow * makeDataCol * density / 100);
+//    const size_t thousand = 1000;
+//    const size_t million = 1000000;
+//    const size_t makeDataRow = 326 * thousand;
+//    const size_t makeDataCol = 326 * thousand;
+//    const float density = 4.006f;
+////    const size_t makeDataNNZ = static_cast<int> (makeDataRow * makeDataCol * density / 100);
+//    const size_t makeDataNNZ = 1 * million;
 //    matrixTmp.makeData(makeDataRow, makeDataCol, makeDataNNZ);
-//    matrixTmp.outputToMarketMatrixFile("matrix_3000_7000_313110");
+//    matrixTmp.outputToMarketMatrixFile("matrix_37000_326000_1000000");
+//    std::cout << "makeData : M : " << makeDataRow << ", N : " << makeDataCol << ", K : " << 256 << ", nnz : "
+//              << makeDataNNZ
+//              << ", sparsity : "
+//              << (float) (makeDataRow * makeDataCol - makeDataNNZ) / (makeDataRow * makeDataCol) * 100 << "%"
+//              << std::endl;
 
     SparseMatrix<float> matrixS(filePath);
 
-    const int K = 256;
+    const size_t K = 256;
 
-    const float matrixSSparsity = static_cast<float>(matrixS.row() * matrixS.col() - matrixS.nnz()) /
-        (matrixS.row() * matrixS.col());
     std::cout << "M : " << matrixS.row() << ", N : " << matrixS.col() << ", K : " << K << ", nnz : " << matrixS.nnz()
-              << ", sparsity : " << matrixSSparsity * 100 << "%" << std::endl;
+              << ", sparsity : " << matrixS.getSparsity() * 100 << "%" << std::endl;
 
 //    std::cout << "matrixS : " << std::endl;
 //    matrixS.print();
@@ -74,18 +78,11 @@ int main() {
 //    matrixA.changeStorageOrder();
 //    matrixB.changeStorageOrder();
 
-    dev::vector<float> valuesA_d(matrixA.size());
+    dev::vector<float> valuesA_d(matrixA.values());
+    dev::vector<float> valuesB_d(matrixB.values());
+
     dev::vector<MATRIX_A_TYPE> valuesAfp16_d(matrixA.size());
-    dev::vector<float> valuesB_d(matrixB.size());
     dev::vector<MATRIX_B_TYPE> valuesBfp16_d(matrixB.size());
-
-    Matrix<float> matrixS2D(matrixS);
-
-    dev::vector<float> valuesS_d(matrixS2D.size());
-    dev::vector<float> valuesP_d(matrixS2D.size());
-
-    cuUtil::H2D(valuesA_d.data(), matrixA.values().data(), matrixA.size());
-    cuUtil::H2D(valuesB_d.data(), matrixB.values().data(), matrixB.size());
 
     const int numThreadPerBlock = 1024;
     convertFp32ToFp16<<< (matrixA.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
@@ -93,12 +90,17 @@ int main() {
     convertFp32ToFp16<<< (matrixB.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
         matrixB.size(), valuesB_d.data(), valuesBfp16_d.data());
 
+    Matrix<float> matrixS2D(matrixS);
+
+    dev::vector<float> valuesS_d(matrixS2D.values());
+    dev::vector<float> valuesP_d(matrixS2D.size());
+
     dim3 grid;
     dim3 block;
     block.x = WARP_SIZE;
     block.y = WARP_SIZE;
-    const int numCountRowOfOutputMatrixPerBlock = (int) (WMMA_M * block.x / 32);
-    const int numCountColOfOutputMatrixPerBlock = (int) (WMMA_N * block.y);
+    const size_t numCountRowOfOutputMatrixPerBlock = WMMA_M * block.x / 32;
+    const size_t numCountColOfOutputMatrixPerBlock = WMMA_N * block.y;
     grid.x = (matrixS.row() + numCountRowOfOutputMatrixPerBlock - 1) / numCountRowOfOutputMatrixPerBlock;
     grid.y = (matrixS.col() + numCountColOfOutputMatrixPerBlock - 1) / numCountColOfOutputMatrixPerBlock;
 //    printf("grid : [%d %d %d] block : [%d %d %d]\n", grid.x, grid.y, grid.z, block.x, block.y, block.z);
@@ -108,7 +110,7 @@ int main() {
 
     comp_sddmm_gpu<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(),
                                     valuesAfp16_d.data(), valuesBfp16_d.data(), valuesS_d.data(), valuesP_d.data());
-
+//    cuUtil::printCudaErrorStringSync();
     timeCalculator.endClock();
     std::cout << "Func comp_sddmm_gpu time : " << timeCalculator.getTime() << " ms" << std::endl;
     std::cout << "sddmm_zcx time : " << timeCalculator.getTime() << " ms" << std::endl;
