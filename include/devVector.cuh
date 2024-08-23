@@ -58,7 +58,8 @@ inline vector<T>::vector(const vector<T> &src) {
 template<typename T>
 inline vector<T>::vector(const std::vector<T> &src) {
     size_ = src.size();
-
+    cudaMalloc(reinterpret_cast<void **> (&data_), src.size() * sizeof(T));
+    cudaMemcpy(data_, src.data(), src.size() * sizeof(T), cudaMemcpyHostToDevice);
 }
 
 template<typename T>
