@@ -9,16 +9,16 @@
 const float SPARSITY_BOUND = 0.5f;
 
 template<typename T>
-__device__ int sparsityComparator(const int WMMA_M,
-                                  const int WMMA_N,
-                                  const int ld,
+__device__ int sparsityComparator(const size_t WMMA_M,
+                                  const size_t WMMA_N,
+                                  const size_t ld,
                                   const MatrixStorageOrder storageOrder,
                                   const T *matrixPtr) {
-    int nnzCount = 0;
+    size_t nnzCount = 0;
 #pragma unroll
-    for (int rowIter = 0; rowIter < WMMA_M; ++rowIter) {
+    for (size_t rowIter = 0; rowIter < WMMA_M; ++rowIter) {
 #pragma unroll
-        for (int colIter = 0; colIter < WMMA_N; ++colIter) {
+        for (size_t colIter = 0; colIter < WMMA_N; ++colIter) {
             if (storageOrder == MatrixStorageOrder::row_major) {
                 nnzCount += *(matrixPtr + rowIter * ld + colIter) == 0 ? 0 : 1;
             } else {
@@ -32,36 +32,36 @@ __device__ int sparsityComparator(const int WMMA_M,
 }
 
 template<typename T>
-__global__ void printData(int n, T *a) {
-    for (int i = 0; i < n; ++i) {
+__global__ void printData(size_t n, T *a) {
+    for (size_t i = 0; i < n; ++i) {
         printf("%f ", static_cast<float>(a[i]));
     }
 }
 
-template __global__ void printData<float>(int n, float *a);
-template __global__ void printData<half>(int n, half *a);
+template __global__ void printData<float>(size_t n, float *a);
+template __global__ void printData<half>(size_t n, half *a);
 
-__global__ void convertFp32ToFp16(const int n, const float *in, half *out) {
-    int idx = (int) (blockDim.x * blockIdx.x + threadIdx.x);
+__global__ void convertFp32ToFp16(const size_t n, const float *in, half *out) {
+    size_t idx = static_cast<size_t> (blockDim.x * blockIdx.x + threadIdx.x);
     if (idx < n) {
         out[idx] = in[idx];
     }
 }
 
-__global__ void comp_sddmm_gpu(const int M, const int N, const int K,
+__global__ void comp_sddmm_gpu(const size_t M, const size_t N, const size_t K,
                                const half *matrixA, const half *matrixB,
                                const float *matrixS,
                                float *matrixP) {
-    const int tidX = (blockDim.x * blockIdx.x + threadIdx.x);
-    const int tidY = (blockDim.y * blockIdx.y + threadIdx.y);
+    const size_t tidX = (blockDim.x * blockIdx.x + threadIdx.x);
+    const size_t tidY = (blockDim.y * blockIdx.y + threadIdx.y);
 
-    const int warpM = (int) (blockDim.x * blockIdx.x + threadIdx.x) / WARP_SIZE;
-    const int warpN = (int) (blockDim.y * blockIdx.y + threadIdx.y);
+    const size_t warpM = (blockDim.x * blockIdx.x + threadIdx.x) / WARP_SIZE;
+    const size_t warpN = (blockDim.y * blockIdx.y + threadIdx.y);
 
     // Compute dense matrix multiplication using Tensor core
 
-    const int pRowId = warpM * WMMA_M;
-    const int pColId = warpN * WMMA_N;
+    const size_t pRowId = warpM * WMMA_M;
+    const size_t pColId = warpN * WMMA_N;
 
     if (pRowId >= M || pColId >= N) {
         return;
