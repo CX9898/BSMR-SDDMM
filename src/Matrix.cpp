@@ -452,11 +452,11 @@ void SparseMatrix<T>::openTensorCoreMode(MatrixMultiplicationOrder multiplicatio
     UIN rowComplement;
     UIN colComplement;
     if (multiplicationOrder == MatrixMultiplicationOrder::left_multiplication) {
-        rowComplement = WMMA_M - rowBeforeChange_ % WMMA_M;
-        colComplement = WMMA_K - colBeforeChange_ % WMMA_K;
+        rowComplement = rowBeforeChange_ % WMMA_M == 0 ? 0 : WMMA_M - rowBeforeChange_ % WMMA_M;
+        colComplement = colBeforeChange_ % WMMA_K == 0 ? 0 : WMMA_K - colBeforeChange_ % WMMA_K;
     } else {
-        rowComplement = WMMA_K - rowBeforeChange_ % WMMA_K;
-        colComplement = WMMA_N - colBeforeChange_ % WMMA_N;
+        rowComplement = rowBeforeChange_ % WMMA_K == 0 ? 0 : WMMA_K - rowBeforeChange_ % WMMA_K;
+        colComplement = colBeforeChange_ % WMMA_N == 0 ? 0 : WMMA_N - colBeforeChange_ % WMMA_N;
     }
     row_ = rowBeforeChange_ + rowComplement;
     col_ = colBeforeChange_ + colComplement;
@@ -471,8 +471,8 @@ void SparseMatrix<T>::openTensorCoreModeForSampled() {
     rowBeforeChange_ = row_;
     colBeforeChange_ = col_;
 
-    const UIN rowComplement = WMMA_M - rowBeforeChange_ % WMMA_M;
-    const UIN colComplement = WMMA_N - colBeforeChange_ % WMMA_N;
+    const UIN rowComplement = rowBeforeChange_ % WMMA_M == 0 ? 0 : WMMA_M - rowBeforeChange_ % WMMA_M;
+    const UIN colComplement = colBeforeChange_ % WMMA_N == 0 ? 0 : WMMA_N - colBeforeChange_ % WMMA_N;
     row_ = rowBeforeChange_ + rowComplement;
     col_ = colBeforeChange_ + colComplement;
 }
