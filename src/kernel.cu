@@ -107,11 +107,12 @@ __device__ void matrixTileMultiplicationUseTensorCore(int pRowId, int pColId,
 //
 //        cFrag.x[idx] *= matrixS[sIdx];
 //    }
+
 //    nvcuda::wmma::fragment<nvcuda::wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> sFrag;
 //    const int lds = N;
 //    const auto ptrS = matrixS + pRowId * lds + pColId;
 //    nvcuda::wmma::load_matrix_sync(sFrag,ptrS,lds,nvcuda::wmma::mem_row_major);
-    if ((blockDim.x * blockIdx.x + threadIdx.x) == 0) {
+    if ((blockDim.x * blockIdx.x + threadIdx.x) == 9) {
         printf("\n cFrag.num_elements : %d\n", cFrag.num_elements);
         for (int idx = 0; idx < cFrag.num_elements; ++idx) {
             printf(" %f ", static_cast<float>(cFrag.x[idx]));
@@ -145,14 +146,14 @@ __global__ void comp_sddmm_gpu(const size_t M, const size_t N, const size_t K,
     if (pRowId >= M || pColId >= N) {
         return;
     }
-
-    const int ldp = N;
-    const auto pOffsetPtr = matrixP + pRowId * ldp + pColId;
-    const float sparsity = calculateMatrixTileSparsity(WMMA_M, WMMA_N, ldp, MatrixStorageOrder::row_major, pOffsetPtr);
-    if (sparsity > SPARSITY_BOUND) {
-        matrixTileMultiplicationUseCudaCode(pRowId, pColId, M, N, K, matrixA, matrixB, matrixS, matrixP);
-    } else {
-        matrixTileMultiplicationUseTensorCore(pRowId, pColId, M, N, K, matrixA, matrixB, matrixS, matrixP);
-    }
+    matrixTileMultiplicationUseTensorCore(pRowId, pColId, M, N, K, matrixA, matrixB, matrixS, matrixP);
+//    const int ldp = N;
+//    const auto pOffsetPtr = matrixP + pRowId * ldp + pColId;
+//    const float sparsity = calculateMatrixTileSparsity(WMMA_M, WMMA_N, ldp, MatrixStorageOrder::row_major, pOffsetPtr);
+//    if (sparsity < 0) {
+//        matrixTileMultiplicationUseCudaCode(pRowId, pColId, M, N, K, matrixA, matrixB, matrixS, matrixP);
+//    } else {
+//        matrixTileMultiplicationUseTensorCore(pRowId, pColId, M, N, K, matrixA, matrixB, matrixS, matrixP);
+//    }
 
 }

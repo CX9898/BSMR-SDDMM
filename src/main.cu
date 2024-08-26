@@ -15,8 +15,8 @@
 
 const std::string folderPath("../dataset/");
 //const std::string fileName = ("nips");
-const std::string fileName = ("test2");
-//const std::string fileName = ("matrix_3000_7000_313110");
+const std::string fileName = ("test");
+//const std::string fileName = ("matrix_35000_35000_422000");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 
@@ -47,7 +47,7 @@ int main() {
 
     SparseMatrix<float> matrixS(filePath);
 
-    const size_t K = 256;
+    const size_t K = 2;
 
     std::cout << "M : " << matrixS.row() << ", N : " << matrixS.col() << ", K : " << K << ", nnz : " << matrixS.nnz()
               << ", sparsity : " << matrixS.getSparsity() * 100 << "%" << std::endl;
@@ -69,11 +69,11 @@ int main() {
 
     std::cout << "openTensorCoreMode" << std::endl;
     matrixA.openTensorCoreMode(MatrixMultiplicationOrder::left_multiplication);
-    std::cout << "matrixA : row = " << matrixA.row() << ", col = " << matrixA.col() << std::endl;
+    std::cout << "openTensorCoreMode matrixA : row = " << matrixA.row() << ", col = " << matrixA.col() << std::endl;
     matrixB.openTensorCoreMode(MatrixMultiplicationOrder::right_multiplication);
-    std::cout << "matrixB : row = " << matrixB.row() << ", col = " << matrixB.col() << std::endl;
+    std::cout << "openTensorCoreMode matrixB : row = " << matrixB.row() << ", col = " << matrixB.col() << std::endl;
     matrixS.openTensorCoreModeForSampled();
-    std::cout << "matrixS : row = " << matrixS.row() << ", col = " << matrixS.col() << std::endl;
+    std::cout << "openTensorCoreMode matrixS : row = " << matrixS.row() << ", col = " << matrixS.col() << std::endl;
 
 //    matrixA.changeStorageOrder();
 //    matrixB.changeStorageOrder();
