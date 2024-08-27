@@ -6,3 +6,6 @@
 
 # build folder
 **/build/
+
+# log file
+*Log
