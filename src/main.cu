@@ -27,7 +27,7 @@ const std::string filePath = folderPath + fileName + fileFormat;
 //      3: 测试使用稀疏度比较器的速度表现
 //              稀疏度大于50%使用 isratnisa 的方法
 //              稀疏度小于50%使用 Tensor core 方法
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
 //    // make sparse matrix data
 //    SparseMatrix<int> matrixTmp;
 //    const size_t thousand = 1000;
@@ -46,10 +46,10 @@ int main(int argc, char* argv[]) {
 //              << std::endl;
 
     SparseMatrix<float> matrixS;
-    if(argc > 1){
+    if (argc > 1) {
         const std::string inputFilePath(argv[1]);
         matrixS.initializeFromMatrixMarketFile(inputFilePath);
-    } else{
+    } else {
         matrixS.initializeFromMatrixMarketFile(filePath);
     }
 
@@ -110,6 +110,7 @@ int main(int argc, char* argv[]) {
     grid.x = (matrixS.row() + numCountRowOfOutputMatrixPerBlock - 1) / numCountRowOfOutputMatrixPerBlock;
     grid.y = (matrixS.col() + numCountColOfOutputMatrixPerBlock - 1) / numCountColOfOutputMatrixPerBlock;
     printf("grid : [%d %d %d] block : [%d %d %d]\n", grid.x, grid.y, grid.z, block.x, block.y, block.z);
+    printf("WMMA : %d×%d×%d\n", WMMA_M, WMMA_N, WMMA_K);
 
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
