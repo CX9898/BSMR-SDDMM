@@ -36,16 +36,28 @@ echo "Start test"
 
 touch ${test_log_file_name}
 ${program_path}${program_name} ${test_file1} >> ${test_log_file_name}
-echo "------next------" >> ${test_log_file_name}
+echo "------------next------------" >> ${test_log_file_name}
+
+echo "${test_file1} test finish"
 ${program_path}${program_name} ${test_file2} >> ${test_log_file_name}
-echo "------next------" >> ${test_log_file_name}
+echo "------------next------------" >> ${test_log_file_name}
+echo "${test_file2} test finish"
+
 ${program_path}${program_name} ${test_file4} >> ${test_log_file_name}
-echo "------next------" >> ${test_log_file_name}
+echo "------------next------------" >> ${test_log_file_name}
+echo "${test_file4} test finish"
+
 ${program_path}${program_name} ${test_file7} >> ${test_log_file_name}
-echo "------next------" >> ${test_log_file_name}
+echo "------------next------------" >> ${test_log_file_name}
+echo "${test_file7} test finish"
+
 ${program_path}${program_name} ${test_file8} >> ${test_log_file_name}
-echo "------next------" >> ${test_log_file_name}
+echo "------------next------------" >> ${test_log_file_name}
+echo "${test_file8} test finish"
+
 ${program_path}${program_name} ${test_file17} >> ${test_log_file_name}
+echo "------------next------------" >> ${test_log_file_name}
+echo "${test_file17} test finish"
 
 echo "End test"
 echo "Test information filename: ${test_log_file_name}"
