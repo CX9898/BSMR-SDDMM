@@ -281,7 +281,7 @@ bool SparseMatrix<T>::setValuesFromMatrix(const Matrix<T> &inputMatrix) {
 }
 
 template<typename T>
-SparseMatrix<T>::SparseMatrix(const std::string &filePath) {
+void SparseMatrix<T>::initializeFromMatrixMarketFile(const std::string &filePath) {
     std::ifstream inFile;
     inFile.open(filePath, std::ios::in); // open file
     if (!inFile.is_open()) {
