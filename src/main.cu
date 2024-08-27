@@ -15,8 +15,8 @@
 
 const std::string folderPath("../dataset/");
 //const std::string fileName = ("nips");
-const std::string fileName = ("test");
-//const std::string fileName = ("matrix_35000_35000_422000");
+//const std::string fileName = ("test");
+const std::string fileName = ("matrix_36000_36000_4000000");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 
@@ -27,7 +27,7 @@ const std::string filePath = folderPath + fileName + fileFormat;
 //      3: 测试使用稀疏度比较器的速度表现
 //              稀疏度大于50%使用 isratnisa 的方法
 //              稀疏度小于50%使用 Tensor core 方法
-int main() {
+int main(int argc, char* argv[]) {
 //    // make sparse matrix data
 //    SparseMatrix<int> matrixTmp;
 //    const size_t thousand = 1000;
@@ -45,9 +45,15 @@ int main() {
 //              << (float) (makeDataRow * makeDataCol - makeDataNNZ) / (makeDataRow * makeDataCol) * 100 << "%"
 //              << std::endl;
 
-    SparseMatrix<float> matrixS(filePath);
+    SparseMatrix<float> matrixS;
+    if(argc > 1){
+        const std::string inputFilePath(argv[1]);
+        matrixS.initializeFromMatrixMarketFile(inputFilePath);
+    } else{
+        matrixS.initializeFromMatrixMarketFile(filePath);
+    }
 
-    const size_t K = 2;
+    const size_t K = 256;
 
     std::cout << "M : " << matrixS.row() << ", N : " << matrixS.col() << ", K : " << K << ", nnz : " << matrixS.nnz()
               << ", sparsity : " << matrixS.getSparsity() * 100 << "%" << std::endl;
@@ -97,13 +103,13 @@ int main() {
 
     dim3 grid;
     dim3 block;
-    block.x = WARP_SIZE;
-    block.y = WARP_SIZE;
-    const size_t numCountRowOfOutputMatrixPerBlock = WMMA_M * block.x / 32;
-    const size_t numCountColOfOutputMatrixPerBlock = WMMA_N * block.y;
+    block.x = 128;
+    block.y = 4;
+    const int numCountRowOfOutputMatrixPerBlock = WMMA_M * block.x / 32;
+    const int numCountColOfOutputMatrixPerBlock = WMMA_N * block.y;
     grid.x = (matrixS.row() + numCountRowOfOutputMatrixPerBlock - 1) / numCountRowOfOutputMatrixPerBlock;
     grid.y = (matrixS.col() + numCountColOfOutputMatrixPerBlock - 1) / numCountColOfOutputMatrixPerBlock;
-//    printf("grid : [%d %d %d] block : [%d %d %d]\n", grid.x, grid.y, grid.z, block.x, block.y, block.z);
+    printf("grid : [%d %d %d] block : [%d %d %d]\n", grid.x, grid.y, grid.z, block.x, block.y, block.z);
 
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
