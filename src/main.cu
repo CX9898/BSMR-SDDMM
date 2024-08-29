@@ -15,8 +15,8 @@
 
 const std::string folderPath("../dataset/");
 //const std::string fileName = ("nips");
-//const std::string fileName = ("test");
-const std::string fileName = ("matrix_36000_36000_4000000");
+const std::string fileName = ("test");
+//const std::string fileName = ("matrix_36000_36000_4000000");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 
@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
         matrixS.initializeFromMatrixMarketFile(filePath);
     }
 
-    const size_t K = 256;
+    const size_t K = 16;
 
     std::cout << "M : " << matrixS.row() << ", N : " << matrixS.col() << ", K : " << K << ", nnz : " << matrixS.nnz()
               << ", sparsity : " << matrixS.getSparsity() * 100 << "%" << std::endl;
@@ -66,12 +66,17 @@ int main(int argc, char *argv[]) {
 //    initial(matrixA.setValues(), M, K);
 //    std::cout << "matrixA.size() : " << matrixA.values().size() << " matrixA : ";
 //    matrixA.print();
+//    matrixA.printToMarkdownTable();
 
     Matrix<float> matrixB(K, matrixS.col(), MatrixStorageOrder::row_major);
     matrixB.makeData(K, matrixS.col(), MatrixStorageOrder::row_major);
 //    initial(matrixB.setValues(), N, K);
 //    std::cout << "matrixB.size() : " << matrixB.values().size() << " matrixB : ";
 //    matrixB.print();
+
+    Matrix<float> matrixC(K, matrixS.col(), MatrixStorageOrder::row_major);
+    dmm_cpu(matrixA,matrixB,matrixC);
+    matrixC.printToMarkdownTable();
 
     std::cout << "openTensorCoreMode" << std::endl;
     matrixA.openTensorCoreMode(MatrixMultiplicationOrder::left_multiplication);
@@ -103,7 +108,7 @@ int main(int argc, char *argv[]) {
 
     dim3 grid;
     dim3 block;
-    block.x = 128;
+    block.x = 4 * WARP_SIZE;
     block.y = 4;
     const int numCountRowOfOutputMatrixPerBlock = WMMA_M * block.x / 32;
     const int numCountColOfOutputMatrixPerBlock = WMMA_N * block.y;
