@@ -122,7 +122,7 @@ void Matrix<T>::makeData(size_t numRow, size_t numCol, MatrixStorageOrder storag
     values_.resize(numRow * numCol);
 
 //    for (size_t idx = 0; idx < values_.size(); ++idx) {
-//        values_[idx] = idx + 1;
+//        values_[idx] = idx;
 //    }
     std::mt19937 generator;
     auto distribution = util::createRandomUniformDistribution(static_cast<T>(0), static_cast<T>(10));
@@ -139,6 +139,29 @@ void Matrix<T>::print() const {
         std::cout << iter << " ";
     }
     std::cout << std::endl;
+}
+
+template<typename T>
+void Matrix<T>::printToMarkdownTable() const {
+    std::cout << "| |";
+    for (int colIdx = 0; colIdx < col_; ++colIdx) {
+        std::cout << colIdx << "|";
+    }
+    std::cout << std::endl;
+
+    std::cout << "|-|";
+    for (int colIdx = 0; colIdx < col_; ++colIdx) {
+        std::cout << "-|";
+    }
+    std::cout << std::endl;
+
+    for (int rowIdx = 0; rowIdx < row_; ++rowIdx) {
+        std::cout << "|" << rowIdx << "|";
+        for (int colIdx = 0; colIdx < col_; ++colIdx) {
+            std::cout << getOneValue(rowIdx, colIdx) << "|";
+        }
+        std::cout << std::endl;
+    }
 }
 
 template<typename T>
@@ -400,9 +423,11 @@ void SparseMatrix<T>::makeData(const size_t numRow, const size_t numCol, const s
 
     // make data
     std::mt19937 generator;
-    auto distributionRow = util::createRandomUniformDistribution(static_cast<size_t>(0), static_cast<size_t>(numRow - 1));
-    auto distributionCol = util::createRandomUniformDistribution(static_cast<size_t>(0), static_cast<size_t>(numCol - 1));
-    auto distributionValue = util::createRandomUniformDistribution(static_cast<T>(0), static_cast<T>(10));
+    auto distributionRow =
+        util::createRandomUniformDistribution(static_cast<size_t>(0), static_cast<size_t>(numRow - 1));
+    auto distributionCol =
+        util::createRandomUniformDistribution(static_cast<size_t>(0), static_cast<size_t>(numCol - 1));
+    auto distributionValue = util::createRandomUniformDistribution(static_cast<T>(0), static_cast<T>(2));
     std::set<std::pair<size_t, size_t>> rowColSet;
     for (size_t idx = 0; idx < nnz; ++idx) {
         size_t row = distributionRow(generator);

@@ -79,6 +79,7 @@ class Matrix {
   void makeData(size_t numRow, size_t numCol, MatrixStorageOrder storageOrder = MatrixStorageOrder::row_major);
 
   void print() const;
+  void printToMarkdownTable() const;
 
   size_t size() const {
       return values_.size();
