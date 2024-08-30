@@ -4,10 +4,10 @@
 
 #include "Matrix.hpp"
 
-template<typename T>
-void dmm_cpu(const Matrix<T> &matrixA,
-             const Matrix<T> &matrixB,
-             Matrix<T> &matrixC);
+//template<typename T>
+void dmm_cpu(const Matrix<float> &matrixA,
+             const Matrix<float> &matrixB,
+             Matrix<float> &matrixC);
 
 void sddmm_cpu_coo_isratnisa(
     const Matrix<float> &matrixA,

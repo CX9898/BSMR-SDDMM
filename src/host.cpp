@@ -2,10 +2,10 @@
 
 #include "host.hpp"
 
-template<typename T>
-void dmm_cpu(const Matrix<T> &matrixA,
-             const Matrix<T> &matrixB,
-             Matrix<T> &matrixC) {
+//template<typename T>
+void dmm_cpu(const Matrix<float> &matrixA,
+             const Matrix<float> &matrixB,
+             Matrix<float> &matrixC) {
     if (matrixA.col() != matrixB.row() ||
         matrixA.row() != matrixC.row() ||
         matrixB.col() != matrixC.col()) {
