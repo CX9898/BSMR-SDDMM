@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
 //    std::cout << "matrixB.size() : " << matrixB.values().size() << " matrixB : ";
 //    matrixB.print();
 
-    Matrix<float> matrixC(K, matrixS.col(), MatrixStorageOrder::row_major);
+    Matrix<float> matrixC(matrixS.row(), matrixS.col(), MatrixStorageOrder::row_major);
     dmm_cpu(matrixA,matrixB,matrixC);
     matrixC.printToMarkdownTable();
 
