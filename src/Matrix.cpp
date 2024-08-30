@@ -23,7 +23,7 @@ Matrix<T>::Matrix(const SparseMatrix<T> &matrixS) {
     values_.clear();
     values_.resize(size);
 #pragma omp parallel for
-    for (size_t idx = 0; idx < matrixS.nnz(); ++idx) {
+    for (int idx = 0; idx < matrixS.nnz(); ++idx) {
         const size_t curRow = matrixS.rowIndex()[idx];
         const size_t curCol = matrixS.colIndex()[idx];
         const auto curVal = matrixS.values()[idx];
@@ -83,7 +83,7 @@ void Matrix<T>::changeStorageOrder() {
         newLd = row_;
 
 #pragma omp parallel for
-        for (size_t idx = 0; idx < oldValues.size(); ++idx) {
+        for (int idx = 0; idx < oldValues.size(); ++idx) {
             const size_t row = idx / oldLd;
             const size_t col = idx % oldLd;
             const auto val = oldValues[idx];
@@ -95,7 +95,7 @@ void Matrix<T>::changeStorageOrder() {
         newLd = col_;
 
 #pragma omp parallel for
-        for (size_t idx = 0; idx < values_.size(); ++idx) {
+        for (int idx = 0; idx < values_.size(); ++idx) {
             const size_t col = idx / oldLd;
             const size_t row = idx % oldLd;
             const auto val = values_[idx];
@@ -128,7 +128,7 @@ void Matrix<T>::makeData(size_t numRow, size_t numCol, MatrixStorageOrder storag
     auto distribution = util::createRandomUniformDistribution(static_cast<T>(0), static_cast<T>(10));
 
 #pragma omp parallel for
-    for (size_t idx = 0; idx < values_.size(); ++idx) {
+    for (int idx = 0; idx < values_.size(); ++idx) {
         values_[idx] = distribution(generator);
     }
 }
@@ -249,8 +249,8 @@ void Matrix<T>::closeTensorCoreMode() {
     }
     tensorCoreMode_ = false;
 
-    const size_t rowComplement = abs(row_ - rowBeforeChange_);
-    const size_t colComplement = abs(col_ - colBeforeChange_);
+    const size_t rowComplement = row_ < rowBeforeChange_ ? rowBeforeChange_ - row_ : row_ - rowBeforeChange_;
+    const size_t colComplement = col_ < colBeforeChange_ ? colBeforeChange_ - col_ : col_ - colBeforeChange_;
 
     row_ = rowBeforeChange_;
     col_ = colBeforeChange_;
@@ -293,7 +293,7 @@ bool SparseMatrix<T>::setValuesFromMatrix(const Matrix<T> &inputMatrix) {
     values_.resize(nnz_);
 
 #pragma omp parallel for
-    for (size_t idx = 0; idx < nnz_; ++idx) {
+    for (int idx = 0; idx < nnz_; ++idx) {
         const size_t row = rowIndex_[idx];
         const size_t col = colIndex_[idx];
 
