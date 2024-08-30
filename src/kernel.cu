@@ -69,6 +69,68 @@ __device__ void matrixTileMultiplicationUseTensorCore(int pRowId, int pColId,
     const int ldp = N;
     const auto pOffsetPtr = matrixP + pRowId * ldp + pColId;
 
+    nvcuda::wmma::fragment<nvcuda::wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE, nvcuda::wmma::row_major>
+        aFrag;
+    nvcuda::wmma::fragment<nvcuda::wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE, nvcuda::wmma::row_major>
+        bFrag;
+
+    nvcuda::wmma::fragment<nvcuda::wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> cFrag;
+    fill_fragment(cFrag, 0.0f);
+
+    // Loop over k
+    for (int kIter = 0; kIter < K; kIter += WMMA_K) {
+        const int aRowId = pRowId;
+        const int aColId = kIter;
+
+        const int bRowId = kIter;
+        const int bColId = pColId;
+
+        // Bounds checking
+        if (aRowId < M && aColId < K && bRowId < K && bColId < N) {
+            const auto aOffsetPtr = matrixA + aRowId * lda + aColId;
+            const auto bOffsetPtr = matrixB + bRowId * ldb + bColId;
+
+            nvcuda::wmma::load_matrix_sync(aFrag, aOffsetPtr, lda);
+            nvcuda::wmma::load_matrix_sync(bFrag, bOffsetPtr, ldb);
+
+            nvcuda::wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
+        }
+    }
+
+//#pragma unroll
+//    for (int idx = 0; idx < cFrag.num_elements; ++idx) {
+//        const int sIdx = pRowId * ldc + pColId + idx;
+//
+//        cFrag.x[idx] *= matrixS[sIdx];
+//    }
+
+    nvcuda::wmma::store_matrix_sync(pOffsetPtr, cFrag, ldp, nvcuda::wmma::mem_row_major);
+}
+__device__ void matrixTileMultiplicationUseTensorCore2(int pRowId, int pColId,
+                                                       const size_t M, const size_t N, const size_t K,
+                                                       const half *matrixA,
+                                                       const half *matrixB,
+                                                       const float *matrixS,
+                                                       float *matrixP) {
+    const size_t tidX = (blockDim.x * blockIdx.x + threadIdx.x);
+//    const size_t tidY = (blockDim.y * blockIdx.y + threadIdx.y);
+//
+//    const size_t warpM = tidX / WARP_SIZE;
+//    const size_t warpN = tidY;
+//
+//    const int landIdM = tidX % WARP_SIZE;
+//    const int landIdN = tidY % WARP_SIZE;
+//
+
+    const int laneId = tidX % WARP_SIZE;
+
+
+    // Leading dimensions. Packed with no transpositions.
+    const int lda = K;
+    const int ldb = N;
+    const int ldp = N;
+    const auto pOffsetPtr = matrixP + pRowId * ldp + pColId;
+
 //    printf("pRowId : %d, pColId : %d\n", pRowId,pColId);
     nvcuda::wmma::fragment<nvcuda::wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE, nvcuda::wmma::row_major>
         aFrag;
@@ -112,12 +174,17 @@ __device__ void matrixTileMultiplicationUseTensorCore(int pRowId, int pColId,
 //    const int lds = N;
 //    const auto ptrS = matrixS + pRowId * lds + pColId;
 //    nvcuda::wmma::load_matrix_sync(sFrag,ptrS,lds,nvcuda::wmma::mem_row_major);
-    if ((blockDim.x * blockIdx.x + threadIdx.x) == 9) {
-        printf("\n cFrag.num_elements : %d\n", cFrag.num_elements);
+    const int curRow = laneId < 16 ? laneId % 4 : (laneId % 4) + 4;
+    if ((blockDim.x * blockIdx.x + threadIdx.x) == 32) {
+//        printf("\n cFrag.num_elements : %d\n", cFrag.num_elements);
+//        printf("|T%d|",blockDim.x * blockIdx.x + threadIdx.x);
         for (int idx = 0; idx < cFrag.num_elements; ++idx) {
-            printf(" %f ", static_cast<float>(cFrag.x[idx]));
-        }
+//            printf(" %f",
+//                   static_cast<float>(cFrag.x[idx]));
+            printf("[%d,%d]|", (laneId & 0b1) + (idx & 0b10)), (idx & 0b100) + (laneId & 0b10) + (idx & 0b1);
 
+        }
+        printf("\n");
 
 //        printf("\n sFrag.num_elements : %d\n", sFrag.num_elements);
 //        for (int idx = 0; idx < sFrag.num_elements; ++idx) {
@@ -135,18 +202,23 @@ __global__ void comp_sddmm_gpu(const size_t M, const size_t N, const size_t K,
     const size_t tidX = (blockDim.x * blockIdx.x + threadIdx.x);
     const size_t tidY = (blockDim.y * blockIdx.y + threadIdx.y);
 
-    const size_t warpM = (blockDim.x * blockIdx.x + threadIdx.x) / WARP_SIZE;
-    const size_t warpN = (blockDim.y * blockIdx.y + threadIdx.y);
+    const size_t warpM = tidX / WARP_SIZE;
+    const size_t warpN = tidY;
+
+//    const int landIdM = tidX % WARP_SIZE;
+//    const int landIdN = tidY % WARP_SIZE;
 
     // Compute dense matrix multiplication using Tensor core
 
-    const size_t pRowId = warpM * WMMA_M;
-    const size_t pColId = warpN * WMMA_N;
+//    const size_t pRowId = warpM * WMMA_M;
+//    const size_t pColId = warpN * WMMA_N;
+    const size_t pRowId = warpN * WMMA_N;
+    const size_t pColId = warpM * WMMA_M;
 
     if (pRowId >= M || pColId >= N) {
         return;
     }
-    matrixTileMultiplicationUseTensorCore(pRowId, pColId, M, N, K, matrixA, matrixB, matrixS, matrixP);
+    matrixTileMultiplicationUseTensorCore2(pRowId, pColId, M, N, K, matrixA, matrixB, matrixS, matrixP);
 //    const int ldp = N;
 //    const auto pOffsetPtr = matrixP + pRowId * ldp + pColId;
 //    const float sparsity = calculateMatrixTileSparsity(WMMA_M, WMMA_N, ldp, MatrixStorageOrder::row_major, pOffsetPtr);
