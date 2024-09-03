@@ -106,10 +106,42 @@ __device__ void matrixTileMultiplicationUseTensorCore(int pRowId, int pColId,
 
     nvcuda::wmma::store_matrix_sync(pOffsetPtr, cFrag, ldp, nvcuda::wmma::mem_row_major);
 }
-__device__ void matrixTileMultiplicationUseTensorCore2(int pRowId, int pColId,
-                                                       const size_t M, const size_t N, const size_t K,
+
+__device__ void positionCalculator(const int curTileRow, const int curTileCol,
+                                   const size_t row, const size_t col,
+                                   int &laneId, int &idx) {
+
+    const int localRow = row - curTileRow;
+    const int localCol = col - curTileCol;
+
+    const int numberOfIterations = localCol % 8;
+
+    const int startLane = (localRow % 4) * 4;
+    laneId = startLane + numberOfIterations / 2;
+
+    const int addNum = numberOfIterations % 2;
+    if (localCol < 8) { // idx : 0~3
+        if (localRow < 8) { //  idx : 0~1 || 4~5
+            idx = addNum;
+        } else { // idx : 2~3 || 6~7
+            idx = 2 + addNum;
+        }
+    } else { // idx : 4~7
+        if (localRow < 8) { //  idx : 0~1 || 4~5
+            idx = 4 + addNum;
+        } else { // idx : 2~3 || 6~7
+            idx = 6 + addNum;
+        }
+    }
+
+}
+
+__device__ void matrixTileMultiplicationUseTensorCore2(const int pRowId, const int pColId,
+                                                       const size_t M, const size_t N, const size_t K, const int nnz,
                                                        const half *matrixA,
                                                        const half *matrixB,
+                                                       const size_t *matrixSRowIndex,
+                                                       const size_t *matrixSColIndex,
                                                        const float *matrixS,
                                                        float *matrixP) {
     const size_t tidX = (blockDim.x * blockIdx.x + threadIdx.x);
@@ -122,14 +154,9 @@ __device__ void matrixTileMultiplicationUseTensorCore2(int pRowId, int pColId,
 //    const int landIdN = tidY % WARP_SIZE;
 //
 
-    const int laneId = tidX % WARP_SIZE;
-
-
     // Leading dimensions. Packed with no transpositions.
     const int lda = K;
     const int ldb = N;
-    const int ldp = N;
-    const auto pOffsetPtr = matrixP + pRowId * ldp + pColId;
 
 //    printf("pRowId : %d, pColId : %d\n", pRowId,pColId);
     nvcuda::wmma::fragment<nvcuda::wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE, nvcuda::wmma::row_major>
@@ -138,6 +165,7 @@ __device__ void matrixTileMultiplicationUseTensorCore2(int pRowId, int pColId,
         bFrag;
 
     nvcuda::wmma::fragment<nvcuda::wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> cFrag;
+
     fill_fragment(cFrag, 0.0f);
 
     // Loop over k
@@ -162,43 +190,54 @@ __device__ void matrixTileMultiplicationUseTensorCore2(int pRowId, int pColId,
             nvcuda::wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
         }
     }
+    const int laneId = tidX % WARP_SIZE;
 
-//#pragma unroll
-//    for (int idx = 0; idx < cFrag.num_elements; ++idx) {
-//        const int sIdx = pRowId * ldc + pColId + idx;
-//
-//        cFrag.x[idx] *= matrixS[sIdx];
-//    }
-
-//    nvcuda::wmma::fragment<nvcuda::wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> sFrag;
-//    const int lds = N;
-//    const auto ptrS = matrixS + pRowId * lds + pColId;
-//    nvcuda::wmma::load_matrix_sync(sFrag,ptrS,lds,nvcuda::wmma::mem_row_major);
-    const int curRow = laneId < 16 ? laneId % 4 : (laneId % 4) + 4;
-    if ((blockDim.x * blockIdx.x + threadIdx.x) == 32) {
-//        printf("\n cFrag.num_elements : %d\n", cFrag.num_elements);
-//        printf("|T%d|",blockDim.x * blockIdx.x + threadIdx.x);
-        for (int idx = 0; idx < cFrag.num_elements; ++idx) {
-//            printf(" %f",
-//                   static_cast<float>(cFrag.x[idx]));
-            printf("[%d,%d]|", (laneId & 0b1) + (idx & 0b10)), (idx & 0b100) + (laneId & 0b10) + (idx & 0b1);
-
+    for (int matrixPIdx = 0; matrixPIdx < nnz; ++matrixPIdx) {
+        const size_t curRow = matrixSRowIndex[matrixPIdx];
+        const size_t curCol = matrixSColIndex[matrixPIdx];
+        if (pRowId > curRow || pColId > curCol) {
+            continue;
         }
-        printf("\n");
+        int findLaneId, findIdx;
+        positionCalculator(pRowId, pColId, curRow, curCol, findLaneId, findIdx);
 
-//        printf("\n sFrag.num_elements : %d\n", sFrag.num_elements);
-//        for (int idx = 0; idx < sFrag.num_elements; ++idx) {
-//            printf(" %f ", static_cast<float>(sFrag.x[idx]));
-//        }
+        if (laneId == findLaneId) {
+            matrixP[matrixPIdx] = cFrag.x[findIdx];
+            printf(" pRowId = %d, pColId = %d, findLaneId = %d, findIdx = %d, cFrag.x[%d] = %f\n",
+                   pRowId,pColId,
+                   findLaneId,
+                   findIdx,
+                   findIdx,
+                   static_cast<float>(cFrag.x[findIdx]));
+        }
     }
 
-    nvcuda::wmma::store_matrix_sync(pOffsetPtr, cFrag, ldp, nvcuda::wmma::mem_row_major);
+
+
+
+//    if ((blockDim.x * blockIdx.x + threadIdx.x) == 0) {
+////        printf("\n cFrag.num_elements : %d\n", cFrag.num_elements);
+//        printf("|T%d|", blockDim.x * blockIdx.x + threadIdx.x);
+//        for (int idx = 0; idx < cFrag.num_elements; ++idx) {
+////            printf(" %f",
+////                   static_cast<float>(cFrag.x[idx]));
+//            printf("[%d,%d]|", (laneId & 0b1) + (idx & 0b10), (idx & 0b100) + (laneId & 0b10) + (idx & 0b1));
+//
+//        }
+//        printf("\n");
+//
+////        printf("\n sFrag.num_elements : %d\n", sFrag.num_elements);
+////        for (int idx = 0; idx < sFrag.num_elements; ++idx) {
+////            printf(" %f ", static_cast<float>(sFrag.x[idx]));
+////        }
+//    }
+
 }
 
-__global__ void comp_sddmm_gpu(const size_t M, const size_t N, const size_t K,
-                               const half *matrixA, const half *matrixB,
-                               const float *matrixS,
-                               float *matrixP) {
+__global__ void sddmm_gpu(const size_t M, const size_t N, const size_t K,
+                          const half *matrixA, const half *matrixB,
+                          const float *matrixS,
+                          float *matrixP) {
     const size_t tidX = (blockDim.x * blockIdx.x + threadIdx.x);
     const size_t tidY = (blockDim.y * blockIdx.y + threadIdx.y);
 
@@ -218,7 +257,55 @@ __global__ void comp_sddmm_gpu(const size_t M, const size_t N, const size_t K,
     if (pRowId >= M || pColId >= N) {
         return;
     }
-    matrixTileMultiplicationUseTensorCore2(pRowId, pColId, M, N, K, matrixA, matrixB, matrixS, matrixP);
+//    matrixTileMultiplicationUseTensorCore2(pRowId, pColId, M, N, K, matrixA, matrixB, matrixS, matrixP);
+//    const int ldp = N;
+//    const auto pOffsetPtr = matrixP + pRowId * ldp + pColId;
+//    const float sparsity = calculateMatrixTileSparsity(WMMA_M, WMMA_N, ldp, MatrixStorageOrder::row_major, pOffsetPtr);
+//    if (sparsity < 0) {
+//        matrixTileMultiplicationUseCudaCode(pRowId, pColId, M, N, K, matrixA, matrixB, matrixS, matrixP);
+//    } else {
+//        matrixTileMultiplicationUseTensorCore(pRowId, pColId, M, N, K, matrixA, matrixB, matrixS, matrixP);
+//    }
+
+}
+
+__global__ void sddmm_coo_gpu(const size_t M, const size_t N, const size_t K, const size_t nnz,
+                              const half *matrixA, const half *matrixB,
+                              const size_t *matrixSRowIndex,
+                              const size_t *matrixSColIndex,
+                              const float *matrixS,
+                              float *matrixP) {
+    const size_t tidX = (blockDim.x * blockIdx.x + threadIdx.x);
+    const size_t tidY = (blockDim.y * blockIdx.y + threadIdx.y);
+
+    const size_t warpM = tidX / WARP_SIZE;
+    const size_t warpN = tidY;
+
+//    const int landIdM = tidX % WARP_SIZE;
+//    const int landIdN = tidY % WARP_SIZE;
+
+    // Compute dense matrix multiplication using Tensor core
+
+//    const size_t pRowId = warpM * WMMA_M;
+//    const size_t pColId = warpN * WMMA_N;
+    const size_t pRowId = warpN * WMMA_N;
+    const size_t pColId = warpM * WMMA_M;
+
+    if (pRowId >= M || pColId >= N) {
+        return;
+    }
+    matrixTileMultiplicationUseTensorCore2(pRowId,
+                                           pColId,
+                                           M,
+                                           N,
+                                           K,
+                                           nnz,
+                                           matrixA,
+                                           matrixB,
+                                           matrixSRowIndex,
+                                           matrixSColIndex,
+                                           matrixS,
+                                           matrixP);
 //    const int ldp = N;
 //    const auto pOffsetPtr = matrixP + pRowId * ldp + pColId;
 //    const float sparsity = calculateMatrixTileSparsity(WMMA_M, WMMA_N, ldp, MatrixStorageOrder::row_major, pOffsetPtr);

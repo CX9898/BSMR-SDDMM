@@ -53,30 +53,23 @@ int main(int argc, char *argv[]) {
         matrixS.initializeFromMatrixMarketFile(filePath);
     }
 
+//    std::cout << "matrixS : " << std::endl;
+//    matrixS.print();
+
     const size_t K = 16;
 
     std::cout << "M : " << matrixS.row() << ", N : " << matrixS.col() << ", K : " << K << ", nnz : " << matrixS.nnz()
               << ", sparsity : " << matrixS.getSparsity() * 100 << "%" << std::endl;
 
-//    std::cout << "matrixS : " << std::endl;
-//    matrixS.print();
-
     Matrix<float> matrixA(matrixS.row(), K, MatrixStorageOrder::row_major);
     matrixA.makeData(matrixA.row(), K, MatrixStorageOrder::row_major);
-//    initial(matrixA.setValues(), M, K);
 //    std::cout << "matrixA.size() : " << matrixA.values().size() << " matrixA : ";
 //    matrixA.print();
-//    matrixA.printToMarkdownTable();
 
     Matrix<float> matrixB(K, matrixS.col(), MatrixStorageOrder::row_major);
     matrixB.makeData(K, matrixS.col(), MatrixStorageOrder::row_major);
-//    initial(matrixB.setValues(), N, K);
 //    std::cout << "matrixB.size() : " << matrixB.values().size() << " matrixB : ";
 //    matrixB.print();
-
-    Matrix<float> matrixC(matrixS.row(), matrixS.col(), MatrixStorageOrder::row_major);
-    dmm_cpu(matrixA,matrixB,matrixC);
-    matrixC.printToMarkdownTable();
 
     std::cout << "openTensorCoreMode" << std::endl;
     matrixA.openTensorCoreMode(MatrixMultiplicationOrder::left_multiplication);
@@ -120,9 +113,9 @@ int main(int argc, char *argv[]) {
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
 
-    comp_sddmm_gpu<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(),
-                                    valuesAfp16_d.data(), valuesBfp16_d.data(), valuesS_d.data(), valuesP_d.data());
-//    cuUtil::printCudaErrorStringSync();
+    sddmm_gpu<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(),
+                               valuesAfp16_d.data(), valuesBfp16_d.data(), valuesS_d.data(), valuesP_d.data());
+
     timeCalculator.endClock();
     std::cout << "Func comp_sddmm_gpu time : " << timeCalculator.getTime() << " ms" << std::endl;
     std::cout << "sddmm_zcx time : " << timeCalculator.getTime() << " ms" << std::endl;
@@ -137,8 +130,6 @@ int main(int argc, char *argv[]) {
     SparseMatrix<float> matrixP_gpu_res(matrixS.row(), matrixS.col(), matrixS.nnz(),
                                         matrixS.rowIndex(), matrixS.colIndex());
     matrixP_gpu_res.setValuesFromMatrix(matrixP_gpu_res_tmp);
-
-//    matrixP_gpu_res.outputToMarketMatrixFile("matrixP_gpu_res");
 
     SparseMatrix<float> matrixP_cpu_res(matrixS.row(), matrixS.col(), matrixS.nnz(),
                                         matrixS.rowIndex(), matrixS.colIndex());
@@ -161,6 +152,27 @@ int main(int argc, char *argv[]) {
 
 //    float *valuesP_isratnisa = nullptr;
 //    preprocessing(isratnisaMatrixS, matrixA.values(), matrixB.values(), valuesP_isratnisa);
+
+    dev::vector<size_t> matrixS_rowIndex_coo(matrixS.rowIndex());
+    dev::vector<size_t> matrixS_colIndex_coo(matrixS.colIndex());
+    dev::vector<float> matrixS_value_coo(matrixS.values());
+    dev::vector<float> matrixP_value(matrixS.nnz());
+
+    timeCalculator.startClock();
+    sddmm_coo_gpu<<<grid, block>>>(matrixS.row(),
+                                   matrixS.col(),
+                                   K,
+                                   matrixS.nnz(),
+                                   valuesAfp16_d.data(),
+                                   valuesBfp16_d.data(),
+                                   matrixS_rowIndex_coo.data(),
+                                   matrixS_colIndex_coo.data(),
+                                   matrixS_value_coo.data(),
+                                   matrixP_value.data());
+    timeCalculator.endClock();
+    std::cout << "Func sddmm_coo_gpu time : " << timeCalculator.getTime() << " ms" << std::endl;
+
+    checkData(matrixP_cpu_res.values(), cuUtil::D2H(matrixP_value));
 
     return 0;
 }
