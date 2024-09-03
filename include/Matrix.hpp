@@ -166,6 +166,19 @@ class SparseMatrix {
       rowBeforeChange_ = row;
       colBeforeChange_ = col;
   }
+  SparseMatrix(size_t row,
+               size_t col,
+               size_t nnz,
+               const std::vector<size_t> &rowIndex,
+               const std::vector<size_t> &colIndex,
+               const std::vector<T> &values)
+      : row_(row), col_(col), nnz_(nnz), rowIndex_(rowIndex), colIndex_(colIndex), values_(values) {
+      if (rowIndex.size() != colIndex.size() != values.size()) {
+          std::cout << "Warning! SparseMatrix initialization error!" << std::endl;
+      }
+      rowBeforeChange_ = row;
+      colBeforeChange_ = col;
+  }
 
   /**
    * Initialize from MatrixMarket file.
