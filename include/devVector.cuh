@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include <cuda_runtime.h>
 
 namespace dev {
