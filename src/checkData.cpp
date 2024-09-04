@@ -11,38 +11,38 @@ bool checkOneData(const T data1, const T data2) {
 }
 template<>
 bool checkOneData(const float data1, const float data2) {
-    return abs(data1 - data2) / data1 >= epsilon;
+    return abs(data1 - data2) / data1 < epsilon;
 }
 template<>
 bool checkOneData(const double data1, const double data2) {
-    return abs(data1 - data2) / data1 >= epsilon;
+    return abs(data1 - data2) / data1 < epsilon;
 }
 
 template<typename T>
 bool checkData(const size_t num, const T *data1, const T *data2) {
     printf("\n|---------------------------check data---------------------------|\n"
-           "|Checking results...\n");
+           "| Checking results...\n");
 
     int errors = 0;
     for (int idx = 0; idx < num; ++idx) {
         const T oneData1 = data1[idx];
         const T oneData2 = data2[idx];
-        if (checkOneData(oneData1, oneData2)) {
+        if (!checkOneData(oneData1, oneData2)) {
             ++errors;
             if (errors < 10) {
-                printf("|Error : idx = %d, data1 = %f, data2 = %f\n", idx, oneData1, oneData2);
+                printf("| Error : idx = %d, data1 = %f, data2 = %f\n", idx, oneData1, oneData2);
             }
         }
     }
 
     if (errors > 0) {
-        printf("|No Pass! Inconsistent data! %d errors! Error rate : %2.2f%%\n\n",
+        printf("| No Pass! Inconsistent data! %d errors! Error rate : %2.2f%%\n\n",
                errors, static_cast<float>(errors) / num * 100);
 
         return false;
     }
 
-    printf("|Pass! Result validates successfully.\n\n");
+    printf("| Pass! Result validates successfully.\n\n");
 
     return true;
 }
