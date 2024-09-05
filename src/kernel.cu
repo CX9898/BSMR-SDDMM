@@ -107,20 +107,20 @@ __device__ void matrixTileMultiplicationUseTensorCore(int pRowId, int pColId,
     nvcuda::wmma::store_matrix_sync(pOffsetPtr, cFrag, ldp, nvcuda::wmma::mem_row_major);
 }
 
-__device__ void positionCalculator(const size_t curTileRow, const size_t curTileCol,
+__device__ void positionCalculator(const size_t tileRow, const size_t tileCol,
                                    const size_t row, const size_t col,
                                    int &laneId, int &idx) {
-    if (curTileRow > row || curTileCol > col) {
+    if (tileRow > row || tileCol > col || tileRow + WMMA_M <= row || tileCol + WMMA_N <= col) {
         laneId = -1;
         idx = -1;
         return;
     }
-    const int localRow = static_cast<int>(row - curTileRow);
-    const int localCol = static_cast<int>(col - curTileCol);
+    const int localRow = static_cast<int>(row - tileRow);
+    const int localCol = static_cast<int>(col - tileCol);
 
     const int numberOfIterations = localCol % 8;
 
-    const int startLane = (localRow % 4) * 4;
+    const int startLane = (localRow % 8) * 4;
     laneId = startLane + numberOfIterations / 2;
 
     const int addNum = numberOfIterations % 2;
@@ -199,25 +199,22 @@ __device__ void matrixTileMultiplicationUseTensorCore2(const size_t pRowId, cons
     for (int matrixPIdx = 0; matrixPIdx < nnz; ++matrixPIdx) {
         const size_t curRow = matrixSRowIndex[matrixPIdx];
         const size_t curCol = matrixSColIndex[matrixPIdx];
-//        printf("  curRow = %d, curCol = %d\n",curRow,curCol);
-//        if (pRowId > curRow || pColId > curCol) {
-//            continue;
-//        }
+
         int findLaneId, findIdx;
         positionCalculator(pRowId, pColId, curRow, curCol, findLaneId, findIdx);
 
         if (laneId == findLaneId) {
             matrixP[matrixPIdx] = cFrag.x[findIdx];
-            printf(
-                " pRowId = %d, pColId = %d, curRow = %d, curCol = %d, findLaneId = %d, findIdx = %d, cFrag.x[%d] = %f\n",
-                static_cast<int>(pRowId),
-                static_cast<int>(pColId),
-                static_cast<int>(curRow),
-                static_cast<int>(curCol),
-                findLaneId,
-                findIdx,
-                findIdx,
-                static_cast<float>(cFrag.x[findIdx]));
+//            printf(
+//                " pRowId = %d, pColId = %d, curRow = %d, curCol = %d, findLaneId = %d, findIdx = %d, cFrag.x[%d] = %f\n",
+//                static_cast<int>(pRowId),
+//                static_cast<int>(pColId),
+//                static_cast<int>(curRow),
+//                static_cast<int>(curCol),
+//                findLaneId,
+//                findIdx,
+//                findIdx,
+//                static_cast<float>(cFrag.x[findIdx]));
         }
     }
 
@@ -260,8 +257,8 @@ __global__ void sddmm_gpu(const size_t M, const size_t N, const size_t K,
 
 //    const size_t pRowId = warpM * WMMA_M;
 //    const size_t pColId = warpN * WMMA_N;
-    const size_t pRowId = warpN * WMMA_N;
-    const size_t pColId = warpM * WMMA_M;
+    const size_t pRowId = warpM * WMMA_M;
+    const size_t pColId = warpN * WMMA_N;
 
     if (pRowId >= M || pColId >= N) {
         return;
