@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
 //    std::cout << "matrixS : " << std::endl;
 //    matrixS.print();
 
-    const size_t K = 16;
+    const size_t K = 256;
 
     std::cout << "M : " << matrixS.row() << ", N : " << matrixS.col() << ", K : " << K << ", nnz : " << matrixS.nnz()
               << ", sparsity : " << matrixS.getSparsity() * 100 << "%" << std::endl;
@@ -135,11 +135,6 @@ int main(int argc, char *argv[]) {
 
     dev::vector<float> matrixS_value_coo(matrixS.values());
     dev::vector<float> matrixP_value(matrixS.nnz());
-
-//    std::vector<float> aaaa(cuUtil::D2H(matrixS_value_coo));
-//    for(auto iter : aaaa){
-//        std::cout << "aaa " << iter;
-//    }
 
     timeCalculator.startClock();
     sddmm_coo_gpu<<<grid, block>>>(matrixS.row(),

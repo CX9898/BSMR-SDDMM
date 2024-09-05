@@ -255,10 +255,10 @@ __global__ void sddmm_gpu(const size_t M, const size_t N, const size_t K,
 
     // Compute dense matrix multiplication using Tensor core
 
-//    const size_t pRowId = warpM * WMMA_M;
-//    const size_t pColId = warpN * WMMA_N;
     const size_t pRowId = warpM * WMMA_M;
     const size_t pColId = warpN * WMMA_N;
+//    const size_t pRowId = warpN * WMMA_N;
+//    const size_t pColId = warpM * WMMA_M;
 
     if (pRowId >= M || pColId >= N) {
         return;
@@ -287,8 +287,7 @@ __global__ void sddmm_coo_gpu(const size_t M, const size_t N, const size_t K, co
     const size_t warpM = tidX / WARP_SIZE;
     const size_t warpN = tidY;
 
-//    const int landIdM = tidX % WARP_SIZE;
-//    const int landIdN = tidY % WARP_SIZE;
+    const size_t warpId = warpM * warpN;
 
     // Compute dense matrix multiplication using Tensor core
 
