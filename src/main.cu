@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
     matrixB.openTensorCoreMode(MatrixMultiplicationOrder::right_multiplication);
     std::cout << "openTensorCoreMode matrixB : row = " << matrixB.row() << ", col = " << matrixB.col() << std::endl;
     matrixS.openTensorCoreModeForSampled();
-    std::cout << "openTensorCoreMode matrixS : row = " << matrixS.row() << ", col = " << matrixS.col() << std::endl;
+    std::cout << "openTensorCoreModeForSampled matrixS : row = " << matrixS.row() << ", col = " << matrixS.col() << std::endl;
 
 //    Matrix<float> matrixC(matrixS.row(), matrixS.col(), MatrixStorageOrder::row_major);
 //    dmm_cpu(matrixA, matrixB, matrixC);
@@ -132,8 +132,9 @@ int main(int argc, char *argv[]) {
 
     dev::vector<size_t> matrixS_rowIndex_coo(matrixS.rowIndex());
     dev::vector<size_t> matrixS_colIndex_coo(matrixS.colIndex());
-
+    dev::vector<size_t> matrixS_tileIndex_coo(matrixS.matrixTileIndex());
     dev::vector<float> matrixS_value_coo(matrixS.values());
+
     dev::vector<float> matrixP_value(matrixS.nnz());
 
     timeCalculator.startClock();
@@ -145,6 +146,7 @@ int main(int argc, char *argv[]) {
                                    valuesBfp16_d.data(),
                                    matrixS_rowIndex_coo.data(),
                                    matrixS_colIndex_coo.data(),
+                                   matrixS.matrixTileIndex().data(),
                                    matrixS_value_coo.data(),
                                    matrixP_value.data());
     timeCalculator.endClock();

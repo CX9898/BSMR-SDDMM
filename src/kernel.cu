@@ -146,17 +146,16 @@ __device__ void matrixTileMultiplicationUseTensorCore2(const size_t pRowId, cons
                                                        const half *matrixB,
                                                        const size_t *matrixSRowIndex,
                                                        const size_t *matrixSColIndex,
+                                                       const size_t *matrixTileIndexForTensorCore,
                                                        const float *matrixS,
                                                        float *matrixP) {
     const size_t tidX = (blockDim.x * blockIdx.x + threadIdx.x);
-//    const size_t tidY = (blockDim.y * blockIdx.y + threadIdx.y);
+    const size_t tidY = (blockDim.y * blockIdx.y + threadIdx.y);
 //
-//    const size_t warpM = tidX / WARP_SIZE;
-//    const size_t warpN = tidY;
-//
-//    const int landIdM = tidX % WARP_SIZE;
-//    const int landIdN = tidY % WARP_SIZE;
-//
+    const size_t warpM = tidX / WARP_SIZE;
+    const size_t warpN = tidY;
+
+
 
     // Leading dimensions. Packed with no transpositions.
     const size_t lda = K;
@@ -194,9 +193,12 @@ __device__ void matrixTileMultiplicationUseTensorCore2(const size_t pRowId, cons
             nvcuda::wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
         }
     }
+
+    const size_t warpId = warpM * warpN;
     const int laneId = static_cast<int>(tidX % WARP_SIZE); // TODO : 没有考虑到 Y 轴的线程, 不安全
 
-    for (int matrixPIdx = 0; matrixPIdx < nnz; ++matrixPIdx) {
+    for (int matrixPIdx = matrixTileIndexForTensorCore[warpId];
+         matrixPIdx < matrixTileIndexForTensorCore[warpId + 1]; ++matrixPIdx) {
         const size_t curRow = matrixSRowIndex[matrixPIdx];
         const size_t curCol = matrixSColIndex[matrixPIdx];
 
@@ -279,6 +281,7 @@ __global__ void sddmm_coo_gpu(const size_t M, const size_t N, const size_t K, co
                               const half *matrixA, const half *matrixB,
                               const size_t *matrixSRowIndex,
                               const size_t *matrixSColIndex,
+                              const size_t *matrixTileIndexForTensorCore,
                               const float *matrixS,
                               float *matrixP) {
     const size_t tidX = (blockDim.x * blockIdx.x + threadIdx.x);
@@ -309,6 +312,7 @@ __global__ void sddmm_coo_gpu(const size_t M, const size_t N, const size_t K, co
                                            matrixB,
                                            matrixSRowIndex,
                                            matrixSColIndex,
+                                           matrixTileIndexForTensorCore,
                                            matrixS,
                                            matrixP);
 //    const int ldp = N;
