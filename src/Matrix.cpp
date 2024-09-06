@@ -3,6 +3,7 @@
 #include <string>
 #include <random>
 #include <set>
+#include <unordered_map>
 
 #include <omp.h>
 
@@ -125,7 +126,7 @@ void Matrix<T>::makeData(size_t numRow, size_t numCol, MatrixStorageOrder storag
 //        values_[idx] = idx;
 //    }
     std::mt19937 generator;
-    auto distribution = util::createRandomUniformDistribution(static_cast<T>(0), static_cast<T>(10));
+    auto distribution = util::createRandomUniformDistribution(static_cast<T>(0), static_cast<T>(2));
 
 #pragma omp parallel for
     for (int idx = 0; idx < values_.size(); ++idx) {
@@ -498,11 +499,60 @@ void SparseMatrix<T>::openTensorCoreModeForSampled() {
     tensorCoreMode_ = true;
     rowBeforeChange_ = row_;
     colBeforeChange_ = col_;
+    rowIndexBeforeChange_ = rowIndex_;
+    colIndexBeforeChange_ = colIndex_;
+    valuesBeforeChange_ = values_;
 
     const size_t rowComplement = rowBeforeChange_ % WMMA_M == 0 ? 0 : WMMA_M - rowBeforeChange_ % WMMA_M;
     const size_t colComplement = colBeforeChange_ % WMMA_N == 0 ? 0 : WMMA_N - colBeforeChange_ % WMMA_N;
     row_ = rowBeforeChange_ + rowComplement;
     col_ = colBeforeChange_ + colComplement;
+
+    const size_t numTileM = row_ / WMMA_M;
+    const size_t numTileN = col_ / WMMA_N;
+    const size_t numTiles = numTileM * numTileN;
+    matrixTileIndexForTensorCore_.resize(numTiles + 1);
+    matrixTileIndexForTensorCore_[0] = 0;
+
+    int newIdx = 0;
+    for (int tileId = 0; tileId < numTiles; ++tileId) {
+        const size_t tileRowBegin = (tileId % numTileM) * WMMA_M;
+        const size_t tileRowEnd = (tileId % numTileM + 1) * WMMA_M;
+        const size_t tileColBegin = (tileId / numTileM) * WMMA_N;
+        const size_t tileColEnd = (tileId / numTileM + 1) * WMMA_N;
+        for (int idx = 0; idx < nnz_; ++idx) {
+            const size_t curRow = rowIndexBeforeChange_[idx];
+            const size_t curCol = colIndexBeforeChange_[idx];
+            if (curRow >= tileRowBegin && curRow < tileRowEnd &&
+                curCol >= tileColBegin && curCol < tileColEnd) {
+                rowIndex_[newIdx] = curRow;
+                colIndex_[newIdx] = curCol;
+                values_[newIdx] = valuesBeforeChange_[idx];
+
+                ++newIdx;
+            }
+        }
+        matrixTileIndexForTensorCore_[tileId + 1] = newIdx;
+    }
+//
+//    std::set<std::pair<size_t, size_t>> rowColSet;
+//    for (int idx = 0; idx < nnz_; ++idx) {
+//        std::pair<size_t, size_t> rowColPair(rowIndexBeforeChange_[idx], colIndexBeforeChange_[idx]);
+//        if (rowColSet.find(rowColPair) != rowColSet.end()) {
+//            std::cout << " 1111???!!!!???!!! " << rowIndexBeforeChange_[idx] << " " << colIndexBeforeChange_[idx]
+//                      << std::endl;
+//        }
+//        rowColSet.insert(rowColPair);
+//    }
+//
+//    for (int idx = 0; idx < nnz_; ++idx) {
+//        std::pair<size_t, size_t> rowColPair(rowIndex_[idx], colIndex_[idx]);
+//        if (rowColSet.find(rowColPair) == rowColSet.end()) {
+//            std::cout << " 2222???!!!!???!!! " << rowIndex_[idx] << " " << rowIndex_[idx]
+//                      << std::endl;
+//        }
+//    }
+
 }
 
 template<typename T>
@@ -513,6 +563,14 @@ void SparseMatrix<T>::closeTensorCoreMode() {
     tensorCoreMode_ = false;
     row_ = rowBeforeChange_;
     col_ = colBeforeChange_;
+    rowIndex_ = rowIndexBeforeChange_;
+    colIndex_ = colIndexBeforeChange_;
+    values_ = valuesBeforeChange_;
+
+    rowIndexBeforeChange_.clear();
+    colIndexBeforeChange_.clear();
+    valuesBeforeChange_.clear();
+    matrixTileIndexForTensorCore_.clear();
 }
 
 template

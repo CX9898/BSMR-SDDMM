@@ -255,6 +255,9 @@ class SparseMatrix {
   void openTensorCoreMode(MatrixMultiplicationOrder multiplicationOrder);
   void openTensorCoreModeForSampled();
   void closeTensorCoreMode();
+  const std::vector<size_t>& matrixTileIndex(){
+      return matrixTileIndexForTensorCore_;
+  }
 
  private:
   size_t row_;
@@ -266,8 +269,12 @@ class SparseMatrix {
   std::vector<T> values_;
 
   bool tensorCoreMode_ = false;
+  std::vector<size_t> matrixTileIndexForTensorCore_;
   size_t rowBeforeChange_;
   size_t colBeforeChange_;
+  std::vector<size_t> rowIndexBeforeChange_;
+  std::vector<size_t> colIndexBeforeChange_;
+  std::vector<T> valuesBeforeChange_;
 };
 
 template<typename T>
