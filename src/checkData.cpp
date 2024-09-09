@@ -20,7 +20,7 @@ bool checkOneData(const double data1, const double data2) {
 
 template<typename T>
 bool checkData(const size_t num, const T *data1, const T *data2) {
-    printf("\n|---------------------------check data---------------------------|\n"
+    printf("|---------------------------check data---------------------------|\n"
            "| Checking results...\n");
 
     int errors = 0;
