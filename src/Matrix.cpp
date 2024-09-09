@@ -511,11 +511,10 @@ void SparseMatrix<T>::openTensorCoreModeForSampled() {
     const size_t numTileM = row_ / WMMA_M;
     const size_t numTileN = col_ / WMMA_N;
     const size_t numTiles = numTileM * numTileN;
-    matrixTileIndexForTensorCore_.resize(numTiles + 1);
-    matrixTileIndexForTensorCore_[0] = 0;
 
-    int newIdx = 0;
-    for (int tileId = 0; tileId < numTiles; ++tileId) {
+    std::vector<std::vector<size_t>> indexVectorsPerTile(numTiles);
+#pragma omp parallel for
+    for (int tileId = 0; tileId < numTiles; ++tileId) { // Matrix tiles id: col-order
         const size_t tileRowBegin = (tileId % numTileM) * WMMA_M;
         const size_t tileRowEnd = (tileId % numTileM + 1) * WMMA_M;
         const size_t tileColBegin = (tileId / numTileM) * WMMA_N;
@@ -525,31 +524,48 @@ void SparseMatrix<T>::openTensorCoreModeForSampled() {
             const size_t curCol = colIndexBeforeChange_[idx];
             if (curRow >= tileRowBegin && curRow < tileRowEnd &&
                 curCol >= tileColBegin && curCol < tileColEnd) {
-                rowIndex_[newIdx] = curRow;
-                colIndex_[newIdx] = curCol;
-                values_[newIdx] = valuesBeforeChange_[idx];
-
-                ++newIdx;
+                indexVectorsPerTile[tileId].push_back(idx);
             }
         }
-        matrixTileIndexForTensorCore_[tileId + 1] = newIdx;
     }
-//
+
+    // TODO : 使用 Thrust 库函数加速
+    matrixTileIndexForTensorCore_.resize(numTiles + 1);
+    matrixTileIndexForTensorCore_[0] = 0;
+    for (int tileId = 0; tileId < numTiles; ++tileId) {
+        matrixTileIndexForTensorCore_[tileId + 1] =
+            matrixTileIndexForTensorCore_[tileId] + indexVectorsPerTile[tileId].size();
+    }
+
+#pragma omp parallel for
+    for (int tileId = 0; tileId < numTiles; ++tileId) {
+        const auto &curIndexVector = indexVectorsPerTile[tileId];
+        for (int idx = 0; idx < curIndexVector.size(); ++idx) {
+            const int newIdx = matrixTileIndexForTensorCore_[tileId] + idx;
+            rowIndex_[newIdx] = rowIndexBeforeChange_[curIndexVector[idx]];
+            colIndex_[newIdx] = colIndexBeforeChange_[curIndexVector[idx]];
+            values_[newIdx] = valuesBeforeChange_[curIndexVector[idx]];
+        }
+    }
+
 //    std::set<std::pair<size_t, size_t>> rowColSet;
-//    for (int idx = 0; idx < nnz_; ++idx) {
+//    for (int idx = 0; idx < nnz_; ++idx) { // 检查是否有相同行列值
 //        std::pair<size_t, size_t> rowColPair(rowIndexBeforeChange_[idx], colIndexBeforeChange_[idx]);
 //        if (rowColSet.find(rowColPair) != rowColSet.end()) {
-//            std::cout << " 1111???!!!!???!!! " << rowIndexBeforeChange_[idx] << " " << colIndexBeforeChange_[idx]
+//            std::cout << " 有相同行列值1111???!!!!???!!! " << rowIndexBeforeChange_[idx] << " "
+//                      << colIndexBeforeChange_[idx]
 //                      << std::endl;
+//            exit(1);
 //        }
 //        rowColSet.insert(rowColPair);
 //    }
 //
-//    for (int idx = 0; idx < nnz_; ++idx) {
+//    for (int idx = 0; idx < nnz_; ++idx) { // 检查是否出现不一样的值
 //        std::pair<size_t, size_t> rowColPair(rowIndex_[idx], colIndex_[idx]);
 //        if (rowColSet.find(rowColPair) == rowColSet.end()) {
-//            std::cout << " 2222???!!!!???!!! " << rowIndex_[idx] << " " << rowIndex_[idx]
+//            std::cout << " 出现不一样的值333???!!!!???!!! " << rowIndex_[idx] << " " << rowIndex_[idx]
 //                      << std::endl;
+//            exit(1);
 //        }
 //    }
 
