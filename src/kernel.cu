@@ -151,17 +151,14 @@ __device__ void matrixTileMultiplicationUseTensorCore2(const size_t pRowId, cons
                                                        float *matrixP) {
     const size_t tidX = (blockDim.x * blockIdx.x + threadIdx.x);
     const size_t tidY = (blockDim.y * blockIdx.y + threadIdx.y);
-//
+
     const size_t warpM = tidX / WARP_SIZE;
     const size_t warpN = tidY;
-
-
 
     // Leading dimensions. Packed with no transpositions.
     const size_t lda = K;
     const size_t ldb = N;
 
-//    printf("pRowId : %d, pColId : %d\n", pRowId,pColId);
     nvcuda::wmma::fragment<nvcuda::wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE, nvcuda::wmma::row_major>
         aFrag;
     nvcuda::wmma::fragment<nvcuda::wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE, nvcuda::wmma::row_major>
@@ -178,10 +175,7 @@ __device__ void matrixTileMultiplicationUseTensorCore2(const size_t pRowId, cons
 
         const int bRowId = kIter;
         const int bColId = pColId;
-//        if (tidX == 0) {
-//            printf(" cur kIter = %d\n", kIter);
-//            printf(" cur aRowId = %d, aColId = %d, bRowId = %d, bColId = %d\n", aRowId, aColId, bRowId, bColId);
-//        }
+
         // Bounds checking
         if (aRowId < M && aColId < K && bRowId < K && bColId < N) {
             const auto aOffsetPtr = matrixA + aRowId * lda + aColId;
@@ -197,12 +191,21 @@ __device__ void matrixTileMultiplicationUseTensorCore2(const size_t pRowId, cons
     const size_t warpId = warpM * warpN;
     const int laneId = static_cast<int>(tidX % WARP_SIZE); // TODO : 没有考虑到 Y 轴的线程, 不安全
 
-    for (int matrixPIdx = matrixTileIndexForTensorCore[warpId];
-         matrixPIdx < matrixTileIndexForTensorCore[warpId + 1]; ++matrixPIdx) {
+    // numTiles = 82344
+//    if (warpId >= 82000) {
+//        printf(" warpId >= numTiles-1!!!!!!!!!!!!!!!!!!!\n");
+//    }
+
+    // TODO : matrixTileIndexForTensorCore[warp] 值不对应
+    for (int matrixPIdx = 0;
+         matrixPIdx < nnz; ++matrixPIdx) {
+//        if (matrixPIdx >= nnz) {
+//            printf(" matrixPIdx >= nnz11111111111???????!!!!!!!!\n");
+//        }
         const size_t curRow = matrixSRowIndex[matrixPIdx];
         const size_t curCol = matrixSColIndex[matrixPIdx];
-
-        int findLaneId, findIdx;
+//
+        int findLaneId = 0, findIdx = 0;
         positionCalculator(pRowId, pColId, curRow, curCol, findLaneId, findIdx);
 
         if (laneId == findLaneId) {
@@ -217,6 +220,25 @@ __device__ void matrixTileMultiplicationUseTensorCore2(const size_t pRowId, cons
 //                findIdx,
 //                findIdx,
 //                static_cast<float>(cFrag.x[findIdx]));
+            if (matrixPIdx == 0) {
+                printf(
+                    " pRowId = %d, pColId = %d, curRow = %d, curCol = %d, curValue = %f"
+                    " findLaneId = %d, findIdx = %d, cFrag.x[%d] = %f\n",
+                    static_cast<int>(pRowId),
+                    static_cast<int>(pColId),
+                    static_cast<int>(curRow),
+                    static_cast<int>(curCol),
+                    static_cast<float>(matrixS[matrixPIdx]),
+                    findLaneId,
+                    findIdx,
+                    findIdx,
+                    static_cast<float>(cFrag.x[findIdx]));
+                printf("frag : ");
+                for (int idx = 0; idx < 8; ++idx) {
+                    printf("%f ", static_cast<float>(cFrag.x[idx]));
+                }
+                printf("\n");
+            }
         }
     }
 
