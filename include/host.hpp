@@ -4,10 +4,10 @@
 
 #include "Matrix.hpp"
 
-//template<typename T>
-void dmm_cpu(const Matrix<float> &matrixA,
-             const Matrix<float> &matrixB,
-             Matrix<float> &matrixC);
+template<typename T>
+void dmm_cpu(const Matrix<T> &matrixA,
+             const Matrix<T> &matrixB,
+             Matrix<T> &matrixC);
 
 void sddmm_cpu_coo_isratnisa(
     const Matrix<float> &matrixA,
@@ -15,21 +15,9 @@ void sddmm_cpu_coo_isratnisa(
     const SparseMatrix<float> &matrixS,
     SparseMatrix<float> &matrixP);
 
+template<typename T>
 void sddmm_cpu_coo(
-    const Matrix<float> &matrixA,
-    const Matrix<float> &matrixB,
-    const SparseMatrix<float> &matrixS,
-    SparseMatrix<float> &matrixP);
-
-//template<typename T>
-//void sddmm_cpu_coo(
-//    const Matrix<T> &matrixA,
-//    const Matrix<T> &matrixB,
-//    const SparseMatrix<T> &matrixS,
-//    SparseMatrix<T> &matrixP);
-
-//void sddmm_cpu_coo(
-//    const Matrix<float> &matrixA,
-//    const Matrix<float> &matrixB,
-//    const SparseMatrix<int> &matrixS,
-//    SparseMatrix<int> &matrixP);
+    const Matrix<T> &matrixA,
+    const Matrix<T> &matrixB,
+    const SparseMatrix<T> &matrixS,
+    SparseMatrix<T> &matrixP);
