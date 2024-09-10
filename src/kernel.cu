@@ -140,20 +140,24 @@ __device__ void positionCalculator(const size_t tileRow, const size_t tileCol,
 
 }
 
-__device__ void matrixTileMultiplicationUseTensorCore2(const size_t pRowId, const size_t pColId,
-                                                       const size_t M, const size_t N, const size_t K, const size_t nnz,
-                                                       const half *matrixA,
-                                                       const half *matrixB,
-                                                       const size_t *matrixSRowIndex,
-                                                       const size_t *matrixSColIndex,
-                                                       const size_t *matrixTileIndexForTensorCore,
-                                                       const float *matrixS,
-                                                       float *matrixP) {
+__device__ void matrixTileMultiplicationUseTensorCore_coo(const size_t pRowId,
+                                                          const size_t pColId,
+                                                          const size_t M,
+                                                          const size_t N,
+                                                          const size_t K,
+                                                          const size_t nnz,
+                                                          const half *matrixA,
+                                                          const half *matrixB,
+                                                          const size_t *matrixSRowIndex,
+                                                          const size_t *matrixSColIndex,
+                                                          const size_t *matrixTileIndexForTensorCore,
+                                                          const float *matrixS,
+                                                          float *matrixP) {
     const size_t tidX = (blockDim.x * blockIdx.x + threadIdx.x);
     const size_t tidY = (blockDim.y * blockIdx.y + threadIdx.y);
 
-    const size_t warpM = tidX / WARP_SIZE;
-    const size_t warpN = tidY;
+    const size_t warpX = tidX / WARP_SIZE;
+    const size_t warpY = tidY;
 
     // Leading dimensions. Packed with no transpositions.
     const size_t lda = K;
@@ -188,26 +192,43 @@ __device__ void matrixTileMultiplicationUseTensorCore2(const size_t pRowId, cons
         }
     }
 
-    const size_t warpId = warpM * warpN;
-    const int laneId = static_cast<int>(tidX % WARP_SIZE); // TODO : 没有考虑到 Y 轴的线程, 不安全
+    // TODO : 2024-09-10, 需要对应计算warpId和更改matrixTileIndexForTensorCore排列
+    const int warpId = warpX * (blockDim.x / WARP_SIZE) + warpY; // TODO : 不安全, 要保证X轴线程数量必须是32的倍数
+    const int laneId = static_cast<int>(tidX % WARP_SIZE); // TODO : 不安全, 没有考虑到Y轴的线程
 
-    // numTiles = 82344
-//    if (warpId >= 82000) {
-//        printf(" warpId >= numTiles-1!!!!!!!!!!!!!!!!!!!\n");
-//    }
-
-    // TODO : matrixTileIndexForTensorCore[warp] 值不对应
-    for (int matrixPIdx = 0;
-         matrixPIdx < nnz; ++matrixPIdx) {
+    // TODO : matrixTileIndexForTensorCore[warpId] 值不对应
+    for (int matrixPIdx = matrixTileIndexForTensorCore[warpId];
+         matrixPIdx < matrixTileIndexForTensorCore[warpId + 1]; ++matrixPIdx) {
 //        if (matrixPIdx >= nnz) {
 //            printf(" matrixPIdx >= nnz11111111111???????!!!!!!!!\n");
 //        }
         const size_t curRow = matrixSRowIndex[matrixPIdx];
         const size_t curCol = matrixSColIndex[matrixPIdx];
-//
+
         int findLaneId = 0, findIdx = 0;
         positionCalculator(pRowId, pColId, curRow, curCol, findLaneId, findIdx);
 
+        if (matrixPIdx == 6 && warpId == 94 && laneId == 0) {
+            printf("warpId = %d\n", warpId);
+            printf("NUM_WARP_PER_X = %d\n", static_cast<int>(blockDim.x / 32));
+            printf(
+                " pRowId = %d, pColId = %d, curRow = %d, curCol = %d, curValue = %f"
+                " findLaneId = %d, findIdx = %d, cFrag.x[%d] = %f\n",
+                static_cast<int>(pRowId),
+                static_cast<int>(pColId),
+                static_cast<int>(curRow),
+                static_cast<int>(curCol),
+                static_cast<float>(matrixS[matrixPIdx]),
+                findLaneId,
+                findIdx,
+                findIdx,
+                static_cast<float>(cFrag.x[findIdx]));
+            printf("frag : ");
+            for (int idx = 0; idx < 8; ++idx) {
+                printf("%f ", static_cast<float>(cFrag.x[idx]));
+            }
+            printf("\n");
+        }
         if (laneId == findLaneId) {
             matrixP[matrixPIdx] = cFrag.x[findIdx];
 //            printf(
@@ -220,25 +241,6 @@ __device__ void matrixTileMultiplicationUseTensorCore2(const size_t pRowId, cons
 //                findIdx,
 //                findIdx,
 //                static_cast<float>(cFrag.x[findIdx]));
-            if (matrixPIdx == 0) {
-                printf(
-                    " pRowId = %d, pColId = %d, curRow = %d, curCol = %d, curValue = %f"
-                    " findLaneId = %d, findIdx = %d, cFrag.x[%d] = %f\n",
-                    static_cast<int>(pRowId),
-                    static_cast<int>(pColId),
-                    static_cast<int>(curRow),
-                    static_cast<int>(curCol),
-                    static_cast<float>(matrixS[matrixPIdx]),
-                    findLaneId,
-                    findIdx,
-                    findIdx,
-                    static_cast<float>(cFrag.x[findIdx]));
-                printf("frag : ");
-                for (int idx = 0; idx < 8; ++idx) {
-                    printf("%f ", static_cast<float>(cFrag.x[idx]));
-                }
-                printf("\n");
-            }
         }
     }
 
@@ -309,34 +311,32 @@ __global__ void sddmm_coo_gpu(const size_t M, const size_t N, const size_t K, co
     const size_t tidX = (blockDim.x * blockIdx.x + threadIdx.x);
     const size_t tidY = (blockDim.y * blockIdx.y + threadIdx.y);
 
-    const size_t warpM = tidX / WARP_SIZE;
-    const size_t warpN = tidY;
+    const size_t warpX = tidX / WARP_SIZE;
+    const size_t warpY = tidY;
 
-    const size_t warpId = warpM * warpN;
-
-    // Compute dense matrix multiplication using Tensor core
-
-    const size_t pRowId = warpM * WMMA_M;
-    const size_t pColId = warpN * WMMA_N;
-//    const size_t pRowId = warpN * WMMA_N;
-//    const size_t pColId = warpM * WMMA_M;
+//    const size_t pRowId = warpX * WMMA_M;
+//    const size_t pColId = warpY * WMMA_N;
+    const size_t pRowId = warpY * WMMA_M;
+    const size_t pColId = warpX * WMMA_N;
 
     if (pRowId >= M || pColId >= N) {
         return;
     }
-    matrixTileMultiplicationUseTensorCore2(pRowId,
-                                           pColId,
-                                           M,
-                                           N,
-                                           K,
-                                           nnz,
-                                           matrixA,
-                                           matrixB,
-                                           matrixSRowIndex,
-                                           matrixSColIndex,
-                                           matrixTileIndexForTensorCore,
-                                           matrixS,
-                                           matrixP);
+
+    // Compute dense matrix multiplication using Tensor core
+    matrixTileMultiplicationUseTensorCore_coo(pRowId,
+                                              pColId,
+                                              M,
+                                              N,
+                                              K,
+                                              nnz,
+                                              matrixA,
+                                              matrixB,
+                                              matrixSRowIndex,
+                                              matrixSColIndex,
+                                              matrixTileIndexForTensorCore,
+                                              matrixS,
+                                              matrixP);
 //    const int ldp = N;
 //    const auto pOffsetPtr = matrixP + pRowId * ldp + pColId;
 //    const float sparsity = calculateMatrixTileSparsity(WMMA_M, WMMA_N, ldp, MatrixStorageOrder::row_major, pOffsetPtr);
