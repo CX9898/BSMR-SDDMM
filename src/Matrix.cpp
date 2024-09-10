@@ -513,6 +513,7 @@ void SparseMatrix<T>::openTensorCoreModeForSampled() {
     const size_t numTiles = numTileM * numTileN;
 
     std::vector<std::vector<size_t>> indexVectorsPerTile(numTiles);
+    std::vector<size_t> numIndexPerTile(numTiles);
 #pragma omp parallel for
     for (int tileId = 0; tileId < numTiles; ++tileId) { // Matrix tiles id: col-order
         const size_t tileRowBegin = (tileId % numTileM) * WMMA_M;
@@ -527,15 +528,14 @@ void SparseMatrix<T>::openTensorCoreModeForSampled() {
                 indexVectorsPerTile[tileId].push_back(idx);
             }
         }
+        numIndexPerTile[tileId] = indexVectorsPerTile[tileId].size();
     }
 
-    // TODO : 使用 Thrust 库函数加速
     matrixTileIndexForTensorCore_.resize(numTiles + 1);
     matrixTileIndexForTensorCore_[0] = 0;
-    for (int tileId = 0; tileId < numTiles; ++tileId) {
-        matrixTileIndexForTensorCore_[tileId + 1] =
-            matrixTileIndexForTensorCore_[tileId] + indexVectorsPerTile[tileId].size();
-    }
+    cuUtil::host::inclusive_scan(numIndexPerTile.data(),
+                                 numIndexPerTile.data() + numIndexPerTile.size(),
+                                 matrixTileIndexForTensorCore_.data() + 1);
 
 #pragma omp parallel for
     for (int tileId = 0; tileId < numTiles; ++tileId) {
