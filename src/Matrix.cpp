@@ -413,6 +413,10 @@ bool SparseMatrix<T>::outputToMarketMatrixFile(const std::string &fileName) {
 
 template<typename T>
 void SparseMatrix<T>::makeData(const size_t numRow, const size_t numCol, const size_t nnz) {
+    if (numRow * numCol < nnz) {
+        std::cerr << "nnz is too big" << std::endl;
+        return;
+    }
     row_ = numRow;
     col_ = numCol;
     nnz_ = nnz;
@@ -596,12 +600,18 @@ void SparseMatrix<T>::closeTensorCoreMode() {
     matrixTileIndexForTensorCore_.clear();
 }
 
-template class Matrix<int>;
-template class Matrix<float>;
-template class Matrix<double>;
-template class SparseMatrix<int>;
-template class SparseMatrix<float>;
-template class SparseMatrix<double>;
+template
+class Matrix<int>;
+template
+class Matrix<float>;
+template
+class Matrix<double>;
+template
+class SparseMatrix<int>;
+template
+class SparseMatrix<float>;
+template
+class SparseMatrix<double>;
 
 namespace dev {
 template<typename T>
@@ -1189,10 +1199,16 @@ void SparseMatrix<T>::closeTensorCoreMode() {
     matrixTileIndexForTensorCore_.clear();
 }
 
-template class Matrix<int>;
-template class Matrix<float>;
-template class Matrix<double>;
-template class SparseMatrix<int>;
-template class SparseMatrix<float>;
-template class SparseMatrix<double>;
+template
+class Matrix<int>;
+template
+class Matrix<float>;
+template
+class Matrix<double>;
+template
+class SparseMatrix<int>;
+template
+class SparseMatrix<float>;
+template
+class SparseMatrix<double>;
 } // namespace dev
