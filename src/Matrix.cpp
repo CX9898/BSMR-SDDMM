@@ -541,8 +541,8 @@ void SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorCoreCo
     matrixTileIndexForTensorCore_.resize(numWarps + 1);
     matrixTileIndexForTensorCore_[0] = 0;
     host::inclusive_scan(numIndexPerTile.data(),
-                                 numIndexPerTile.data() + numIndexPerTile.size(),
-                                 matrixTileIndexForTensorCore_.data() + 1);
+                         numIndexPerTile.data() + numIndexPerTile.size(),
+                         matrixTileIndexForTensorCore_.data() + 1);
 
 #pragma omp parallel for
     for (int warpId = 0; warpId < numWarps; ++warpId) {
@@ -596,23 +596,12 @@ void SparseMatrix<T>::closeTensorCoreMode() {
     matrixTileIndexForTensorCore_.clear();
 }
 
-template
-class Matrix<int>;
-
-template
-class Matrix<float>;
-
-template
-class Matrix<double>;
-
-template
-class SparseMatrix<int>;
-
-template
-class SparseMatrix<float>;
-
-template
-class SparseMatrix<double>;
+template class Matrix<int>;
+template class Matrix<float>;
+template class Matrix<double>;
+template class SparseMatrix<int>;
+template class SparseMatrix<float>;
+template class SparseMatrix<double>;
 
 namespace dev {
 template<typename T>
@@ -1199,4 +1188,11 @@ void SparseMatrix<T>::closeTensorCoreMode() {
     valuesBeforeChange_.clear();
     matrixTileIndexForTensorCore_.clear();
 }
+
+template class Matrix<int>;
+template class Matrix<float>;
+template class Matrix<double>;
+template class SparseMatrix<int>;
+template class SparseMatrix<float>;
+template class SparseMatrix<double>;
 } // namespace dev
