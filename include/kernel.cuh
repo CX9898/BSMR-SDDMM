@@ -12,7 +12,8 @@ __global__ void sddmm_gpu(const size_t M, const size_t N, const size_t K,
                           const float *matrixS,
                           float *matrixP);
 
-__global__ void sddmm_coo_gpu(const size_t M, const size_t N, const size_t K, const size_t nnz,
+__global__ void sddmm_coo_gpu(class TensorCoreConfig tensorCoreConfig,
+                              const size_t M, const size_t N, const size_t K, const size_t nnz,
                               const half *matrixA, const half *matrixB,
                               const size_t *matrixSRowIndex,
                               const size_t *matrixSColIndex,
