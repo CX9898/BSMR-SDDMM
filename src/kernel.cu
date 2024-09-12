@@ -152,7 +152,7 @@ __device__ void matrixTileMultiplicationUseTensorCore_coo(TensorCoreConfig tenso
                                                           const half *matrixB,
                                                           const size_t *matrixSRowIndex,
                                                           const size_t *matrixSColIndex,
-                                                          const size_t *matrixTileIndexForTensorCore,
+                                                          const size_t *matrixTileIndex,
                                                           const float *matrixS,
                                                           float *matrixP) {
 
@@ -192,8 +192,8 @@ __device__ void matrixTileMultiplicationUseTensorCore_coo(TensorCoreConfig tenso
     const int warpId = tensorCoreConfig.globalWarpId();
     const int laneId = tensorCoreConfig.laneId();
 
-    for (int matrixPIdx = matrixTileIndexForTensorCore[warpId];
-         matrixPIdx < matrixTileIndexForTensorCore[warpId + 1]; ++matrixPIdx) {
+    for (int matrixPIdx = matrixTileIndex[warpId];
+         matrixPIdx < matrixTileIndex[warpId + 1]; ++matrixPIdx) {
         const size_t curRow = matrixSRowIndex[matrixPIdx];
         const size_t curCol = matrixSColIndex[matrixPIdx];
 
@@ -277,7 +277,7 @@ __global__ void sddmm_coo_gpu(class TensorCoreConfig tensorCoreConfig,
                               const half *matrixA, const half *matrixB,
                               const size_t *matrixSRowIndex,
                               const size_t *matrixSColIndex,
-                              const size_t *matrixTileIndexForTensorCore,
+                              const size_t *matrixTileIndex,
                               const float *matrixS,
                               float *matrixP) {
     tensorCoreConfig.initByKernel(blockDim, blockIdx, threadIdx);
@@ -286,6 +286,12 @@ __global__ void sddmm_coo_gpu(class TensorCoreConfig tensorCoreConfig,
     const size_t pColId = tensorCoreConfig.tileCol();
 
     if (pRowId >= M || pColId >= N) {
+        return;
+    }
+
+    const int warpId = tensorCoreConfig.globalWarpId();
+    const int numData = matrixTileIndex[warpId + 1] - matrixTileIndex[warpId];
+    if (numData <= 0) {
         return;
     }
 
@@ -301,7 +307,7 @@ __global__ void sddmm_coo_gpu(class TensorCoreConfig tensorCoreConfig,
                                               matrixB,
                                               matrixSRowIndex,
                                               matrixSColIndex,
-                                              matrixTileIndexForTensorCore,
+                                              matrixTileIndex,
                                               matrixS,
                                               matrixP);
 //    const int ldp = N;

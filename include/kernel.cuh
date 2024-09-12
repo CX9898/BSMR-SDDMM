@@ -17,6 +17,6 @@ __global__ void sddmm_coo_gpu(class TensorCoreConfig tensorCoreConfig,
                               const half *matrixA, const half *matrixB,
                               const size_t *matrixSRowIndex,
                               const size_t *matrixSColIndex,
-                              const size_t *matrixTileIndexForTensorCore,
+                              const size_t *matrixTileIndex,
                               const float *matrixS,
                               float *matrixP);
