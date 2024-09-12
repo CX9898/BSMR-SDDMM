@@ -509,13 +509,10 @@ void SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorCoreCo
 
     const size_t numTileM = row_ / WMMA_M;
     const size_t numTileN = col_ / WMMA_N;
-    const size_t numTiles = numTileM * numTileN;
 
     const size_t numWarpX = tensorCoreConfig.numWarpX();
     const size_t numWarpY = tensorCoreConfig.numWarpY();
     const size_t numWarps = numWarpX * numWarpY;
-
-    printf(" numTileM = %d, numTileN = %d, numTiles = %d\n", numTileM, numTileN, static_cast<int>(numTiles));
 
     std::vector<std::vector<size_t>> indexVectorsPerWarp(numWarps);
     std::vector<size_t> numIndexPerTile(numWarps);
@@ -523,7 +520,7 @@ void SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorCoreCo
     for (int warpId = 0; warpId < numWarps; ++warpId) { // Matrix tiles id: row-order
         const int curWarpX = warpId % numWarpX;
         const int curWarpY = warpId / numWarpX;
-        if(curWarpX > numTileN || curWarpY > numTileM){
+        if (curWarpX > numTileN || curWarpY > numTileM) {
             continue;
         }
         const size_t rowBeginOfTile = (warpId / numWarpX) * WMMA_M;
