@@ -13,9 +13,9 @@
 #include "devVector.cuh"
 
 const std::string folderPath("../dataset/");
-const std::string fileName = ("nips");
+//const std::string fileName = ("nips");
 //const std::string fileName = ("test");
-//const std::string fileName = ("matrix_3000_7000_313110");
+const std::string fileName = ("matrix_35000_35000_422000");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 
@@ -32,18 +32,22 @@ int main(int argc, char *argv[]) {
 //    SparseMatrix<int> matrixTmp;
 //    const size_t thousand = 1000;
 //    const size_t million = 1000000;
-//    const size_t makeDataRow = 326 * thousand;
-//    const size_t makeDataCol = 326 * thousand;
+////    const size_t makeDataRow = 3 * thousand;
+////    const size_t makeDataCol = 7 * thousand;
+//    const size_t makeDataRow = 36000;
+//    const size_t makeDataCol = 36000;
 //    const float density = 4.006f;
 ////    const size_t makeDataNNZ = static_cast<int> (makeDataRow * makeDataCol * density / 100);
-//    const size_t makeDataNNZ = 1 * million;
+////    const size_t makeDataNNZ = 1 * million;
+//    const size_t makeDataNNZ = 4000000;
 //    matrixTmp.makeData(makeDataRow, makeDataCol, makeDataNNZ);
-//    matrixTmp.outputToMarketMatrixFile("matrix_37000_326000_1000000");
+//    matrixTmp.outputToMarketMatrixFile("matrix_36000_36000_4000000");
 //    std::cout << "makeData : M : " << makeDataRow << ", N : " << makeDataCol << ", K : " << 256 << ", nnz : "
 //              << makeDataNNZ
 //              << ", sparsity : "
 //              << (float) (makeDataRow * makeDataCol - makeDataNNZ) / (makeDataRow * makeDataCol) * 100 << "%"
 //              << std::endl;
+//    exit(0);
 
     SparseMatrix<float> matrixS;
     if (argc > 1) {
@@ -140,7 +144,7 @@ int main(int argc, char *argv[]) {
     std::cout << "sddmm_zcx time : " << timeCalculator.getTime() << " ms" << std::endl;
 
     Matrix<float> matrixP_gpu_res_tmp(matrixS.row(), matrixS.col(),
-                                      MatrixStorageOrder::row_major, D2H(valuesP_d));
+                                      MatrixStorageOrder::row_major, d2h(valuesP_d));
 
     SparseMatrix<float> matrixP_gpu_res(matrixS.row(), matrixS.col(), matrixS.nnz(),
                                         matrixS.rowIndex(), matrixS.colIndex());
@@ -177,7 +181,7 @@ int main(int argc, char *argv[]) {
     std::cout << "Func sddmm_coo_gpu time : " << timeCalculator.getTime() << " ms" << std::endl;
 
     std::cout << "Test : sddmm_coo_gpu" << std::endl;
-    checkData(matrixP_cpu_res.values(), D2H(matrixP_value_coo));
+    checkData(matrixP_cpu_res.values(), d2h(matrixP_value_coo));
 
     std::cout << "closeTensorCoreMode" << std::endl;
     matrixA.closeTensorCoreMode();

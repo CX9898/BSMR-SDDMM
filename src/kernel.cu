@@ -312,11 +312,24 @@ __global__ void sddmm_coo_gpu(class TensorCoreConfig tensorCoreConfig,
                                               matrixP);
 //    const int ldp = N;
 //    const auto pOffsetPtr = matrixP + pRowId * ldp + pColId;
-//    const float sparsity = calculateMatrixTileSparsity(WMMA_M, WMMA_N, ldp, MatrixStorageOrder::row_major, pOffsetPtr);
+//    const float sparsity = (WMMA_M * WMMA_N - numData) / WMMA_M * WMMA_N;
 //    if (sparsity < 0) {
 //        matrixTileMultiplicationUseCudaCode(pRowId, pColId, M, N, K, matrixA, matrixB, matrixS, matrixP);
 //    } else {
-//        matrixTileMultiplicationUseTensorCore(pRowId, pColId, M, N, K, matrixA, matrixB, matrixS, matrixP);
+//        matrixTileMultiplicationUseTensorCore_coo(tensorCoreConfig,
+//                                                  pRowId,
+//                                                  pColId,
+//                                                  M,
+//                                                  N,
+//                                                  K,
+//                                                  nnz,
+//                                                  matrixA,
+//                                                  matrixB,
+//                                                  matrixSRowIndex,
+//                                                  matrixSColIndex,
+//                                                  matrixTileIndex,
+//                                                  matrixS,
+//                                                  matrixP);
 //    }
 
 }
