@@ -3,7 +3,7 @@
 #include <mma.h>
 
 #include "kernel.cuh"
-#include "wmmaSetting.hpp"
+#include "TensorCoreConfig.cuh"
 #include "Matrix.hpp"
 
 template<typename T>
@@ -14,6 +14,7 @@ __global__ void printData(size_t n, T *a) {
 }
 
 template __global__ void printData<float>(size_t n, float *a);
+
 template __global__ void printData<half>(size_t n, half *a);
 
 __global__ void convertFp32ToFp16(const size_t n, const float *in, half *out) {
@@ -70,9 +71,9 @@ __device__ void matrixTileMultiplicationUseTensorCore(int pRowId, int pColId,
     const auto pOffsetPtr = matrixP + pRowId * ldp + pColId;
 
     nvcuda::wmma::fragment<nvcuda::wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE, nvcuda::wmma::row_major>
-        aFrag;
+            aFrag;
     nvcuda::wmma::fragment<nvcuda::wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE, nvcuda::wmma::row_major>
-        bFrag;
+            bFrag;
 
     nvcuda::wmma::fragment<nvcuda::wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> cFrag;
     fill_fragment(cFrag, 0.0f);
@@ -164,9 +165,9 @@ __device__ void matrixTileMultiplicationUseTensorCore_coo(const size_t pRowId,
     const size_t ldb = N;
 
     nvcuda::wmma::fragment<nvcuda::wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE, nvcuda::wmma::row_major>
-        aFrag;
+            aFrag;
     nvcuda::wmma::fragment<nvcuda::wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE, nvcuda::wmma::row_major>
-        bFrag;
+            bFrag;
 
     nvcuda::wmma::fragment<nvcuda::wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> cFrag;
 
@@ -193,7 +194,7 @@ __device__ void matrixTileMultiplicationUseTensorCore_coo(const size_t pRowId,
     }
 
     // TODO : 2024-09-10, 需要对应计算warpId和更改matrixTileIndexForTensorCore排列
-    const int warpId = warpX * (blockDim.x / WARP_SIZE) + warpY; // TODO : 不安全, 要保证X轴线程数量必须是32的倍数
+    const int warpId = warpX + warpY * (blockDim.x / WARP_SIZE); // TODO : 不安全, 要保证X轴线程数量必须是32的倍数
     const int laneId = static_cast<int>(tidX % WARP_SIZE); // TODO : 不安全, 没有考虑到Y轴的线程
 
     // TODO : matrixTileIndexForTensorCore[warpId] 值不对应
@@ -208,27 +209,27 @@ __device__ void matrixTileMultiplicationUseTensorCore_coo(const size_t pRowId,
         int findLaneId = 0, findIdx = 0;
         positionCalculator(pRowId, pColId, curRow, curCol, findLaneId, findIdx);
 
-        if (matrixPIdx == 6 && warpId == 94 && laneId == 0) {
-            printf("warpId = %d\n", warpId);
-            printf("NUM_WARP_PER_X = %d\n", static_cast<int>(blockDim.x / 32));
-            printf(
-                " pRowId = %d, pColId = %d, curRow = %d, curCol = %d, curValue = %f"
-                " findLaneId = %d, findIdx = %d, cFrag.x[%d] = %f\n",
-                static_cast<int>(pRowId),
-                static_cast<int>(pColId),
-                static_cast<int>(curRow),
-                static_cast<int>(curCol),
-                static_cast<float>(matrixS[matrixPIdx]),
-                findLaneId,
-                findIdx,
-                findIdx,
-                static_cast<float>(cFrag.x[findIdx]));
-            printf("frag : ");
-            for (int idx = 0; idx < 8; ++idx) {
-                printf("%f ", static_cast<float>(cFrag.x[idx]));
-            }
-            printf("\n");
-        }
+//        if (matrixPIdx == 8410 && warpId == 777 && laneId == 0) {
+//            printf("warpId = %d\n", warpId);
+//            printf(
+//                    " pRowId = %d, pColId = %d, curRow = %d, curCol = %d, curValue = %f"
+//                    " laneId = %d findLaneId = %d, findIdx = %d, cFrag.x[%d] = %f\n",
+//                    static_cast<int>(pRowId),
+//                    static_cast<int>(pColId),
+//                    static_cast<int>(curRow),
+//                    static_cast<int>(curCol),
+//                    static_cast<float>(matrixS[matrixPIdx]),
+//                    laneId,
+//                    findLaneId,
+//                    findIdx,
+//                    findIdx,
+//                    static_cast<float>(cFrag.x[findIdx]));
+//            printf("frag : ");
+//            for (int idx = 0; idx < 8; ++idx) {
+//                printf("%f ", static_cast<float>(cFrag.x[idx]));
+//            }
+//            printf("\n");
+//        }
         if (laneId == findLaneId) {
             matrixP[matrixPIdx] = cFrag.x[findIdx];
 //            printf(
