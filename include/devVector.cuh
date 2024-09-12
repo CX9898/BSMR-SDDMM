@@ -18,6 +18,9 @@ class vector {
       if (data_) { cudaFree(data_); }
   };
 
+  void resize(size_t size);
+  void clear();
+
   inline __host__ __device__ size_t size() const {
       return size_;
   }
@@ -62,6 +65,23 @@ inline vector<T>::vector(const std::vector<T> &src) {
     size_ = src.size();
     cudaMalloc(reinterpret_cast<void **> (&data_), src.size() * sizeof(T));
     cudaMemcpy(data_, src.data(), src.size() * sizeof(T), cudaMemcpyHostToDevice);
+}
+
+template<typename T>
+inline void vector<T>::resize(size_t size) {
+    size_ = size;
+    if (data_) {
+        cudaFree(data_);
+    }
+    cudaMalloc(reinterpret_cast<void **> (&data_), size * sizeof(T));
+}
+
+template<typename T>
+inline void vector<T>::clear() {
+    size_ = 0;
+    if (data_) {
+        cudaFree(data_);
+    }
 }
 
 template<typename T>
