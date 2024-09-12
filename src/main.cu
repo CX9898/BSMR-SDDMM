@@ -5,7 +5,7 @@
 //#include "util_isratnisa.h"
 #include "Matrix.hpp"
 #include "kernel.cuh"
-#include "wmmaSetting.hpp"
+#include "TensorCoreConfig.cuh"
 #include "cudaErrorCheck.cuh"
 #include "CudaTimeCalculator.cuh"
 #include "host.hpp"
@@ -26,6 +26,7 @@ const std::string filePath = folderPath + fileName + fileFormat;
 //      3: 测试使用稀疏度比较器的速度表现
 //              稀疏度大于50%使用 isratnisa 的方法
 //              稀疏度小于50%使用 Tensor core 方法
+//      4: 全部数据放在device内存
 int main(int argc, char *argv[]) {
 //    // make sparse matrix data
 //    SparseMatrix<int> matrixTmp;
@@ -61,6 +62,9 @@ int main(int argc, char *argv[]) {
               << ", sparsity : " << matrixS.getSparsity() * 100 << "%"
               << std::endl;
 
+    TensorCoreConfig tensorCoreConfig(matrixS.row(), matrixS.col());
+    printf("WMMA : %d×%d×%d\n", WMMA_M, WMMA_N, WMMA_K);
+
     Matrix<float> matrixA(matrixS.row(), K, MatrixStorageOrder::row_major);
     matrixA.makeData(matrixA.row(), K, MatrixStorageOrder::row_major);
 //    std::cout << "matrixA.size() : " << matrixA.values().size() << " matrixA : ";
@@ -77,7 +81,7 @@ int main(int argc, char *argv[]) {
     matrixB.openTensorCoreMode(MatrixMultiplicationOrder::right_multiplication);
     std::cout << "openTensorCoreMode matrixB : row = " << matrixB.row() << ", col = " << matrixB.col() << std::endl;
 
-    matrixS.openTensorCoreModeForSampled();
+    matrixS.openTensorCoreModeForSampled(tensorCoreConfig);
     std::cout << "openTensorCoreModeForSampled matrixS : row = " << matrixS.row() << ", col = " << matrixS.col()
               << std::endl;
 
@@ -119,7 +123,7 @@ int main(int argc, char *argv[]) {
     dim3 block;
     block.x = 4 * WARP_SIZE;
     block.y = 4;
-    const int numCountRowOfOutputMatrixPerBlock = WMMA_M * block.x / 32;
+    const int numCountRowOfOutputMatrixPerBlock = WMMA_M * block.x / WARP_SIZE;
     const int numCountColOfOutputMatrixPerBlock = WMMA_N * block.y;
     grid.x = (matrixS.row() + numCountRowOfOutputMatrixPerBlock - 1) / numCountRowOfOutputMatrixPerBlock;
     grid.y = (matrixS.col() + numCountColOfOutputMatrixPerBlock - 1) / numCountColOfOutputMatrixPerBlock;
@@ -152,41 +156,28 @@ int main(int argc, char *argv[]) {
 
     dev::vector<float> matrixP_value_coo(matrixS.nnz());
 
-    dim3 grid_coo;
-    dim3 block_coo;
-    block_coo.x = 4 * WARP_SIZE;
-    block_coo.y = 4;
-    const int numCountRowOfOutputMatrixPerBlock_coo = WMMA_M * block.x / 32;
-    const int numCountColOfOutputMatrixPerBlock_coo = WMMA_N * block.y;
-    grid_coo.x = (matrixS.col() + numCountColOfOutputMatrixPerBlock_coo - 1) / numCountColOfOutputMatrixPerBlock_coo;
-    grid_coo.y = (matrixS.row() + numCountRowOfOutputMatrixPerBlock_coo - 1) / numCountRowOfOutputMatrixPerBlock_coo;
-    printf("grid_coo : [%d %d %d] block_coo : [%d %d %d]\n",
-           grid_coo.x, grid_coo.y, grid_coo.z, block_coo.x, block_coo.y, block_coo.z);
-    printf("WMMA : %d×%d×%d\n", WMMA_M, WMMA_N, WMMA_K);
+    printf("grid : [%d %d %d] block : [%d %d %d]\n",
+           tensorCoreConfig.grid().x, tensorCoreConfig.grid().y, tensorCoreConfig.grid().z,
+           tensorCoreConfig.block().x, tensorCoreConfig.block().y, tensorCoreConfig.block().z);
+
     timeCalculator.startClock();
-    sddmm_coo_gpu<<<grid_coo, block_coo>>>(matrixS.row(),
-                                           matrixS.col(),
-                                           K,
-                                           matrixS.nnz(),
-                                           valuesAfp16_d.data(),
-                                           valuesBfp16_d.data(),
-                                           matrixS_rowIndex_coo.data(),
-                                           matrixS_colIndex_coo.data(),
-                                           matrixS_tileIndex_coo.data(),
-                                           matrixS_value_coo.data(),
-                                           matrixP_value_coo.data());
+    sddmm_coo_gpu<<<tensorCoreConfig.grid(), tensorCoreConfig.block()>>>(tensorCoreConfig,
+                                                                         matrixS.row(),
+                                                                         matrixS.col(),
+                                                                         K,
+                                                                         matrixS.nnz(),
+                                                                         valuesAfp16_d.data(),
+                                                                         valuesBfp16_d.data(),
+                                                                         matrixS_rowIndex_coo.data(),
+                                                                         matrixS_colIndex_coo.data(),
+                                                                         matrixS_tileIndex_coo.data(),
+                                                                         matrixS_value_coo.data(),
+                                                                         matrixP_value_coo.data());
     timeCalculator.endClock();
     std::cout << "Func sddmm_coo_gpu time : " << timeCalculator.getTime() << " ms" << std::endl;
 
     std::cout << "Test : sddmm_coo_gpu" << std::endl;
     checkData(matrixP_cpu_res.values(), D2H(matrixP_value_coo));
-
-    int idx = 6;
-    printf("idx = %d, row = %d, col = %d, value = %f",
-           idx,
-           static_cast<int>(matrixP_cpu_res.rowIndex()[idx]),
-           static_cast<int>(matrixP_cpu_res.colIndex()[idx]),
-           matrixP_cpu_res[idx]);
 
     std::cout << "closeTensorCoreMode" << std::endl;
     matrixA.closeTensorCoreMode();
