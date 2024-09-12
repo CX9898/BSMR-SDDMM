@@ -200,7 +200,6 @@ class SparseMatrix {
 
   bool setValuesFromMatrix(const Matrix<T> &inputMatrix);
 
-  // TODO : 不能出现 0
   void makeData(const size_t row, const size_t col, const size_t nnz);
 
   /**
@@ -474,7 +473,6 @@ class SparseMatrix {
 
   bool setValuesFromMatrix(const Matrix<T> &inputMatrix);
 
-  // TODO : 不能出现 0
   void makeData(const size_t row, const size_t col, const size_t nnz);
 
   /**

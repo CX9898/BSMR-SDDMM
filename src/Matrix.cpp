@@ -427,7 +427,7 @@ void SparseMatrix<T>::makeData(const size_t numRow, const size_t numCol, const s
         util::createRandomUniformDistribution(static_cast<size_t>(0), static_cast<size_t>(numRow - 1));
     auto distributionCol =
         util::createRandomUniformDistribution(static_cast<size_t>(0), static_cast<size_t>(numCol - 1));
-    auto distributionValue = util::createRandomUniformDistribution(static_cast<T>(0), static_cast<T>(2));
+    auto distributionValue = util::createRandomUniformDistribution(static_cast<T>(1), static_cast<T>(10));
     std::set<std::pair<size_t, size_t>> rowColSet;
     for (size_t idx = 0; idx < nnz; ++idx) {
         size_t row = distributionRow(generator);
