@@ -10,7 +10,6 @@
 #include "Matrix.hpp"
 #include "util.hpp"
 #include "cudaUtil.cuh"
-#include "wmmaSetting.hpp"
 
 template<typename T>
 Matrix<T>::Matrix(const SparseMatrix<T> &matrixS) {
@@ -492,7 +491,7 @@ void SparseMatrix<T>::openTensorCoreMode(MatrixMultiplicationOrder multiplicatio
 }
 
 template<typename T>
-void SparseMatrix<T>::openTensorCoreModeForSampled() {
+void SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorCoreConfig) {
     if (tensorCoreMode_) {
         return;
     }
@@ -503,8 +502,8 @@ void SparseMatrix<T>::openTensorCoreModeForSampled() {
     colIndexBeforeChange_ = colIndex_;
     valuesBeforeChange_ = values_;
 
-    const size_t rowComplement = rowBeforeChange_ % WMMA_M == 0 ? 0 : WMMA_M - rowBeforeChange_ % WMMA_M;
-    const size_t colComplement = colBeforeChange_ % WMMA_N == 0 ? 0 : WMMA_N - colBeforeChange_ % WMMA_N;
+    const int rowComplement = rowBeforeChange_ % WMMA_M == 0 ? 0 : WMMA_M - rowBeforeChange_ % WMMA_M;
+    const int colComplement = colBeforeChange_ % WMMA_N == 0 ? 0 : WMMA_N - colBeforeChange_ % WMMA_N;
     row_ = rowBeforeChange_ + rowComplement;
     col_ = colBeforeChange_ + colComplement;
 
@@ -512,36 +511,47 @@ void SparseMatrix<T>::openTensorCoreModeForSampled() {
     const size_t numTileN = col_ / WMMA_N;
     const size_t numTiles = numTileM * numTileN;
 
-    std::vector<std::vector<size_t>> indexVectorsPerTile(numTiles);
-    std::vector<size_t> numIndexPerTile(numTiles);
+    const size_t numWarpX = tensorCoreConfig.numWarpX();
+    const size_t numWarpY = tensorCoreConfig.numWarpY();
+    const size_t numWarps = numWarpX * numWarpY;
+
+    printf(" numTileM = %d, numTileN = %d, numTiles = %d\n", numTileM, numTileN, static_cast<int>(numTiles));
+
+    std::vector<std::vector<size_t>> indexVectorsPerWarp(numWarps);
+    std::vector<size_t> numIndexPerTile(numWarps);
 #pragma omp parallel for
-    for (int tileId = 0; tileId < numTiles; ++tileId) { // Matrix tiles id: col-order
-        const size_t tileRowBegin = (tileId % numTileM) * WMMA_M;
-        const size_t tileRowEnd = (tileId % numTileM + 1) * WMMA_M;
-        const size_t tileColBegin = (tileId / numTileM) * WMMA_N;
-        const size_t tileColEnd = (tileId / numTileM + 1) * WMMA_N;
+    for (int warpId = 0; warpId < numWarps; ++warpId) { // Matrix tiles id: row-order
+        const int curWarpX = warpId % numWarpX;
+        const int curWarpY = warpId / numWarpX;
+        if(curWarpX > numTileN || curWarpY > numTileM){
+            continue;
+        }
+        const size_t rowBeginOfTile = (warpId / numWarpX) * WMMA_M;
+        const size_t rowEndOfTile = (warpId / numWarpX + 1) * WMMA_M;
+        const size_t colBeginOfTile = (warpId % numWarpX) * WMMA_N;
+        const size_t colEndOfTile = (warpId % numWarpX + 1) * WMMA_N;
         for (int idx = 0; idx < nnz_; ++idx) {
             const size_t curRow = rowIndexBeforeChange_[idx];
             const size_t curCol = colIndexBeforeChange_[idx];
-            if (curRow >= tileRowBegin && curRow < tileRowEnd &&
-                curCol >= tileColBegin && curCol < tileColEnd) {
-                indexVectorsPerTile[tileId].push_back(idx);
+            if (curRow >= rowBeginOfTile && curRow < rowEndOfTile &&
+                curCol >= colBeginOfTile && curCol < colEndOfTile) {
+                indexVectorsPerWarp[warpId].push_back(idx);
             }
         }
-        numIndexPerTile[tileId] = indexVectorsPerTile[tileId].size();
+        numIndexPerTile[warpId] = indexVectorsPerWarp[warpId].size();
     }
 
-    matrixTileIndexForTensorCore_.resize(numTiles + 1);
+    matrixTileIndexForTensorCore_.resize(numWarps + 1);
     matrixTileIndexForTensorCore_[0] = 0;
     cuUtil::host::inclusive_scan(numIndexPerTile.data(),
                                  numIndexPerTile.data() + numIndexPerTile.size(),
                                  matrixTileIndexForTensorCore_.data() + 1);
 
 #pragma omp parallel for
-    for (int tileId = 0; tileId < numTiles; ++tileId) {
-        const auto &curIndexVector = indexVectorsPerTile[tileId];
+    for (int warpId = 0; warpId < numWarps; ++warpId) {
+        const auto &curIndexVector = indexVectorsPerWarp[warpId];
         for (int idx = 0; idx < curIndexVector.size(); ++idx) {
-            const int newIdx = matrixTileIndexForTensorCore_[tileId] + idx;
+            const int newIdx = matrixTileIndexForTensorCore_[warpId] + idx;
             rowIndex_[newIdx] = rowIndexBeforeChange_[curIndexVector[idx]];
             colIndex_[newIdx] = colIndexBeforeChange_[curIndexVector[idx]];
             values_[newIdx] = valuesBeforeChange_[curIndexVector[idx]];
@@ -591,14 +601,18 @@ void SparseMatrix<T>::closeTensorCoreMode() {
 
 template
 class Matrix<int>;
+
 template
 class Matrix<float>;
+
 template
 class Matrix<double>;
 
 template
 class SparseMatrix<int>;
+
 template
 class SparseMatrix<float>;
+
 template
 class SparseMatrix<double>;

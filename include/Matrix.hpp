@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "TensorCoreConfig.cuh"
+
 enum MatrixStorageOrder {
   row_major,
   col_major
@@ -254,9 +256,9 @@ class SparseMatrix {
    * tensor core mode
    **/
   void openTensorCoreMode(MatrixMultiplicationOrder multiplicationOrder);
-  void openTensorCoreModeForSampled();
+  void openTensorCoreModeForSampled(TensorCoreConfig tensorCoreConfig);
   void closeTensorCoreMode();
-  const std::vector<size_t>& matrixTileIndex(){
+  const std::vector<size_t> &matrixTileIndex() {
       return matrixTileIndexForTensorCore_;
   }
 
