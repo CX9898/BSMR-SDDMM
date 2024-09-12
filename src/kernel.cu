@@ -194,9 +194,6 @@ __device__ void matrixTileMultiplicationUseTensorCore_coo(TensorCoreConfig tenso
 
     for (int matrixPIdx = matrixTileIndexForTensorCore[warpId];
          matrixPIdx < matrixTileIndexForTensorCore[warpId + 1]; ++matrixPIdx) {
-//        if (matrixPIdx >= nnz) {
-//            printf(" matrixPIdx >= nnz11111111111???????!!!!!!!!\n");
-//        }
         const size_t curRow = matrixSRowIndex[matrixPIdx];
         const size_t curCol = matrixSColIndex[matrixPIdx];
 
