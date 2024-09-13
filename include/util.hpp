@@ -47,6 +47,9 @@ inline std::uniform_real_distribution<double> createRandomUniformDistribution(do
 inline std::uniform_int_distribution<int> createRandomUniformDistribution(int min, int max) {
     return std::uniform_int_distribution<int>(min, max);
 }
+inline std::uniform_int_distribution<int> createRandomUniformDistribution(uint32_t min, uint32_t max) {
+    return std::uniform_int_distribution<int>(min, max);
+}
 inline std::uniform_int_distribution<uint64_t> createRandomUniformDistribution(uint64_t min, uint64_t max) {
     return std::uniform_int_distribution<uint64_t>(min, max);
 }
