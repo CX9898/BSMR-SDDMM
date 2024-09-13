@@ -42,6 +42,7 @@ class vector {
   T *begin();
   T *end();
   T *end() const;
+  T back() const;
 
  private:
   size_t size_;
@@ -99,6 +100,12 @@ inline T *vector<T>::end() const {
 template<typename T>
 inline T *vector<T>::end() {
     return data_ + size_ - 1;
+}
+template<typename T>
+inline T vector<T>::back() const {
+    T *val;
+    cudaMemcpy(data_ + size_ - 1, &val, 1, cudaMemcpyDeviceToHost);
+    return *val;
 }
 
 } // namespace dev
