@@ -15,17 +15,17 @@ template<typename T>
 Matrix<T>::Matrix(const SparseMatrix<T> &matrixS) {
     row_ = matrixS.row();
     col_ = matrixS.col();
-    const size_t size = matrixS.row() * matrixS.col();
+    const UIN size = matrixS.row() * matrixS.col();
     storageOrder_ = MatrixStorageOrder::row_major;
-    const size_t ld = matrixS.col();
+    const UIN ld = matrixS.col();
     leadingDimension_ = ld;
 
     values_.clear();
     values_.resize(size);
 #pragma omp parallel for
     for (int idx = 0; idx < matrixS.nnz(); ++idx) {
-        const size_t curRow = matrixS.rowIndex()[idx];
-        const size_t curCol = matrixS.colIndex()[idx];
+        const UIN curRow = matrixS.rowIndex()[idx];
+        const UIN curCol = matrixS.colIndex()[idx];
         const auto curVal = matrixS.values()[idx];
 
         values_[curRow * ld + curCol] = curVal;
@@ -36,7 +36,7 @@ Matrix<T>::Matrix(const SparseMatrix<T> &matrixS) {
 }
 
 template<typename T>
-size_t Matrix<T>::rowOfValueIndex(size_t idx) const {
+UIN Matrix<T>::rowOfValueIndex(UIN idx) const {
     if (idx == 0) {
         return 0;
     }
@@ -48,7 +48,7 @@ size_t Matrix<T>::rowOfValueIndex(size_t idx) const {
 }
 
 template<typename T>
-size_t Matrix<T>::colOfValueIndex(size_t idx) const {
+UIN Matrix<T>::colOfValueIndex(UIN idx) const {
     if (idx == 0) {
         return 0;
     }
@@ -76,7 +76,7 @@ void Matrix<T>::changeStorageOrder() {
     const auto &oldValues = values_;
 
     MatrixStorageOrder newMatrixOrder;
-    size_t newLd;
+    UIN newLd;
     std::vector<T> newValues(values_.size());
     if (oldMajorOrder == MatrixStorageOrder::row_major) {
         newMatrixOrder = MatrixStorageOrder::col_major;
@@ -84,8 +84,8 @@ void Matrix<T>::changeStorageOrder() {
 
 #pragma omp parallel for
         for (int idx = 0; idx < oldValues.size(); ++idx) {
-            const size_t row = idx / oldLd;
-            const size_t col = idx % oldLd;
+            const UIN row = idx / oldLd;
+            const UIN col = idx % oldLd;
             const auto val = oldValues[idx];
 
             newValues[col * newLd + row] = val;
@@ -96,8 +96,8 @@ void Matrix<T>::changeStorageOrder() {
 
 #pragma omp parallel for
         for (int idx = 0; idx < values_.size(); ++idx) {
-            const size_t col = idx / oldLd;
-            const size_t row = idx % oldLd;
+            const UIN col = idx / oldLd;
+            const UIN row = idx % oldLd;
             const auto val = values_[idx];
 
             newValues[row * newLd + col] = val;
@@ -110,7 +110,7 @@ void Matrix<T>::changeStorageOrder() {
 }
 
 template<typename T>
-void Matrix<T>::makeData(size_t numRow, size_t numCol, MatrixStorageOrder storageOrder) {
+void Matrix<T>::makeData(UIN numRow, UIN numCol, MatrixStorageOrder storageOrder) {
     row_ = numRow;
     col_ = numCol;
     storageOrder_ = storageOrder;
@@ -121,7 +121,7 @@ void Matrix<T>::makeData(size_t numRow, size_t numCol, MatrixStorageOrder storag
     }
     values_.resize(numRow * numCol);
 
-//    for (size_t idx = 0; idx < values_.size(); ++idx) {
+//    for (UIN idx = 0; idx < values_.size(); ++idx) {
 //        values_[idx] = idx;
 //    }
     std::mt19937 generator;
@@ -166,9 +166,9 @@ void Matrix<T>::printToMarkdownTable() const {
 
 template<typename T>
 T Matrix<T>::getOneValueForMultiplication(MatrixMultiplicationOrder multiplicationOrder,
-                                          size_t rowMtxC,
-                                          size_t colMtxC,
-                                          size_t positionOfKIter) const {
+                                          UIN rowMtxC,
+                                          UIN colMtxC,
+                                          UIN positionOfKIter) const {
     if (multiplicationOrder == MatrixMultiplicationOrder::left_multiplication) {
         if (rowMtxC > row_) {
             std::cout << "Warning! The input rows exceed the matrix" << std::endl;
@@ -191,7 +191,7 @@ T Matrix<T>::getOneValueForMultiplication(MatrixMultiplicationOrder multiplicati
 }
 
 template<typename T>
-T Matrix<T>::getOneValue(size_t row, size_t col) const {
+T Matrix<T>::getOneValue(UIN row, UIN col) const {
     if (row > row_ || col > col_) {
         std::cout << "Warning! The input rows or columns exceed the matrix" << std::endl;
     }
@@ -211,8 +211,8 @@ void Matrix<T>::openTensorCoreMode(MatrixMultiplicationOrder multiplicationOrder
     rowBeforeChange_ = row_;
     colBeforeChange_ = col_;
 
-    size_t rowComplement = 0;
-    size_t colComplement = 0;
+    UIN rowComplement = 0;
+    UIN colComplement = 0;
     if (multiplicationOrder == MatrixMultiplicationOrder::left_multiplication) {
         rowComplement = rowBeforeChange_ % WMMA_M == 0 ? 0 : WMMA_M - rowBeforeChange_ % WMMA_M;
         colComplement = colBeforeChange_ % WMMA_K == 0 ? 0 : WMMA_K - colBeforeChange_ % WMMA_K;
@@ -230,12 +230,12 @@ void Matrix<T>::openTensorCoreMode(MatrixMultiplicationOrder multiplicationOrder
     }
 
     if (storageOrder_ == MatrixStorageOrder::row_major) {
-        for (size_t rowIter = 0; rowIter < rowBeforeChange_; ++rowIter) {
+        for (UIN rowIter = 0; rowIter < rowBeforeChange_; ++rowIter) {
             values_.insert(values_.begin() + rowIter * leadingDimension_ + colBeforeChange_, colComplement, 0);
         }
         values_.insert(values_.end(), rowComplement * col_, 0);
     } else {
-        for (size_t colIter = 0; colIter < colBeforeChange_; ++colIter) {
+        for (UIN colIter = 0; colIter < colBeforeChange_; ++colIter) {
             values_.insert(values_.begin() + colIter * leadingDimension_ + rowBeforeChange_, rowComplement, 0);
         }
         values_.insert(values_.end(), colComplement * row_, 0);
@@ -249,8 +249,8 @@ void Matrix<T>::closeTensorCoreMode() {
     }
     tensorCoreMode_ = false;
 
-    const size_t rowComplement = row_ < rowBeforeChange_ ? rowBeforeChange_ - row_ : row_ - rowBeforeChange_;
-    const size_t colComplement = col_ < colBeforeChange_ ? colBeforeChange_ - col_ : col_ - colBeforeChange_;
+    const UIN rowComplement = row_ < rowBeforeChange_ ? rowBeforeChange_ - row_ : row_ - rowBeforeChange_;
+    const UIN colComplement = col_ < colBeforeChange_ ? colBeforeChange_ - col_ : col_ - colBeforeChange_;
 
     row_ = rowBeforeChange_;
     col_ = colBeforeChange_;
@@ -260,12 +260,12 @@ void Matrix<T>::closeTensorCoreMode() {
         leadingDimension_ = row_;
     }
     if (storageOrder_ == MatrixStorageOrder::row_major) {
-        for (size_t rowIter = 0; rowIter < rowBeforeChange_; ++rowIter) {
+        for (UIN rowIter = 0; rowIter < rowBeforeChange_; ++rowIter) {
             const auto curRowBeginIter = values_.begin() + rowIter * leadingDimension_ + colBeforeChange_;
             values_.erase(curRowBeginIter, curRowBeginIter + colComplement);
         }
     } else {
-        for (size_t colIter = 0; colIter < colBeforeChange_; ++colIter) {
+        for (UIN colIter = 0; colIter < colBeforeChange_; ++colIter) {
             const auto curColBeginIter = values_.begin() + colIter * leadingDimension_ + rowBeforeChange_;
             values_.erase(curColBeginIter, curColBeginIter + rowComplement);
         }
@@ -276,7 +276,7 @@ void Matrix<T>::closeTensorCoreMode() {
 template<typename T>
 void SparseMatrix<T>::print() const {
     std::cout << "SparseMatrix : [row,col,value]" << std::endl;
-    for (size_t idx = 0; idx < nnz_; ++idx) {
+    for (UIN idx = 0; idx < nnz_; ++idx) {
         std::cout << "[" << rowIndex_[idx] << ","
                   << colIndex_[idx] << ","
                   << values_[idx] << "] ";
@@ -294,8 +294,8 @@ bool SparseMatrix<T>::setValuesFromMatrix(const Matrix<T> &inputMatrix) {
 
 #pragma omp parallel for
     for (int idx = 0; idx < nnz_; ++idx) {
-        const size_t row = rowIndex_[idx];
-        const size_t col = colIndex_[idx];
+        const UIN row = rowIndex_[idx];
+        const UIN col = colIndex_[idx];
 
         values_[idx] = inputMatrix.getOneValue(row, col);
     }
@@ -331,11 +331,11 @@ void SparseMatrix<T>::initializeFromMatrixMarketFile(const std::string &filePath
     colIndex_.resize(nnz_);
     values_.resize(nnz_);
 
-    size_t idx = 0;
+    UIN idx = 0;
     while (getline(inFile, line)) {
         wordIter = 0;
-        const size_t row = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
-        const size_t col = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
+        const UIN row = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
+        const UIN col = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
         const T val = static_cast<T>(std::stod(util::iterateOneWordFromLine(line, wordIter)));
 
         if (wordIter < line.size()) {
@@ -356,7 +356,7 @@ void SparseMatrix<T>::initializeFromMatrixMarketFile(const std::string &filePath
 }
 
 template<typename T>
-void SparseMatrix<T>::getSpareMatrixOneDataByCOO(const size_t idx, size_t &row, size_t &col, T &value) const {
+void SparseMatrix<T>::getSpareMatrixOneDataByCOO(const UIN idx, UIN &row, UIN &col, T &value) const {
     row = rowIndex_[idx];
     col = colIndex_[idx];
     value = values_[idx];
@@ -397,7 +397,7 @@ bool SparseMatrix<T>::outputToMarketMatrixFile(const std::string &fileName) {
     std::string secondLine(std::to_string(row_) + " " + std::to_string(col_) + " " + std::to_string(nnz_) + "\n");
     outfile << secondLine;
 
-    for (size_t idx = 0; idx < nnz_; ++idx) {
+    for (UIN idx = 0; idx < nnz_; ++idx) {
         outfile << std::to_string(rowIndex_[idx] + 1) << " ";
         outfile << std::to_string(colIndex_[idx] + 1) << " ";
         outfile << std::to_string(values_[idx]);
@@ -412,7 +412,7 @@ bool SparseMatrix<T>::outputToMarketMatrixFile(const std::string &fileName) {
 }
 
 template<typename T>
-void SparseMatrix<T>::makeData(const size_t numRow, const size_t numCol, const size_t nnz) {
+void SparseMatrix<T>::makeData(const UIN numRow, const UIN numCol, const UIN nnz) {
     if (numRow * numCol < nnz) {
         std::cerr << "nnz is too big" << std::endl;
         return;
@@ -428,15 +428,15 @@ void SparseMatrix<T>::makeData(const size_t numRow, const size_t numCol, const s
     // make data
     std::mt19937 generator;
     auto distributionRow =
-        util::createRandomUniformDistribution(static_cast<size_t>(0), static_cast<size_t>(numRow - 1));
+        util::createRandomUniformDistribution(static_cast<UIN>(0), static_cast<UIN>(numRow - 1));
     auto distributionCol =
-        util::createRandomUniformDistribution(static_cast<size_t>(0), static_cast<size_t>(numCol - 1));
+        util::createRandomUniformDistribution(static_cast<UIN>(0), static_cast<UIN>(numCol - 1));
     auto distributionValue = util::createRandomUniformDistribution(static_cast<T>(1), static_cast<T>(10));
-    std::set<std::pair<size_t, size_t>> rowColSet;
-    for (size_t idx = 0; idx < nnz; ++idx) {
-        size_t row = distributionRow(generator);
-        size_t col = distributionCol(generator);
-        std::pair<size_t, size_t> rowColPair(row, col);
+    std::set<std::pair<UIN, UIN>> rowColSet;
+    for (UIN idx = 0; idx < nnz; ++idx) {
+        UIN row = distributionRow(generator);
+        UIN col = distributionCol(generator);
+        std::pair<UIN, UIN> rowColPair(row, col);
         auto findSet = rowColSet.find(rowColPair);
         while (findSet != rowColSet.end()) {
             row = distributionRow(generator);
@@ -455,10 +455,10 @@ void SparseMatrix<T>::makeData(const size_t numRow, const size_t numCol, const s
 
     // sort rowIndex and colIndex
     host::sort_by_key(rowIndex_.data(), rowIndex_.data() + rowIndex_.size(), colIndex_.data());
-    size_t lastRowNumber = rowIndex_[0];
-    size_t lastBegin = 0;
-    for (size_t idx = 0; idx < nnz_; ++idx) {
-        const size_t curRowNumber = rowIndex_[idx];
+    UIN lastRowNumber = rowIndex_[0];
+    UIN lastBegin = 0;
+    for (UIN idx = 0; idx < nnz_; ++idx) {
+        const UIN curRowNumber = rowIndex_[idx];
         if (curRowNumber != lastRowNumber) { // new row
             host::sort(colIndex_.data() + lastBegin, colIndex_.data() + idx);
 
@@ -481,8 +481,8 @@ void SparseMatrix<T>::openTensorCoreMode(MatrixMultiplicationOrder multiplicatio
     rowBeforeChange_ = row_;
     colBeforeChange_ = col_;
 
-    size_t rowComplement;
-    size_t colComplement;
+    UIN rowComplement;
+    UIN colComplement;
     if (multiplicationOrder == MatrixMultiplicationOrder::left_multiplication) {
         rowComplement = rowBeforeChange_ % WMMA_M == 0 ? 0 : WMMA_M - rowBeforeChange_ % WMMA_M;
         colComplement = colBeforeChange_ % WMMA_K == 0 ? 0 : WMMA_K - colBeforeChange_ % WMMA_K;
@@ -511,15 +511,15 @@ void SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorCoreCo
     row_ = rowBeforeChange_ + rowComplement;
     col_ = colBeforeChange_ + colComplement;
 
-    const size_t numTileM = row_ / WMMA_M;
-    const size_t numTileN = col_ / WMMA_N;
+    const UIN numTileM = row_ / WMMA_M;
+    const UIN numTileN = col_ / WMMA_N;
 
-    const size_t numWarpX = tensorCoreConfig.numWarpX();
-    const size_t numWarpY = tensorCoreConfig.numWarpY();
-    const size_t numWarps = numWarpX * numWarpY;
+    const UIN numWarpX = tensorCoreConfig.numWarpX();
+    const UIN numWarpY = tensorCoreConfig.numWarpY();
+    const UIN numWarps = numWarpX * numWarpY;
 
-    std::vector<std::vector<size_t>> indexVectorsPerWarp(numWarps);
-    std::vector<size_t> numIndexPerTile(numWarps);
+    std::vector<std::vector<UIN>> indexVectorsPerWarp(numWarps);
+    std::vector<UIN> numIndexPerTile(numWarps);
 #pragma omp parallel for
     for (int warpId = 0; warpId < numWarps; ++warpId) { // Matrix tiles id: row-order
         const int curWarpX = warpId % numWarpX;
@@ -527,13 +527,13 @@ void SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorCoreCo
         if (curWarpX > numTileN || curWarpY > numTileM) {
             continue;
         }
-        const size_t rowBeginOfTile = (warpId / numWarpX) * WMMA_M;
-        const size_t rowEndOfTile = (warpId / numWarpX + 1) * WMMA_M;
-        const size_t colBeginOfTile = (warpId % numWarpX) * WMMA_N;
-        const size_t colEndOfTile = (warpId % numWarpX + 1) * WMMA_N;
+        const UIN rowBeginOfTile = (warpId / numWarpX) * WMMA_M;
+        const UIN rowEndOfTile = (warpId / numWarpX + 1) * WMMA_M;
+        const UIN colBeginOfTile = (warpId % numWarpX) * WMMA_N;
+        const UIN colEndOfTile = (warpId % numWarpX + 1) * WMMA_N;
         for (int idx = 0; idx < nnz_; ++idx) {
-            const size_t curRow = rowIndexBeforeChange_[idx];
-            const size_t curCol = colIndexBeforeChange_[idx];
+            const UIN curRow = rowIndexBeforeChange_[idx];
+            const UIN curCol = colIndexBeforeChange_[idx];
             if (curRow >= rowBeginOfTile && curRow < rowEndOfTile &&
                 curCol >= colBeginOfTile && curCol < colEndOfTile) {
                 indexVectorsPerWarp[warpId].push_back(idx);
@@ -559,9 +559,9 @@ void SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorCoreCo
         }
     }
 
-//    std::set<std::pair<size_t, size_t>> rowColSet;
+//    std::set<std::pair<UIN, UIN>> rowColSet;
 //    for (int idx = 0; idx < nnz_; ++idx) { // 检查是否有相同行列值
-//        std::pair<size_t, size_t> rowColPair(rowIndexBeforeChange_[idx], colIndexBeforeChange_[idx]);
+//        std::pair<UIN, UIN> rowColPair(rowIndexBeforeChange_[idx], colIndexBeforeChange_[idx]);
 //        if (rowColSet.find(rowColPair) != rowColSet.end()) {
 //            std::cout << " 有相同行列值1111???!!!!???!!! " << rowIndexBeforeChange_[idx] << " "
 //                      << colIndexBeforeChange_[idx]
@@ -572,7 +572,7 @@ void SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorCoreCo
 //    }
 //
 //    for (int idx = 0; idx < nnz_; ++idx) { // 检查是否出现不一样的值
-//        std::pair<size_t, size_t> rowColPair(rowIndex_[idx], colIndex_[idx]);
+//        std::pair<UIN, UIN> rowColPair(rowIndex_[idx], colIndex_[idx]);
 //        if (rowColSet.find(rowColPair) == rowColSet.end()) {
 //            std::cout << " 出现不一样的值333???!!!!???!!! " << rowIndex_[idx] << " " << rowIndex_[idx]
 //                      << std::endl;
