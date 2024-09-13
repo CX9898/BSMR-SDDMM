@@ -7,18 +7,18 @@
 #include "Matrix.hpp"
 
 template<typename T>
-__global__ void printData(size_t n, T *a) {
-    for (size_t i = 0; i < n; ++i) {
+__global__ void printData(UIN n, T *a) {
+    for (UIN i = 0; i < n; ++i) {
         printf("%f ", static_cast<float>(a[i]));
     }
 }
 
-template __global__ void printData<float>(size_t n, float *a);
+template __global__ void printData<float>(UIN n, float *a);
 
-template __global__ void printData<half>(size_t n, half *a);
+template __global__ void printData<half>(UIN n, half *a);
 
-__global__ void convertFp32ToFp16(const size_t n, const float *in, half *out) {
-    size_t idx = static_cast<size_t> (blockDim.x * blockIdx.x + threadIdx.x);
+__global__ void convertFp32ToFp16(const UIN n, const float *in, half *out) {
+    UIN idx = static_cast<UIN> (blockDim.x * blockIdx.x + threadIdx.x);
     if (idx < n) {
         out[idx] = in[idx];
     }
@@ -29,14 +29,14 @@ const float SPARSITY_BOUND = 1.0f;
 template<typename T>
 __device__ float calculateMatrixTileSparsity(const int tileM,
                                              const int tileN,
-                                             const size_t ld,
+                                             const UIN ld,
                                              const MatrixStorageOrder storageOrder,
                                              const T *matrixPtr) {
-    size_t nnzCount = 0;
+    UIN nnzCount = 0;
 #pragma unroll
-    for (size_t rowIter = 0; rowIter < tileM; ++rowIter) {
+    for (UIN rowIter = 0; rowIter < tileM; ++rowIter) {
 #pragma unroll
-        for (size_t colIter = 0; colIter < tileN; ++colIter) {
+        for (UIN colIter = 0; colIter < tileN; ++colIter) {
             if (storageOrder == MatrixStorageOrder::row_major) {
                 nnzCount += *(matrixPtr + rowIter * ld + colIter) == 0 ? 0 : 1;
             } else {
@@ -49,7 +49,7 @@ __device__ float calculateMatrixTileSparsity(const int tileM,
 }
 
 __device__ void matrixTileMultiplicationUseCudaCode(int pRowId, int pColId,
-                                                    const size_t M, const size_t N, const size_t K,
+                                                    const UIN M, const UIN N, const UIN K,
                                                     const half *matrixA,
                                                     const half *matrixB,
                                                     const float *matrixS,
@@ -58,7 +58,7 @@ __device__ void matrixTileMultiplicationUseCudaCode(int pRowId, int pColId,
 }
 
 __device__ void matrixTileMultiplicationUseTensorCore(int pRowId, int pColId,
-                                                      const size_t M, const size_t N, const size_t K,
+                                                      const UIN M, const UIN N, const UIN K,
                                                       const half *matrixA,
                                                       const half *matrixB,
                                                       const float *matrixS,
@@ -108,8 +108,8 @@ __device__ void matrixTileMultiplicationUseTensorCore(int pRowId, int pColId,
     nvcuda::wmma::store_matrix_sync(pOffsetPtr, cFrag, ldp, nvcuda::wmma::mem_row_major);
 }
 
-__device__ void positionCalculator(const size_t tileRow, const size_t tileCol,
-                                   const size_t row, const size_t col,
+__device__ void positionCalculator(const UIN tileRow, const UIN tileCol,
+                                   const UIN row, const UIN col,
                                    int &laneId, int &idx) {
     if (tileRow > row || tileCol > col || tileRow + WMMA_M <= row || tileCol + WMMA_N <= col) {
         laneId = -1;
@@ -142,23 +142,23 @@ __device__ void positionCalculator(const size_t tileRow, const size_t tileCol,
 }
 
 __device__ void matrixTileMultiplicationUseTensorCore_coo(TensorCoreConfig tensorCoreConfig,
-                                                          const size_t pRowId,
-                                                          const size_t pColId,
-                                                          const size_t M,
-                                                          const size_t N,
-                                                          const size_t K,
-                                                          const size_t nnz,
+                                                          const UIN pRowId,
+                                                          const UIN pColId,
+                                                          const UIN M,
+                                                          const UIN N,
+                                                          const UIN K,
+                                                          const UIN nnz,
                                                           const half *matrixA,
                                                           const half *matrixB,
-                                                          const size_t *matrixSRowIndex,
-                                                          const size_t *matrixSColIndex,
-                                                          const size_t *matrixTileIndex,
+                                                          const UIN *matrixSRowIndex,
+                                                          const UIN *matrixSColIndex,
+                                                          const UIN *matrixTileIndex,
                                                           const float *matrixS,
                                                           float *matrixP) {
 
     // Leading dimensions. Packed with no transpositions.
-    const size_t lda = K;
-    const size_t ldb = N;
+    const UIN lda = K;
+    const UIN ldb = N;
 
     nvcuda::wmma::fragment<nvcuda::wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE, nvcuda::wmma::row_major>
         aFrag;
@@ -194,8 +194,8 @@ __device__ void matrixTileMultiplicationUseTensorCore_coo(TensorCoreConfig tenso
 
     for (int matrixPIdx = matrixTileIndex[warpId];
          matrixPIdx < matrixTileIndex[warpId + 1]; ++matrixPIdx) {
-        const size_t curRow = matrixSRowIndex[matrixPIdx];
-        const size_t curCol = matrixSColIndex[matrixPIdx];
+        const UIN curRow = matrixSRowIndex[matrixPIdx];
+        const UIN curCol = matrixSColIndex[matrixPIdx];
 
         int findLaneId = 0, findIdx = 0;
         positionCalculator(pRowId, pColId, curRow, curCol, findLaneId, findIdx);
@@ -237,25 +237,25 @@ __device__ void matrixTileMultiplicationUseTensorCore_coo(TensorCoreConfig tenso
     }
 }
 
-__global__ void sddmm_gpu(const size_t M, const size_t N, const size_t K,
+__global__ void sddmm_gpu(const UIN M, const UIN N, const UIN K,
                           const half *matrixA, const half *matrixB,
                           const float *matrixS,
                           float *matrixP) {
-    const size_t tidX = (blockDim.x * blockIdx.x + threadIdx.x);
-    const size_t tidY = (blockDim.y * blockIdx.y + threadIdx.y);
+    const UIN tidX = (blockDim.x * blockIdx.x + threadIdx.x);
+    const UIN tidY = (blockDim.y * blockIdx.y + threadIdx.y);
 
-    const size_t warpM = tidX / WARP_SIZE;
-    const size_t warpN = tidY;
+    const UIN warpM = tidX / WARP_SIZE;
+    const UIN warpN = tidY;
 
 //    const int landIdM = tidX % WARP_SIZE;
 //    const int landIdN = tidY % WARP_SIZE;
 
     // Compute dense matrix multiplication using Tensor core
 
-    const size_t pRowId = warpM * WMMA_M;
-    const size_t pColId = warpN * WMMA_N;
-//    const size_t pRowId = warpN * WMMA_N;
-//    const size_t pColId = warpM * WMMA_M;
+    const UIN pRowId = warpM * WMMA_M;
+    const UIN pColId = warpN * WMMA_N;
+//    const UIN pRowId = warpN * WMMA_N;
+//    const UIN pColId = warpM * WMMA_M;
 
     if (pRowId >= M || pColId >= N) {
         return;
@@ -273,17 +273,17 @@ __global__ void sddmm_gpu(const size_t M, const size_t N, const size_t K,
 }
 
 __global__ void sddmm_coo_gpu(class TensorCoreConfig tensorCoreConfig,
-                              const size_t M, const size_t N, const size_t K, const size_t nnz,
+                              const UIN M, const UIN N, const UIN K, const UIN nnz,
                               const half *matrixA, const half *matrixB,
-                              const size_t *matrixSRowIndex,
-                              const size_t *matrixSColIndex,
-                              const size_t *matrixTileIndex,
+                              const UIN *matrixSRowIndex,
+                              const UIN *matrixSColIndex,
+                              const UIN *matrixTileIndex,
                               const float *matrixS,
                               float *matrixP) {
     tensorCoreConfig.initByKernel(blockDim, blockIdx, threadIdx);
 
-    const size_t pRowId = tensorCoreConfig.tileRow();
-    const size_t pColId = tensorCoreConfig.tileCol();
+    const UIN pRowId = tensorCoreConfig.tileRow();
+    const UIN pColId = tensorCoreConfig.tileCol();
 
     if (pRowId >= M || pColId >= N) {
         return;
