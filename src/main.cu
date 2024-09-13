@@ -4,6 +4,7 @@
 //#include "sddmm_isratnisa.h"
 //#include "util_isratnisa.h"
 #include "Matrix.hpp"
+#include "devMatrix.cuh"
 #include "kernel.cuh"
 #include "TensorCoreConfig.cuh"
 #include "cudaErrorCheck.cuh"
@@ -85,6 +86,7 @@ int main(int argc, char *argv[]) {
     matrixB.openTensorCoreMode(MatrixMultiplicationOrder::right_multiplication);
     std::cout << "openTensorCoreMode matrixB : row = " << matrixB.row() << ", col = " << matrixB.col() << std::endl;
 
+//    dev::SparseMatrix<float>(matrixS);
     matrixS.openTensorCoreModeForSampled(tensorCoreConfig);
     std::cout << "openTensorCoreModeForSampled matrixS : row = " << matrixS.row() << ", col = " << matrixS.col()
               << std::endl;
@@ -153,9 +155,9 @@ int main(int argc, char *argv[]) {
     std::cout << "Test : sddmm_gpu" << std::endl;
     checkData(matrixP_cpu_res.values(), matrixP_gpu_res.values());
 
-    dev::vector<size_t> matrixS_rowIndex_coo(matrixS.rowIndex());
-    dev::vector<size_t> matrixS_colIndex_coo(matrixS.colIndex());
-    dev::vector<size_t> matrixS_tileIndex_coo(matrixS.matrixTileIndex());
+    dev::vector<UIN> matrixS_rowIndex_coo(matrixS.rowIndex());
+    dev::vector<UIN> matrixS_colIndex_coo(matrixS.colIndex());
+    dev::vector<UIN> matrixS_tileIndex_coo(matrixS.matrixTileIndex());
     dev::vector<float> matrixS_value_coo(matrixS.values());
 
     dev::vector<float> matrixP_value_coo(matrixS.nnz());
