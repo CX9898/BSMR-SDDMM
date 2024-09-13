@@ -2,6 +2,8 @@
 
 #include <cuda_fp16.h>
 
+using UIN = uint32_t;
+
 using MATRIX_A_TYPE = __half;
 using MATRIX_B_TYPE = __half;
 using MATRIX_C_TYPE = float;
