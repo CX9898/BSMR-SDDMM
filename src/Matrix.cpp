@@ -9,7 +9,7 @@
 
 #include "Matrix.hpp"
 #include "util.hpp"
-#include "cudaUtil.cuh"
+#include "parallelAlgorithm.cuh"
 
 template<typename T>
 Matrix<T>::Matrix(const SparseMatrix<T> &matrixS) {
