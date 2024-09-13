@@ -1,8 +1,11 @@
 #include <thrust/sort.h>
 
-#include "cudaUtil.cuh"
+#include "parallelAlgorithm.cuh"
 
 namespace host {
+void fill_n(uint32_t *first, size_t size, uint32_t val) {
+    thrust::fill_n(thrust::host, first, size, val);
+}
 void sort(uint32_t *first, uint32_t *last) {
     thrust::sort(thrust::host, first, last);
 }
@@ -27,6 +30,9 @@ void inclusive_scan(uint32_t *first, uint32_t *last, uint32_t *result) {
 } // namespace host
 
 namespace dev {
+void fill_n(uint32_t *first, size_t size, uint32_t val) {
+    thrust::fill_n(thrust::device, first, size, val);
+}
 void sort(uint32_t *first, uint32_t *last) {
     thrust::sort(thrust::device, first, last);
 }
