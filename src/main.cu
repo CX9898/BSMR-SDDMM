@@ -16,7 +16,7 @@
 const std::string folderPath("../dataset/");
 //const std::string fileName = ("nips");
 //const std::string fileName = ("test");
-const std::string fileName = ("matrix_35000_35000_422000");
+const std::string fileName = ("matrix_106000_106000_3000000");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 
