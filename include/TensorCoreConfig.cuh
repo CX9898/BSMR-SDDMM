@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <cuda_fp16.h>
 
 using UIN = uint32_t;
