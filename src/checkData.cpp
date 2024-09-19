@@ -2,6 +2,8 @@
 
 #include <cuda_runtime.h>
 
+#include "Matrix.hpp"
+#include "devMatrix.cuh"
 #include "checkData.hpp"
 #include "cudaErrorCheck.cuh"
 
@@ -38,7 +40,7 @@ bool checkData(const size_t num, const T *data1, const T *data2) {
 
     if (errors > 0) {
         printf("| No Pass! Inconsistent data! %d errors! Error rate : %2.2f%%\n\n",
-               errors, static_cast<float>(errors) / static_cast<float>(errors) * 100);
+               errors, static_cast<float>(errors) / static_cast<float>(num) * 100);
 
         return false;
     }

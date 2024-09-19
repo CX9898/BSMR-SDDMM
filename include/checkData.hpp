@@ -10,8 +10,8 @@ const float epsilon = 1e-4;
 template<typename T>
 bool checkOneData(const T data1, const T data2);
 
-template<typename T>
-bool checkData(const size_t num, const T *data1, const T *data2);
+//template<typename T>
+//bool checkData(const size_t num, const T *data1, const T *data2);
 
 template<typename T>
 bool checkData(const std::vector<T> &data1, const std::vector<T> &data2);
