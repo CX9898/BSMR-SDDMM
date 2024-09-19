@@ -97,4 +97,8 @@ bool checkData(const size_t num, const T *dataDev1, const std::vector<T> &dataHo
     return res;
 }
 
+template bool checkData<uint32_t>(const std::vector<uint32_t> &, const std::vector<uint32_t> &);
+template bool checkData<uint64_t>(const std::vector<uint64_t> &, const std::vector<uint64_t> &);
+template bool checkData<int>(const std::vector<int> &, const std::vector<int> &);
 template bool checkData<float>(const std::vector<float> &, const std::vector<float> &);
+template bool checkData<double>(const std::vector<double> &, const std::vector<double> &);
