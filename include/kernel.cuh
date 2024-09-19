@@ -22,3 +22,13 @@ __global__ void sddmm_coo_gpu(class TensorCoreConfig tensorCoreConfig,
                               const UIN *matrixTileIndex,
                               const float *matrixS,
                               float *matrixP);
+
+__global__ void sddmm_coo2_gpu(class TensorCoreConfig tensorCoreConfig,
+                               const UIN M, const UIN N, const UIN K, const UIN nnz,
+                               const half *matrixA, const half *matrixB,
+                               const UIN *matrixSRowIndex,
+                               const UIN *matrixSColIndex,
+                               const float *matrixS,
+                               const UIN *matrixSTileMappedToWarpIndex,
+                               const UIN *matrixSTileMappedToWarpIndexData,
+                               float *matrixP);

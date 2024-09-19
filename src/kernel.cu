@@ -333,3 +333,106 @@ __global__ void sddmm_coo_gpu(class TensorCoreConfig tensorCoreConfig,
 //    }
 
 }
+
+__global__ void sddmm_coo2_gpu(class TensorCoreConfig tensorCoreConfig,
+                               const UIN M, const UIN N, const UIN K, const UIN nnz,
+                               const half *matrixA, const half *matrixB,
+                               const UIN *matrixSRowIndex,
+                               const UIN *matrixSColIndex,
+                               const float *matrixS,
+                               const UIN *matrixSTileMappedToWarpIndex,
+                               const UIN *matrixSTileMappedToWarpIndexData,
+                               float *matrixP) {
+    tensorCoreConfig.initByKernel(blockDim, blockIdx, threadIdx);
+
+    const UIN pRowId = tensorCoreConfig.tileRow();
+    const UIN pColId = tensorCoreConfig.tileCol();
+
+    if (pRowId >= M || pColId >= N) {
+        return;
+    }
+
+    const int warpId = tensorCoreConfig.globalWarpId();
+
+    const int tileIndexBegin = matrixSTileMappedToWarpIndex[warpId];
+    const int tileIndexEnd = matrixSTileMappedToWarpIndex[warpId + 1];
+    const int numData = tileIndexEnd - tileIndexBegin;
+    if (numData <= 0) {
+        return;
+    }
+
+    // Leading dimensions. Packed with no transpositions.
+    const UIN lda = K;
+    const UIN ldb = N;
+
+    nvcuda::wmma::fragment<nvcuda::wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE, nvcuda::wmma::row_major>
+        aFrag;
+    nvcuda::wmma::fragment<nvcuda::wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE, nvcuda::wmma::row_major>
+        bFrag;
+
+    nvcuda::wmma::fragment<nvcuda::wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> cFrag;
+
+    fill_fragment(cFrag, 0.0f);
+
+    // Loop over k
+    for (int kIter = 0; kIter < K; kIter += WMMA_K) {
+        const int aRowId = pRowId;
+        const int aColId = kIter;
+
+        const int bRowId = kIter;
+        const int bColId = pColId;
+
+        // Bounds checking
+        if (aRowId < M && aColId < K && bRowId < K && bColId < N) {
+            const auto aOffsetPtr = matrixA + aRowId * lda + aColId;
+            const auto bOffsetPtr = matrixB + bRowId * ldb + bColId;
+
+            nvcuda::wmma::load_matrix_sync(aFrag, aOffsetPtr, lda);
+            nvcuda::wmma::load_matrix_sync(bFrag, bOffsetPtr, ldb);
+
+            nvcuda::wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
+        }
+    }
+
+    const int laneId = tensorCoreConfig.laneId();
+
+    for (int tileIndexDataIdx = tileIndexBegin; tileIndexDataIdx < tileIndexEnd; ++tileIndexDataIdx) {
+        const UIN matrixPIdx = matrixSTileMappedToWarpIndexData[tileIndexDataIdx];
+        const UIN curRow = matrixSRowIndex[matrixPIdx];
+        const UIN curCol = matrixSColIndex[matrixPIdx];
+
+        int findLaneId = 0, findIdx = 0;
+        positionCalculator(pRowId, pColId, curRow, curCol, findLaneId, findIdx);
+
+//        if (matrixPIdx == 1 && warpId == 0 && laneId == 0) {
+//            printf(" warpId = %d "
+//                   " pRowId = %d, pColId = %d, curRow = %d, curCol = %d, curValue = %f"
+//                   " laneId = %d findLaneId = %d, findIdx = %d, cFrag.x[%d] = %f\n",
+//                   warpId,
+//                   static_cast<int>(pRowId),
+//                   static_cast<int>(pColId),
+//                   static_cast<int>(curRow),
+//                   static_cast<int>(curCol),
+//                   static_cast<float>(matrixS[matrixPIdx]),
+//                   laneId,
+//                   findLaneId,
+//                   findIdx,
+//                   findIdx,
+//                   static_cast<float>(cFrag.x[findIdx]));
+//        }
+        if (laneId == findLaneId) {
+            matrixP[matrixPIdx] = cFrag.x[findIdx];
+//            printf(
+//                " pRowId = %d, pColId = %d, curRow = %d, curCol = %d, findLaneId = %d, findIdx = %d, cFrag.x[%d] = %f\n",
+//                static_cast<int>(pRowId),
+//                static_cast<int>(pColId),
+//                static_cast<int>(curRow),
+//                static_cast<int>(curCol),
+//                findLaneId,
+//                findIdx,
+//                findIdx,
+//                static_cast<float>(cFrag.x[findIdx]));
+        }
+    }
+
+}
