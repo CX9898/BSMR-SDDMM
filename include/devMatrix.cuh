@@ -159,10 +159,10 @@ class SparseMatrix {
   void openTensorCoreModeForSampled(TensorCoreConfig tensorCoreConfig);
   void closeTensorCoreMode();
   const dev::vector<UIN> &matrixTileIndex() const {
-      return matrixTileIndex_;
+      return matrixTileMappedToWarpIndex_;
   }
   const dev::vector<UIN> &matrixTileIndexData() const {
-      return matrixTileIndexData_;
+      return matrixTileMappedToWarpIndexData_;
   }
 
  private:
@@ -175,8 +175,8 @@ class SparseMatrix {
   dev::vector<T> values_;
 
   bool tensorCoreMode_ = false;
-  dev::vector<UIN> matrixTileIndex_;
-  dev::vector<UIN> matrixTileIndexData_;
+  dev::vector<UIN> matrixTileMappedToWarpIndex_;
+  dev::vector<UIN> matrixTileMappedToWarpIndexData_;
 
   UIN rowBeforeChange_;
   UIN colBeforeChange_;

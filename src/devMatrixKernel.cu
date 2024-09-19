@@ -38,9 +38,9 @@ __global__ void getTileIndexDataPerWarp(const UIN size, const UIN numWarpX,
                                         const UIN nnz,
                                         const UIN *rowIndex,
                                         const UIN *colIndex,
-                                        const UIN *matrixTileIndex,
-                                        UIN *matrixTileIndexData) {
-    const int tid = blockDim.x + blockIdx.x + threadIdx.x;
+                                        const UIN *matrixTileMappedToWarpIndex,
+                                        UIN *matrixTileMappedToWarpIndexData) {
+    const int tid = blockDim.x * blockIdx.x + threadIdx.x;
     if (tid >= size) {
         return;
     }
@@ -49,12 +49,13 @@ __global__ void getTileIndexDataPerWarp(const UIN size, const UIN numWarpX,
     if (curWarpX > numTileN || curWarpY > numTileM) {
         return;
     }
+
     const size_t rowBeginOfTile = (tid / numWarpX) * WMMA_M;
     const size_t rowEndOfTile = (tid / numWarpX + 1) * WMMA_M;
     const size_t colBeginOfTile = (tid % numWarpX) * WMMA_N;
     const size_t colEndOfTile = (tid % numWarpX + 1) * WMMA_N;
 
-    UIN beginIdx = matrixTileIndex[tid];
+    const UIN beginIdx = matrixTileMappedToWarpIndex[tid];
 
     UIN count = 0;
     for (int idx = 0; idx < nnz; ++idx) {
@@ -62,7 +63,7 @@ __global__ void getTileIndexDataPerWarp(const UIN size, const UIN numWarpX,
         const size_t curCol = colIndex[idx];
         if (curRow >= rowBeginOfTile && curRow < rowEndOfTile &&
             curCol >= colBeginOfTile && curCol < colEndOfTile) {
-            matrixTileIndexData[beginIdx + count] = idx;
+            matrixTileMappedToWarpIndexData[beginIdx + count] = idx;
             ++count;
         }
     }

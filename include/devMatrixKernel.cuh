@@ -14,5 +14,5 @@ __global__ void getTileIndexDataPerWarp(const UIN size, const UIN numWarpX,
                                         const UIN nnz,
                                         const UIN *rowIndex,
                                         const UIN *colIndex,
-                                        const UIN *matrixTileIndex,
-                                        UIN *matrixTileIndexData);
+                                        const UIN *matrixTileMappedToWarpIndex,
+                                        UIN *matrixTileMappedToWarpIndexData);

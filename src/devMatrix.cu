@@ -194,13 +194,13 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
                                                           rowIndex_.data(),
                                                           colIndex_.data(),
                                                           numIndexPerWarp.data());
-    matrixTileIndex_.resize(numWarps + 1);
-    dev::fill_n(matrixTileIndex_.data(), 1, 0);
+    matrixTileMappedToWarpIndex_.resize(numWarps + 1);
+    dev::fill_n(matrixTileMappedToWarpIndex_.data(), 1, 0);
     dev::inclusive_scan(numIndexPerWarp.data(),
                         numIndexPerWarp.data() + numIndexPerWarp.size(),
-                        matrixTileIndex_.data() + 1);
-    const UIN numIndexData = matrixTileIndex_.back_data();
-    matrixTileIndexData_.resize(numIndexData);
+                        matrixTileMappedToWarpIndex_.data() + 1);
+    const UIN numIndexData = matrixTileMappedToWarpIndex_.back_data();
+    matrixTileMappedToWarpIndexData_.resize(numIndexData);
     getTileIndexDataPerWarp<<<numBlocks, numThreadsPerBlock>>>(numWarps,
                                                                numWarpX,
                                                                numTileM,
@@ -208,8 +208,9 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
                                                                nnz_,
                                                                rowIndex_.data(),
                                                                colIndex_.data(),
-                                                               matrixTileIndex_.data(),
-                                                               matrixTileIndexData_.data());
+                                                               matrixTileMappedToWarpIndex_.data(),
+                                                               matrixTileMappedToWarpIndexData_.data());
+    cudaDeviceSynchronize();
 
 //    // check
 //    std::vector<UIN> rowIndex;
@@ -254,14 +255,20 @@ void dev::SparseMatrix<T>::closeTensorCoreMode() {
     row_ = rowBeforeChange_;
     col_ = colBeforeChange_;
 
-    matrixTileIndex_.clear();
-    matrixTileIndexData_.clear();
+    matrixTileMappedToWarpIndex_.clear();
+    matrixTileMappedToWarpIndexData_.clear();
 }
 
-template class dev::Matrix<int>;
-template class dev::Matrix<float>;
-template class dev::Matrix<double>;
-template class dev::SparseMatrix<int>;
-template class dev::SparseMatrix<float>;
-template class dev::SparseMatrix<double>;
+template
+class dev::Matrix<int>;
+template
+class dev::Matrix<float>;
+template
+class dev::Matrix<double>;
+template
+class dev::SparseMatrix<int>;
+template
+class dev::SparseMatrix<float>;
+template
+class dev::SparseMatrix<double>;
 //} // namespace dev
