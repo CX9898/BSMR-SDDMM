@@ -95,14 +95,23 @@ inline T *vector<T>::begin() {
 }
 template<typename T>
 inline T *vector<T>::end() const {
+    if(!data_){
+        return nullptr;
+    }
     return data_ + size_ - 1;
 }
 template<typename T>
 inline T *vector<T>::end() {
+    if(!data_){
+        return nullptr;
+    }
     return data_ + size_ - 1;
 }
 template<typename T>
 inline T vector<T>::back() const {
+    if(!data_){
+        return 0;
+    }
     T *val;
     cudaMemcpy(data_ + size_ - 1, &val, 1, cudaMemcpyDeviceToHost);
     return *val;
