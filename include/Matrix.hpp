@@ -234,6 +234,12 @@ class SparseMatrix {
       return values_;
   }
 
+  std::vector<UIN> &setRowIndex() {
+      return rowIndex_;
+  }
+  std::vector<UIN> &setColIndex() {
+      return colIndex_;
+  }
   std::vector<T> &setValues() {
       return values_;
   }
