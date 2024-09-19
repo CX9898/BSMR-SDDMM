@@ -114,6 +114,16 @@ class SparseMatrix {
         colIndex_(src.colIndex()),
         values_(src.values()) {};
 
+  /**
+   * Initialize from MatrixMarket file.
+   *
+   * MatrixMarket file format:
+   *    1) The first line describes the file format.
+   *    2) The second line has three numbers separated by a space: number of rows, number of columns, and number of non-zeros.
+   *    3) Each after line has three numbers separated by a space: current row, current column, and value.
+   **/
+  void initializeFromMatrixMarketFile(const std::string &filePath);
+
   inline float getSparsity() const {
       return static_cast<float>(row_ * col_ - nnz_) / (row_ * col_);
   }

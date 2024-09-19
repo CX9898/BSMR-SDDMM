@@ -1,14 +1,18 @@
 #include <cuda_runtime.h>
 
+#include <fstream>
+
 #include "devMatrix.cuh"
 #include "devMatrixKernel.cuh"
 #include "parallelAlgorithm.cuh"
+//#include "util.hpp"
+#include "devVector.cuh"
 
-#include <set>
+//#include <set>
 
-namespace dev {
+//namespace dev {
 template<typename T>
-size_t Matrix<T>::rowOfValueIndex(size_t idx) const {
+size_t dev::Matrix<T>::rowOfValueIndex(size_t idx) const {
     if (idx == 0) {
         return 0;
     }
@@ -20,7 +24,7 @@ size_t Matrix<T>::rowOfValueIndex(size_t idx) const {
 }
 
 template<typename T>
-size_t Matrix<T>::colOfValueIndex(size_t idx) const {
+size_t dev::Matrix<T>::colOfValueIndex(size_t idx) const {
     if (idx == 0) {
         return 0;
     }
@@ -102,8 +106,64 @@ void Matrix<T>::closeTensorCoreMode() {
     values_.resize(row_ * col_);
 }
 
+//template<typename T>
+//void dev::SparseMatrix<T>::initializeFromMatrixMarketFile(const std::string &filePath) {
+//    std::ifstream inFile;
+//    inFile.open(filePath, std::ios::in); // open file
+//    if (!inFile.is_open()) {
+//        std::cerr << "Error, MatrixMarket file cannot be opened : " << filePath << std::endl;
+//        return;
+//    }
+//
+//    std::cout << "SparseMatrix initialize From MatrixMarket file : " << filePath << std::endl;
+//
+//    std::string line; // Store the data for each line
+//    getline(inFile, line); // First line does not operate
+//
+//    getline(inFile, line);
+//    int wordIter = 0;
+//    row_ = std::stoi(::util::iterateOneWordFromLine(line, wordIter));
+//    col_ = std::stoi(::util::iterateOneWordFromLine(line, wordIter));
+//    nnz_ = std::stoi(::util::iterateOneWordFromLine(line, wordIter));
+//
+//    if (wordIter < line.size()) {
+//        std::cerr << "Error, Matrix Market file " << line << " line format is incorrect!" << std::endl;
+//    }
+//
+//    std::vector<UIN> rowIndex(nnz_);
+//    std::vector<UIN> colIndex(nnz_);
+//    std::vector<T> values(nnz_);
+//
+//    UIN idx = 0;
+//    while (getline(inFile, line)) {
+//        wordIter = 0;
+//        const UIN row = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
+//        const UIN col = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
+//        const T val = static_cast<T>(std::stod(util::iterateOneWordFromLine(line, wordIter)));
+//
+//        if (wordIter < line.size()) {
+//            std::cerr << "Error, Matrix Market file " << line << " line format is incorrect!" << std::endl;
+//        }
+//
+//        rowIndex[idx] = row;
+//        colIndex[idx] = col;
+//        values[idx] = val;
+//
+//        ++idx;
+//    }
+//
+//    inFile.close();
+//
+//    h2d(rowIndex_,rowIndex);
+//    h2d(colIndex_,colIndex);
+//    h2d(values_,values);
+//
+//    rowBeforeChange_ = row_;
+//    colBeforeChange_ = col_;
+//}
+
 template<typename T>
-void SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorCoreConfig) {
+void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorCoreConfig) {
     if (tensorCoreMode_) {
         return;
     }
@@ -186,7 +246,7 @@ void SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorCoreCo
 }
 
 template<typename T>
-void SparseMatrix<T>::closeTensorCoreMode() {
+void dev::SparseMatrix<T>::closeTensorCoreMode() {
     if (!tensorCoreMode_) {
         return;
     }
@@ -198,16 +258,10 @@ void SparseMatrix<T>::closeTensorCoreMode() {
     matrixTileIndexData_.clear();
 }
 
-template
-class Matrix<int>;
-template
-class Matrix<float>;
-template
-class Matrix<double>;
-template
-class SparseMatrix<int>;
-template
-class SparseMatrix<float>;
-template
-class SparseMatrix<double>;
-} // namespace dev
+template class dev::Matrix<int>;
+template class dev::Matrix<float>;
+template class dev::Matrix<double>;
+template class dev::SparseMatrix<int>;
+template class dev::SparseMatrix<float>;
+template class dev::SparseMatrix<double>;
+//} // namespace dev
