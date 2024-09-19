@@ -124,6 +124,8 @@ class SparseMatrix {
    **/
   void initializeFromMatrixMarketFile(const std::string &filePath);
 
+  void setValuesFromDenseData(UIN row, UIN col, UIN ld, const dev::vector<T> &denseData);
+
   inline float getSparsity() const {
       return static_cast<float>(row_ * col_ - nnz_) / (row_ * col_);
   }

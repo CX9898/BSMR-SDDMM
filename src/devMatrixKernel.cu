@@ -1,5 +1,23 @@
 #include "devMatrixKernel.cuh"
 
+template<typename T>
+__global__ void getValuesFromDenseData(const UIN row, const UIN col, const UIN nnz, const UIN ld,
+                                       const UIN *rowIndex, const UIN *colIndex,
+                                       const T *denseData, T *output) {
+    const int tid = blockDim.x * blockIdx.x + threadIdx.x;
+
+}
+
+template __global__ void getValuesFromDenseData<int>(const UIN row, const UIN col, const UIN nnz, const UIN ld,
+                                                       const UIN *rowIndex, const UIN *colIndex,
+                                                       const int *denseData, int *output);
+template __global__ void getValuesFromDenseData<float>(const UIN row, const UIN col, const UIN nnz, const UIN ld,
+                                                       const UIN *rowIndex, const UIN *colIndex,
+                                                       const float *denseData, float *output);
+template __global__ void getValuesFromDenseData<double>(const UIN row, const UIN col, const UIN nnz, const UIN ld,
+                                                       const UIN *rowIndex, const UIN *colIndex,
+                                                       const double *denseData, double *output);
+
 __global__ void getNumIndexPerWarp(const UIN size, const UIN numWarpX,
                                    const UIN numTileM, const UIN numTileN,
                                    const UIN nnz,
