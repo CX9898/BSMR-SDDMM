@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Matrix.hpp"
+#include "devVector.cuh"
 
 namespace dev {
 /**
@@ -145,14 +146,13 @@ class SparseMatrix {
   /**
    * tensor core mode
    **/
-  void openTensorCoreMode(MatrixMultiplicationOrder multiplicationOrder);
   void openTensorCoreModeForSampled(TensorCoreConfig tensorCoreConfig);
   void closeTensorCoreMode();
   const dev::vector<UIN> &matrixTileIndex() const {
       return matrixTileIndex_;
   }
-  const dev::vector<UIN> &tileIndexPerWar() const {
-      return tileIndexPerWarp_;
+  const dev::vector<UIN> &matrixTileIndexData() const {
+      return matrixTileIndexData_;
   }
 
  private:
@@ -166,7 +166,7 @@ class SparseMatrix {
 
   bool tensorCoreMode_ = false;
   dev::vector<UIN> matrixTileIndex_;
-  dev::vector<UIN> tileIndexPerWarp_;
+  dev::vector<UIN> matrixTileIndexData_;
 
   UIN rowBeforeChange_;
   UIN colBeforeChange_;

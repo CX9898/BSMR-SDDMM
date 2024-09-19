@@ -4,6 +4,8 @@
 #include "devMatrixKernel.cuh"
 #include "parallelAlgorithm.cuh"
 
+#include <set>
+
 namespace dev {
 template<typename T>
 size_t Matrix<T>::rowOfValueIndex(size_t idx) const {
@@ -101,28 +103,6 @@ void Matrix<T>::closeTensorCoreMode() {
 }
 
 template<typename T>
-void SparseMatrix<T>::openTensorCoreMode(MatrixMultiplicationOrder multiplicationOrder) {
-    if (tensorCoreMode_) {
-        return;
-    }
-    tensorCoreMode_ = true;
-    rowBeforeChange_ = row_;
-    colBeforeChange_ = col_;
-
-    size_t rowComplement;
-    size_t colComplement;
-    if (multiplicationOrder == MatrixMultiplicationOrder::left_multiplication) {
-        rowComplement = rowBeforeChange_ % WMMA_M == 0 ? 0 : WMMA_M - rowBeforeChange_ % WMMA_M;
-        colComplement = colBeforeChange_ % WMMA_K == 0 ? 0 : WMMA_K - colBeforeChange_ % WMMA_K;
-    } else {
-        rowComplement = rowBeforeChange_ % WMMA_K == 0 ? 0 : WMMA_K - rowBeforeChange_ % WMMA_K;
-        colComplement = colBeforeChange_ % WMMA_N == 0 ? 0 : WMMA_N - colBeforeChange_ % WMMA_N;
-    }
-    row_ = rowBeforeChange_ + rowComplement;
-    col_ = colBeforeChange_ + colComplement;
-}
-
-template<typename T>
 void SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorCoreConfig) {
     if (tensorCoreMode_) {
         return;
@@ -136,16 +116,16 @@ void SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorCoreCo
     row_ = rowBeforeChange_ + rowComplement;
     col_ = colBeforeChange_ + colComplement;
 
-    const size_t numTileM = row_ / WMMA_M;
-    const size_t numTileN = col_ / WMMA_N;
+    const UIN numTileM = row_ / WMMA_M;
+    const UIN numTileN = col_ / WMMA_N;
 
-    const size_t numWarpX = tensorCoreConfig.numWarpX();
-    const size_t numWarpY = tensorCoreConfig.numWarpY();
-    const size_t numWarps = numWarpX * numWarpY;
+    const UIN numWarpX = tensorCoreConfig.numWarpX();
+    const UIN numWarpY = tensorCoreConfig.numWarpY();
+    const UIN numWarps = numWarpX * numWarpY;
 
     dev::vector<UIN> numIndexPerWarp(numWarps);
-    const int numThreadsPerBlock = 1024;
-    const int numBlocks = (numWarps + numThreadsPerBlock - 1) / numThreadsPerBlock;
+    const UIN numThreadsPerBlock = 1024;
+    const UIN numBlocks = (numWarps + numThreadsPerBlock - 1) / numThreadsPerBlock;
     getNumIndexPerWarp<<<numBlocks, numThreadsPerBlock>>>(numWarps,
                                                           numWarpX,
                                                           numTileM,
@@ -159,34 +139,45 @@ void SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorCoreCo
     dev::inclusive_scan(numIndexPerWarp.data(),
                         numIndexPerWarp.data() + numIndexPerWarp.size(),
                         matrixTileIndex_.data() + 1);
-    const UIN numIndex = matrixTileIndex_.back();
-    tileIndexPerWarp_.resize(numIndex);
-    getTileIndexPerWarp<<<numBlocks, numThreadsPerBlock>>>(numWarps,
-                                                           numWarpX,
-                                                           numTileM,
-                                                           numTileN,
-                                                           nnz_,
-                                                           rowIndex_.data(),
-                                                           colIndex_.data(),
-                                                           matrixTileIndex_.data(),
-                                                           tileIndexPerWarp_.data());
+    const UIN numIndexData = matrixTileIndex_.back_data();
+    matrixTileIndexData_.resize(numIndexData);
+    getTileIndexDataPerWarp<<<numBlocks, numThreadsPerBlock>>>(numWarps,
+                                                               numWarpX,
+                                                               numTileM,
+                                                               numTileN,
+                                                               nnz_,
+                                                               rowIndex_.data(),
+                                                               colIndex_.data(),
+                                                               matrixTileIndex_.data(),
+                                                               matrixTileIndexData_.data());
 
+//    // check
+//    std::vector<UIN> rowIndex;
+//    d2h(rowIndex, rowIndex_);
+//    std::vector<UIN> colIndex;
+//    d2h(colIndex, colIndex_);
+//
 //    std::set<std::pair<size_t, size_t>> rowColSet;
 //    for (int idx = 0; idx < nnz_; ++idx) { // 检查是否有相同行列值
-//        std::pair<size_t, size_t> rowColPair(rowIndexBeforeChange_[idx], colIndexBeforeChange_[idx]);
+//        std::pair<size_t, size_t> rowColPair(rowIndex[idx], colIndex[idx]);
 //        if (rowColSet.find(rowColPair) != rowColSet.end()) {
-//            std::cout << " 有相同行列值1111???!!!!???!!! " << rowIndexBeforeChange_[idx] << " "
-//                      << colIndexBeforeChange_[idx]
+//            std::cout << " 有相同行列值1111???!!!!???!!! "
+//                      << "idx = " << idx << ", "
+//                      << rowIndex[idx] << " "
+//                      << colIndex[idx]
 //                      << std::endl;
 //            exit(1);
 //        }
 //        rowColSet.insert(rowColPair);
 //    }
 //
-//    for (int idx = 0; idx < nnz_; ++idx) { // 检查是否出现不一样的值
-//        std::pair<size_t, size_t> rowColPair(rowIndex_[idx], colIndex_[idx]);
+//    std::vector<UIN> matrixTileIndexData;
+//    d2h(matrixTileIndexData, matrixTileIndexData_);
+//    for (int idx = 0; idx < matrixTileIndexData_.size(); ++idx) { // 检查是否出现不一样的值
+//        std::pair<size_t, size_t> rowColPair(rowIndex[matrixTileIndexData[idx]], colIndex[matrixTileIndexData[idx]]);
 //        if (rowColSet.find(rowColPair) == rowColSet.end()) {
-//            std::cout << " 出现不一样的值333???!!!!???!!! " << rowIndex_[idx] << " " << rowIndex_[idx]
+//            std::cout << " 出现不一样的值333???!!!!???!!! " << rowIndex[matrixTileIndexData[idx]]
+//                      << " " << colIndex[matrixTileIndexData[idx]]
 //                      << std::endl;
 //            exit(1);
 //        }
@@ -203,9 +194,8 @@ void SparseMatrix<T>::closeTensorCoreMode() {
     row_ = rowBeforeChange_;
     col_ = colBeforeChange_;
 
-
     matrixTileIndex_.clear();
-    tileIndexPerWarp_.clear();
+    matrixTileIndexData_.clear();
 }
 
 template

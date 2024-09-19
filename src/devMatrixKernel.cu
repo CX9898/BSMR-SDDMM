@@ -33,13 +33,13 @@ __global__ void getNumIndexPerWarp(const UIN size, const UIN numWarpX,
     numIndexPerWarp[tid] = num;
 }
 
-__global__ void getTileIndexPerWarp(const UIN size, const UIN numWarpX,
-                                    const UIN numTileM, const UIN numTileN,
-                                    const UIN nnz,
-                                    const UIN *rowIndex,
-                                    const UIN *colIndex,
-                                    const UIN *matrixTileIndex,
-                                    UIN *tileIndexPerWarp) {
+__global__ void getTileIndexDataPerWarp(const UIN size, const UIN numWarpX,
+                                        const UIN numTileM, const UIN numTileN,
+                                        const UIN nnz,
+                                        const UIN *rowIndex,
+                                        const UIN *colIndex,
+                                        const UIN *matrixTileIndex,
+                                        UIN *matrixTileIndexData) {
     const int tid = blockDim.x + blockIdx.x + threadIdx.x;
     if (tid >= size) {
         return;
@@ -62,7 +62,7 @@ __global__ void getTileIndexPerWarp(const UIN size, const UIN numWarpX,
         const size_t curCol = colIndex[idx];
         if (curRow >= rowBeginOfTile && curRow < rowEndOfTile &&
             curCol >= colBeginOfTile && curCol < colEndOfTile) {
-            tileIndexPerWarp[beginIdx + count] = idx;
+            matrixTileIndexData[beginIdx + count] = idx;
             ++count;
         }
     }
