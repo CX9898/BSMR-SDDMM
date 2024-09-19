@@ -38,11 +38,12 @@ class vector {
   }
 
   // iterators
-  T *begin() const;
+  T *cbegin() const;
   T *begin();
+  T *cend() const;
   T *end();
-  T *end() const;
-  T back() const;
+  T *back() const;
+  T back_data() const;
 
  private:
   size_t size_;
@@ -86,7 +87,7 @@ inline void vector<T>::clear() {
 }
 
 template<typename T>
-inline T *vector<T>::begin() const {
+inline T *vector<T>::cbegin() const {
     return data_;
 }
 template<typename T>
@@ -94,26 +95,33 @@ inline T *vector<T>::begin() {
     return data_;
 }
 template<typename T>
-inline T *vector<T>::end() const {
-    if(!data_){
+inline T *vector<T>::cend() const {
+    if (!data_) {
         return nullptr;
     }
     return data_ + size_ - 1;
 }
 template<typename T>
 inline T *vector<T>::end() {
-    if(!data_){
+    if (!data_) {
         return nullptr;
     }
     return data_ + size_ - 1;
 }
 template<typename T>
-inline T vector<T>::back() const {
-    if(!data_){
+inline T *vector<T>::back() const {
+    if (!data_) {
+        return nullptr;
+    }
+    return data_ + size_ - 1;
+}
+template<typename T>
+inline T vector<T>::back_data() const {
+    if (!data_) {
         return 0;
     }
-    T *val;
-    cudaMemcpy(data_ + size_ - 1, &val, 1, cudaMemcpyDeviceToHost);
+    T *val = (T *) malloc(sizeof(T));
+    cudaMemcpy(val, data_ + size_ - 1, sizeof(T), cudaMemcpyDeviceToHost);
     return *val;
 }
 
