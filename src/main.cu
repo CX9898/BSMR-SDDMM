@@ -13,21 +13,21 @@
 #include "checkData.hpp"
 #include "devVector.cuh"
 
-const std::string folderPath("../dataset/");
-const std::string fileName = ("nips");
+const std::string folderPath("../dataset/test/");
+//const std::string fileName = ("nips");
 //const std::string fileName = ("test");
-//const std::string fileName = ("matrix_106000_106000_3000000");
+const std::string fileName = ("matrix_10000_10000_5000000");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 
 // TODO :
 //      测试矩阵的尺寸按照论文中的尺寸
-//      1: 将 comp_sddmm_gpu 全部使用 Tensor core 执行         OK
-//      2: 测试不同尺寸的 wmma 的速度表现                       OK
+//      1: 将 comp_sddmm_gpu 全部使用 Tensor core 执行             OK
+//      2: 测试不同尺寸的 wmma 的速度表现                           OK
 //      3: 测试使用稀疏度比较器的速度表现
 //              稀疏度大于50%使用 isratnisa 的方法
 //              稀疏度小于50%使用 Tensor core 方法
-//      4: 全部数据放在device内存
+//      4: 全部数据放在device内存                               OK
 int main(int argc, char *argv[]) {
 //    // make sparse matrix data
 //    SparseMatrix<int> matrixTmp;
@@ -35,16 +35,18 @@ int main(int argc, char *argv[]) {
 //    const size_t million = 1000000;
 ////    const size_t makeDataRow = 3 * thousand;
 ////    const size_t makeDataCol = 7 * thousand;
-//    const size_t makeDataRow = 36000;
-//    const size_t makeDataCol = 36000;
-//    const float density = 4.006f;
+//    const size_t makeDataRow = 10000;
+//    const size_t makeDataCol = 10000;
+////    const float density = 4.006f;
 ////    const size_t makeDataNNZ = static_cast<int> (makeDataRow * makeDataCol * density / 100);
+////    const float sparsity = 0.80;
+////    const size_t makeDataNNZ = makeDataRow * makeDataCol * (1 - sparsity);
 ////    const size_t makeDataNNZ = 1 * million;
-//    const size_t makeDataNNZ = 4000000;
+//    const size_t makeDataNNZ = 1000000;
 //    matrixTmp.makeData(makeDataRow, makeDataCol, makeDataNNZ);
-//    matrixTmp.outputToMarketMatrixFile("matrix_36000_36000_4000000");
-//    std::cout << "makeData : M : " << makeDataRow << ", N : " << makeDataCol << ", K : " << 256 << ", nnz : "
-//              << makeDataNNZ
+//    matrixTmp.outputToMarketMatrixFile("matrix_10000_10000_1000000");
+//    std::cout << "makeData : M : " << makeDataRow << ", N : " << makeDataCol << ", K : " << 256
+//              << ", nnz : " << makeDataNNZ
 //              << ", sparsity : "
 //              << (float) (makeDataRow * makeDataCol - makeDataNNZ) / (makeDataRow * makeDataCol) * 100 << "%"
 //              << std::endl;
