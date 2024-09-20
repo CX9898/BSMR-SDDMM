@@ -28,12 +28,12 @@ __global__ void getNumIndexPerWarp(const UIN size, const UIN numWarpX,
     if (tid >= size) {
         return;
     }
-    extern __shared__ UIN rowIndexShared[];
-    const int oneThread = 5000000 / 1024;
-    for (int i = threadIdx.x * oneThread; i < (threadIdx.x + 1) * oneThread && i < 10000; ++i) {
-        rowIndexShared[i] = rowIndex[i];
-    }
-    __syncthreads();
+//    extern __shared__ UIN rowIndexShared[];
+//    const int oneThread = 5000000 / 1024;
+//    for (int i = threadIdx.x * oneThread; i < (threadIdx.x + 1) * oneThread && i < 10000; ++i) {
+//        rowIndexShared[i] = rowIndex[i];
+//    }
+//    __syncthreads();
 
     const int curWarpX = tid % numWarpX;
     const int curWarpY = tid / numWarpX;

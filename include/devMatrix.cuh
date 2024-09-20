@@ -13,8 +13,8 @@ class Matrix {
   Matrix() = delete;
   ~Matrix() = default;
 
-  Matrix(size_t row,
-         size_t col,
+  Matrix(UIN row,
+         UIN col,
          MatrixStorageOrder matrixOrder)
       : row_(row),
         col_(col),
@@ -25,8 +25,8 @@ class Matrix {
       colBeforeChange_ = col;
   }
 
-  Matrix(size_t row,
-         size_t col,
+  Matrix(UIN row,
+         UIN col,
          MatrixStorageOrder matrixOrder,
          const std::vector<T> &values)
       : row_(row),
@@ -41,22 +41,22 @@ class Matrix {
       colBeforeChange_ = col;
   }
 
-  size_t rowOfValueIndex(size_t idx) const;
-  size_t colOfValueIndex(size_t idx) const;
+  UIN rowOfValueIndex(UIN idx) const;
+  UIN colOfValueIndex(UIN idx) const;
 
-  size_t size() const {
+  UIN size() const {
       return values_.size();
   }
   MatrixStorageOrder storageOrder() const {
       return storageOrder_;
   }
-  size_t ld() const {
+  UIN ld() const {
       return leadingDimension_;
   }
-  size_t row() const {
+  UIN row() const {
       return row_;
   }
-  size_t col() const {
+  UIN col() const {
       return col_;
   }
   const dev::vector<T> &values() const {
@@ -76,16 +76,16 @@ class Matrix {
   void closeTensorCoreMode();
 
  private:
-  size_t row_;
-  size_t col_;
+  UIN row_;
+  UIN col_;
   MatrixStorageOrder storageOrder_ = row_major;
-  size_t leadingDimension_;
+  UIN leadingDimension_;
 
   dev::vector<T> values_;
 
   bool tensorCoreMode_ = false;
-  size_t rowBeforeChange_;
-  size_t colBeforeChange_;
+  UIN rowBeforeChange_;
+  UIN colBeforeChange_;
 };
 
 /**

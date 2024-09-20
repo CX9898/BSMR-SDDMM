@@ -146,8 +146,8 @@ int main(int argc, char *argv[]) {
     dim3 block;
     block.x = 4 * WARP_SIZE;
     block.y = 4;
-    const int numCountRowOfOutputMatrixPerBlock = WMMA_M * block.x / WARP_SIZE;
-    const int numCountColOfOutputMatrixPerBlock = WMMA_N * block.y;
+    const UIN numCountRowOfOutputMatrixPerBlock = WMMA_M * block.x / WARP_SIZE;
+    const UIN numCountColOfOutputMatrixPerBlock = WMMA_N * block.y;
     grid.x = (matrixS_dev.row() + numCountRowOfOutputMatrixPerBlock - 1) / numCountRowOfOutputMatrixPerBlock;
     grid.y = (matrixS_dev.col() + numCountColOfOutputMatrixPerBlock - 1) / numCountColOfOutputMatrixPerBlock;
     printf("grid : [%d %d %d] block : [%d %d %d]\n", grid.x, grid.y, grid.z, block.x, block.y, block.z);

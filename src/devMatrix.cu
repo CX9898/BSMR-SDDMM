@@ -10,9 +10,8 @@
 
 //#include <set>
 
-//namespace dev {
 template<typename T>
-size_t dev::Matrix<T>::rowOfValueIndex(size_t idx) const {
+UIN dev::Matrix<T>::rowOfValueIndex(UIN idx) const {
     if (idx == 0) {
         return 0;
     }
@@ -24,7 +23,7 @@ size_t dev::Matrix<T>::rowOfValueIndex(size_t idx) const {
 }
 
 template<typename T>
-size_t dev::Matrix<T>::colOfValueIndex(size_t idx) const {
+UIN dev::Matrix<T>::colOfValueIndex(UIN idx) const {
     if (idx == 0) {
         return 0;
     }
@@ -36,7 +35,7 @@ size_t dev::Matrix<T>::colOfValueIndex(size_t idx) const {
 }
 
 template<typename T>
-void Matrix<T>::openTensorCoreMode(MatrixMultiplicationOrder multiplicationOrder) {
+void dev::Matrix<T>::openTensorCoreMode(MatrixMultiplicationOrder multiplicationOrder) {
     if (tensorCoreMode_) {
         return;
     }
@@ -76,7 +75,7 @@ void Matrix<T>::openTensorCoreMode(MatrixMultiplicationOrder multiplicationOrder
 }
 
 template<typename T>
-void Matrix<T>::closeTensorCoreMode() {
+void dev::Matrix<T>::closeTensorCoreMode() {
     if (!tensorCoreMode_) {
         return;
     }
@@ -292,4 +291,3 @@ template
 class dev::SparseMatrix<float>;
 template
 class dev::SparseMatrix<double>;
-//} // namespace dev
