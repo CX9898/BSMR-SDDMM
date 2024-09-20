@@ -7,6 +7,7 @@
 #include "parallelAlgorithm.cuh"
 //#include "util.hpp"
 #include "devVector.cuh"
+#include "CudaTimeCalculator.cuh"
 
 //#include <set>
 
@@ -206,6 +207,8 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
     const UIN numThreadsPerBlock = 1024;
     const UIN numBlocks = (numWarps + numThreadsPerBlock - 1) / numThreadsPerBlock;
     const UIN byteSharedMem = 10000 * sizeof(UIN);
+    CudaTimeCalculator timeCalculator;
+    timeCalculator.startClock();
     getNumIndexPerWarp<<<numBlocks, numThreadsPerBlock>>>(numWarps,
                                                                          numWarpX,
                                                                          numTileM,
@@ -214,6 +217,9 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
                                                                          rowIndex_.data(),
                                                                          colIndex_.data(),
                                                                          numIndexPerWarp.data());
+    timeCalculator.endClock();
+    float getNumIndexPerWarp_time = timeCalculator.getTime();
+    std::cout << "  getNumIndexPerWarp_time : " << getNumIndexPerWarp_time << " ms" << std::endl;
     matrixTileMappedToWarpIndex_.resize(numWarps + 1);
     dev::fill_n(matrixTileMappedToWarpIndex_.data(), 1, 0);
     dev::inclusive_scan(numIndexPerWarp.data(),
