@@ -9,14 +9,14 @@ __global__ void getValuesFromDenseData(const UIN row, const UIN col, const UIN n
 }
 
 template __global__ void getValuesFromDenseData<int>(const UIN row, const UIN col, const UIN nnz, const UIN ld,
-                                                       const UIN *rowIndex, const UIN *colIndex,
-                                                       const int *denseData, int *output);
+                                                     const UIN *rowIndex, const UIN *colIndex,
+                                                     const int *denseData, int *output);
 template __global__ void getValuesFromDenseData<float>(const UIN row, const UIN col, const UIN nnz, const UIN ld,
                                                        const UIN *rowIndex, const UIN *colIndex,
                                                        const float *denseData, float *output);
 template __global__ void getValuesFromDenseData<double>(const UIN row, const UIN col, const UIN nnz, const UIN ld,
-                                                       const UIN *rowIndex, const UIN *colIndex,
-                                                       const double *denseData, double *output);
+                                                        const UIN *rowIndex, const UIN *colIndex,
+                                                        const double *denseData, double *output);
 
 __global__ void getNumIndexPerWarp(const UIN size, const UIN numWarpX,
                                    const UIN numTileM, const UIN numTileN,
@@ -28,26 +28,43 @@ __global__ void getNumIndexPerWarp(const UIN size, const UIN numWarpX,
     if (tid >= size) {
         return;
     }
+    extern __shared__ UIN rowIndexShared[];
+    const int oneThread = 5000000 / 1024;
+    for (int i = threadIdx.x * oneThread; i < (threadIdx.x + 1) * oneThread && i < 10000; ++i) {
+        rowIndexShared[i] = rowIndex[i];
+    }
+    __syncthreads();
+
     const int curWarpX = tid % numWarpX;
     const int curWarpY = tid / numWarpX;
     if (curWarpX > numTileN || curWarpY > numTileM) {
         return;
     }
 
-    const size_t rowBeginOfTile = (tid / numWarpX) * WMMA_M;
-    const size_t rowEndOfTile = (tid / numWarpX + 1) * WMMA_M;
-    const size_t colBeginOfTile = (tid % numWarpX) * WMMA_N;
-    const size_t colEndOfTile = (tid % numWarpX + 1) * WMMA_N;
+    const UIN rowBeginOfTile = (tid / numWarpX) * WMMA_M;
+    const UIN rowEndOfTile = (tid / numWarpX + 1) * WMMA_M;
+    const UIN colBeginOfTile = (tid % numWarpX) * WMMA_N;
+    const UIN colEndOfTile = (tid % numWarpX + 1) * WMMA_N;
+
 
     UIN num = 0;
     for (int idx = 0; idx < nnz; ++idx) {
-        const size_t curRow = rowIndex[idx];
-        const size_t curCol = colIndex[idx];
+        const UIN curRow = rowIndex[idx];
+        const UIN curCol = colIndex[idx];
         if (curRow >= rowBeginOfTile && curRow < rowEndOfTile &&
             curCol >= colBeginOfTile && curCol < colEndOfTile) {
             ++num;
         }
     }
+
+//    for (int idx = 10000; idx < nnz; ++idx) {
+//        const UIN curRow = rowIndex[idx];
+//        const UIN curCol = colIndex[idx];
+//        if (curRow >= rowBeginOfTile && curRow < rowEndOfTile &&
+//            curCol >= colBeginOfTile && curCol < colEndOfTile) {
+//            ++num;
+//        }
+//    }
     numIndexPerWarp[tid] = num;
 }
 

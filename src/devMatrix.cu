@@ -206,14 +206,15 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
     dev::vector<UIN> numIndexPerWarp(numWarps);
     const UIN numThreadsPerBlock = 1024;
     const UIN numBlocks = (numWarps + numThreadsPerBlock - 1) / numThreadsPerBlock;
+    const UIN byteSharedMem = 10000 * sizeof(UIN);
     getNumIndexPerWarp<<<numBlocks, numThreadsPerBlock>>>(numWarps,
-                                                          numWarpX,
-                                                          numTileM,
-                                                          numTileN,
-                                                          nnz_,
-                                                          rowIndex_.data(),
-                                                          colIndex_.data(),
-                                                          numIndexPerWarp.data());
+                                                                         numWarpX,
+                                                                         numTileM,
+                                                                         numTileN,
+                                                                         nnz_,
+                                                                         rowIndex_.data(),
+                                                                         colIndex_.data(),
+                                                                         numIndexPerWarp.data());
     matrixTileMappedToWarpIndex_.resize(numWarps + 1);
     dev::fill_n(matrixTileMappedToWarpIndex_.data(), 1, 0);
     dev::inclusive_scan(numIndexPerWarp.data(),
