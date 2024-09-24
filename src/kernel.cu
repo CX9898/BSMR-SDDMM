@@ -334,7 +334,7 @@ __global__ void sddmm_coo_gpu(class TensorCoreConfig tensorCoreConfig,
 
 }
 
-__global__ void sddmm_coo2_gpu(class TensorCoreConfig tensorCoreConfig,
+__global__ void sddmm_gpu_coo2(class TensorCoreConfig tensorCoreConfig,
                                const UIN M, const UIN N, const UIN K, const UIN nnz,
                                const half *matrixA, const half *matrixB,
                                const UIN *matrixSRowIndex,
