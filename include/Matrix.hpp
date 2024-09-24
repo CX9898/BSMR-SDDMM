@@ -195,7 +195,8 @@ class SparseMatrix {
   /**
     * Used as a test comparison result
     **/
-  bool outputToMarketMatrixFile(const std::string &fileName);
+  bool outputToMarketMatrixFile(const std::string &fileName) const;
+  bool outputToMarketMatrixFile() const;
 
   bool setValuesFromMatrix(const Matrix<T> &inputMatrix);
 
@@ -268,9 +269,9 @@ class SparseMatrix {
   }
 
  private:
-  UIN row_;
-  UIN col_;
-  UIN nnz_;
+  UIN row_ = 0;
+  UIN col_ = 0;
+  UIN nnz_ = 0;
 
   std::vector<UIN> rowIndex_;
   std::vector<UIN> colIndex_;

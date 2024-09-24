@@ -365,7 +365,14 @@ void SparseMatrix<T>::getSpareMatrixOneDataByCOO(const UIN idx, UIN &row, UIN &c
 }
 
 template<typename T>
-bool SparseMatrix<T>::outputToMarketMatrixFile(const std::string &fileName) {
+bool SparseMatrix<T>::outputToMarketMatrixFile() const {
+    std::string first("matrix_");
+    return outputToMarketMatrixFile(
+        first + std::to_string(row_) + "_" + std::to_string(col_) + "_" + std::to_string(nnz_));
+}
+
+template<typename T>
+bool SparseMatrix<T>::outputToMarketMatrixFile(const std::string &fileName) const {
     const std::string fileFormat(".mtx");
 
     std::string fileString(fileName + fileFormat);
