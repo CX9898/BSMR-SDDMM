@@ -16,7 +16,7 @@
 const std::string folderPath("../dataset/test/");
 //const std::string fileName = ("nips");
 //const std::string fileName = ("test");
-const std::string fileName = ("matrix_10000_10000_5000000");
+const std::string fileName = ("matrix_5000_5000_25000");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 
@@ -35,16 +35,16 @@ int main(int argc, char *argv[]) {
 //    const size_t million = 1000000;
 ////    const size_t makeDataRow = 3 * thousand;
 ////    const size_t makeDataCol = 7 * thousand;
-//    const size_t makeDataRow = 10000;
-//    const size_t makeDataCol = 10000;
+//    const size_t makeDataRow = 5000;
+//    const size_t makeDataCol = 5000;
 ////    const float density = 4.006f;
 ////    const size_t makeDataNNZ = static_cast<int> (makeDataRow * makeDataCol * density / 100);
 ////    const float sparsity = 0.80;
 ////    const size_t makeDataNNZ = makeDataRow * makeDataCol * (1 - sparsity);
 ////    const size_t makeDataNNZ = 1 * million;
-//    const size_t makeDataNNZ = 1000000;
+//    const size_t makeDataNNZ = 25000;
 //    matrixTmp.makeData(makeDataRow, makeDataCol, makeDataNNZ);
-//    matrixTmp.outputToMarketMatrixFile("matrix_10000_10000_1000000");
+//    matrixTmp.outputToMarketMatrixFile("matrix_5000_5000_25000");
 //    std::cout << "makeData : M : " << makeDataRow << ", N : " << makeDataCol << ", K : " << 256
 //              << ", nnz : " << makeDataNNZ
 //              << ", sparsity : "

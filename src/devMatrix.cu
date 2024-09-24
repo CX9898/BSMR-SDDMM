@@ -210,23 +210,33 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
     getNumIndexPerWarp<<<numBlocks, numThreadsPerBlock>>>(numWarps,
-                                                                         numWarpX,
-                                                                         numTileM,
-                                                                         numTileN,
-                                                                         nnz_,
-                                                                         rowIndex_.data(),
-                                                                         colIndex_.data(),
-                                                                         numIndexPerWarp.data());
+                                                          numWarpX,
+                                                          numTileM,
+                                                          numTileN,
+                                                          nnz_,
+                                                          rowIndex_.data(),
+                                                          colIndex_.data(),
+                                                          numIndexPerWarp.data());
     timeCalculator.endClock();
     float getNumIndexPerWarp_time = timeCalculator.getTime();
     std::cout << "  getNumIndexPerWarp_time : " << getNumIndexPerWarp_time << " ms" << std::endl;
+
     matrixTileMappedToWarpIndex_.resize(numWarps + 1);
+
+    timeCalculator.startClock();
+
     dev::fill_n(matrixTileMappedToWarpIndex_.data(), 1, 0);
     dev::inclusive_scan(numIndexPerWarp.data(),
                         numIndexPerWarp.data() + numIndexPerWarp.size(),
                         matrixTileMappedToWarpIndex_.data() + 1);
     const UIN numIndexData = matrixTileMappedToWarpIndex_.back_data();
+    timeCalculator.endClock();
+    float inclusive_scan_time = timeCalculator.getTime();
+    std::cout << "  inclusive_scan_time : " << inclusive_scan_time << " ms" << std::endl;
+
     matrixTileMappedToWarpIndexData_.resize(numIndexData);
+
+    timeCalculator.startClock();
     getTileIndexDataPerWarp<<<numBlocks, numThreadsPerBlock>>>(numWarps,
                                                                numWarpX,
                                                                numTileM,
@@ -236,7 +246,11 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
                                                                colIndex_.data(),
                                                                matrixTileMappedToWarpIndex_.data(),
                                                                matrixTileMappedToWarpIndexData_.data());
-    cudaDeviceSynchronize();
+    timeCalculator.endClock();
+    float getTileIndexDataPerWarp_time = timeCalculator.getTime();
+    std::cout << "  getTileIndexDataPerWarp_time : " << getTileIndexDataPerWarp_time << " ms" << std::endl;
+
+//    cudaDeviceSynchronize();
 
 //    // check
 //    std::vector<UIN> rowIndex;
