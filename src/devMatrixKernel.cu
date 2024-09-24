@@ -85,17 +85,17 @@ __global__ void getTileIndexDataPerWarp(const UIN size, const UIN numWarpX,
         return;
     }
 
-    const size_t rowBeginOfTile = (tid / numWarpX) * WMMA_M;
-    const size_t rowEndOfTile = (tid / numWarpX + 1) * WMMA_M;
-    const size_t colBeginOfTile = (tid % numWarpX) * WMMA_N;
-    const size_t colEndOfTile = (tid % numWarpX + 1) * WMMA_N;
+    const UIN rowBeginOfTile = (tid / numWarpX) * WMMA_M;
+    const UIN rowEndOfTile = (tid / numWarpX + 1) * WMMA_M;
+    const UIN colBeginOfTile = (tid % numWarpX) * WMMA_N;
+    const UIN colEndOfTile = (tid % numWarpX + 1) * WMMA_N;
 
     const UIN beginIdx = matrixTileMappedToWarpIndex[tid];
 
     UIN count = 0;
     for (int idx = 0; idx < nnz; ++idx) {
-        const size_t curRow = rowIndex[idx];
-        const size_t curCol = colIndex[idx];
+        const UIN curRow = rowIndex[idx];
+        const UIN curCol = colIndex[idx];
         if (curRow >= rowBeginOfTile && curRow < rowEndOfTile &&
             curCol >= colBeginOfTile && curCol < colEndOfTile) {
             matrixTileMappedToWarpIndexData[beginIdx + count] = idx;
