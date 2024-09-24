@@ -190,7 +190,7 @@ class SparseMatrix {
    *    2) The second line has three numbers separated by a space: number of rows, number of columns, and number of non-zeros.
    *    3) Each after line has three numbers separated by a space: current row, current column, and value.
    **/
-  void initializeFromMatrixMarketFile(const std::string &filePath);
+  bool initializeFromMatrixMarketFile(const std::string &filePath);
 
   /**
     * Used as a test comparison result

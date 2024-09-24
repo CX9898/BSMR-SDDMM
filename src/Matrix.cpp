@@ -304,12 +304,12 @@ bool SparseMatrix<T>::setValuesFromMatrix(const Matrix<T> &inputMatrix) {
 }
 
 template<typename T>
-void SparseMatrix<T>::initializeFromMatrixMarketFile(const std::string &filePath) {
+bool SparseMatrix<T>::initializeFromMatrixMarketFile(const std::string &filePath) {
     std::ifstream inFile;
     inFile.open(filePath, std::ios::in); // open file
     if (!inFile.is_open()) {
         std::cerr << "Error, MatrixMarket file cannot be opened : " << filePath << std::endl;
-        return;
+        return false;
     }
 
     std::cout << "SparseMatrix initialize From MatrixMarket file : " << filePath << std::endl;
@@ -353,6 +353,8 @@ void SparseMatrix<T>::initializeFromMatrixMarketFile(const std::string &filePath
 
     rowBeforeChange_ = row_;
     colBeforeChange_ = col_;
+
+    return true;
 }
 
 template<typename T>
