@@ -16,7 +16,7 @@
 const std::string folderPath("../dataset/test/");
 //const std::string fileName = ("nips");
 //const std::string fileName = ("test");
-const std::string fileName = ("matrix_50000_50000_25000000");
+const std::string fileName = ("matrix_5000_5000_2500");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 
@@ -28,29 +28,36 @@ const std::string filePath = folderPath + fileName + fileFormat;
 //              稀疏度大于50%使用 isratnisa 的方法
 //              稀疏度小于50%使用 Tensor core 方法
 //      4: 全部数据放在device内存                               OK
+//      5: 测试更大的K(<5k)的结果
+//      6: 优化openTensorCoreModeForSampled()
 int main(int argc, char *argv[]) {
     // make sparse matrix data
-    SparseMatrix<int> matrixTmp;
-    const size_t thousand = 1000;
-    const size_t million = 1000000;
+    bool isMakeSparseData = false;
+    if (isMakeSparseData) {
+        SparseMatrix<int> matrixTmp;
+        const size_t thousand = 1000;
+        const size_t million = 1000000;
 //    const size_t makeDataRow = 3 * thousand;
 //    const size_t makeDataCol = 7 * thousand;
-    const size_t makeDataRow = 50000;
-    const size_t makeDataCol = 50000;
+        const size_t makeDataRow = 5000;
+        const size_t makeDataCol = 5000;
 //    const float density = 4.006f;
 //    const size_t makeDataNNZ = static_cast<int> (makeDataRow * makeDataCol * density / 100);
 //    const float sparsity = 0.80;
 //    const size_t makeDataNNZ = makeDataRow * makeDataCol * (1 - sparsity);
 //    const size_t makeDataNNZ = 1 * million;
-    const size_t makeDataNNZ = 75000000;
-    matrixTmp.makeData(makeDataRow, makeDataCol, makeDataNNZ);
-    matrixTmp.outputToMarketMatrixFile();
-    std::cout << "makeData : M : " << makeDataRow << ", N : " << makeDataCol << ", K : " << 256
-              << ", nnz : " << makeDataNNZ
-              << ", sparsity : "
-              << (float) (makeDataRow * makeDataCol - makeDataNNZ) / (makeDataRow * makeDataCol) * 100 << "%"
-              << std::endl;
-    exit(0);
+        const size_t makeDataNNZ = 2500;
+        matrixTmp.makeData(makeDataRow, makeDataCol, makeDataNNZ);
+        matrixTmp.outputToMarketMatrixFile();
+        std::cout << "makeData : M : " << makeDataRow
+                  << ", N : " << makeDataCol
+                  << ", K : " << 256
+                  << ", nnz : " << makeDataNNZ
+                  << ", sparsity : "
+                  << (float) (makeDataRow * makeDataCol - makeDataNNZ) / (makeDataRow * makeDataCol) * 100 << "%"
+                  << std::endl;
+        exit(0);
+    }
 
     SparseMatrix<float> matrixS;
     if (argc > 1) {
@@ -186,7 +193,7 @@ int main(int argc, char *argv[]) {
 //           tensorCoreConfig.block().x, tensorCoreConfig.block().y, tensorCoreConfig.block().z);
 //
 //    timeCalculator.startClock();
-//    sddmm_coo_gpu<<<tensorCoreConfig.grid(), tensorCoreConfig.block()>>>(tensorCoreConfig,
+//    sddmm_gpu_coo_1<<<tensorCoreConfig.grid(), tensorCoreConfig.block()>>>(tensorCoreConfig,
 //                                                                         matrixS_cpu.row(),
 //                                                                         matrixS_cpu.col(),
 //                                                                         K,
@@ -199,31 +206,31 @@ int main(int argc, char *argv[]) {
 //                                                                         matrixS_value_coo.data(),
 //                                                                         matrixP_value_coo.data());
 //    timeCalculator.endClock();
-//    std::cout << "Func sddmm_coo_gpu time : " << timeCalculator.getTime() << " ms" << std::endl;
+//    std::cout << "Func sddmm_gpu_coo_1 time : " << timeCalculator.getTime() << " ms" << std::endl;
 //
-//    std::cout << "Test : sddmm_coo_gpu" << std::endl;
+//    std::cout << "Test : sddmm_gpu_coo_1" << std::endl;
 //    checkData(matrixP_cpu_res.values(), d2h(matrixP_value_coo));
 
     dev::vector<float> matrixP_value_coo2(matrixS_dev.nnz());
     timeCalculator.startClock();
-    sddmm_gpu_coo2<<<tensorCoreConfig.grid(), tensorCoreConfig.block()>>>(tensorCoreConfig,
-                                                                          matrixS_dev.row(),
-                                                                          matrixS_dev.col(),
-                                                                          K,
-                                                                          matrixS_dev.nnz(),
-                                                                          valuesAfp16_d.data(),
-                                                                          valuesBfp16_d.data(),
-                                                                          matrixS_dev.rowIndex().data(),
-                                                                          matrixS_dev.colIndex().data(),
-                                                                          matrixS_dev.values().data(),
-                                                                          matrixS_dev.matrixTileIndex().data(),
-                                                                          matrixS_dev.matrixTileIndexData().data(),
-                                                                          matrixP_value_coo2.data());
+    sddmm_gpu_coo_2<<<tensorCoreConfig.grid(), tensorCoreConfig.block()>>>(tensorCoreConfig,
+                                                                           matrixS_dev.row(),
+                                                                           matrixS_dev.col(),
+                                                                           K,
+                                                                           matrixS_dev.nnz(),
+                                                                           valuesAfp16_d.data(),
+                                                                           valuesBfp16_d.data(),
+                                                                           matrixS_dev.rowIndex().data(),
+                                                                           matrixS_dev.colIndex().data(),
+                                                                           matrixS_dev.values().data(),
+                                                                           matrixS_dev.matrixTileIndex().data(),
+                                                                           matrixS_dev.matrixTileIndexData().data(),
+                                                                           matrixP_value_coo2.data());
     timeCalculator.endClock();
     const float time_sddmm_gpu_coo2 = timeCalculator.getTime();
-    std::cout << "Func sddmm_gpu_coo2 time : " << time_sddmm_gpu_coo2 << " ms" << std::endl;
+    std::cout << "Func sddmm_gpu_coo_2 time : " << time_sddmm_gpu_coo2 << " ms" << std::endl;
 
-    std::cout << "Test : sddmm_gpu_coo2" << std::endl;
+    std::cout << "Test : sddmm_gpu_coo_2" << std::endl;
     checkData(matrixP_cpu_res.values(), d2h(matrixP_value_coo2));
 
     std::cout << "closeTensorCoreMode" << std::endl;
