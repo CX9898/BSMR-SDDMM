@@ -16,7 +16,7 @@
 const std::string folderPath("../dataset/test/");
 //const std::string fileName = ("nips");
 //const std::string fileName = ("test");
-const std::string fileName = ("matrix_5000_5000_2500");
+const std::string fileName = ("matrix_10000_10000_1000000");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 
@@ -39,14 +39,14 @@ int main(int argc, char *argv[]) {
         const size_t million = 1000000;
 //    const size_t makeDataRow = 3 * thousand;
 //    const size_t makeDataCol = 7 * thousand;
-        const size_t makeDataRow = 5000;
-        const size_t makeDataCol = 5000;
+        const size_t makeDataRow = 10000;
+        const size_t makeDataCol = 10000;
 //    const float density = 4.006f;
 //    const size_t makeDataNNZ = static_cast<int> (makeDataRow * makeDataCol * density / 100);
 //    const float sparsity = 0.80;
 //    const size_t makeDataNNZ = makeDataRow * makeDataCol * (1 - sparsity);
 //    const size_t makeDataNNZ = 1 * million;
-        const size_t makeDataNNZ = 2500;
+        const size_t makeDataNNZ = 5000000;
         matrixTmp.makeData(makeDataRow, makeDataCol, makeDataNNZ);
         matrixTmp.outputToMarketMatrixFile();
         std::cout << "makeData : M : " << makeDataRow
@@ -236,7 +236,7 @@ int main(int argc, char *argv[]) {
     std::cout << "closeTensorCoreMode" << std::endl;
     matrixA.closeTensorCoreMode();
     matrixB.closeTensorCoreMode();
-    matrixS.closeTensorCoreMode();
+    matrixS_dev.closeTensorCoreMode();
 
     const float time_sddmm_zcx = openTensorCoreModeForSampled_time + time_sddmm_gpu_coo2;
     std::cout << "sddmm_zcx time : " << time_sddmm_zcx << " ms" << std::endl;
