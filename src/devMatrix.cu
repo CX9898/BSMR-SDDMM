@@ -204,12 +204,12 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
     const UIN numWarps = numWarpX * numWarpY;
 
     dev::vector<UIN> numIndexPerWarp(numWarps);
-    const UIN numThreadsPerBlock = 1024;
+    dev::fill_n(numIndexPerWarp.data(),numWarps,0);
+    const UIN numThreadsPerBlock = numThreadPerBlock;
     const UIN numBlocks = (numWarps + numThreadsPerBlock - 1) / numThreadsPerBlock;
-    const UIN byteSharedMem = 10000 * sizeof(UIN);
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
-    getNumIndexPerWarp<<<numBlocks, numThreadsPerBlock>>>(numWarps,
+    getNumIndexPerWarp_2<<<numBlocks, numThreadsPerBlock>>>(numWarps,
                                                           numWarpX,
                                                           numTileM,
                                                           numTileN,
@@ -217,6 +217,7 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
                                                           rowIndex_.data(),
                                                           colIndex_.data(),
                                                           numIndexPerWarp.data());
+
     timeCalculator.endClock();
     float getNumIndexPerWarp_time = timeCalculator.getTime();
     std::cout << "  getNumIndexPerWarp_time : " << getNumIndexPerWarp_time << " ms" << std::endl;
@@ -237,7 +238,7 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
     matrixTileMappedToWarpIndexData_.resize(numIndexData);
 
     timeCalculator.startClock();
-    getTileIndexDataPerWarp<<<numBlocks, numThreadsPerBlock>>>(numWarps,
+    getTileIndexDataPerWarp_2<<<numBlocks, numThreadsPerBlock>>>(numWarps,
                                                                numWarpX,
                                                                numTileM,
                                                                numTileN,
@@ -249,8 +250,7 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
     timeCalculator.endClock();
     float getTileIndexDataPerWarp_time = timeCalculator.getTime();
     std::cout << "  getTileIndexDataPerWarp_time : " << getTileIndexDataPerWarp_time << " ms" << std::endl;
-
-//    cudaDeviceSynchronize();
+//    std::cout << cudaGetErrorString(cudaDeviceSynchronize()) << std::endl;
 
 //    // check
 //    std::vector<UIN> rowIndex;
