@@ -21,7 +21,7 @@ bool checkOneData(const double data1, const double data2) {
 }
 
 template<typename T>
-bool checkData(const size_t num, const T *data1, const T *data2) {
+bool checkDataFunction(const size_t num, const T *data1, const T *data2) {
     printf("|---------------------------check data---------------------------|\n"
            "| Checking results...\n");
 
@@ -39,14 +39,14 @@ bool checkData(const size_t num, const T *data1, const T *data2) {
     }
 
     if (errors > 0) {
-        printf("| No Pass! Inconsistent data! %d errors! Error rate : %2.2f%%\n\n",
+        printf("| No Pass! Inconsistent data! %d errors! Error rate : %2.2f%%\n",
                errors, static_cast<float>(errors) / static_cast<float>(num) * 100);
-
+        printf("|----------------------------------------------------------------|\n");
         return false;
     }
 
-    printf("| Pass! Result validates successfully.\n\n");
-
+    printf("| Pass! Result validates successfully.\n");
+    printf("|----------------------------------------------------------------|\n");
     return true;
 }
 
@@ -55,7 +55,7 @@ bool checkData(const std::vector<T> &data1, const std::vector<T> &data2) {
     if (data1.size() != data2.size()) {
         return false;
     }
-    return checkData(data1.size(), data1.data(), data2.data());
+    return checkDataFunction(data1.size(), data1.data(), data2.data());
 }
 
 template<typename T>
@@ -66,7 +66,7 @@ bool checkDevData(const size_t num, const T *dataDev1, const T *dataDev2) {
     cudaErrCheck(cudaMemcpy(dataHost1, dataDev1, num * sizeof(T), cudaMemcpyDeviceToHost));
     cudaErrCheck(cudaMemcpy(dataHost2, dataDev2, num * sizeof(T), cudaMemcpyDeviceToHost));
 
-    bool res = checkData(num, dataHost1, dataHost2);;
+    bool res = checkDataFunction(num, dataHost1, dataHost2);;
 
     free(dataHost1);
     free(dataHost2);
@@ -80,7 +80,7 @@ bool checkData(const size_t num, const std::vector<T> &dataHost1, const T *dataD
     auto dataHost2 = static_cast<T *>(malloc(num * sizeof(T)));
     cudaErrCheck(cudaMemcpy(dataHost2, dataDev2, num * sizeof(T), cudaMemcpyDeviceToHost));
 
-    bool res = checkData(num, dataHost1.data(), dataHost2);;
+    bool res = checkDataFunction(num, dataHost1.data(), dataHost2);;
 
     free(dataHost2);
 
@@ -93,7 +93,7 @@ bool checkData(const size_t num, const T *dataDev1, const std::vector<T> &dataHo
     auto dataHost1 = static_cast<T *>(malloc(num * sizeof(T)));
     cudaErrCheck(cudaMemcpy(dataHost1, dataDev1, num * sizeof(T), cudaMemcpyDeviceToHost));
 
-    bool res = checkData(num, dataHost1, dataHost2.data());;
+    bool res = checkDataFunction(num, dataHost1, dataHost2.data());;
 
     free(dataHost1);
 
