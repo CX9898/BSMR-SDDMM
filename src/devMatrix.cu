@@ -8,6 +8,7 @@
 //#include "util.hpp"
 #include "devVector.cuh"
 #include "CudaTimeCalculator.cuh"
+#include "checkData.hpp"
 
 //#include <set>
 
@@ -204,23 +205,69 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
     const UIN numWarps = numWarpX * numWarpY;
 
     dev::vector<UIN> numIndexPerWarp(numWarps);
-    dev::fill_n(numIndexPerWarp.data(),numWarps,0);
-    const UIN numThreadsPerBlock = numThreadPerBlock;
+    dev::fill_n(numIndexPerWarp.data(), numWarps, 0);
+    const UIN numThreadsPerBlock = NumberOfThreadsPerBlock;
     const UIN numBlocks = (numWarps + numThreadsPerBlock - 1) / numThreadsPerBlock;
     CudaTimeCalculator timeCalculator;
+
+
+    //////////////////////////////// 1
+    timeCalculator.startClock();
+    getNumIndexPerWarp_1<<<numBlocks, NumberOfThreadsPerBlock>>>(numWarps,
+                                                                 numWarpX,
+                                                                 numTileM,
+                                                                 numTileN,
+                                                                 nnz_,
+                                                                 rowIndex_.data(),
+                                                                 colIndex_.data(),
+                                                                 numIndexPerWarp.data());
+    timeCalculator.endClock();
+    float getNumIndexPerWarp_1_time = timeCalculator.getTime();
+    std::cout << "  getNumIndexPerWarp_1_time : " << getNumIndexPerWarp_1_time << " ms" << std::endl;
+    std::vector<UIN> num1;
+    d2h(num1, numIndexPerWarp);
+
+    //////////////////////////////// 2
     timeCalculator.startClock();
     getNumIndexPerWarp_2<<<numBlocks, numThreadsPerBlock>>>(numWarps,
-                                                          numWarpX,
-                                                          numTileM,
-                                                          numTileN,
-                                                          nnz_,
-                                                          rowIndex_.data(),
-                                                          colIndex_.data(),
-                                                          numIndexPerWarp.data());
+                                                            numWarpX,
+                                                            numTileM,
+                                                            numTileN,
+                                                            nnz_,
+                                                            rowIndex_.data(),
+                                                            colIndex_.data(),
+                                                            numIndexPerWarp.data());
 
     timeCalculator.endClock();
-    float getNumIndexPerWarp_time = timeCalculator.getTime();
-    std::cout << "  getNumIndexPerWarp_time : " << getNumIndexPerWarp_time << " ms" << std::endl;
+    float getNumIndexPerWarp_2_time = timeCalculator.getTime();
+    std::cout << "  getNumIndexPerWarp_time_2 : " << getNumIndexPerWarp_2_time << " ms" << std::endl;
+
+    std::vector<UIN> num2;
+    d2h(num2, numIndexPerWarp);
+
+    std::cout << "  check num1, num2" << std::endl;
+    const int indexNum = 0;
+    printf("num1[%d] = %d, num2[%d] = %d\n", indexNum, num1[indexNum], indexNum, num2[indexNum]);
+    if (!checkData(num1, num2)) {
+        exit(1);
+    }
+
+    //////////////////////////////// 3
+
+    dim3 grid;
+    grid.x = (numWarps + numThreadsPerBlock - 1) / numThreadsPerBlock;
+    grid.y = (nnz_ + SharedMemorySize - 1) / SharedMemorySize;
+    timeCalculator.startClock();
+    // TODO : getNumIndexPerWarp_3()
+    dev::vector<UIN> numIndexPerWarp_3(nnz_ * 1111111111111);
+    getNumIndexPerWarp_3<<<grid, numThreadsPerBlock>>>(numWarpX,
+                                                       nnz_,
+                                                       rowIndex_.data(),
+                                                       colIndex_.data(),
+                                                       numIndexPerWarp_3.data());
+    timeCalculator.endClock();
+    float getNumIndexPerWarp_3_time = timeCalculator.getTime();
+    std::cout << "  getNumIndexPerWarp_3_time : " << getNumIndexPerWarp_3_time << " ms" << std::endl;
 
     matrixTileMappedToWarpIndex_.resize(numWarps + 1);
 
@@ -239,14 +286,14 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
 
     timeCalculator.startClock();
     getTileIndexDataPerWarp_2<<<numBlocks, numThreadsPerBlock>>>(numWarps,
-                                                               numWarpX,
-                                                               numTileM,
-                                                               numTileN,
-                                                               nnz_,
-                                                               rowIndex_.data(),
-                                                               colIndex_.data(),
-                                                               matrixTileMappedToWarpIndex_.data(),
-                                                               matrixTileMappedToWarpIndexData_.data());
+                                                                 numWarpX,
+                                                                 numTileM,
+                                                                 numTileN,
+                                                                 nnz_,
+                                                                 rowIndex_.data(),
+                                                                 colIndex_.data(),
+                                                                 matrixTileMappedToWarpIndex_.data(),
+                                                                 matrixTileMappedToWarpIndexData_.data());
     timeCalculator.endClock();
     float getTileIndexDataPerWarp_time = timeCalculator.getTime();
     std::cout << "  getTileIndexDataPerWarp_time : " << getTileIndexDataPerWarp_time << " ms" << std::endl;
