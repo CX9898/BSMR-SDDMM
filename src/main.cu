@@ -28,8 +28,10 @@ const std::string filePath = folderPath + fileName + fileFormat;
 //              稀疏度大于50%使用 isratnisa 的方法
 //              稀疏度小于50%使用 Tensor core 方法
 //      4: 全部数据放在device内存                               OK
-//      5: 测试更大的K(<5k)的结果
-//      6: 优化openTensorCoreModeForSampled()
+//      5: 优化openTensorCoreModeForSampled()
+//      6: 测试更大的K(<5k)的结果
+//      7: 优化positionCalculator(), 并且目前只支持 WMMA : 32×8×16
+
 int main(int argc, char *argv[]) {
     // make sparse matrix data
     bool isMakeSparseData = false;
@@ -196,7 +198,7 @@ int main(int argc, char *argv[]) {
 //    sddmm_gpu_coo_1<<<tensorCoreConfig.grid(), tensorCoreConfig.block()>>>(tensorCoreConfig,
 //                                                                         matrixS_cpu.row(),
 //                                                                         matrixS_cpu.col(),
-//                                                                         K,
+//                                                                         matrixA.col(),
 //                                                                         matrixS_cpu.nnz(),
 //                                                                         valuesAfp16_d.data(),
 //                                                                         valuesBfp16_d.data(),
@@ -216,7 +218,7 @@ int main(int argc, char *argv[]) {
     sddmm_gpu_coo_2<<<tensorCoreConfig.grid(), tensorCoreConfig.block()>>>(tensorCoreConfig,
                                                                            matrixS_dev.row(),
                                                                            matrixS_dev.col(),
-                                                                           K,
+                                                                           matrixA.col(),
                                                                            matrixS_dev.nnz(),
                                                                            valuesAfp16_d.data(),
                                                                            valuesBfp16_d.data(),
@@ -233,10 +235,10 @@ int main(int argc, char *argv[]) {
     std::cout << "Test : sddmm_gpu_coo_2" << std::endl;
     checkData(matrixP_cpu_res.values(), d2h(matrixP_value_coo2));
 
-    std::cout << "closeTensorCoreMode" << std::endl;
-    matrixA.closeTensorCoreMode();
-    matrixB.closeTensorCoreMode();
-    matrixS_dev.closeTensorCoreMode();
+//    std::cout << "closeTensorCoreMode" << std::endl;
+//    matrixA.closeTensorCoreMode();
+//    matrixB.closeTensorCoreMode();
+//    matrixS_dev.closeTensorCoreMode();
 
     const float time_sddmm_zcx = openTensorCoreModeForSampled_time + time_sddmm_gpu_coo2;
     std::cout << "sddmm_zcx time : " << time_sddmm_zcx << " ms" << std::endl;

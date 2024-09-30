@@ -45,8 +45,49 @@ __global__ void getTileIndexDataPerWarp_2(const UIN size, const UIN numWarpX,
                                           const UIN *matrixTileMappedToWarpIndex,
                                           UIN *matrixTileMappedToWarpIndexData);
 
-__global__ void getNumIndexPerWarp_3(const UIN numWarpX,
-                                     const UIN nnz,
-                                     const UIN *rowIndex,
-                                     const UIN *colIndex,
-                                     UIN *numIndexPerWarp);
+class updateNumIndexPerWarp {
+ public:
+  updateNumIndexPerWarp(UIN *data) : nums_(data) {}
+  inline __device__ void init() {
+
+  }
+  inline __device__ void cycle() {
+      ++num_;
+  }
+  inline __device__ void done(size_t idx) {
+      nums_[idx] = num_;
+  }
+
+ private:
+  UIN num_ = 0;
+
+  UIN *nums_;
+};
+
+class updateIndexDataPerWarp {
+ public:
+  updateIndexDataPerWarp() {
+
+  }
+  inline __device__ void init() {
+
+  }
+  inline __device__ void cycle() {
+
+  }
+  inline __device__ void done(size_t idx) {
+
+  }
+
+ private:
+  UIN dataIdx_ = 0;
+
+  UIN *indexData_;
+};
+
+template<typename OP>
+__global__ void getIndexPerWarp_3(const UIN numWarpX,
+                                  const UIN nnz,
+                                  const UIN *rowIndex,
+                                  const UIN *colIndex,
+                                  OP op);

@@ -207,14 +207,14 @@ __global__ void getTileIndexDataPerWarp_2(const UIN size, const UIN numWarpX,
     }
 }
 
-__global__ void getNumIndexPerWarp_3(const UIN numWarpX,
-                                     const UIN nnz,
-                                     const UIN *rowIndex,
-                                     const UIN *colIndex,
-                                     UIN *numIndexPerWarp) {
+template<typename OP>
+__global__ void getIndexPerWarp_3(const UIN numWarpX,
+                                  const UIN nnz,
+                                  const UIN *rowIndex,
+                                  const UIN *colIndex,
+                                  OP op) {
 
     const UIN warpIdInSDDMM = blockIdx.x * blockDim.x + threadIdx.x;
-    const UIN blockIdY = blockIdx.y;
 
     const UIN rowBeginOfTile = (warpIdInSDDMM / numWarpX) * WMMA_M;
     const UIN rowEndOfTile = (warpIdInSDDMM / numWarpX + 1) * WMMA_M;
@@ -224,36 +224,50 @@ __global__ void getNumIndexPerWarp_3(const UIN numWarpX,
     __shared__ UIN rowIndexShared[SharedMemorySize];
     __shared__ UIN colIndexShared[SharedMemorySize];
 
-    const int sharedBeginIdx = threadIdx.x * NumberOfOperationsOnSharedByOneThread;
-    const int sharedEndIdx = sharedBeginIdx + NumberOfOperationsOnSharedByOneThread;
-//    printf(" sharedBeginIdx = %d, sharedEndIdx = %d\n", sharedBeginIdx, sharedEndIdx);
+    const int sharedMemoryBeginIdxInThisThread = threadIdx.x * NumberOfOperationsOnSharedByOneThread;
+    const int sharedMemoryEndIdxInThisThread = sharedMemoryBeginIdxInThisThread + NumberOfOperationsOnSharedByOneThread;
+//    printf(" sharedMemoryBeginIdxInThisThread = %d, sharedMemoryEndIdxInThisThread = %d\n", sharedMemoryBeginIdxInThisThread, sharedMemoryEndIdxInThisThread);
 
     const UIN sparseMatrixDataInThisBlock = (blockIdx.y * SharedMemorySize);
 
-#pragma unroll
-    for (int mtxIdx = sparseMatrixDataInThisBlock + sharedBeginIdx, sharedIdx = sharedBeginIdx;
-         mtxIdx < nnz && sharedIdx < sharedEndIdx;
+    // The amount of data in the last segment
+    const UIN sharedLoopEnd = nnz - sparseMatrixDataInThisBlock;
+
+#pragma unroll NumberOfOperationsOnSharedByOneThread
+    for (UIN mtxIdx = sparseMatrixDataInThisBlock + sharedMemoryBeginIdxInThisThread,
+             sharedIdx = sharedMemoryBeginIdxInThisThread;
+         sharedIdx < sharedMemoryEndIdxInThisThread && sharedIdx < sharedLoopEnd;
          ++sharedIdx, ++mtxIdx) {
         rowIndexShared[sharedIdx] = rowIndex[mtxIdx];
         colIndexShared[sharedIdx] = colIndex[mtxIdx];
     }
     __syncthreads();
 
-    const UIN sharedLoopEnd = nnz - sparseMatrixDataInThisBlock;
-
-    UIN num = 0;
-#pragma unroll
+    op.init();
+#pragma unroll NumberOfOperationsOnSharedByOneThread
     for (int sharedIdx = 0; sharedIdx < SharedMemorySize && sharedIdx < sharedLoopEnd; ++sharedIdx) {
         const UIN curRow = rowIndexShared[sharedIdx];
         const UIN curCol = colIndexShared[sharedIdx];
         if (curRow >= rowBeginOfTile && curRow < rowEndOfTile &&
             curCol >= colBeginOfTile && curCol < colEndOfTile) {
-            ++num;
+            op.cycle();
         }
     }
-    numIndexPerWarp[warpIdInSDDMM * gridDim.y + threadIdx.x] = num;
 
+    const UIN idxInThisThread = (gridDim.y * NumberOfThreadsPerBlock) * blockIdx.x + threadIdx.x;
+    op.done(idxInThisThread);
 }
+
+template __global__ void getIndexPerWarp_3<updateNumIndexPerWarp>(const UIN numWarpX,
+                                                                  const UIN nnz,
+                                                                  const UIN *rowIndex,
+                                                                  const UIN *colIndex,
+                                                                  updateNumIndexPerWarp op);
+template __global__ void getIndexPerWarp_3<updateIndexDataPerWarp>(const UIN numWarpX,
+                                                                   const UIN nnz,
+                                                                   const UIN *rowIndex,
+                                                                   const UIN *colIndex,
+                                                                   updateIndexDataPerWarp op);
 
 __global__ void getTileIndexDataPerWarp_3(const UIN size, const UIN numWarpX,
                                           const UIN numTileM, const UIN numTileN,
@@ -264,15 +278,9 @@ __global__ void getTileIndexDataPerWarp_3(const UIN size, const UIN numWarpX,
                                           UIN *matrixTileMappedToWarpIndexData) {
     const int globalBid = blockDim.x * blockIdx.x;
     const int globalTid = globalBid + threadIdx.x;
-//    if (globalTid >= size) {
-//        return;
-//    }
 
     const int curWarpX = globalTid % numWarpX;
     const int curWarpY = globalTid / numWarpX;
-//    if (curWarpX > numTileN || curWarpY > numTileM) {
-//        return;
-//    }
 
     const UIN rowBeginOfTile = (globalTid / numWarpX) * WMMA_M;
     const UIN rowEndOfTile = (globalTid / numWarpX + 1) * WMMA_M;
