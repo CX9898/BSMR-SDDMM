@@ -91,3 +91,8 @@ __global__ void getIndexPerWarp_3(const UIN numWarpX,
                                   const UIN *rowIndex,
                                   const UIN *colIndex,
                                   OP op);
+
+__global__ void mergeNumOfIndexPerWarp(const UIN numNNZBlocks,
+                                       const UIN numWarpsInSDDMM,
+                                       const UIN *numsOld,
+                                       UIN *numsNew);

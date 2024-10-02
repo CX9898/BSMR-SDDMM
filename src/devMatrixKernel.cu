@@ -98,17 +98,7 @@ __global__ void getNumIndexPerWarp_2(const UIN size, const UIN numWarpX,
                                      const UIN *rowIndex,
                                      const UIN *colIndex,
                                      UIN *numIndexPerWarp) {
-    const int globalBid = blockDim.x * blockIdx.x;
-    const int globalTid = globalBid + threadIdx.x;
-//    if (globalTid >= size) {
-//        return;
-//    }
-
-    const int curWarpX = globalTid % numWarpX;
-    const int curWarpY = globalTid / numWarpX;
-//    if (curWarpX > numTileN || curWarpY > numTileM) {
-//        return;
-//    }
+    const int globalTid = blockIdx.x * blockDim.x + threadIdx.x;
 
     const UIN rowBeginOfTile = (globalTid / numWarpX) * WMMA_M;
     const UIN rowEndOfTile = (globalTid / numWarpX + 1) * WMMA_M;
@@ -156,17 +146,7 @@ __global__ void getTileIndexDataPerWarp_2(const UIN size, const UIN numWarpX,
                                           const UIN *colIndex,
                                           const UIN *matrixTileMappedToWarpIndex,
                                           UIN *matrixTileMappedToWarpIndexData) {
-    const int globalBid = blockDim.x * blockIdx.x;
-    const int globalTid = globalBid + threadIdx.x;
-//    if (globalTid >= size) {
-//        return;
-//    }
-
-    const int curWarpX = globalTid % numWarpX;
-    const int curWarpY = globalTid / numWarpX;
-//    if (curWarpX > numTileN || curWarpY > numTileM) {
-//        return;
-//    }
+    const int globalTid = blockIdx.x * blockDim.x + threadIdx.x;
 
     const UIN rowBeginOfTile = (globalTid / numWarpX) * WMMA_M;
     const UIN rowEndOfTile = (globalTid / numWarpX + 1) * WMMA_M;
@@ -254,7 +234,8 @@ __global__ void getIndexPerWarp_3(const UIN numWarpX,
         }
     }
 
-    const UIN idxInThisThread = (gridDim.y * NumberOfThreadsPerBlock) * blockIdx.x + threadIdx.x;
+    const UIN idxInThisThread =
+        (gridDim.y * NumberOfThreadsPerBlock) * blockIdx.x + blockIdx.y * NumberOfThreadsPerBlock + threadIdx.x;
     op.done(idxInThisThread);
 }
 
@@ -268,6 +249,27 @@ template __global__ void getIndexPerWarp_3<updateIndexDataPerWarp>(const UIN num
                                                                    const UIN *rowIndex,
                                                                    const UIN *colIndex,
                                                                    updateIndexDataPerWarp op);
+
+__global__ void mergeNumOfIndexPerWarp(const UIN numNNZBlocks,
+                                       const UIN numWarpsInSDDMM,
+                                       const UIN *numsOld,
+                                       UIN *numsNew) {
+    const UIN globalTid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (globalTid >= numWarpsInSDDMM) {
+        return;
+    }
+    const UIN numOfStoragePerBlockInOldData = numNNZBlocks * NumberOfThreadsPerBlock;
+    const UIN beginIdxInThisThread = numOfStoragePerBlockInOldData * blockIdx.x + threadIdx.x;
+    const UIN endIdxInThisBlock = numOfStoragePerBlockInOldData * (blockIdx.x + 1);
+    const UIN numAddPerLoop = NumberOfThreadsPerBlock;
+
+    UIN sum = 0;
+    for (int idx = beginIdxInThisThread; idx < endIdxInThisBlock; idx += numAddPerLoop) {
+        sum += numsOld[idx];
+    }
+
+    numsNew[globalTid] = sum;
+}
 
 __global__ void getTileIndexDataPerWarp_3(const UIN size, const UIN numWarpX,
                                           const UIN numTileM, const UIN numTileN,
