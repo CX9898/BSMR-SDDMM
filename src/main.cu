@@ -14,6 +14,7 @@
 #include "devVector.cuh"
 
 const std::string folderPath("../dataset/test/");
+//const std::string folderPath("./");
 //const std::string fileName = ("nips");
 //const std::string fileName = ("test");
 const std::string fileName = ("matrix_10000_10000_1000000");
@@ -48,7 +49,7 @@ int main(int argc, char *argv[]) {
 //    const float sparsity = 0.80;
 //    const size_t makeDataNNZ = makeDataRow * makeDataCol * (1 - sparsity);
 //    const size_t makeDataNNZ = 1 * million;
-        const size_t makeDataNNZ = 5000000;
+        const size_t makeDataNNZ = 4097;
         matrixTmp.makeData(makeDataRow, makeDataCol, makeDataNNZ);
         matrixTmp.outputToMarketMatrixFile();
         std::cout << "makeData : M : " << makeDataRow
