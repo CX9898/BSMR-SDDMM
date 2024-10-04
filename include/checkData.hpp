@@ -56,7 +56,8 @@ inline bool checkOneData<double>(const double data1, const double data2) {
 template<typename T>
 bool checkDataFunction(const size_t num, const T *data1, const T *data2) {
     printf("|---------------------------check data---------------------------|\n"
-           "| Checking results...\n");
+           "| Data size : %d\n"
+           "| Checking results...\n", num);
 
     int errors = 0;
     for (int idx = 0; idx < num; ++idx) {
