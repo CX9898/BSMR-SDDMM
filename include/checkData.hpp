@@ -2,6 +2,7 @@
 
 #include <cstdio>
 #include <vector>
+#include <string>
 
 #include <cuda_runtime.h>
 
@@ -20,6 +21,12 @@ bool checkDataFunction(const size_t num, const T *data1, const T *data2);
 
 template<typename T>
 bool checkData(const std::vector<T> &data1, const std::vector<T> &data2);
+
+template<typename T>
+bool checkData(const std::vector<T> &data1, const dev::vector<T> &devData2);
+
+template<typename T>
+bool checkData(const dev::vector<T> &devData1, const std::vector<T> &hostData2);
 
 template<typename T>
 bool checkData(const size_t num, const std::vector<T> &dataHost1, const T *dataDev2);
@@ -125,9 +132,17 @@ bool checkData(const size_t num, const T *dataDev1, const std::vector<T> &dataHo
 
     return res;
 }
-//
-//template bool checkData<uint32_t>(const std::vector<uint32_t> &, const std::vector<uint32_t> &);
-//template bool checkData<uint64_t>(const std::vector<uint64_t> &, const std::vector<uint64_t> &);
-//template bool checkData<int>(const std::vector<int> &, const std::vector<int> &);
-//template bool checkData<float>(const std::vector<float> &, const std::vector<float> &);
-//template bool checkData<double>(const std::vector<double> &, const std::vector<double> &);
+
+template<typename T>
+bool checkData(const std::vector<T> &data1, const dev::vector<T> &devData2) {
+    std::vector<T> hostData2;
+    d2h(hostData2, devData2);
+    return checkData(data1, hostData2);
+}
+
+template<typename T>
+bool checkData(const dev::vector<T> &devData1, const std::vector<T> &hostData2) {
+    std::vector<T> hostData1;
+    d2h(hostData1, devData1);
+    return checkData(hostData1, hostData2);
+}
