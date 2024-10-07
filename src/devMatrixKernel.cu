@@ -20,52 +20,18 @@ template __global__ void getValuesFromDenseData<double>(const UIN row, const UIN
                                                         const UIN *rowIndex, const UIN *colIndex,
                                                         const double *denseData, double *output);
 
-__global__ void getNumIndexPerWarp_1(const UIN size, const UIN numWarpX,
-                                     const UIN numTileM, const UIN numTileN,
-                                     const UIN nnz,
-                                     const UIN *rowIndex,
-                                     const UIN *colIndex,
-                                     UIN *numIndexPerWarp) {
-    const int tid = blockDim.x * blockIdx.x + threadIdx.x;
-    if (tid >= size) {
-        return;
-    }
-
-    const int curWarpX = tid % numWarpX;
-    const int curWarpY = tid / numWarpX;
-    if (curWarpX > numTileN || curWarpY > numTileM) {
-        return;
-    }
-
-    const UIN rowBeginOfTile = (tid / numWarpX) * WMMA_M;
-    const UIN rowEndOfTile = (tid / numWarpX + 1) * WMMA_M;
-    const UIN colBeginOfTile = (tid % numWarpX) * WMMA_N;
-    const UIN colEndOfTile = (tid % numWarpX + 1) * WMMA_N;
-
-    UIN num = 0;
-    for (int idx = 0; idx < nnz; ++idx) {
-        const UIN curRow = rowIndex[idx];
-        const UIN curCol = colIndex[idx];
-        if (curRow >= rowBeginOfTile && curRow < rowEndOfTile &&
-            curCol >= colBeginOfTile && curCol < colEndOfTile) {
-            ++num;
-        }
-    }
-
-    numIndexPerWarp[tid] = num;
-}
-
-__global__ void getTileIndexDataPerWarp(const UIN size, const UIN numWarpX,
-                                        const UIN numTileM, const UIN numTileN,
-                                        const UIN nnz,
-                                        const UIN *rowIndex,
-                                        const UIN *colIndex,
-                                        const UIN *matrixTileMappedToWarpIndex,
-                                        UIN *matrixTileMappedToWarpIndexData) {
+template<typename OP>
+__global__ void getIndexPerWarp_1(const UIN size, const UIN numWarpX,
+                                  const UIN numTileM, const UIN numTileN,
+                                  const UIN nnz,
+                                  const UIN *rowIndex,
+                                  const UIN *colIndex,
+                                  OP op) {
     const int globalTid = blockDim.x * blockIdx.x + threadIdx.x;
     if (globalTid >= size) {
         return;
     }
+
     const int curWarpX = globalTid % numWarpX;
     const int curWarpY = globalTid / numWarpX;
     if (curWarpX > numTileN || curWarpY > numTileM) {
@@ -77,20 +43,35 @@ __global__ void getTileIndexDataPerWarp(const UIN size, const UIN numWarpX,
     const UIN colBeginOfTile = (globalTid % numWarpX) * WMMA_N;
     const UIN colEndOfTile = (globalTid % numWarpX + 1) * WMMA_N;
 
-    const UIN beginIdx = matrixTileMappedToWarpIndex[globalTid];
-
-    UIN count = 0;
-    for (int idx = 0; idx < nnz; ++idx) {
-        const UIN curRow = rowIndex[idx];
-        const UIN curCol = colIndex[idx];
+    op.init(gridDim, blockIdx, blockDim, threadIdx);
+    for (int mtxIdx = 0; mtxIdx < nnz; ++mtxIdx) {
+        const UIN curRow = rowIndex[mtxIdx];
+        const UIN curCol = colIndex[mtxIdx];
         if (curRow >= rowBeginOfTile && curRow < rowEndOfTile &&
             curCol >= colBeginOfTile && curCol < colEndOfTile) {
-            matrixTileMappedToWarpIndexData[beginIdx + count] = idx;
-            ++count;
+            op.cycle(mtxIdx);
         }
     }
 
+    op.done();
 }
+
+template __global__ void getIndexPerWarp_1<updateNumOfIndexOperator_1>(const UIN size,
+                                                                       const UIN numWarpX,
+                                                                       const UIN numTileM,
+                                                                       const UIN numTileN,
+                                                                       const UIN nnz,
+                                                                       const UIN *rowIndex,
+                                                                       const UIN *colIndex,
+                                                                       updateNumOfIndexOperator_1 op);
+template __global__ void getIndexPerWarp_1<updateIndexDataPerWarpOperator_1>(const UIN size,
+                                                                             const UIN numWarpX,
+                                                                             const UIN numTileM,
+                                                                             const UIN numTileN,
+                                                                             const UIN nnz,
+                                                                             const UIN *rowIndex,
+                                                                             const UIN *colIndex,
+                                                                             updateIndexDataPerWarpOperator_1 op);
 
 /**
  * Pipeline method
@@ -161,13 +142,13 @@ template __global__ void getIndexPerWarp_2<updateNumOfIndexOperator_2>(const UIN
                                                                        const UIN *colIndex,
                                                                        updateNumOfIndexOperator_2 op);
 template __global__ void getIndexPerWarp_2<updateIndexDataPerWarpOperator_2>(const UIN size,
-                                                                       const UIN numWarpX,
-                                                                       const UIN numTileM,
-                                                                       const UIN numTileN,
-                                                                       const UIN nnz,
-                                                                       const UIN *rowIndex,
-                                                                       const UIN *colIndex,
-                                                                       updateIndexDataPerWarpOperator_2 op);
+                                                                             const UIN numWarpX,
+                                                                             const UIN numTileM,
+                                                                             const UIN numTileN,
+                                                                             const UIN nnz,
+                                                                             const UIN *rowIndex,
+                                                                             const UIN *colIndex,
+                                                                             updateIndexDataPerWarpOperator_2 op);
 
 __global__ void getTileIndexDataPerWarp_2(const UIN size, const UIN numWarpX,
                                           const UIN numTileM, const UIN numTileN,
