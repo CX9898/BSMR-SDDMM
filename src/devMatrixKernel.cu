@@ -292,18 +292,16 @@ __global__ void getIndexPerWarp_4(TensorCoreConfig tensorCoreConfig,
     __syncthreads();
 
     const int localWarpId = threadIdx.x / WARP_SIZE;
-    const int localLaneId = threadIdx.x % WARP_SIZE;
-    const UIN warpIdInSDDMM = blockIdx.x * NUMBER_OF_STORAGE_BY_ONE_BLOCK + localWarpId;
-
-    tensorCoreConfig.initByKernel();
+    const int laneId = threadIdx.x % WARP_SIZE;
+    const UIN warpIdInSDDMM = blockIdx.x * NUMBER_OF_CALCULATED_BY_ONE_BLOCK + localWarpId;
 
     const UIN rowBeginOfTile = (warpIdInSDDMM / numWarpX) * WMMA_M;
     const UIN rowEndOfTile = (warpIdInSDDMM / numWarpX + 1) * WMMA_M;
     const UIN colBeginOfTile = (warpIdInSDDMM % numWarpX) * WMMA_N;
     const UIN colEndOfTile = (warpIdInSDDMM % numWarpX + 1) * WMMA_N;
 
-    op.init(gridDim, blockIdx, blockDim, threadIdx);
-    UIN num = 0;
+//    op.init(gridDim, blockIdx, blockDim, threadIdx);
+    int num = 0;
 #pragma unroll NUMBER_OF_OPERATIONS_ON_SHARED_MEMORY_BY_ONE_THREAD
     for (int sharedIdx = beginIdxOfSharedMemoryInThisThread;
          sharedIdx < endIdxOfSharedMemoryInThisThread && sharedIdx < sharedLoopEnd;
@@ -312,21 +310,23 @@ __global__ void getIndexPerWarp_4(TensorCoreConfig tensorCoreConfig,
         const UIN curCol = colIndexShared[sharedIdx];
         if (curRow >= rowBeginOfTile && curRow < rowEndOfTile &&
             curCol >= colBeginOfTile && curCol < colEndOfTile) {
-//            op.cycle(sparseMatrixDataInThisBlock + sharedIdx);
             ++num;
+//            op.cycle(sparseMatrixDataInThisBlock + sharedIdx);
         }
     }
-//    if (localLaneId == 0) {
-//        op.done();
-//    }
+    int sum = warpReduce(num);
+//    if(laneId == 0){ printf("sum = %d\n", sum); }
+//    op.done();
 }
 
-template __global__ void getIndexPerWarp_4<updateScatteredNumOfIndexOperator_4>(const UIN numWarpX,
+template __global__ void getIndexPerWarp_4<updateScatteredNumOfIndexOperator_4>(TensorCoreConfig tensorCoreConfig,
+                                                                                const UIN numWarpX,
                                                                                 const UIN nnz,
                                                                                 const UIN *rowIndex,
                                                                                 const UIN *colIndex,
                                                                                 updateScatteredNumOfIndexOperator_4 op);
-template __global__ void getIndexPerWarp_4<updateScatteredIndexDataPerWarpOperator_4>(const UIN numWarpX,
+template __global__ void getIndexPerWarp_4<updateScatteredIndexDataPerWarpOperator_4>(TensorCoreConfig tensorCoreConfig,
+                                                                                      const UIN numWarpX,
                                                                                       const UIN nnz,
                                                                                       const UIN *rowIndex,
                                                                                       const UIN *colIndex,
@@ -341,23 +341,14 @@ __global__ void mergeScatteredNumOfIndex_4(const UIN numWarpsInSDDMM,
     if (warpIdInSDDMM >= numWarpsInSDDMM) {
         return;
     }
-//    const UIN numOfStoragePerYGridInOldData = NUMBER_OF_STORAGE_BY_ONE_BLOCK * numNNZBlocks;
-//    const UIN beginIdxInThisThread = warpIdInSDDMM * numOfStoragePerYGridInOldData;
-//    const UIN endIdxInThisBlock = beginIdxInThisThread + numOfStoragePerYGridInOldData;
-//
-//    UIN sum = 0;
-//    for (int idx = beginIdxInThisThread; idx < endIdxInThisBlock; ++idx) {
-//        sum += scatteredNumOfIndex[idx];
-//    }
 
-//    mergedNumOfIndex[warpIdInSDDMM] = sum;
-
-    const UIN numOfStoragePerYGridInOldData = NUMBER_OF_STORAGE_BY_ONE_BLOCK * numNNZBlocks;
-    const UIN blockIdxInOldData = (warpIdInSDDMM + NUMBER_OF_STORAGE_BY_ONE_BLOCK - 1) / NUMBER_OF_STORAGE_BY_ONE_BLOCK;
-    const UIN threadIdxInOldData = warpIdInSDDMM % NUMBER_OF_STORAGE_BY_ONE_BLOCK;
-    const UIN beginIdxInThisThread = numOfStoragePerYGridInOldData * blockIdxInOldData + threadIdxInOldData;
-    const UIN endIdxInThisBlock = numOfStoragePerYGridInOldData * (blockIdxInOldData + 1);
-    const UIN numAddPerLoop = NUMBER_OF_STORAGE_BY_ONE_BLOCK;
+    const UIN numOfStoragePerYGridInOldData = NUMBER_OF_CALCULATED_BY_ONE_BLOCK * numNNZBlocks;
+    const UIN blockIdxXInOldData =
+        (warpIdInSDDMM + NUMBER_OF_CALCULATED_BY_ONE_BLOCK - 1) / NUMBER_OF_CALCULATED_BY_ONE_BLOCK;
+    const UIN threadIdxInOldData = warpIdInSDDMM % NUMBER_OF_CALCULATED_BY_ONE_BLOCK;
+    const UIN beginIdxInThisThread = numOfStoragePerYGridInOldData * blockIdxXInOldData + threadIdxInOldData;
+    const UIN endIdxInThisBlock = numOfStoragePerYGridInOldData * (blockIdxXInOldData + 1);
+    const UIN numAddPerLoop = NUMBER_OF_CALCULATED_BY_ONE_BLOCK;
 
     UIN sum = 0;
     for (int idx = beginIdxInThisThread; idx < endIdxInThisBlock; idx += numAddPerLoop) {

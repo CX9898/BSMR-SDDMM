@@ -6,7 +6,7 @@ const int NUMBER_OF_OPERATIONS_ON_SHARED_MEMORY_BY_ONE_THREAD = 8;
 const int NUMBER_OF_THREADS_PER_BLOCK = 512;
 const int SHARED_MEMORY_SIZE = NUMBER_OF_OPERATIONS_ON_SHARED_MEMORY_BY_ONE_THREAD * NUMBER_OF_THREADS_PER_BLOCK;
 
-const int NUMBER_OF_STORAGE_BY_ONE_BLOCK = NUMBER_OF_THREADS_PER_BLOCK / WARP_SIZE;
+const int NUMBER_OF_CALCULATED_BY_ONE_BLOCK = NUMBER_OF_THREADS_PER_BLOCK / WARP_SIZE;
 
 template<typename T>
 __global__ void getValuesFromDenseData(const UIN row, const UIN col, const UIN nnz, const UIN ld,
@@ -18,18 +18,18 @@ class updateNumOfIndexOperator_1 {
   updateNumOfIndexOperator_1(UIN *nums) : nums_(nums) {}
 
   inline __device__ void init(dim3 _gridDim, dim3 _blockIdx, dim3 _blockDim, dim3 _threadIdx) {
-      idxInThisThread_ = _blockIdx.x * _blockDim.x + _threadIdx.x;
+      idx_ = _blockIdx.x * _blockDim.x + _threadIdx.x;
   }
   inline __device__ void cycle(UIN mtxIdx) {
       ++num_;
   }
   inline __device__ void done() {
-      nums_[idxInThisThread_] = num_;
+      nums_[idx_] = num_;
   }
 
  private:
-  UIN idxInThisThread_;
   UIN num_ = 0;
+  UIN idx_;
 
   UIN *nums_;
 };
@@ -70,18 +70,18 @@ class updateNumOfIndexOperator_2 {
   updateNumOfIndexOperator_2(UIN *nums) : nums_(nums) {}
 
   inline __device__ void init(dim3 _gridDim, dim3 _blockIdx, dim3 _blockDim, dim3 _threadIdx) {
-      idxInThisThread_ = _blockIdx.x * _blockDim.x + _threadIdx.x;
+      idx_ = _blockIdx.x * _blockDim.x + _threadIdx.x;
   }
   inline __device__ void cycle(UIN mtxIdx) {
       ++num_;
   }
   inline __device__ void done() {
-      nums_[idxInThisThread_] = num_;
+      nums_[idx_] = num_;
   }
 
  private:
-  UIN idxInThisThread_;
   UIN num_ = 0;
+  UIN idx_;
 
   UIN *nums_;
 };
@@ -121,18 +121,18 @@ class updateScatteredNumOfIndexOperator_3 {
   updateScatteredNumOfIndexOperator_3(UIN *nums) : nums_(nums) {}
 
   inline __device__ void init(dim3 _gridDim, dim3 _blockIdx, dim3 _blockDim, dim3 _threadIdx) {
-      idxInThisThread_ = _gridDim.y * _blockDim.x * _blockIdx.x + _blockIdx.y * _blockDim.x + _threadIdx.x;
+      idx_ = _gridDim.y * _blockDim.x * _blockIdx.x + _blockIdx.y * _blockDim.x + _threadIdx.x;
   }
   inline __device__ void cycle(UIN mtxIdx) {
       ++num_;
   }
   inline __device__ void done() {
-      nums_[idxInThisThread_] = num_;
+      nums_[idx_] = num_;
   }
 
  private:
-  UIN idxInThisThread_;
   UIN num_ = 0;
+  UIN idx_;
 
   UIN *nums_;
 };
@@ -188,26 +188,44 @@ __global__ void sortScatteredIndexData_3(const UIN numWarpsInSDDMM,
                                          const UIN *ScatteredIndexData,
                                          UIN *sortedIndexData);
 
+__inline__ __device__ int warpReduce(int localSum) {
+    int mask = 0xffffffff;
+
+    localSum += __shfl_xor_sync(mask, localSum, 16);
+    localSum += __shfl_xor_sync(mask, localSum, 8);
+    localSum += __shfl_xor_sync(mask, localSum, 4);
+    localSum += __shfl_xor_sync(mask, localSum, 2);
+    localSum += __shfl_xor_sync(mask, localSum, 1);
+
+    return localSum;
+}
+
 class updateScatteredNumOfIndexOperator_4 {
  public:
   updateScatteredNumOfIndexOperator_4(UIN *nums) : nums_(nums) {}
 
   inline __device__ void init(dim3 _gridDim, dim3 _blockIdx, dim3 _blockDim, dim3 _threadIdx) {
-      const UIN localWarpId = _threadIdx.x % WARP_SIZE;
-      const UIN numberOfDataStoredPerOneBlock = NUMBER_OF_STORAGE_BY_ONE_BLOCK;
+      localWarpId_ = _threadIdx.x / WARP_SIZE;
+      laneId_ = _threadIdx.x % WARP_SIZE;
+      const UIN numberOfDataStoredPerOneBlock = NUMBER_OF_CALCULATED_BY_ONE_BLOCK;
       const UIN numberOfDataStoredPerYGrid = _gridDim.y * numberOfDataStoredPerOneBlock;
-      idx_ = numberOfDataStoredPerYGrid * _blockIdx.x + _blockIdx.y * numberOfDataStoredPerOneBlock + localWarpId;
+      idx_ = numberOfDataStoredPerYGrid * _blockIdx.x + _blockIdx.y * numberOfDataStoredPerOneBlock + localWarpId_;
   }
   inline __device__ void cycle(UIN mtxIdx) {
       ++num_;
   }
   inline __device__ void done() {
-      nums_[idx_] = num_;
+      int sumNum = warpReduce(num_);
+      if (laneId_ == 0) {
+          nums_[idx_] = sumNum;
+      }
   }
 
  private:
+  int num_ = 0;
+  UIN localWarpId_;
+  UIN laneId_;
   UIN idx_;
-  UIN num_ = 0;
 
   UIN *nums_;
 };
@@ -236,7 +254,8 @@ class updateScatteredIndexDataPerWarpOperator_4 {
 };
 
 template<typename OP>
-__global__ void getIndexPerWarp_4(const UIN numWarpX,
+__global__ void getIndexPerWarp_4(TensorCoreConfig tensorCoreConfig,
+                                  const UIN numWarpX,
                                   const UIN nnz,
                                   const UIN *rowIndex,
                                   const UIN *colIndex,
