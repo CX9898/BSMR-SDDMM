@@ -280,7 +280,7 @@ __global__ void sddmm_gpu_coo_1(class TensorCoreConfig tensorCoreConfig,
                                 const UIN *matrixTileIndex,
                                 const float *matrixS,
                                 float *matrixP) {
-    tensorCoreConfig.initByKernel(blockDim, blockIdx, threadIdx);
+    tensorCoreConfig.initByKernel(blockIdx, blockDim, threadIdx);
 
     const UIN pRowId = tensorCoreConfig.tileRow();
     const UIN pColId = tensorCoreConfig.tileCol();
@@ -343,7 +343,7 @@ __global__ void sddmm_gpu_coo_2(class TensorCoreConfig tensorCoreConfig,
                                 const UIN *matrixSTileMappedToWarpIndex,
                                 const UIN *matrixSTileMappedToWarpIndexData,
                                 float *matrixP) {
-    tensorCoreConfig.initByKernel(blockDim, blockIdx, threadIdx);
+    tensorCoreConfig.initByKernel(blockIdx, blockDim, threadIdx);
 
     const UIN pRowId = tensorCoreConfig.tileRow();
     const UIN pColId = tensorCoreConfig.tileCol();
