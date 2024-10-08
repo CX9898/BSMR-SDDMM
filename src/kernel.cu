@@ -282,8 +282,8 @@ __global__ void sddmm_gpu_coo_1(class TensorCoreConfig tensorCoreConfig,
                                 float *matrixP) {
     tensorCoreConfig.initByKernel(blockIdx, blockDim, threadIdx);
 
-    const UIN pRowId = tensorCoreConfig.tileRow();
-    const UIN pColId = tensorCoreConfig.tileCol();
+    const UIN pRowId = tensorCoreConfig.rowBeginOfTile();
+    const UIN pColId = tensorCoreConfig.colBeginOfTile();
 
     if (pRowId >= M || pColId >= N) {
         return;
@@ -345,8 +345,8 @@ __global__ void sddmm_gpu_coo_2(class TensorCoreConfig tensorCoreConfig,
                                 float *matrixP) {
     tensorCoreConfig.initByKernel(blockIdx, blockDim, threadIdx);
 
-    const UIN pRowId = tensorCoreConfig.tileRow();
-    const UIN pColId = tensorCoreConfig.tileCol();
+    const UIN pRowId = tensorCoreConfig.rowBeginOfTile();
+    const UIN pColId = tensorCoreConfig.colBeginOfTile();
 
     if (pRowId >= M || pColId >= N) {
         return;

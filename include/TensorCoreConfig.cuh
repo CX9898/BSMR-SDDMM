@@ -74,24 +74,26 @@ class TensorCoreConfig {
   __device__ size_t globalThreadIdxX() const {
       return globalThreadIdxX_;
   }
-
   __device__ size_t globalThreadIdxY() const {
       return globalThreadIdxY_;
   }
-
   __device__ size_t globalWarpId() const {
       return globalWarpId_;
   }
-
   __device__ int laneId() const {
       return laneId_;
   }
-
-  __device__ size_t tileRow() const {
+  __device__ size_t rowBeginOfTile() const {
       return globalThreadIdxY_ * WMMA_M;
   }
-  __device__ size_t tileCol() const {
+  __device__ size_t colBeginOfTile() const {
       return globalThreadIdxX_ / WARP_SIZE * WMMA_N;
+  }
+  __device__ size_t rowEndOfTile() const {
+      return globalThreadIdxY_ * WMMA_M + WMMA_M;
+  }
+  __device__ size_t colEndOfTile() const {
+      return globalThreadIdxX_ / WARP_SIZE * WMMA_N + WMMA_N;
   }
 
  private:
