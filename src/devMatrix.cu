@@ -419,19 +419,20 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
     }
     //////////////////////////////// 4
     {
-        dim3 gridForGetIndex;
-        gridForGetIndex.x = (numWarps + NUMBER_OF_STORAGE_BY_ONE_BLOCK - 1) / NUMBER_OF_STORAGE_BY_ONE_BLOCK;
-        gridForGetIndex.y = (nnz_ + SHARED_MEMORY_SIZE - 1) / SHARED_MEMORY_SIZE;
+//        dim3 gridForGetIndex;
+//        gridForGetIndex.x = (numWarps + NUMBER_OF_STORAGE_BY_ONE_BLOCK - 1) / NUMBER_OF_STORAGE_BY_ONE_BLOCK;
+//        gridForGetIndex.y = (nnz_ + SHARED_MEMORY_SIZE - 1) / SHARED_MEMORY_SIZE;
+//        printf("    grid.x = %d, grid.y = %d\n", gridForGetIndex.x, gridForGetIndex.y);
 
-        dev::vector<UIN> scatteredNumOfIndexPerWarp_4(nnz_ * gridForGetIndex.y);
+        dev::vector<UIN> scatteredNumOfIndexPerWarp_4(numWarps * WARP_SIZE);
         dev::fill_n(scatteredNumOfIndexPerWarp_4.data(), scatteredNumOfIndexPerWarp_4.size(), 0);
         timeCalculator.startClock();
-        getIndexPerWarp_4<<<gridForGetIndex, NUMBER_OF_THREADS_PER_BLOCK>>>(numWarpX,
-                                                                            nnz_,
-                                                                            rowIndex_.data(),
-                                                                            colIndex_.data(),
-                                                                            updateScatteredNumOfIndexOperator_4(
-                                                                                scatteredNumOfIndexPerWarp_4.data()));
+        getIndexPerWarp_4<<<tensorCoreConfig.grid(), tensorCoreConfig.block()>>>(numWarpX,
+                                                                                 nnz_,
+                                                                                 rowIndex_.data(),
+                                                                                 colIndex_.data(),
+                                                                                 updateScatteredNumOfIndexOperator_4(
+                                                                                     scatteredNumOfIndexPerWarp_4.data()));
         timeCalculator.endClock();
         float updateScatteredNumOfIndexOperator_4_time = timeCalculator.getTime();
         std::cout << "    updateScatteredNumOfIndexOperator_4_time : " << updateScatteredNumOfIndexOperator_4_time
@@ -448,7 +449,7 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
         float mergeNumOfIndexPerWarp_4_time = timeCalculator.getTime();
         std::cout << "    mergeNumOfIndexPerWarp_4_time : " << mergeNumOfIndexPerWarp_4_time << " ms" << std::endl;
 
-        printf("check rightNum and numIndexPerWarp_3\n");
+        printf("check rightNum and numIndexPerWarp_4\n");
         if (!checkData(rightNum, numIndexPerWarp_4)) {
             exit(1);
         }

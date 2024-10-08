@@ -62,7 +62,7 @@ class TensorCoreConfig {
       return grid_.y * block_.y;
   }
 
-  __device__ void initByKernel(dim3 _blockDim, dim3 _blockIdx, dim3 _threadIdx) {
+  __device__ void initByKernel(dim3 _blockIdx, dim3 _blockDim, dim3 _threadIdx) {
       globalThreadIdxX_ = _blockDim.x * _blockIdx.x + _threadIdx.x;
       globalThreadIdxY_ = _blockDim.y * _blockIdx.y + _threadIdx.y;
 
