@@ -24,6 +24,19 @@ __global__ void convertFp32ToFp16(const UIN n, const float *in, half *out) {
     }
 }
 
+template<typename T>
+__global__ void convertDataType(const UIN n, const float *in, T *out) {
+    const UIN idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if (idx < n) {
+        out[idx] = static_cast<T>(in[idx]);
+    }
+}
+
+template __global__ void convertDataType<int>(const UIN n, const float *in, int *out);
+template __global__ void convertDataType<float>(const UIN n, const float *in, float *out);
+template __global__ void convertDataType<double>(const UIN n, const float *in, double *out);
+template __global__ void convertDataType<half>(const UIN n, const float *in, half *out);
+
 const float SPARSITY_BOUND = 1.0f;
 
 template<typename T>

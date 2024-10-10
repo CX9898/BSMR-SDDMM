@@ -9,6 +9,9 @@ __global__ void printData(UIN n, T *a);
 
 __global__ void convertFp32ToFp16(const UIN n, const float *in, half *out);
 
+template<typename T>
+__global__ void convertDataType(const UIN n, const float *in, T *out);
+
 __global__ void sddmm_gpu(const UIN M, const UIN N, const UIN K,
                           const half *matrixA, const half *matrixB,
                           const float *matrixS,
