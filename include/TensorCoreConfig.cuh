@@ -9,7 +9,7 @@ using MATRIX_A_TYPE = __half;
 using MATRIX_B_TYPE = __half;
 using MATRIX_C_TYPE = float;
 
-// The dimensions currently supported by WMMA
+// The dimension supported by WMMA
 const int WMMA_M = 16;
 const int WMMA_N = 16;
 const int WMMA_K = 16;
@@ -24,6 +24,19 @@ enum WarpOrder {
   y_major
 };
 
+/**
+ * Used to record where elements in a matrix tile are stored in the cuda::wmma::fragment class
+ **/
+struct FragmentInformation {
+  int laneId = -1;
+  int index = -1;
+};
+
+
+
+/**
+ * Configuration class for matrix multiplication using Tensor core
+ **/
 // TODO: Adjust according to WarpOrder
 class TensorCoreConfig {
  public:
@@ -95,6 +108,9 @@ class TensorCoreConfig {
   __device__ size_t colEndOfTile() const {
       return globalThreadIdxX_ / WARP_SIZE * WMMA_N + WMMA_N;
   }
+  inline __device__ void positionCalculator(const UIN tileRow, const UIN tileCol,
+                                            const UIN row, const UIN col,
+                                            FragmentInformation &fragmentInformation);
 
  private:
   dim3 grid_;
@@ -106,3 +122,59 @@ class TensorCoreConfig {
   int globalWarpId_;
   int laneId_;
 };
+
+inline __device__ void positionCalculator_m16n16k16(const UIN tileRow, const UIN tileCol,
+                                                    const UIN row, const UIN col,
+                                                    FragmentInformation &fragmentInformation) {
+    if (tileRow > row || tileCol > col || tileRow + WMMA_M <= row || tileCol + WMMA_N <= col) {
+        fragmentInformation.laneId = -1;
+        fragmentInformation.index = -1;
+        return;
+    }
+    const int localRow = row - tileRow;
+    const int localCol = col - tileCol;
+
+    const int beginLane = localRow % 8 * 4;
+    const int isBigRow = localRow / 8;
+    const int isBigCol = localCol / 8;
+    fragmentInformation.laneId = beginLane + localCol % 8 / 2;
+    fragmentInformation.index = isBigRow * 2 + isBigCol * 4 + localCol % 2;
+}
+inline __device__ void positionCalculator_m32n8k16(const UIN tileRow, const UIN tileCol,
+                                                   const UIN row, const UIN col,
+                                                   FragmentInformation &fragmentInformation) {
+    if (tileRow > row || tileCol > col || tileRow + WMMA_M <= row || tileCol + WMMA_N <= col) {
+        fragmentInformation.laneId = -1;
+        fragmentInformation.index = -1;
+        return;
+    }
+    const int localRow = row - tileRow;
+    const int localCol = col - tileCol;
+
+}
+inline __device__ void positionCalculator_m8n32k16(const UIN tileRow, const UIN tileCol,
+                                                   const UIN row, const UIN col,
+                                                   FragmentInformation &fragmentInformation) {
+    if (tileRow > row || tileCol > col || tileRow + WMMA_M <= row || tileCol + WMMA_N <= col) {
+        fragmentInformation.laneId = -1;
+        fragmentInformation.index = -1;
+        return;
+    }
+    const int localRow = row - tileRow;
+    const int localCol = col - tileCol;
+
+}
+
+inline __device__ void TensorCoreConfig::positionCalculator(const UIN tileRow, const UIN tileCol,
+                                                            const UIN row, const UIN col,
+                                                            FragmentInformation &fragmentInformation) {
+    if (WMMA_M == 16 && WMMA_N == 16 && WMMA_K == 16) {
+        positionCalculator_m16n16k16(tileRow, tileCol, row, col, fragmentInformation);
+    }
+    if (WMMA_M == 32 && WMMA_N == 8 && WMMA_K == 16) {
+        positionCalculator_m32n8k16(tileRow, tileCol, row, col, fragmentInformation);
+    }
+    if (WMMA_M == 8 && WMMA_N == 32 && WMMA_K == 16) {
+        positionCalculator_m8n32k16(tileRow, tileCol, row, col, fragmentInformation);
+    }
+}
