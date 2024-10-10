@@ -121,39 +121,6 @@ __device__ void matrixTileMultiplicationUseTensorCore(int pRowId, int pColId,
     nvcuda::wmma::store_matrix_sync(pOffsetPtr, cFrag, ldp, nvcuda::wmma::mem_row_major);
 }
 
-__device__ void positionCalculator(const UIN tileRow, const UIN tileCol,
-                                   const UIN row, const UIN col,
-                                   int &laneId, int &idx) {
-    if (tileRow > row || tileCol > col || tileRow + WMMA_M <= row || tileCol + WMMA_N <= col) {
-        laneId = -1;
-        idx = -1;
-        return;
-    }
-    const int localRow = static_cast<int>(row - tileRow);
-    const int localCol = static_cast<int>(col - tileCol);
-
-    const int numberOfIterations = localCol % 8;
-
-    const int startLane = (localRow % 8) * 4;
-    laneId = startLane + numberOfIterations / 2;
-
-    const int addNum = numberOfIterations % 2;
-    if (localCol < 8) { // idx : 0~3
-        if (localRow < 8) { //  idx : 0~1 || 4~5
-            idx = addNum;
-        } else { // idx : 2~3 || 6~7
-            idx = 2 + addNum;
-        }
-    } else { // idx : 4~7
-        if (localRow < 8) { //  idx : 0~1 || 4~5
-            idx = 4 + addNum;
-        } else { // idx : 2~3 || 6~7
-            idx = 6 + addNum;
-        }
-    }
-
-}
-
 __device__ void matrixTileMultiplicationUseTensorCore_coo(TensorCoreConfig tensorCoreConfig,
                                                           const UIN pRowId,
                                                           const UIN pColId,
@@ -210,8 +177,8 @@ __device__ void matrixTileMultiplicationUseTensorCore_coo(TensorCoreConfig tenso
         const UIN curRow = matrixSRowIndex[matrixPIdx];
         const UIN curCol = matrixSColIndex[matrixPIdx];
 
-        int findLaneId = 0, findIdx = 0;
-        positionCalculator(pRowId, pColId, curRow, curCol, findLaneId, findIdx);
+        FragmentInformation fragmentInformation;
+        tensorCoreConfig.positionCalculator(pRowId, pColId, curRow, curCol, fragmentInformation);
 
 //        if (matrixPIdx == 8410 && warpId == 780 && laneId == 0) {
 //            printf(" warpId = %d\n"
@@ -234,8 +201,8 @@ __device__ void matrixTileMultiplicationUseTensorCore_coo(TensorCoreConfig tenso
 //            }
 //            printf("\n");
 //        }
-        if (laneId == findLaneId) {
-            matrixP[matrixPIdx] = cFrag.x[findIdx];
+        if (laneId == fragmentInformation.laneId) {
+            matrixP[matrixPIdx] = cFrag.x[fragmentInformation.index];
 //            printf(
 //                " pRowId = %d, pColId = %d, curRow = %d, curCol = %d, findLaneId = %d, findIdx = %d, cFrag.x[%d] = %f\n",
 //                static_cast<int>(pRowId),
@@ -285,7 +252,7 @@ __global__ void sddmm_gpu(const UIN M, const UIN N, const UIN K,
 
 }
 
-__global__ void sddmm_gpu_coo_1(class TensorCoreConfig tensorCoreConfig,
+__global__ void sddmm_gpu_coo_1(TensorCoreConfig tensorCoreConfig,
                                 const UIN M, const UIN N, const UIN K, const UIN nnz,
                                 const half *matrixA, const half *matrixB,
                                 const UIN *matrixSRowIndex,
@@ -347,7 +314,7 @@ __global__ void sddmm_gpu_coo_1(class TensorCoreConfig tensorCoreConfig,
 
 }
 
-__global__ void sddmm_gpu_coo_2(class TensorCoreConfig tensorCoreConfig,
+__global__ void sddmm_gpu_coo_2(TensorCoreConfig tensorCoreConfig,
                                 const UIN M, const UIN N, const UIN K, const UIN nnz,
                                 const half *matrixA, const half *matrixB,
                                 const UIN *matrixSRowIndex,
@@ -365,10 +332,10 @@ __global__ void sddmm_gpu_coo_2(class TensorCoreConfig tensorCoreConfig,
         return;
     }
 
-    const int warpId = tensorCoreConfig.globalWarpId();
+    const int globalWarpId = tensorCoreConfig.globalWarpId();
 
-    const int tileIndexBegin = matrixSTileMappedToWarpIndex[warpId];
-    const int tileIndexEnd = matrixSTileMappedToWarpIndex[warpId + 1];
+    const int tileIndexBegin = matrixSTileMappedToWarpIndex[globalWarpId];
+    const int tileIndexEnd = matrixSTileMappedToWarpIndex[globalWarpId + 1];
     const int numData = tileIndexEnd - tileIndexBegin;
     if (numData <= 0) {
         return;
@@ -414,14 +381,14 @@ __global__ void sddmm_gpu_coo_2(class TensorCoreConfig tensorCoreConfig,
         const UIN curRow = matrixSRowIndex[matrixPIdx];
         const UIN curCol = matrixSColIndex[matrixPIdx];
 
-        int findLaneId = 0, findIdx = 0;
-        positionCalculator(pRowId, pColId, curRow, curCol, findLaneId, findIdx);
+        FragmentInformation fragmentInformation;
+        tensorCoreConfig.positionCalculator(pRowId, pColId, curRow, curCol, fragmentInformation);
 
-//        if (matrixPIdx == 1 && warpId == 0 && laneId == 0) {
-//            printf(" warpId = %d "
+//        if (matrixPIdx == 1 && globalWarpId == 0 && laneId == 0) {
+//            printf(" globalWarpId = %d "
 //                   " pRowId = %d, pColId = %d, curRow = %d, curCol = %d, curValue = %f"
 //                   " laneId = %d findLaneId = %d, findIdx = %d, cFrag.x[%d] = %f\n",
-//                   warpId,
+//                   globalWarpId,
 //                   static_cast<int>(pRowId),
 //                   static_cast<int>(pColId),
 //                   static_cast<int>(curRow),
@@ -433,8 +400,8 @@ __global__ void sddmm_gpu_coo_2(class TensorCoreConfig tensorCoreConfig,
 //                   findIdx,
 //                   static_cast<float>(cFrag.x[findIdx]));
 //        }
-        if (laneId == findLaneId) {
-            matrixP[matrixPIdx] = cFrag.x[findIdx];
+        if (laneId == fragmentInformation.laneId) {
+            matrixP[matrixPIdx] = cFrag.x[fragmentInformation.index];
 //            printf(
 //                " pRowId = %d, pColId = %d, curRow = %d, curCol = %d, findLaneId = %d, findIdx = %d, cFrag.x[%d] = %f\n",
 //                static_cast<int>(pRowId),

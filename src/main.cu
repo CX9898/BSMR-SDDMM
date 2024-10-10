@@ -138,17 +138,18 @@ int main(int argc, char *argv[]) {
 //    matrixA.changeStorageOrder();
 //    matrixB.changeStorageOrder();
 
-    dev::vector<float> valuesA_d(matrixA.values());
-    dev::vector<float> valuesB_d(matrixB.values());
+    dev::vector<MATRIX_A_TYPE> matrixA_values_convertedType(matrixA.size());
+    dev::vector<MATRIX_B_TYPE> matrixB_values_convertedType(matrixB.size());
+    {
+        dev::vector<float> matrixA_values_dev(matrixA.values());
+        dev::vector<float> matrixB_values_dev(matrixB.values());
 
-    dev::vector<MATRIX_A_TYPE> valuesAfp16_d(matrixA.size());
-    dev::vector<MATRIX_B_TYPE> valuesBfp16_d(matrixB.size());
-
-    const int numThreadPerBlock = 1024;
-    convertFp32ToFp16<<< (matrixA.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
-        matrixA.size(), valuesA_d.data(), valuesAfp16_d.data());
-    convertFp32ToFp16<<< (matrixB.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
-        matrixB.size(), valuesB_d.data(), valuesBfp16_d.data());
+        const int numThreadPerBlock = 1024;
+        convertDataType<<< (matrixA.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
+            matrixA.size(), matrixA_values_dev.data(), matrixA_values_convertedType.data());
+        convertDataType<<< (matrixB.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
+            matrixB.size(), matrixB_values_dev.data(), matrixB_values_convertedType.data());
+    }
 
 //    Matrix<float> matrixS2D(matrixS_cpu);
 
@@ -169,7 +170,7 @@ int main(int argc, char *argv[]) {
 //    timeCalculator.startClock();
 //
 //    sddmm_gpu<<<grid, block>>>(matrixS_cpu.row(), matrixS_cpu.col(), matrixA.col(),
-//                               valuesAfp16_d.data(), valuesBfp16_d.data(), valuesS_d.data(), valuesP_d.data());
+//                               matrixA_values_convertedType.data(), matrixB_values_convertedType.data(), valuesS_d.data(), valuesP_d.data());
 //
 //    timeCalculator.endClock();
 //    std::cout << "Func sddmm_gpu time : " << timeCalculator.getTime() << " ms" << std::endl;
@@ -201,8 +202,8 @@ int main(int argc, char *argv[]) {
 //                                                                         matrixS_cpu.col(),
 //                                                                         matrixA.col(),
 //                                                                         matrixS_cpu.nnz(),
-//                                                                         valuesAfp16_d.data(),
-//                                                                         valuesBfp16_d.data(),
+//                                                                         matrixA_values_convertedType.data(),
+//                                                                         matrixB_values_convertedType.data(),
 //                                                                         matrixS_rowIndex_coo.data(),
 //                                                                         matrixS_colIndex_coo.data(),
 //                                                                         matrixS_tileIndex_coo.data(),
@@ -221,8 +222,8 @@ int main(int argc, char *argv[]) {
                                                                            matrixS_dev.col(),
                                                                            matrixA.col(),
                                                                            matrixS_dev.nnz(),
-                                                                           valuesAfp16_d.data(),
-                                                                           valuesBfp16_d.data(),
+                                                                           matrixA_values_convertedType.data(),
+                                                                           matrixB_values_convertedType.data(),
                                                                            matrixS_dev.rowIndex().data(),
                                                                            matrixS_dev.colIndex().data(),
                                                                            matrixS_dev.values().data(),
