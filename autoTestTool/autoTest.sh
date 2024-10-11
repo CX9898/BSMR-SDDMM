@@ -1,5 +1,19 @@
 #!/bin/bash
 
+# 编译程序
+echo "* Building the program"
+if [ ! -e "build" ]; then
+    mkdir "build"
+fi
+cmake -S ../ -B "build"
+cmake --build "build"
+
+program_path="$(pwd)/build/"
+program_name="sddmm-gpu"
+
+test_file_folder="$(pwd)/../dataset/test/"
+
+# 测试日志文件
 test_log_file_name="testLog"
 
 # 避免有同名文件
@@ -9,17 +23,12 @@ if [ -e "${test_log_file_name}" ]; then
     do
       ((file_id++))
     done
-    test_log_file_name="autoTestLog${file_id}"
+    test_log_file_name="${test_log_file_name}${file_id}"
 fi
-
 echo "* Create file: ${test_log_file_name}"
 touch ${test_log_file_name}
 
-test_file_folder="$(pwd)/../dataset/"
-
-program_path="$(pwd)/../cmake-build-release/"
-program_name="sddmm-gpu"
-
+# 开始测试
 autoTest(){
     echo "* Start test..."
 
@@ -39,6 +48,7 @@ autoTest(){
 
 autoTest
 
+# 编译分析结果程序
 g++ autoAnalysisResults.cpp -o autoAnalysisResults
 
 "$(pwd)/autoAnalysisResults" "$(pwd)/${test_log_file_name}"
