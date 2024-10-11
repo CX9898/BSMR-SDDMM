@@ -76,15 +76,14 @@ int main(int argc, char *argv[]) {
 
     const size_t K = 256;
 
-    std::cout << "M : " << matrixS.row()
-              << ", N : " << matrixS.col()
-              << ", K : " << K
-              << ", nnz : " << matrixS.nnz()
-              << ", sparsity : " << matrixS.getSparsity() * 100 << "%"
-              << std::endl;
+    printf("@M : %d @, ", matrixS.row());
+    printf("@N : %d @, ", matrixS.col());
+    printf("@K : %ld @, ", K);
+    printf("@M : %d @, ", matrixS.row());
+    printf("@sparsity : %f%% @\n", matrixS.getSparsity() * 100);
 
     TensorCoreConfig tensorCoreConfig(matrixS.row(), matrixS.col());
-    printf("WMMA : %d×%d×%d\n", WMMA_M, WMMA_N, WMMA_K);
+    printf("@WMMA_M : %d @, WMMA_N : %d @, @WMMA_K : %d @\n", WMMA_M, WMMA_N, WMMA_K);
 
     Matrix<float> matrixA(matrixS.row(), K, MatrixStorageOrder::row_major);
     matrixA.makeData(matrixA.row(), K, MatrixStorageOrder::row_major);
@@ -111,6 +110,8 @@ int main(int argc, char *argv[]) {
     std::cout << "Func openTensorCoreModeForSampled_time : " << openTensorCoreModeForSampled_time << " ms" << std::endl;
     std::cout << "openTensorCoreModeForSampled matrixS_dev : row = "
               << matrixS_dev.row() << ", col = " << matrixS_dev.col() << std::endl;
+
+    printf("@zcx_other : %f @\n", openTensorCoreModeForSampled_time);
 
 
 //    matrixS.openTensorCoreModeForSampled(tensorCoreConfig);
@@ -234,6 +235,8 @@ int main(int argc, char *argv[]) {
     const float time_sddmm_gpu_coo2 = timeCalculator.getTime();
     std::cout << "Func sddmm_gpu_coo_2 time : " << time_sddmm_gpu_coo2 << " ms" << std::endl;
 
+    printf("@zcx_sddmm : %f @\n", time_sddmm_gpu_coo2);
+
     std::cout << "Test : sddmm_gpu_coo_2" << std::endl;
     checkData(matrixP_cpu_res.values(), d2h(matrixP_value_coo2));
 
@@ -244,6 +247,8 @@ int main(int argc, char *argv[]) {
 
     const float time_sddmm_zcx = openTensorCoreModeForSampled_time + time_sddmm_gpu_coo2;
     std::cout << "sddmm_zcx time : " << time_sddmm_zcx << " ms" << std::endl;
+
+    printf("@sddmm_zcx time : %f @\n", time_sddmm_zcx);
 
 //    dmm_cpu(matrixA,matrixB,matrixS2D);
 
