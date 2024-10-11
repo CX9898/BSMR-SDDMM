@@ -34,7 +34,7 @@ autoTest(){
     done
 
     echo "* End test"
-    echo "* Test information file: $(pwd)${test_log_file_name}"
+    echo "* Test information file: $(pwd)/${test_log_file_name}"
 }
 
 autoTest
