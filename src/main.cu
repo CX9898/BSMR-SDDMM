@@ -29,9 +29,12 @@ const std::string filePath = folderPath + fileName + fileFormat;
 //              稀疏度大于50%使用 isratnisa 的方法
 //              稀疏度小于50%使用 Tensor core 方法
 //      4: 全部数据放在device内存                               OK
-//      5: 优化openTensorCoreModeForSampled()
+//      5: 优化openTensorCoreModeForSampled()                 OK
 //      6: 测试更大的K(<5k)的结果
-//      7: 优化positionCalculator(), 并且目前只支持 WMMA : 32×8×16
+//      7: 优化positionCalculator(),                          OK
+//                  支持 WMMA 维度 : 16×16×16                   OK
+//                  支持 WMMA 维度 : 32×8×16
+//                  支持 WMMA 维度 : 8×32×16
 
 int main(int argc, char *argv[]) {
     // make sparse matrix data
@@ -79,7 +82,7 @@ int main(int argc, char *argv[]) {
     printf("@M : %d @, ", matrixS.row());
     printf("@N : %d @, ", matrixS.col());
     printf("@K : %ld @, ", K);
-    printf("@M : %d @, ", matrixS.row());
+    printf("@NNZ : %d @, ", matrixS.nnz());
     printf("@sparsity : %f%% @\n", matrixS.getSparsity() * 100);
 
     TensorCoreConfig tensorCoreConfig(matrixS.row(), matrixS.col());
@@ -248,7 +251,7 @@ int main(int argc, char *argv[]) {
     const float time_sddmm_zcx = openTensorCoreModeForSampled_time + time_sddmm_gpu_coo2;
     std::cout << "sddmm_zcx time : " << time_sddmm_zcx << " ms" << std::endl;
 
-    printf("@sddmm_zcx time : %f @\n", time_sddmm_zcx);
+    printf("@zcx : %f @\n", time_sddmm_zcx);
 
 //    dmm_cpu(matrixA,matrixB,matrixS2D);
 
