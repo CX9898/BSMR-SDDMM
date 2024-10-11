@@ -85,6 +85,36 @@ struct ResultsInformation {
 };
 
 void ResultsInformation::clear() {
+    gpu_ = "4090";
+    buildType_ = "Release build";
+
+    wmma_m_.clear();
+    wmma_n_.clear();
+    wmma_k_.clear();
+
+    matrixA_type_.clear();
+    matrixB_type_.clear();
+    matrixC_type_.clear();
+
+    matrixA_storageOrder_;
+    matrixB_storageOrder_;
+    matrixC_storageOrder_;
+
+    M_.clear();
+    N_.clear();
+    K_.clear();
+    NNZ_.clear();
+    sparsity_.clear();
+
+    isratnisa_sddmm_ = " "; // TODO
+    zcx_sddmm_.clear();
+
+    isratnisa_other_ = " "; // TODO
+    zcx_other_.clear();
+
+    isratnisa_ = " "; // TODO
+    zcx_.clear();
+
     is_initialized_gpu_ = true;
     is_initialized_buildType_ = true;
 
