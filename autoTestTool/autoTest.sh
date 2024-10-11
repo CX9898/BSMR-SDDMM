@@ -1,6 +1,6 @@
 #!/bin/bash
 
-test_log_file_name="autoTestLog"
+test_log_file_name="testLog"
 
 # 避免有同名文件
 if [ -e "${test_log_file_name}" ]; then
@@ -29,6 +29,7 @@ autoTest(){
     for file in "${filesList[@]}"; do
           echo "* ${test_file_folder}$file start testing..."
           ${program_path}${program_name} ${test_file_folder}${file} >> ${test_log_file_name}
+          echo -e "\n---next---\n">> ${test_log_file_name}
           echo "* ${test_file_folder}$file end test"
     done
 
