@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.26)
 
 # Project Information
-project(SDDMM_GPU)
+project(isratnisa_sddmm)
 
 # Add languages needed when building the project
 enable_language(CXX)
@@ -14,8 +14,8 @@ find_package(CUDAToolkit REQUIRED)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CUDA_STANDARD 11)
 
-# Specifies which GPU architectures are supported when compiling CUDA code (optional)
-set(CMAKE_CUDA_ARCHITECTURES 90)
+## Specifies which GPU architectures are supported when compiling CUDA code (optional)
+#set(CMAKE_CUDA_ARCHITECTURES 86)
 
 # Save the folder path in a variable
 set(INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")

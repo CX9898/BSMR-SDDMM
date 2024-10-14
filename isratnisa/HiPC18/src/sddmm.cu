@@ -28,7 +28,12 @@ inline cudaError_t checkCuda(cudaError_t result, int s) {
     return result;
 }
 
-void sddmm_GPU(const Matrix S, const TiledMatrix tS, float *P, vector<float> W, vector<float> H) {
+void sddmm_GPU(const Matrix S,
+               const TiledMatrix tS,
+               float *P,
+               vector<float> W,
+               vector<float> H,
+               float *comp_kernel_COO_time) {
 
     float *d_val; // 结果矩阵, device 端数据
     float *d_W; // 稠密矩阵 W, device 端数据
@@ -47,7 +52,7 @@ void sddmm_GPU(const Matrix S, const TiledMatrix tS, float *P, vector<float> W, 
     //***********Starting GPU****************
     checkCuda(cudaMalloc((void **) &d_W, k * S.n_rows * sizeof(float)), 0);
     checkCuda(cudaMalloc((void **) &d_H, k * S.n_cols * sizeof(float)), 1);
-    // checkCuda(cudaMalloc((void**)&d_row_ptr, (n_rows+1) * sizeof (int)),2);   
+    // checkCuda(cudaMalloc((void**)&d_row_ptr, (n_rows+1) * sizeof (int)),2);
     checkCuda(cudaMalloc((void **) &d_row_ind, tS.nnz * sizeof(int)), 4);
     checkCuda(cudaMalloc((void **) &d_col_ind, tS.nnz * sizeof(int)), 4);
     checkCuda(cudaMalloc((void **) &d_val, tS.nnz * sizeof(float)), 4);
@@ -80,14 +85,14 @@ void sddmm_GPU(const Matrix S, const TiledMatrix tS, float *P, vector<float> W, 
     }
     // sum=0;
     // for (int i = 0; i < tS.ntile_c; ++i){
-    //     checkCuda(cudaMemcpy(d_passive_row+sum, &(passive_row[i*S.n_rows]), S.n_rows * sizeof (int), cudaMemcpyHostToDevice),4); 
+    //     checkCuda(cudaMemcpy(d_passive_row+sum, &(passive_row[i*S.n_rows]), S.n_rows * sizeof (int), cudaMemcpyHostToDevice),4);
     //     sum += S.n_rows;
     // }
 
     cudaMemcpy(d_W, &(W[0]), S.n_rows * k * sizeof(float), cudaMemcpyHostToDevice);
     //cudaMemcpy(d_W, &(W_t[0]),  S.n_rows * k  * sizeof (float), cudaMemcpyHostToDevice);
     cudaMemcpy(d_H, &(H[0]), S.n_cols * k * sizeof(float), cudaMemcpyHostToDevice);
-    //cudaMemcpy(d_H, &(H_t[0]),  S.n_cols * k  * sizeof (float), cudaMemcpyHostToDevice);  
+    //cudaMemcpy(d_H, &(H_t[0]),  S.n_cols * k  * sizeof (float), cudaMemcpyHostToDevice);
 
 
     int n_tile = tS.ntile_c;//S.n_cols/tile_sizeX + 1;
@@ -99,7 +104,7 @@ void sddmm_GPU(const Matrix S, const TiledMatrix tS, float *P, vector<float> W, 
         cudaStreamCreate(&(stream[i]));
     }
 
-    float mili = 0, copyTime = 0;
+    float copyTime = 0;
 
     dim3 block(BLOCKSIZE, 1, 1), grid(1, 1, 1);
     sum = 0;
@@ -141,9 +146,9 @@ void sddmm_GPU(const Matrix S, const TiledMatrix tS, float *P, vector<float> W, 
     checkCuda(cudaEventRecord(stop), __LINE__);
     cudaEventSynchronize(stop);
     //cudaDeviceSynchronize();
-    checkCuda(cudaEventElapsedTime(&mili, start, stop), __LINE__);
+    checkCuda(cudaEventElapsedTime(comp_kernel_COO_time, start, stop), __LINE__);
     cudaDeviceSynchronize();
-    cout << "\nTime for SDDMM with K = " << k << " : " << mili << " ms" << endl;
+    cout << "\nTime for SDDMM with K = " << k << " : " << *comp_kernel_COO_time << " ms" << endl;
 
     //******** correctness check
     float GPU_tot = 0, CPU_tot = 0, CPU_tot_orig = 0;
@@ -216,7 +221,7 @@ void sddmm_CPU_CSR(int *row_ptr,
                 // cout <<W[row * k + t] <<" "<<H[col * k + t]<< endl;
             }
             p_ind[ind] = sm * val_ind[ind];
-            // cout << "ind " << row<<" "<<col << ":: "  <<" "<< p_ind[ind] << " = " << sm <<" * "<< val_ind[ind]<< endl;  
+            // cout << "ind " << row<<" "<<col << ":: "  <<" "<< p_ind[ind] << " = " << sm <<" * "<< val_ind[ind]<< endl;
 
 
         }
@@ -279,28 +284,69 @@ void preprocessing(const Matrix S) {
     /*converting col sorted matrix to row sorted */
     //unsorted_make_CSR(rows, cols, vals, S.nnz, S.n_rows, S.n_cols, row_ptr);
 
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+
+    checkCuda(cudaEventRecord(start), __LINE__);
     //assuming sorted
     make_CSR(S.rows, S.cols, S.vals, S.nnz, S.n_rows, row_ptr, row_holder);
+    checkCuda(cudaEventRecord(stop), __LINE__);
+    cudaEventSynchronize(stop);
+    float make_CSR_time;
+    checkCuda(cudaEventElapsedTime(&make_CSR_time, start, stop), __LINE__);
+    cout << "\nmake_CSR_time = " << make_CSR_time << " ms" << endl;
 
+    checkCuda(cudaEventRecord(start), __LINE__);
     tiledS.max_active_row = rewrite_matrix_1D(S, tiledS, row_ptr, tile_sizeX, row_holder);
-
-    // rewrite_col_sorted_matrix(row_ptr, rows, cols, vals, tS.rows, tS.cols, new_vals, S.nnz, 
+    checkCuda(cudaEventRecord(stop), __LINE__);
+    cudaEventSynchronize(stop);
+    float rewrite_matrix_1D_time;
+    checkCuda(cudaEventElapsedTime(&rewrite_matrix_1D_time, start, stop), __LINE__);
+    cout << "\nrewrite_matrix_1D_time = " << rewrite_matrix_1D_time << " ms" << endl;
+    // rewrite_col_sorted_matrix(row_ptr, rows, cols, vals, tS.rows, tS.cols, new_vals, S.nnz,
     //S.n_rows, S.n_cols, tile_sizeX, tiled_ind, lastIdx_tile, BLOCKSIZE, tS.nnz);
 
     /* CPU call */
     // sddmm_CPU_CSR(row_ptr, cols, vals, W, H, P);
     sddmm_CPU_COO(S.rows, S.cols, S.vals, W, H, P, S);
 
+    float *comp_kernel_COO_time = (float *) malloc(sizeof(float));
     /* GPU call */
-    sddmm_GPU(S, tiledS, P, W, H);
+    sddmm_GPU(S, tiledS, P, W, H, comp_kernel_COO_time);
 
+    float other_time = make_CSR_time + rewrite_matrix_1D_time;
+    std::cout << "sddmm_time = " << *comp_kernel_COO_time << " ms" << std::endl;
+    std::cout << "other_time = " << other_time << " ms" << std::endl;
+    float sum_time = make_CSR_time + rewrite_matrix_1D_time + *comp_kernel_COO_time;
+    std::cout << "Finished sum time = " << sum_time << " ms" << std::endl;
+
+    printf("@isratnisa_sddmm : %f @\n", *comp_kernel_COO_time);
+    printf("@isratnisa_other : %f @\n", other_time);
+    printf("@isratnisa : %f @\n", sum_time);
 }
-// ~/CLionProjects/SDDMM_GPU_comment/dataset/nips.mtx 256 192 50000
+
 int main(int argc, char *argv[]) {
 
     Matrix S;
 
     ifstream fp(argv[1]);
+//    char *filePath = nullptr;
+//    const char *folderPath = "../dataset/test/";
+//    const char *fileName = "matrix_5000_5000_125000";
+//    const char *fileFormat = ".mtx";
+//    strcat(filePath, folderPath);
+//    strcat(filePath, fileName);
+//    strcat(filePath, fileFormat);
+//
+//    Matrix S;
+//
+//    ifstream fp;
+//    if (argc > 1) {
+//        fp.open(argv[1]);
+//    } else{
+//        fp.open(filePath);
+//    }
     k = atoi(argv[2]);
     tile_sizeY = atoi(argv[3]);
     tile_sizeX = atoi(argv[4]);
@@ -317,6 +363,7 @@ int main(int argc, char *argv[]) {
     is >> S.n_cols;
     is >> S.nnz;
     cout << "\nMatrix info: " << " rows: " << S.n_rows << ", cols: " << S.n_cols << ", nnz: " << S.nnz << endl;
+    std::cout << "M : " << S.n_rows << ", N : " << S.n_cols << ", K = " << k << std::endl;
     long orig_nnz = S.nnz, rid = 0, cid = 0;
     float vid = 0;
 
