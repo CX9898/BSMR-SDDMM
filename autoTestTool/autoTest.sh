@@ -95,7 +95,7 @@ autoTest2(){
     echo -e "\t ** ${test_file_folder}$file start testing..."
     $1 ${test_file_folder}${file} ${K} 192 50000 >> $2
     echo -e "\n---next---\n" >> $2
-    echo "\t ** ${test_file_folder}$file end test"
+    echo -e "\t ** ${test_file_folder}$file end test"
   done
 
   echo "* End test"

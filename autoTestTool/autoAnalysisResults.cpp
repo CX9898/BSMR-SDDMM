@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 //struct TensorCoreInformation {
 // public:
@@ -22,6 +23,10 @@
 
 struct ResultsInformation {
  public:
+
+  void initInformation(const std::string &line);
+  void clear();
+
   std::string gpu_ = "4090"; // TODO
   std::string buildType_ = "Release build"; // TODO
 
@@ -51,9 +56,6 @@ struct ResultsInformation {
 
   std::string isratnisa_;
   std::string zcx_;
-
-  void initInformation(const std::string &line);
-  void clear();
 
  private:
   bool is_initialized_gpu_ = true; // TODO
@@ -217,6 +219,26 @@ void printOneLineOfList(const ResultsInformation &resultsInformation) {
     printf("\n");
 }
 
+void sortResultsInformation(std::vector<ResultsInformation> &resultsInformation) {
+    printf("sortResultsInformation...\n");
+    std::sort(resultsInformation.begin(), resultsInformation.end(),
+              [&](ResultsInformation &a, ResultsInformation &b) {
+                const float M_a = std::stof(a.M_);
+                const float M_b = std::stof(b.M_);
+                if (M_a > M_b) {
+                    return true;
+                }
+
+                const float sparsity_a = std::stof(a.sparsity_);
+                const float sparsity_b = std::stof(b.sparsity_);
+                if (sparsity_a > sparsity_b) {
+                    return false;
+                } else {
+                    return true;
+                }
+              });
+}
+
 int main(int argc, char *argv[]) {
     printf("start analyze the data and print it\n");
 
@@ -254,7 +276,7 @@ int main(int argc, char *argv[]) {
             ++testResultId;
             continue;
         }
-        if(testResultId > resultsInformation.size()){
+        if (testResultId > resultsInformation.size()) {
             std::cerr << "numTestResult > input number" << std::endl;
             break;
         }
@@ -267,12 +289,13 @@ int main(int argc, char *argv[]) {
             ++testResultId;
             continue;
         }
-        if(testResultId > resultsInformation.size()){
+        if (testResultId > resultsInformation.size()) {
             std::cerr << "numTestResult > input number" << std::endl;
             break;
         }
         resultsInformation[testResultId].initInformation(line);
     }
+    sortResultsInformation(resultsInformation);
 
     printf("Markdown table : \n");
     printHeadOfList();
