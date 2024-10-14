@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.26)
 
 # Project Information
-project(isratnisa_sddmm)
+project(isratnisa-sddmm)
 
 # Add languages needed when building the project
 enable_language(CXX)
