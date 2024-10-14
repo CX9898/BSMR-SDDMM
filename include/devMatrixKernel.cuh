@@ -121,7 +121,9 @@ class updateScatteredNumOfIndexOperator_3 {
   updateScatteredNumOfIndexOperator_3(UIN *nums) : nums_(nums) {}
 
   inline __device__ void init(dim3 _gridDim, dim3 _blockIdx, dim3 _blockDim, dim3 _threadIdx) {
-      idx_ = _gridDim.y * _blockDim.x * _blockIdx.x + _blockIdx.y * _blockDim.x + _threadIdx.x;
+      const UIN numberOfDataStoredPerOneBlock = _blockDim.x;
+      const UIN numberOfDataStoredPerYGrid = _gridDim.y * numberOfDataStoredPerOneBlock;
+      idx_ = numberOfDataStoredPerYGrid * _blockIdx.x + _blockIdx.y * numberOfDataStoredPerOneBlock + _threadIdx.x;
   }
   inline __device__ void cycle(UIN mtxIdx) {
       ++num_;
