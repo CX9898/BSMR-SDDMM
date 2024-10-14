@@ -17,7 +17,7 @@ const std::string folderPath("../dataset/test/");
 //const std::string folderPath("./");
 //const std::string fileName = ("nips");
 //const std::string fileName = ("test");
-const std::string fileName = ("matrix_10000_10000_1000000");
+const std::string fileName = ("matrix_10000_10000_5000000");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 
@@ -240,7 +240,7 @@ int main(int argc, char *argv[]) {
 
     printf("@zcx_sddmm : %f @\n", time_sddmm_gpu_coo2);
 
-    std::cout << "Test : sddmm_gpu_coo_2" << std::endl;
+    std::cout << "check matrixP_cpu_res and sddmm_gpu_coo_2 : " << std::endl;
     checkData(matrixP_cpu_res.values(), d2h(matrixP_value_coo2));
 
 //    std::cout << "closeTensorCoreMode" << std::endl;
