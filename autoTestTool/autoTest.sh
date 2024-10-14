@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# 储存测试生成的文件
 testFolder="testFolder"
 if [ ! -e ${testFolder} ]; then
     mkdir ${testFolder}
@@ -60,48 +61,37 @@ echo "* Create file: ${isratnisa_test_log_file_name}"
 touch ${isratnisa_test_log_file_name}
 
 # 测试文件路径
-test_file_folder="$(pwd)/../dataset/test/"
+test_file_folder="$(pwd)/../dataset/matrix_5000_5000_/"
 
-# 使用 find 命令读取目录中的所有文件名，并存储到数组中
-filesList=($(find "${test_file_folder}" -maxdepth 1 -type f -printf '%f\n'))
-numTestFiles=${#filesList[@]}
-
-echo "numTestFiles = ${numTestFiles}"
-
-K=256
+# 设置多个K
+K=(256 500 1000 2000 3000 4000 5000)
 
 # 开始测试
 autoTest(){
+  # 使用 find 命令读取目录中的所有文件名，并存储到数组中
+  filesList=($(find "${test_file_folder}" -maxdepth 1 -type f -printf '%f\n'))
+  numTestFiles=${#filesList[@]}
+  echo "* Number of test files: = ${numTestFiles}"
+
   echo "* Start test..."
-  echo -e "numTestFiles : ${numTestFiles}\n" >> $2
+  echo -e "@numTestFiles : ${numTestFiles} @\n" >> $2
   for file in "${filesList[@]}"; do
-    echo "** ${test_file_folder}$file start testing..."
-    $1 ${test_file_folder}${file} >> $2
+    echo -e "\t * ${test_file_folder}$file start testing..."
+    for k in "${K[@]}"; do
+      echo -e "\t\t * K = ${k} start testing..."
+      $1 ${test_file_folder}${file} ${k} 192 50000 >> $2
+      echo -e "\t\t * K = ${k} end test"
+    done
     echo -e "\n---next---\n" >> $2
-    echo "** ${test_file_folder}$file end test"
-  done
-
-  echo "* End test"
-  echo "* Test information file: $(pwd)/$2"
-}
-
-autoTest ${zcx_program_path}${zcx_program_name} ${zcx_test_log_file_name}
-
-# 开始测试
-autoTest2(){
-  echo "* Start test..."
-  echo -e "\t * numTestFiles : ${numTestFiles}\n" >> $2
-  for file in "${filesList[@]}"; do
-    echo -e "\t ** ${test_file_folder}$file start testing..."
-    $1 ${test_file_folder}${file} ${K} 192 50000 >> $2
-    echo -e "\n---next---\n" >> $2
-    echo -e "\t ** ${test_file_folder}$file end test"
+    echo -e "\t * ${test_file_folder}$file end test"
   done
 
   echo "* End test"
   echo "* Test information file: $(pwd)/${2}"
 }
-autoTest2 ${isratnisa_program_path}${isratnisa_program_name} ${isratnisa_test_log_file_name}
+
+autoTest ${zcx_program_path}${zcx_program_name} ${zcx_test_log_file_name}
+autoTest ${isratnisa_program_path}${isratnisa_program_name} ${isratnisa_test_log_file_name}
 
 # 编译分析结果程序
 g++ autoAnalysisResults.cpp -o autoAnalysisResults

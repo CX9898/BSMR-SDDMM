@@ -201,9 +201,9 @@ void printHeadOfList() {
 
 void printOneLineOfList(const ResultsInformation &resultsInformation) {
     auto printOneInformation = [&](const std::string &information) -> void {
-      std::cout << information << " |";
+      std::cout << information << "\t|";
     };
-    printf("| ");
+    printf("|");
     std::string
         matrixFileName("matrix_" + resultsInformation.M_ + "_" + resultsInformation.N_ + "_" + resultsInformation.NNZ_);
     printOneInformation(matrixFileName);
@@ -233,9 +233,15 @@ void sortResultsInformation(std::vector<ResultsInformation> &resultsInformation)
                 const float sparsity_b = std::stof(b.sparsity_);
                 if (sparsity_a > sparsity_b) {
                     return false;
-                } else {
-                    return true;
                 }
+
+                const int K_a = std::stoi(a.K_);
+                const int K_b = std::stoi(b.K_);
+                if(K_a > K_b){
+                    return false;
+                }
+
+                return true;
               });
 }
 
