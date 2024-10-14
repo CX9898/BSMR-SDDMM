@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 
 //struct TensorCoreInformation {
 // public:
@@ -21,8 +22,8 @@
 
 struct ResultsInformation {
  public:
-  std::string gpu_ = "4090";
-  std::string buildType_ = "Release build";
+  std::string gpu_ = "4090"; // TODO
+  std::string buildType_ = "Release build"; // TODO
 
   std::string wmma_m_;
   std::string wmma_n_;
@@ -42,21 +43,21 @@ struct ResultsInformation {
   std::string NNZ_;
   std::string sparsity_;
 
-  std::string isratnisa_sddmm_ = " "; // TODO
+  std::string isratnisa_sddmm_;
   std::string zcx_sddmm_;
 
-  std::string isratnisa_other_ = " "; // TODO
+  std::string isratnisa_other_;
   std::string zcx_other_;
 
-  std::string isratnisa_ = " "; // TODO
+  std::string isratnisa_;
   std::string zcx_;
 
   void initInformation(const std::string &line);
   void clear();
 
  private:
-  bool is_initialized_gpu_ = true;
-  bool is_initialized_buildType_ = true;
+  bool is_initialized_gpu_ = true; // TODO
+  bool is_initialized_buildType_ = true; // TODO
 
   bool is_initialized_wmma_m_ = false;
   bool is_initialized_wmma_n_ = false;
@@ -76,17 +77,17 @@ struct ResultsInformation {
   bool is_initialized_NNZ_ = false;
   bool is_initialized_sparsity_ = false;
 
-  bool is_initialized_isratnisa_sddmm_ = true; // TODO
+  bool is_initialized_isratnisa_sddmm_ = false;
   bool is_initialized_zcx_sddmm_ = false;
-  bool is_initialized_isratnisa_other_ = true; // TODO
+  bool is_initialized_isratnisa_other_ = false;
   bool is_initialized_zcx_other_ = false;
-  bool is_initialized_isratnisa_ = true; // TODO
+  bool is_initialized_isratnisa_ = false;
   bool is_initialized_zcx_ = false;
 };
 
 void ResultsInformation::clear() {
-    gpu_ = "4090";
-    buildType_ = "Release build";
+    gpu_ = "4090"; // TODO
+    buildType_ = "Release build"; // TODO
 
     wmma_m_.clear();
     wmma_n_.clear();
@@ -106,13 +107,13 @@ void ResultsInformation::clear() {
     NNZ_.clear();
     sparsity_.clear();
 
-    isratnisa_sddmm_ = " "; // TODO
+    isratnisa_sddmm_.clear();
     zcx_sddmm_.clear();
 
-    isratnisa_other_ = " "; // TODO
+    isratnisa_other_.clear();
     zcx_other_.clear();
 
-    isratnisa_ = " "; // TODO
+    isratnisa_.clear();
     zcx_.clear();
 
     is_initialized_gpu_ = true;
@@ -136,11 +137,11 @@ void ResultsInformation::clear() {
     is_initialized_NNZ_ = false;
     is_initialized_sparsity_ = false;
 
-    is_initialized_isratnisa_sddmm_ = true; // TODO
+    is_initialized_isratnisa_sddmm_ = false;
     is_initialized_zcx_sddmm_ = false;
-    is_initialized_isratnisa_other_ = true; // TODO
+    is_initialized_isratnisa_other_ = false;
     is_initialized_zcx_other_ = false;
-    is_initialized_isratnisa_ = true; // TODO
+    is_initialized_isratnisa_ = false;
     is_initialized_zcx_ = false;
 }
 
@@ -219,27 +220,63 @@ void printOneLineOfList(const ResultsInformation &resultsInformation) {
 int main(int argc, char *argv[]) {
     printf("start analyze the data and print it\n");
 
-    const std::string inputFilePath(argv[1]);
-    std::ifstream inFile;
-    inFile.open(inputFilePath, std::ios::in); // open file
-    if (!inFile.is_open()) {
-        std::cerr << "Error, Results file cannot be opened : " << inputFilePath << std::endl;
+    std::string inputFilePath_zcx;
+    std::string inputFilePath_isratnisa;
+    int numTestResult = 0;
+    if (argc < 2) {
+        inputFilePath_zcx = argv[1];
+    } else {
+        numTestResult = std::atoi(argv[1]);
+        inputFilePath_zcx = argv[2];
+        inputFilePath_isratnisa = argv[3];
+    }
+
+    std::ifstream inFile_zcx;
+    inFile_zcx.open(inputFilePath_zcx, std::ios::in); // open file
+    if (!inFile_zcx.is_open()) {
+        std::cerr << "Error, Results file cannot be opened : " << inputFilePath_zcx << std::endl;
         return -1;
     }
 
-    ResultsInformation resultsInformation;
+    std::ifstream inFile_isratnisa;
+    inFile_isratnisa.open(inputFilePath_isratnisa, std::ios::in); // open file
+    if (!inFile_isratnisa.is_open()) {
+        std::cerr << "Error, Results file cannot be opened : " << inputFilePath_isratnisa << std::endl;
+        return -1;
+    }
+
+    std::vector<ResultsInformation> resultsInformation(numTestResult);
+
+    std::string line; // Store the data for each line
+    int testResultId = 0;
+    while (getline(inFile_zcx, line)) {
+        if (line == "---next---") {
+            ++testResultId;
+            continue;
+        }
+        if(testResultId > resultsInformation.size()){
+            std::cerr << "numTestResult > input number" << std::endl;
+            break;
+        }
+        resultsInformation[testResultId].initInformation(line);
+    }
+
+    testResultId = 0;
+    while (getline(inFile_isratnisa, line)) {
+        if (line == "---next---") {
+            ++testResultId;
+            continue;
+        }
+        if(testResultId > resultsInformation.size()){
+            std::cerr << "numTestResult > input number" << std::endl;
+            break;
+        }
+        resultsInformation[testResultId].initInformation(line);
+    }
 
     printf("Markdown table : \n");
     printHeadOfList();
-
-    std::string line; // Store the data for each line
-    while (getline(inFile, line)) {
-        if (line == "---next---") {
-            printOneLineOfList(resultsInformation);
-            resultsInformation.clear();
-            continue;
-        }
-        resultsInformation.initInformation(line);
+    for (int resIdx = 0; resIdx < numTestResult; ++resIdx) {
+        printOneLineOfList(resultsInformation[resIdx]);
     }
-
 }
