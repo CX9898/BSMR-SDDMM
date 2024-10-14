@@ -122,8 +122,8 @@ void dev::SparseMatrix<T>::setValuesFromDenseData(UIN row, UIN col, UIN ld, cons
 //    colBeforeChange_ = col_;
 //}
 
-#define TEST
-#define PRINT_TIME
+//#define TEST
+//#define PRINT_TIME
 
 template<typename T>
 void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorCoreConfig) {
@@ -209,12 +209,16 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
                getNumIndexPerWarp_1_time + inclusive_scan_time + getTileIndexDataPerWarp_time);
     }
 #endif // TEST
-    //////////////////////////////// 2 error
+    //////////////////////////////// 2 OK
     {
-#ifdef TEST
+
         dev::vector<UIN> numIndexOfPerWarp_2(numWarps);
         dev::fill_n(numIndexOfPerWarp_2.data(), numIndexOfPerWarp_2.size(), 0);
+
+#ifdef PRINT_TIME
         timeCalculator.startClock();
+#endif // PRINT_TIME
+
         getIndexPerWarp_2<<<numBlocks, numThreadsPerBlock>>>(numWarps,
                                                              numWarpX,
                                                              nnz_,
@@ -222,9 +226,11 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
                                                              colIndex_.data(),
                                                              updateNumOfIndexOperator_2(numIndexOfPerWarp_2.data()));
 
+#ifdef PRINT_TIME
         timeCalculator.endClock();
         float getIndexPerWarp_2_time = timeCalculator.getTime();
         std::cout << "    getIndexPerWarp_2_time : " << getIndexPerWarp_2_time << " ms" << std::endl;
+#endif // PRINT_TIME
 
 #ifdef TEST
         printf("  check rightNum and numIndexOfPerWarp_2 : \n");
@@ -232,39 +238,46 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
             exit(1);
         }
 #endif // TEST
-        timeCalculator.startClock();
 
-        dev::vector<UIN> matrixTileMappedToWarpIndex_2(numWarps + 1);
-        dev::fill_n(matrixTileMappedToWarpIndex_2.data(), 1, 0);
+#ifdef PRINT_TIME
+        timeCalculator.startClock();
+#endif // PRINT_TIME
+
+        matrixTileMappedToWarpIndex_.resize(numWarps + 1);
+        dev::fill_n(matrixTileMappedToWarpIndex_.data(), 1, 0);
         dev::inclusive_scan(numIndexOfPerWarp_2.data(),
                             numIndexOfPerWarp_2.data() + numIndexOfPerWarp_2.size(),
-                            matrixTileMappedToWarpIndex_2.data() + 1);
-        const UIN numIndexData_2 = matrixTileMappedToWarpIndex_2.back_data();
+                            matrixTileMappedToWarpIndex_.data() + 1);
+        const UIN numIndexData_2 = matrixTileMappedToWarpIndex_.back_data();
+
+#ifdef PRINT_TIME
         timeCalculator.endClock();
         float inclusive_scan_2_time = timeCalculator.getTime();
         std::cout << "    inclusive_scan_2_time : " << inclusive_scan_2_time << " ms" << std::endl;
+#endif // PRINT_TIME
 
-        dev::vector<UIN> matrixTileMappedToWarpIndexData_2(numIndexData_2);
+#ifdef PRINT_TIME
         timeCalculator.startClock();
+#endif // PRINT_TIME
+
+        matrixTileMappedToWarpIndexData_.resize(numIndexData_2);
         getIndexPerWarp_2<<<numBlocks, numThreadsPerBlock>>>(numWarps,
                                                              numWarpX,
                                                              nnz_,
                                                              rowIndex_.data(),
                                                              colIndex_.data(),
                                                              updateIndexDataPerWarpOperator_2(
-                                                                 matrixTileMappedToWarpIndex_2.data(),
-                                                                 matrixTileMappedToWarpIndexData_2.data()));
+                                                                 matrixTileMappedToWarpIndex_.data(),
+                                                                 matrixTileMappedToWarpIndexData_.data()));
 
+#ifdef PRINT_TIME
         timeCalculator.endClock();
         float getIndexPerWarp_2_2_time = timeCalculator.getTime();
         std::cout << "    getIndexPerWarp_2_2_time : " << getIndexPerWarp_2_2_time << " ms" << std::endl;
 
         printf(" @@@Method 2 time : %f\n",
                getIndexPerWarp_2_time + inclusive_scan_2_time + getIndexPerWarp_2_2_time);
-
-        d2d(matrixTileMappedToWarpIndex_, matrixTileMappedToWarpIndex_2);
-        d2d(matrixTileMappedToWarpIndexData_, matrixTileMappedToWarpIndexData_2);
-#endif // TEST
+#endif // PRINT_TIME
     }
 
     //////////////////////////////// 3 OK 但是内存分配太多!

@@ -58,7 +58,7 @@ class updateIndexDataPerWarpOperator_1 {
 };
 
 template<typename OP>
-__global__ void getIndexPerWarp_1(const UIN size, const UIN numWarpX,
+__global__ void getIndexPerWarp_1(const UIN numWarpsInSDDMM, const UIN numWarpXInSDDMM,
                                   const UIN numTileM, const UIN numTileN,
                                   const UIN nnz,
                                   const UIN *rowIndex,

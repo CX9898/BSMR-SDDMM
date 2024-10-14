@@ -21,27 +21,27 @@ template __global__ void getValuesFromDenseData<double>(const UIN row, const UIN
                                                         const double *denseData, double *output);
 
 template<typename OP>
-__global__ void getIndexPerWarp_1(const UIN size, const UIN numWarpX,
+__global__ void getIndexPerWarp_1(const UIN numWarpsInSDDMM, const UIN numWarpXInSDDMM,
                                   const UIN numTileM, const UIN numTileN,
                                   const UIN nnz,
                                   const UIN *rowIndex,
                                   const UIN *colIndex,
                                   OP op) {
-    const int globalTid = blockDim.x * blockIdx.x + threadIdx.x;
-    if (globalTid >= size) {
+    const int warpIdInSDDMM = blockDim.x * blockIdx.x + threadIdx.x;
+    if (warpIdInSDDMM >= numWarpsInSDDMM) {
         return;
     }
 
-    const int curWarpX = globalTid % numWarpX;
-    const int curWarpY = globalTid / numWarpX;
+    const int curWarpX = warpIdInSDDMM % numWarpXInSDDMM;
+    const int curWarpY = warpIdInSDDMM / numWarpXInSDDMM;
     if (curWarpX > numTileN || curWarpY > numTileM) {
         return;
     }
 
-    const UIN rowBeginOfTile = (globalTid / numWarpX) * WMMA_M;
-    const UIN rowEndOfTile = (globalTid / numWarpX + 1) * WMMA_M;
-    const UIN colBeginOfTile = (globalTid % numWarpX) * WMMA_N;
-    const UIN colEndOfTile = (globalTid % numWarpX + 1) * WMMA_N;
+    const UIN rowBeginOfTile = (warpIdInSDDMM / numWarpXInSDDMM) * WMMA_M;
+    const UIN rowEndOfTile = (warpIdInSDDMM / numWarpXInSDDMM + 1) * WMMA_M;
+    const UIN colBeginOfTile = (warpIdInSDDMM % numWarpXInSDDMM) * WMMA_N;
+    const UIN colEndOfTile = (warpIdInSDDMM % numWarpXInSDDMM + 1) * WMMA_N;
 
     op.init(gridDim, blockIdx, blockDim, threadIdx);
     for (int mtxIdx = 0; mtxIdx < nnz; ++mtxIdx) {
@@ -89,7 +89,13 @@ __global__ void getIndexPerWarp_2(const UIN size, const UIN numWarpX,
 
     const int sharedBeginIdx = threadIdx.x * NUMBER_OF_OPERATIONS_ON_SHARED_MEMORY_BY_ONE_THREAD;
     const int sharedEndIdx = sharedBeginIdx + NUMBER_OF_OPERATIONS_ON_SHARED_MEMORY_BY_ONE_THREAD;
-//    printf(" sharedBeginIdx = %d, sharedEndIdx = %d\n", sharedBeginIdx, sharedEndIdx);
+
+    const int warpIdInSDDMM = blockIdx.x * blockDim.x + threadIdx.x;
+
+    const UIN rowBeginOfTile = (warpIdInSDDMM / numWarpX) * WMMA_M;
+    const UIN rowEndOfTile = (warpIdInSDDMM / numWarpX + 1) * WMMA_M;
+    const UIN colBeginOfTile = (warpIdInSDDMM % numWarpX) * WMMA_N;
+    const UIN colEndOfTile = (warpIdInSDDMM % numWarpX + 1) * WMMA_N;
 
     op.init(gridDim, blockIdx, blockDim, threadIdx);
     for (int loop = 0; loop < nnz; loop += SHARED_MEMORY_SIZE) {
@@ -97,39 +103,25 @@ __global__ void getIndexPerWarp_2(const UIN size, const UIN numWarpX,
 #pragma unroll NUMBER_OF_OPERATIONS_ON_SHARED_MEMORY_BY_ONE_THREAD
         for (int mtxIdx = loop + sharedBeginIdx, sharedIdx = sharedBeginIdx;
              mtxIdx < nnz && sharedIdx < sharedEndIdx;
-             ++sharedIdx, ++mtxIdx) {
+             ++mtxIdx, ++sharedIdx) {
             rowIndexShared[sharedIdx] = rowIndex[mtxIdx];
             colIndexShared[sharedIdx] = colIndex[mtxIdx];
-//            if (mtxIdx == nnz-1) {
-//                printf("%d ", mtxIdx);
-//            }
         }
         __syncthreads();
-
-        const int globalTid = blockIdx.x * blockDim.x + threadIdx.x;
-
-        const UIN rowBeginOfTile = (globalTid / numWarpX) * WMMA_M;
-        const UIN rowEndOfTile = (globalTid / numWarpX + 1) * WMMA_M;
-        const UIN colBeginOfTile = (globalTid % numWarpX) * WMMA_N;
-        const UIN colEndOfTile = (globalTid % numWarpX + 1) * WMMA_N;
-
-//        if (globalTid == 0 && loop + SHARED_MEMORY_SIZE > nnz) {
-//            for (int idx = 0; idx < SHARED_MEMORY_SIZE; ++idx) {
-//                printf("%d ",rowIndexShared[idx]);
-//            }
-//        }
-
         const UIN sharedLoopEnd = nnz - loop;
 
 #pragma unroll NUMBER_OF_OPERATIONS_ON_SHARED_MEMORY_BY_ONE_THREAD
-        for (int sharedIdx = 0; sharedIdx < SHARED_MEMORY_SIZE /*&& sharedIdx < sharedLoopEnd*/; ++sharedIdx) {
+        for (int sharedIdx = 0; sharedIdx < SHARED_MEMORY_SIZE && sharedIdx < sharedLoopEnd; ++sharedIdx) {
             const UIN curRow = rowIndexShared[sharedIdx];
             const UIN curCol = colIndexShared[sharedIdx];
+
             if (curRow >= rowBeginOfTile && curRow < rowEndOfTile &&
                 curCol >= colBeginOfTile && curCol < colEndOfTile) {
                 op.cycle(loop + sharedIdx);
             }
         }
+
+        __syncthreads();
     }
     op.done();
 }
