@@ -65,19 +65,21 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
 
+    size_t K;
     SparseMatrix<float> matrixS;
+
     if (argc > 1) {
         const std::string inputFilePath(argv[1]);
         if (!matrixS.initializeFromMatrixMarketFile(inputFilePath)) {
             exit(1);
         }
+        K = std::stol(argv[2]);
     } else {
         if (!matrixS.initializeFromMatrixMarketFile(filePath)) {
             exit(1);
         }
+        K = 256;
     }
-
-    const size_t K = 256;
 
     printf("@M : %d @, ", matrixS.row());
     printf("@N : %d @, ", matrixS.col());
