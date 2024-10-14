@@ -174,6 +174,12 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
         std::cout << "    getNumIndexPerWarp_1_time : " << getNumIndexPerWarp_1_time << " ms" << std::endl;
 
         d2h(rightNum, numOfIndexPerWarp_1);
+        auto tmp = d2h(numOfIndexPerWarp_1);
+        int sum = 0;
+        for (int i = 0; i < tmp.size(); ++i) {
+            sum += tmp[i];
+        }
+        printf("++++++++++++++++++rightNum sum = %d\n", sum);
 
         timeCalculator.startClock();
 
@@ -183,6 +189,7 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
                             numOfIndexPerWarp_1.data() + numOfIndexPerWarp_1.size(),
                             matrixTileMappedToWarpIndex_.data() + 1);
         const UIN numIndexData = matrixTileMappedToWarpIndex_.back_data();
+        printf("----------------------rightNum numIndexData = %d\n", numIndexData);
         timeCalculator.endClock();
         float inclusive_scan_time = timeCalculator.getTime();
         std::cout << "    inclusive_scan_time : " << inclusive_scan_time << " ms" << std::endl;
@@ -270,7 +277,7 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
         dim3 gridForGetIndex;
         gridForGetIndex.x = (numWarps + NUMBER_OF_THREADS_PER_BLOCK - 1) / NUMBER_OF_THREADS_PER_BLOCK;
         gridForGetIndex.y = (nnz_ + SHARED_MEMORY_SIZE - 1) / SHARED_MEMORY_SIZE;
-        dev::vector<UIN> scatteredNumOfIndexPerWarp_3(nnz_ * gridForGetIndex.y);
+        dev::vector<UIN> scatteredNumOfIndexPerWarp_3(nnz_ * gridForGetIndex.y * NUMBER_OF_THREADS_PER_BLOCK);
         dev::fill_n(scatteredNumOfIndexPerWarp_3.data(), scatteredNumOfIndexPerWarp_3.size(), 0);
 
 #ifdef TEST_AND_PRINT_TIME
@@ -310,6 +317,7 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
         if (!checkData(rightNum, numIndexPerWarp_3)) {
             exit(1);
         }
+
 #endif // TEST_AND_PRINT_TIME
 
 #ifdef TEST_AND_PRINT_TIME
