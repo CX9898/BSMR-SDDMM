@@ -27,8 +27,6 @@ isratnisa_program_name="isratnisa-sddmm"
 zcx_test_log_filename="zcxTestLog"
 isratnisa_test_log_filename="isratnisaTestLog"
 
-log_file_suffix=".log"
-
 # 储存测试生成的文件
 testFolder="testFolder"
 if [ ! -e ${testFolder} ]; then
@@ -50,8 +48,11 @@ build_program(){
 build_program ${zcx_build_folder_name} ${zcx_cmake_file_path}
 build_program ${isratnisa_build_folder_name} ${isratnisa_cmake_file_path}
 
+# 创建不重名的日志文件, 并且将日志文件名更新在全局变量`log_filename`中
+# 参数1 : 原始日志文件名
 create_log_file(){
   local log_filename=$1
+  local log_file_suffix=".log"
 
   # 避免有同名文件
   if [ -e "${log_filename}${log_file_suffix}" ]; then
@@ -75,22 +76,8 @@ isratnisa_test_log_file=${log_file}
 # 参数1 : 程序的路径
 # 参数2 : 测试日志文件
 autoTest(){
-#  local log_filename=$2
-#  # 避免有同名文件
-#  if [ -e "${log_filename}${log_file_suffix}" ]; then
-#    local file_id=1
-#    while [ -e "${log_filename}${file_id}${log_file_suffix}" ]
-#    do
-#      ((file_id++))
-#    done
-#    log_filename="${log_filename}${file_id}"
-#  fi
-#  local log_file="${2}${log_file_suffix}"
-#  echo "* Create file: ${log_file}"
-#  touch ${log_file}
-
   # 使用 find 命令读取目录中的所有文件名，并存储到数组中
-  filesList=($(find "${test_file_folder}" -maxdepth 1 -type f -printf '%f\n'))
+  local filesList=($(find "${test_file_folder}" -maxdepth 1 -type f -printf '%f\n'))
   numTestFiles=${#filesList[@]}
   echo "* Number of test files: = ${numTestFiles}"
 
