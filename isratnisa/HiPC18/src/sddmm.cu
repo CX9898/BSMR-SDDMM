@@ -321,9 +321,9 @@ void preprocessing(const Matrix S) {
     float sum_time = make_CSR_time + rewrite_matrix_1D_time + *comp_kernel_COO_time;
     std::cout << "Finished sum time = " << sum_time << " ms" << std::endl;
 
-    printf("@isratnisa_sddmm : %f @\n", *comp_kernel_COO_time);
-    printf("@isratnisa_other : %f @\n", other_time);
-    printf("@isratnisa : %f @\n", sum_time);
+    printf("@isratnisa_sddmm : %.2f @\n", *comp_kernel_COO_time);
+    printf("@isratnisa_other : %.2f @\n", other_time);
+    printf("@isratnisa : %.2f @\n", sum_time);
 }
 
 int main(int argc, char *argv[]) {

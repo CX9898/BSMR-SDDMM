@@ -116,7 +116,7 @@ int main(int argc, char *argv[]) {
     std::cout << "openTensorCoreModeForSampled matrixS_dev : row = "
               << matrixS_dev.row() << ", col = " << matrixS_dev.col() << std::endl;
 
-    printf("@zcx_other : %f @\n", openTensorCoreModeForSampled_time);
+    printf("@zcx_other : %.2f @\n", openTensorCoreModeForSampled_time);
 
 
 //    matrixS.openTensorCoreModeForSampled(tensorCoreConfig);
@@ -240,7 +240,7 @@ int main(int argc, char *argv[]) {
     const float time_sddmm_gpu_coo2 = timeCalculator.getTime();
     std::cout << "Func sddmm_gpu_coo_2 time : " << time_sddmm_gpu_coo2 << " ms" << std::endl;
 
-    printf("@zcx_sddmm : %f @\n", time_sddmm_gpu_coo2);
+    printf("@zcx_sddmm : %.2f @\n", time_sddmm_gpu_coo2);
 
     std::cout << "check matrixP_cpu_res and sddmm_gpu_coo_2 : " << std::endl;
     checkData(matrixP_cpu_res.values(), d2h(matrixP_value_coo2));
@@ -253,7 +253,7 @@ int main(int argc, char *argv[]) {
     const float time_sddmm_zcx = openTensorCoreModeForSampled_time + time_sddmm_gpu_coo2;
     std::cout << "sddmm_zcx time : " << time_sddmm_zcx << " ms" << std::endl;
 
-    printf("@zcx : %f @\n", time_sddmm_zcx);
+    printf("@zcx : %.2f @\n", time_sddmm_zcx);
 
 //    dmm_cpu(matrixA,matrixB,matrixS2D);
 
