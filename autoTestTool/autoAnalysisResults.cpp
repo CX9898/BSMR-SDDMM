@@ -5,22 +5,6 @@
 #include <vector>
 #include <algorithm>
 
-//struct TensorCoreInformation {
-// public:
-//  std::string wmma_m_;
-//  std::string wmma_n_;
-//  std::string wmma_k_;
-//
-//  std::string matrixA_type_;
-//  std::string matrixB_type_;
-//  std::string matrixC_type_;
-//
-//  std::string matrixA_storageOrder_;
-//  std::string matrixB_storageOrder_;
-//  std::string matrixC_storageOrder_;
-// private:
-//};
-
 struct ResultsInformation {
  public:
 
@@ -225,6 +209,12 @@ void sortResultsInformation(std::vector<ResultsInformation> &resultsInformation)
     printf("sortResultsInformation...\n");
     std::sort(resultsInformation.begin(), resultsInformation.end(),
               [&](ResultsInformation &a, ResultsInformation &b) {
+                const int K_a = std::stoi(a.K_);
+                const int K_b = std::stoi(b.K_);
+                if (K_a > K_b) {
+                    return false;
+                }
+
                 const float M_a = std::stof(a.M_);
                 const float M_b = std::stof(b.M_);
                 if (M_a > M_b) {
@@ -234,12 +224,6 @@ void sortResultsInformation(std::vector<ResultsInformation> &resultsInformation)
                 const float sparsity_a = std::stof(a.sparsity_);
                 const float sparsity_b = std::stof(b.sparsity_);
                 if (sparsity_a > sparsity_b) {
-                    return false;
-                }
-
-                const int K_a = std::stoi(a.K_);
-                const int K_b = std::stoi(b.K_);
-                if (K_a > K_b) {
                     return false;
                 }
 
@@ -262,11 +246,10 @@ void readLogFile(const std::string &file, std::vector<ResultsInformation> &resul
             ++testResultId;
             continue;
         }
-        if (testResultId > resultsInformation.size()) {
-            std::cerr << "numTestResult > input number" << std::endl;
-            break;
-        }
         resultsInformation[testResultId].initInformation(line);
+    }
+    if (testResultId < resultsInformation.size()) {
+        fprintf(stderr, "The number of input test data does not match the actual number of test data");
     }
     std::cout << "File read over : " << file << std::endl;
 }
@@ -287,8 +270,8 @@ int main(int argc, char *argv[]) {
 
     std::vector<ResultsInformation> resultsInformation(numTestResult);
 
-    readLogFile(inputFilePath_zcx,resultsInformation);
-    readLogFile(inputFilePath_isratnisa,resultsInformation);
+    readLogFile(inputFilePath_zcx, resultsInformation);
+    readLogFile(inputFilePath_isratnisa, resultsInformation);
 
     sortResultsInformation(resultsInformation);
 
