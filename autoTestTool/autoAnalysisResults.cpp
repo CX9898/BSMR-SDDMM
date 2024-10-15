@@ -239,12 +239,36 @@ void sortResultsInformation(std::vector<ResultsInformation> &resultsInformation)
 
                 const int K_a = std::stoi(a.K_);
                 const int K_b = std::stoi(b.K_);
-                if(K_a > K_b){
+                if (K_a > K_b) {
                     return false;
                 }
 
                 return true;
               });
+}
+
+void readLogFile(const std::string &file, std::vector<ResultsInformation> &resultsInformation) {
+    std::ifstream inFile;
+    inFile.open(file, std::ios::in); // open file
+    if (!inFile.is_open()) {
+        std::cerr << "Error, Results file cannot be opened : " << file << std::endl;
+        return;
+    }
+
+    std::string line; // Store the data for each line
+    int testResultId = 0;
+    while (getline(inFile, line) && testResultId < resultsInformation.size()) {
+        if (line == "---next---") {
+            ++testResultId;
+            continue;
+        }
+        if (testResultId > resultsInformation.size()) {
+            std::cerr << "numTestResult > input number" << std::endl;
+            break;
+        }
+        resultsInformation[testResultId].initInformation(line);
+    }
+    std::cout << "File read over : " << file << std::endl;
 }
 
 int main(int argc, char *argv[]) {
@@ -259,55 +283,20 @@ int main(int argc, char *argv[]) {
         inputFilePath_isratnisa = argv[3];
     }
 
-    std::ifstream inFile_zcx;
-    inFile_zcx.open(inputFilePath_zcx, std::ios::in); // open file
-    if (!inFile_zcx.is_open()) {
-        std::cerr << "Error, Results file cannot be opened : " << inputFilePath_zcx << std::endl;
-        return -1;
-    }
-
-    std::ifstream inFile_isratnisa;
-    inFile_isratnisa.open(inputFilePath_isratnisa, std::ios::in); // open file
-    if (!inFile_isratnisa.is_open()) {
-        std::cerr << "Error, Results file cannot be opened : " << inputFilePath_isratnisa << std::endl;
-        return -1;
-    }
-
     printf("start analyze the data and print it\n");
 
     std::vector<ResultsInformation> resultsInformation(numTestResult);
 
-    std::string line; // Store the data for each line
-    int testResultId = 0;
-    while (getline(inFile_zcx, line)) {
-        if (line == "---next---") {
-            ++testResultId;
-            continue;
-        }
-        if (testResultId > resultsInformation.size()) {
-            std::cerr << "numTestResult > input number" << std::endl;
-            break;
-        }
-        resultsInformation[testResultId].initInformation(line);
-    }
-    printf("1111111\n");
-    testResultId = 0;
-    while (getline(inFile_isratnisa, line)) {
-        if (line == "---next---") {
-            ++testResultId;
-            continue;
-        }
-        if (testResultId > resultsInformation.size()) {
-            std::cerr << "numTestResult > input number" << std::endl;
-            break;
-        }
-        resultsInformation[testResultId].initInformation(line);
-    }
-//    sortResultsInformation(resultsInformation);
+    readLogFile(inputFilePath_zcx,resultsInformation);
+    readLogFile(inputFilePath_isratnisa,resultsInformation);
+
+    sortResultsInformation(resultsInformation);
 
     printf("Markdown table : \n");
     printHeadOfList();
     for (int resIdx = 0; resIdx < numTestResult; ++resIdx) {
         printOneLineOfList(resultsInformation[resIdx]);
     }
+
+    return 0;
 }

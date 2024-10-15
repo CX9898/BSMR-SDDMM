@@ -4,8 +4,8 @@
 test_file_folder="$(pwd)/../dataset/matrix_5000_5000_/"
 
 # 设置多个K
-K=(256 500 1000 2000 3000 4000 5000)
-echo -n "* The number of test K is 6, which are :"
+K=(256 500 1000)
+echo -n "* The number of test K is ${#K[@]}, which are :"
 for element in "${K[@]}"; do
     echo -n " $element"
 done
@@ -35,6 +35,8 @@ if [ ! -e ${testFolder} ]; then
     mkdir ${testFolder}
 fi
 
+# 参数1: 构建地址
+# 参数2: "CMakeLists.txt"文件路径
 build_program(){
   echo "* Building the program..."
   if [ ! -e ${1} ]; then
@@ -48,49 +50,70 @@ build_program(){
 build_program ${zcx_build_folder_name} ${zcx_cmake_file_path}
 build_program ${isratnisa_build_folder_name} ${isratnisa_cmake_file_path}
 
-create_log_file(){
-  local filename=$1
+#create_log_file(){
+#  local log_filename=$1
+#
+#  # 避免有同名文件
+#  if [ -e "${log_filename}${log_file_suffix}" ]; then
+#    local file_id=1
+#    while [ -e "${log_filename}${file_id}${log_file_suffix}" ]
+#    do
+#      ((file_id++))
+#    done
+#    log_filename="${log_filename}${file_id}"
+#  fi
+#
+#  echo "* Create file: ${log_filename}${log_file_suffix}"
+#  touch ${log_filename}${log_file_suffix}
+#}
+#
+#create_log_file ${zcx_test_log_filename}
+#create_log_file ${isratnisa_test_log_filename}
 
+# 参数1 : 程序的路径
+# 参数2 : 测试日志文件名
+autoTest(){
+  local log_filename=$2
   # 避免有同名文件
-  if [ -e "${filename}${log_file_suffix}" ]; then
+  if [ -e "${log_filename}${log_file_suffix}" ]; then
     local file_id=1
-    while [ -e "${filename}${file_id}${log_file_suffix}" ]
+    while [ -e "${log_filename}${file_id}${log_file_suffix}" ]
     do
       ((file_id++))
     done
-    filename="${filename}${file_id}"
+    log_filename="${log_filename}${file_id}"
   fi
+  local log_file="${log_filename}${log_file_suffix}"
+  echo "* Create file: ${log_file}"
+  touch ${log_file}
 
-  echo "* Create file: ${filename}${log_file_suffix}"
-  touch ${filename}${log_file_suffix}
-}
-
-create_log_file ${zcx_test_log_filename}
-create_log_file ${isratnisa_test_log_filename}
-
-# 开始测试
-autoTest(){
   # 使用 find 命令读取目录中的所有文件名，并存储到数组中
   filesList=($(find "${test_file_folder}" -maxdepth 1 -type f -printf '%f\n'))
   numTestFiles=${#filesList[@]}
   echo "* Number of test files: = ${numTestFiles}"
 
+  local num_K=${#K[@]}
   echo "* Start test..."
-  echo -e "@numTestFiles : ${numTestFiles} @\n" >> $2${log_file_suffix}
+  echo -e "@numTestFiles : ${numTestFiles} @\n" >> ${log_file}
+  echo -e "@num_K : ${num_K} @\n" >> ${log_file}
   for file in "${filesList[@]}"; do
     echo -e "\t * ${test_file_folder}$file start testing..."
     for k in "${K[@]}"; do
       echo -e "\t\t * K = ${k} start testing..."
-      $1 ${test_file_folder}${file} ${k} 192 50000 >> $2${log_file_suffix}
-      echo -e "\n---next---\n" >> $2${log_file_suffix}
+      $1 ${test_file_folder}${file} ${k} 192 50000 >> ${log_file}
+#      if [ "${k}" -ne "${K[$((num_K-1))]}" ]; then
+        echo -e "\n---next---\n" >> ${log_file}
+#      fi
       echo -e "\t\t * K = ${k} end test"
     done
-    echo -e "\n---next---\n" >> $2${log_file_suffix}
+#    if [ "${file}" -ne "${filesList[$((numTestFiles-1))]}" ]; then
+#      echo -e "\n---next---\n" >> ${log_file}
+#    fi
     echo -e "\t * ${test_file_folder}$file end test"
   done
 
   echo "* End test"
-  echo "* Test information file: $(pwd)/${2}${log_file_suffix}"
+  echo "* Test information file: $(pwd)/${log_file}"
 }
 
 autoTest ${zcx_program_path}${zcx_program_name} ${zcx_test_log_filename}
@@ -99,6 +122,6 @@ autoTest ${isratnisa_program_path}${isratnisa_program_name} ${isratnisa_test_log
 # 编译分析结果程序
 g++ autoAnalysisResults.cpp -o autoAnalysisResults
 
-numResultData=$((${numTestFiles}*${#K[@]}))
+numResultData=$((${numTestFiles} * ${#K[@]}))
 echo "* Number of test data : ${numResultData}"
 "$(pwd)/autoAnalysisResults" ${numResultData} ${zcx_test_log_filename}${log_file_suffix} ${isratnisa_test_log_filename}${log_file_suffix}
