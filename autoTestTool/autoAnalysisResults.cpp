@@ -24,6 +24,7 @@
 struct ResultsInformation {
  public:
 
+  void initInformation(std::ifstream &file);
   void initInformation(const std::string &line);
   void clear();
 
@@ -159,6 +160,7 @@ void ResultsInformation::initInformation(const std::string &line) {
               const int beginIdx = line.find(find) + find.size();
               int endIdx = beginIdx;
               while (line[endIdx++] != '@') {}
+              const auto data = line.substr(beginIdx, endIdx - beginIdx - 2);
               output = line.substr(beginIdx, endIdx - beginIdx - 2);
               is_initialized = true;
           }
@@ -246,8 +248,6 @@ void sortResultsInformation(std::vector<ResultsInformation> &resultsInformation)
 }
 
 int main(int argc, char *argv[]) {
-    printf("start analyze the data and print it\n");
-
     std::string inputFilePath_zcx;
     std::string inputFilePath_isratnisa;
     int numTestResult = 0;
@@ -273,6 +273,8 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
+    printf("start analyze the data and print it\n");
+
     std::vector<ResultsInformation> resultsInformation(numTestResult);
 
     std::string line; // Store the data for each line
@@ -288,7 +290,7 @@ int main(int argc, char *argv[]) {
         }
         resultsInformation[testResultId].initInformation(line);
     }
-
+    printf("1111111\n");
     testResultId = 0;
     while (getline(inFile_isratnisa, line)) {
         if (line == "---next---") {
@@ -301,7 +303,7 @@ int main(int argc, char *argv[]) {
         }
         resultsInformation[testResultId].initInformation(line);
     }
-    sortResultsInformation(resultsInformation);
+//    sortResultsInformation(resultsInformation);
 
     printf("Markdown table : \n");
     printHeadOfList();
