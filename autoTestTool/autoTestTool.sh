@@ -4,7 +4,7 @@
 test_file_folder="$(pwd)/../dataset/matrix_5000_5000_/"
 
 # 设置多个K
-K=(256 500 1000)
+K=(256 500)
 echo -n "* The number of test K is ${#K[@]}, which are :"
 for element in "${K[@]}"; do
     echo -n " $element"
@@ -50,30 +50,9 @@ build_program(){
 build_program ${zcx_build_folder_name} ${zcx_cmake_file_path}
 build_program ${isratnisa_build_folder_name} ${isratnisa_cmake_file_path}
 
-#create_log_file(){
-#  local log_filename=$1
-#
-#  # 避免有同名文件
-#  if [ -e "${log_filename}${log_file_suffix}" ]; then
-#    local file_id=1
-#    while [ -e "${log_filename}${file_id}${log_file_suffix}" ]
-#    do
-#      ((file_id++))
-#    done
-#    log_filename="${log_filename}${file_id}"
-#  fi
-#
-#  echo "* Create file: ${log_filename}${log_file_suffix}"
-#  touch ${log_filename}${log_file_suffix}
-#}
-#
-#create_log_file ${zcx_test_log_filename}
-#create_log_file ${isratnisa_test_log_filename}
+create_log_file(){
+  local log_filename=$1
 
-# 参数1 : 程序的路径
-# 参数2 : 测试日志文件名
-autoTest(){
-  local log_filename=$2
   # 避免有同名文件
   if [ -e "${log_filename}${log_file_suffix}" ]; then
     local file_id=1
@@ -83,9 +62,32 @@ autoTest(){
     done
     log_filename="${log_filename}${file_id}"
   fi
-  local log_file="${log_filename}${log_file_suffix}"
+  log_file=${log_filename}${log_file_suffix}
   echo "* Create file: ${log_file}"
   touch ${log_file}
+}
+
+create_log_file ${zcx_test_log_filename}
+zcx_test_log_file=${log_file}
+create_log_file ${isratnisa_test_log_filename}
+isratnisa_test_log_file=${log_file}
+
+# 参数1 : 程序的路径
+# 参数2 : 测试日志文件
+autoTest(){
+#  local log_filename=$2
+#  # 避免有同名文件
+#  if [ -e "${log_filename}${log_file_suffix}" ]; then
+#    local file_id=1
+#    while [ -e "${log_filename}${file_id}${log_file_suffix}" ]
+#    do
+#      ((file_id++))
+#    done
+#    log_filename="${log_filename}${file_id}"
+#  fi
+#  local log_file="${2}${log_file_suffix}"
+#  echo "* Create file: ${log_file}"
+#  touch ${log_file}
 
   # 使用 find 命令读取目录中的所有文件名，并存储到数组中
   filesList=($(find "${test_file_folder}" -maxdepth 1 -type f -printf '%f\n'))
@@ -94,34 +96,38 @@ autoTest(){
 
   local num_K=${#K[@]}
   echo "* Start test..."
-  echo -e "@numTestFiles : ${numTestFiles} @\n" >> ${log_file}
-  echo -e "@num_K : ${num_K} @\n" >> ${log_file}
+  echo -e "@numTestFiles : ${numTestFiles} @\n" >> ${2}
+  echo -e "@num_K : ${num_K} @\n" >> ${2}
+
+  local file_id=1
   for file in "${filesList[@]}"; do
-    echo -e "\t * ${test_file_folder}$file start testing..."
+    echo -e "\t * file_id : ${file_id} ${test_file_folder}$file start testing..."
+    local k_id=1
+
     for k in "${K[@]}"; do
-      echo -e "\t\t * K = ${k} start testing..."
-      $1 ${test_file_folder}${file} ${k} 192 50000 >> ${log_file}
+      echo -e "\t\t * k_id : ${k_id} K = ${k} start testing..."
+      $1 ${test_file_folder}${file} ${k} 192 50000 >> ${2}
 #      if [ "${k}" -ne "${K[$((num_K-1))]}" ]; then
-        echo -e "\n---next---\n" >> ${log_file}
+        echo -e "\n---next---\n" >> ${2}
 #      fi
-      echo -e "\t\t * K = ${k} end test"
+      echo -e "\t\t * k_id : ${k_id} K = ${k} end test"
+      ((k_id++))
     done
-#    if [ "${file}" -ne "${filesList[$((numTestFiles-1))]}" ]; then
-#      echo -e "\n---next---\n" >> ${log_file}
-#    fi
-    echo -e "\t * ${test_file_folder}$file end test"
+
+    echo -e "\t * file_id : ${file_id} ${test_file_folder}${file} end test"
+    ((file_id++))
   done
 
   echo "* End test"
   echo "* Test information file: $(pwd)/${log_file}"
 }
 
-autoTest ${zcx_program_path}${zcx_program_name} ${zcx_test_log_filename}
-autoTest ${isratnisa_program_path}${isratnisa_program_name} ${isratnisa_test_log_filename}
+autoTest ${zcx_program_path}${zcx_program_name} ${zcx_test_log_file}
+autoTest ${isratnisa_program_path}${isratnisa_program_name} ${isratnisa_test_log_file}
 
 # 编译分析结果程序
 g++ autoAnalysisResults.cpp -o autoAnalysisResults
 
 numResultData=$((${numTestFiles} * ${#K[@]}))
 echo "* Number of test data : ${numResultData}"
-"$(pwd)/autoAnalysisResults" ${numResultData} ${zcx_test_log_filename}${log_file_suffix} ${isratnisa_test_log_filename}${log_file_suffix}
+"$(pwd)/autoAnalysisResults" ${numResultData} ${zcx_test_log_file} ${isratnisa_test_log_file}
