@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
     printf("@N : %d @, ", matrixS.col());
     printf("@K : %ld @, ", K);
     printf("@NNZ : %d @, ", matrixS.nnz());
-    printf("@sparsity : %f%% @\n", matrixS.getSparsity() * 100);
+    printf("@sparsity : %.2f%% @\n", matrixS.getSparsity() * 100);
 
     TensorCoreConfig tensorCoreConfig(matrixS.row(), matrixS.col());
     printf("@WMMA_M : %d @, WMMA_N : %d @, @WMMA_K : %d @\n", WMMA_M, WMMA_N, WMMA_K);
