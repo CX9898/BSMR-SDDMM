@@ -209,11 +209,6 @@ void sortResultsInformation(std::vector<ResultsInformation> &resultsInformation)
     printf("sortResultsInformation...\n");
     std::sort(resultsInformation.begin(), resultsInformation.end(),
               [&](ResultsInformation &a, ResultsInformation &b) {
-                const int K_a = std::stoi(a.K_);
-                const int K_b = std::stoi(b.K_);
-                if (K_a > K_b) {
-                    return false;
-                }
 
                 const float M_a = std::stof(a.M_);
                 const float M_b = std::stof(b.M_);
@@ -223,11 +218,17 @@ void sortResultsInformation(std::vector<ResultsInformation> &resultsInformation)
 
                 const float sparsity_a = std::stof(a.sparsity_);
                 const float sparsity_b = std::stof(b.sparsity_);
-                if (sparsity_a > sparsity_b) {
-                    return false;
+                if (sparsity_a < sparsity_b) {
+                    return true;
                 }
 
-                return true;
+//                const int K_a = std::stoi(a.K_);
+//                const int K_b = std::stoi(b.K_);
+//                if (K_a > K_b) {
+//                    return true;
+//                }
+
+                return false;
               });
 }
 
