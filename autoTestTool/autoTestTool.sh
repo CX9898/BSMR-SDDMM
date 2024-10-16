@@ -7,7 +7,8 @@ test_file_folder_path="${script_file_path}../dataset/matrix_10000_10000_/"
 
 # 设置多个K
 K=(256 500 1000 2000 3000 4000 5000)
-echo -n "* The number of test K is ${#K[@]}, which are :"
+num_K=${#K[@]}
+echo -n "* The number of test K is ${num_K}, which are :"
 for element in "${K[@]}"; do
     echo -n " $element"
 done
@@ -88,21 +89,21 @@ autoTest(){
   local numTestFiles=${#filesList[@]}
   echo "* Number of test files: = ${numTestFiles}"
 
-  local numResultData=$((${numTestFiles} * ${#K[@]}))
+  local numResultData=$((${numTestFiles} * ${num_K}))
   echo "* Number of test data : ${numResultData}"
 
   echo "* Start test..."
   echo -e "@numTestFiles : ${numTestFiles} @\n" >> ${2}
-  echo -e "@num_K : ${#K[@]} @\n" >> ${2}
+  echo -e "@num_K : ${num_K} @\n" >> ${2}
   echo -e "@numResultData : ${numResultData} @\n" >> ${2}
 
   local file_id=1
   for file in "${filesList[@]}"; do
-    echo -e "\t * file_id : ${file_id} ${test_file_folder_path}$file start testing..."
-    local k_id=1
+    echo -e "\t * ${test_file_folder_path}$file start testing... [Number remaining: $((${numTestFiles} - ${file_id}))]"
 
+    local k_id=1
     for k in "${K[@]}"; do
-      echo -e "\t\t * k_id : ${k_id} K = ${k} start testing..."
+      echo -e "\t\t * k_id : ${k_id} K = ${k} start testing... [Number remaining: $((${num_K} - ${k_id}))]"
       echo -e "\n---new data---\n" >> ${2}
       $1 ${test_file_folder_path}${file} ${k} 192 50000 >> ${2}
       ((k_id++))
@@ -112,7 +113,7 @@ autoTest(){
   done
 
   echo "* End test"
-  echo "* Test information file: ${script_file_path}${log_file}"
+  echo "* Test information file: ${log_file}"
 }
 
 autoTest ${zcx_program_path}${zcx_program_name} ${zcx_test_log_file}
