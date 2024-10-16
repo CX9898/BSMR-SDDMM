@@ -79,15 +79,16 @@ analysis_results_log_file=${log_file}
 autoTest(){
   # 使用 find 命令读取目录中的所有文件名，并存储到数组中
   local filesList=($(find "${test_file_folder}" -maxdepth 1 -type f -printf '%f\n'))
+
   local numTestFiles=${#filesList[@]}
   echo "* Number of test files: = ${numTestFiles}"
-  numResultData=$((${numTestFiles} * ${#K[@]}))
+
+  local numResultData=$((${numTestFiles} * ${#K[@]}))
   echo "* Number of test data : ${numResultData}"
 
-  local num_K=${#K[@]}
   echo "* Start test..."
   echo -e "@numTestFiles : ${numTestFiles} @\n" >> ${2}
-  echo -e "@num_K : ${num_K} @\n" >> ${2}
+  echo -e "@num_K : ${#K[@]} @\n" >> ${2}
   echo -e "@numResultData : ${numResultData} @\n" >> ${2}
 
   local file_id=1
@@ -97,15 +98,11 @@ autoTest(){
 
     for k in "${K[@]}"; do
       echo -e "\t\t * k_id : ${k_id} K = ${k} start testing..."
+      echo -e "\n---new data---\n" >> ${2}
       $1 ${test_file_folder}${file} ${k} 192 50000 >> ${2}
-#      if [ "${k}" -ne "${K[$((num_K-1))]}" ]; then
-        echo -e "\n---next---\n" >> ${2}
-#      fi
-      echo -e "\t\t * k_id : ${k_id} K = ${k} end test"
       ((k_id++))
     done
 
-    echo -e "\t * file_id : ${file_id} ${test_file_folder}${file} end test"
     ((file_id++))
   done
 
@@ -120,5 +117,5 @@ autoTest ${isratnisa_program_path}${isratnisa_program_name} ${isratnisa_test_log
 g++ ${auto_analysis_results_source_filename} -o ${auto_analysis_results_program_name}
 
 echo "Start analyzing results..."
-"$(pwd)/${auto_analysis_results_program_name}" ${numResultData} ${zcx_test_log_file} ${isratnisa_test_log_file} >> ${analysis_results_log_file}
+"$(pwd)/${auto_analysis_results_program_name}" ${zcx_test_log_file} ${isratnisa_test_log_file} >> ${analysis_results_log_file}
 echo "Results analysis completed: ${analysis_results_log_file}"

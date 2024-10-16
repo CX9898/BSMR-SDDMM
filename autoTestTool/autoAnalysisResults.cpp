@@ -5,6 +5,8 @@
 #include <vector>
 #include <algorithm>
 
+const std::string dataSplitSymbol("---new data---");
+
 struct ResultsInformation {
  public:
 
@@ -217,20 +219,20 @@ void sortResultsInformation(std::vector<ResultsInformation> &resultsInformation)
     std::sort(resultsInformation.begin(), resultsInformation.end(),
               [&](ResultsInformation &a, ResultsInformation &b) {
 
-                const float M_a = std::stof(a.M_);
-                const float M_b = std::stof(b.M_);
+                const float M_a = a.M_.empty() ? 0 : std::stof(a.M_);
+                const float M_b = b.M_.empty() ? 0 : std::stof(b.M_);
                 if (M_a > M_b) {
                     return true;
                 }
 
-                const float sparsity_a = std::stof(a.sparsity_);
-                const float sparsity_b = std::stof(b.sparsity_);
+                const float sparsity_a = a.sparsity_.empty() ? 0 : std::stof(a.sparsity_);
+                const float sparsity_b = b.sparsity_.empty() ? 0 : std::stof(b.sparsity_);
                 if (sparsity_a < sparsity_b) {
                     return true;
                 }
 
-//                const int K_a = std::stoi(a.K_);
-//                const int K_b = std::stoi(b.K_);
+//                const int K_a = a.K_.empty() ? 0 : std::stoi(a.K_);
+//                const int K_b = b.K_.empty() ? 0 : std::stoi(b.K_);
 //                if (K_a > K_b) {
 //                    return true;
 //                }
@@ -247,45 +249,72 @@ void readLogFile(const std::string &file, std::vector<ResultsInformation> &resul
         return;
     }
 
+    int testResultId = -1;
     std::string line; // Store the data for each line
-    int testResultId = 0;
-    while (getline(inFile, line) && testResultId < resultsInformation.size()) {
-        if (line == "---next---") {
+    while (getline(inFile, line) && testResultId < static_cast<int>(resultsInformation.size())) {
+        if (line == dataSplitSymbol) {
             ++testResultId;
             continue;
         }
         resultsInformation[testResultId].initInformation(line);
     }
-    if (testResultId < resultsInformation.size()) {
-        fprintf(stderr, "The number of input test data does not match the actual number of test data");
-    }
+
     std::cout << "File read over : " << file << std::endl;
 }
 
-int main(int argc, char *argv[]) {
-    std::string inputFilePath_zcx;
-    std::string inputFilePath_isratnisa;
-    int numTestResult = 0;
-    if (argc < 2) {
-        inputFilePath_zcx = argv[1];
-    } else {
-        numTestResult = std::atoi(argv[1]);
-        inputFilePath_zcx = argv[2];
-        inputFilePath_isratnisa = argv[3];
+int getNumData(const std::string &file) {
+    std::ifstream inFile;
+    inFile.open(file, std::ios::in); // open file
+    if (!inFile.is_open()) {
+        std::cerr << "Error, Results file cannot be opened : " << file << std::endl;
+        return 0;
     }
 
-    printf("start analyze the data and print it\n");
+    int numData = 0;
+    std::string line; // Store the data for each line
+    while (getline(inFile, line)) {
+        if (line == dataSplitSymbol) {
+            ++numData;
+        }
+    }
 
-    std::vector<ResultsInformation> resultsInformation(numTestResult);
+    printf("File \"%s\" number of data : %d\n", file.data(), numData);
 
-    readLogFile(inputFilePath_zcx, resultsInformation);
-    readLogFile(inputFilePath_isratnisa, resultsInformation);
+    return numData;
+}
+
+int main(int argc, char *argv[]) {
+
+    if (argc != 3) {
+        printf("Please enter two files.");
+    }
+
+    std::string inputFilePath1;
+    std::string inputFilePath2;
+
+    inputFilePath1 = argv[1];
+    inputFilePath2 = argv[2];
+
+    printf("start analyze the data...\n");
+
+    int numData1 = getNumData(inputFilePath1);
+    int numData2 = getNumData(inputFilePath2);
+
+    if (numData1 != numData2) {
+        fprintf(stderr, "The two files do not have the same amount of data");
+        return -1;
+    }
+
+    std::vector<ResultsInformation> resultsInformation(numData1);
+
+    readLogFile(inputFilePath1, resultsInformation);
+    readLogFile(inputFilePath2, resultsInformation);
 
     sortResultsInformation(resultsInformation);
 
     printf("Markdown table : \n");
     printHeadOfList();
-    for (int resIdx = 0; resIdx < numTestResult; ++resIdx) {
+    for (int resIdx = 0; resIdx < resultsInformation.size(); ++resIdx) {
         printOneLineOfList(resultsInformation[resIdx]);
     }
 
