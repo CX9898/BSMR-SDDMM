@@ -4,7 +4,7 @@
 test_file_folder="$(pwd)/../dataset/matrix_5000_5000_/"
 
 # 设置多个K
-K=(256)
+K=(256 500 1000 2000 3000 4000 5000)
 echo -n "* The number of test K is ${#K[@]}, which are :"
 for element in "${K[@]}"; do
     echo -n " $element"
