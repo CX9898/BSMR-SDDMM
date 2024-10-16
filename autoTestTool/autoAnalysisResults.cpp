@@ -12,6 +12,8 @@ struct ResultsInformation {
   void initInformation(const std::string &line);
   void clear();
 
+  std::string checkData_;
+
   std::string gpu_ = "4090"; // TODO
   std::string buildType_ = "Release build"; // TODO
 
@@ -43,6 +45,8 @@ struct ResultsInformation {
   std::string zcx_;
 
  private:
+  bool is_initialized_checkData_ = false;
+
   bool is_initialized_gpu_ = true; // TODO
   bool is_initialized_buildType_ = true; // TODO
 
@@ -137,8 +141,8 @@ inline bool contains(const std::string &str, const std::string &toFind) {
 }
 
 void ResultsInformation::initInformation(const std::string &line) {
-    auto initOperation = [&](const std::string &line, const std::string &find,
-                             bool &is_initialized, std::string &output) -> void {
+    auto initOperation = [](const std::string &line, const std::string &find,
+                            bool &is_initialized, std::string &output) -> void {
       if (!is_initialized) {
           if (contains(line, find)) {
               const int beginIdx = line.find(find) + find.size();
@@ -175,6 +179,8 @@ void ResultsInformation::initInformation(const std::string &line) {
     initOperation(line, "@zcx_other : ", is_initialized_zcx_other_, zcx_other_);
     initOperation(line, "@isratnisa : ", is_initialized_isratnisa_, isratnisa_);
     initOperation(line, "@zcx : ", is_initialized_zcx_, zcx_);
+
+    initOperation(line, "@checkData : ", is_initialized_checkData_, checkData_);
 }
 
 void printHeadOfList() {
@@ -186,8 +192,8 @@ void printHeadOfList() {
 }
 
 void printOneLineOfList(const ResultsInformation &resultsInformation) {
-    auto printOneInformation = [&](const std::string &information) -> void {
-      std::cout << information << "\t|";
+    auto printOneInformation = [](const std::string &information) -> void {
+      std::cout << information << "|";
     };
     printf("|");
     std::string
@@ -202,6 +208,7 @@ void printOneLineOfList(const ResultsInformation &resultsInformation) {
     printOneInformation(resultsInformation.isratnisa_);
     printOneInformation(resultsInformation.zcx_);
 
+    printf("%s", resultsInformation.checkData_.data());
     printf("\n");
 }
 

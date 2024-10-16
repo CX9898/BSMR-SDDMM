@@ -243,7 +243,11 @@ int main(int argc, char *argv[]) {
     printf("@zcx_sddmm : %.2f @\n", time_sddmm_gpu_coo2);
 
     std::cout << "check matrixP_cpu_res and sddmm_gpu_coo_2 : " << std::endl;
-    checkData(matrixP_cpu_res.values(), d2h(matrixP_value_coo2));
+
+    UIN numError = 0;
+    if (!checkData(matrixP_cpu_res.values(), d2h(matrixP_value_coo2), numError)) {
+        printf("@checkData : NO PASS numError = %d @\n", numError);
+    }
 
 //    std::cout << "closeTensorCoreMode" << std::endl;
 //    matrixA.closeTensorCoreMode();

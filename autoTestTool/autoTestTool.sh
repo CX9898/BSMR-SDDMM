@@ -4,7 +4,7 @@
 test_file_folder="$(pwd)/../dataset/matrix_5000_5000_/"
 
 # 设置多个K
-K=(256 500 1000 2000 3000 4000 5000)
+K=(256)
 echo -n "* The number of test K is ${#K[@]}, which are :"
 for element in "${K[@]}"; do
     echo -n " $element"
@@ -13,13 +13,11 @@ echo
 
 zcx_build_folder_name="build_zcx"
 zcx_cmake_file_path="$(pwd)/../"
-
-isratnisa_build_folder_name="build_isratnisa"
-isratnisa_cmake_file_path="$(pwd)/../isratnisa/HiPC18"
-
 zcx_program_path="$(pwd)/${zcx_build_folder_name}/"
 zcx_program_name="sddmm-gpu"
 
+isratnisa_build_folder_name="build_isratnisa"
+isratnisa_cmake_file_path="$(pwd)/../isratnisa/HiPC18"
 isratnisa_program_path="$(pwd)/${isratnisa_build_folder_name}/"
 isratnisa_program_name="isratnisa-sddmm"
 
@@ -27,11 +25,11 @@ isratnisa_program_name="isratnisa-sddmm"
 zcx_test_log_filename="zcxTestLog"
 isratnisa_test_log_filename="isratnisaTestLog"
 
-# 储存测试生成的文件
-testFolder="testFolder"
-if [ ! -e ${testFolder} ]; then
-    mkdir ${testFolder}
-fi
+# 分析结果日志文件名
+analysis_results_log_filename="analysisResultsLog"
+
+auto_analysis_results_source_filename="autoAnalysisResults.cpp"
+auto_analysis_results_program_name="autoAnalysisResults"
 
 # 参数1: 构建地址
 # 参数2: "CMakeLists.txt"文件路径
@@ -50,9 +48,9 @@ build_program ${isratnisa_build_folder_name} ${isratnisa_cmake_file_path}
 
 # 创建不重名的日志文件, 并且将日志文件名更新在全局变量`log_filename`中
 # 参数1 : 原始日志文件名
+log_file_suffix=".log"
 create_log_file(){
   local log_filename=$1
-  local log_file_suffix=".log"
 
   # 避免有同名文件
   if [ -e "${log_filename}${log_file_suffix}" ]; then
@@ -73,18 +71,24 @@ zcx_test_log_file=${log_file}
 create_log_file ${isratnisa_test_log_filename}
 isratnisa_test_log_file=${log_file}
 
+create_log_file ${analysis_results_log_filename}
+analysis_results_log_file=${log_file}
+
 # 参数1 : 程序的路径
 # 参数2 : 测试日志文件
 autoTest(){
   # 使用 find 命令读取目录中的所有文件名，并存储到数组中
   local filesList=($(find "${test_file_folder}" -maxdepth 1 -type f -printf '%f\n'))
-  numTestFiles=${#filesList[@]}
+  local numTestFiles=${#filesList[@]}
   echo "* Number of test files: = ${numTestFiles}"
+  numResultData=$((${numTestFiles} * ${#K[@]}))
+  echo "* Number of test data : ${numResultData}"
 
   local num_K=${#K[@]}
   echo "* Start test..."
   echo -e "@numTestFiles : ${numTestFiles} @\n" >> ${2}
   echo -e "@num_K : ${num_K} @\n" >> ${2}
+  echo -e "@numResultData : ${numResultData} @\n" >> ${2}
 
   local file_id=1
   for file in "${filesList[@]}"; do
@@ -113,8 +117,8 @@ autoTest ${zcx_program_path}${zcx_program_name} ${zcx_test_log_file}
 autoTest ${isratnisa_program_path}${isratnisa_program_name} ${isratnisa_test_log_file}
 
 # 编译分析结果程序
-g++ autoAnalysisResults.cpp -o autoAnalysisResults
+g++ ${auto_analysis_results_source_filename} -o ${auto_analysis_results_program_name}
 
-numResultData=$((${numTestFiles} * ${#K[@]}))
-echo "* Number of test data : ${numResultData}"
-"$(pwd)/autoAnalysisResults" ${numResultData} ${zcx_test_log_file} ${isratnisa_test_log_file}
+echo "Start analyzing results..."
+"$(pwd)/${auto_analysis_results_program_name}" ${numResultData} ${zcx_test_log_file} ${isratnisa_test_log_file} >> ${analysis_results_log_file}
+echo "Results analysis completed: ${analysis_results_log_file}"
