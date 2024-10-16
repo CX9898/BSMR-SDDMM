@@ -54,7 +54,7 @@ inline bool checkOneData<double>(const double data1, const double data2) {
 }
 
 template<typename T>
-bool checkDataFunction(const size_t num, const T *data1, const T *data2) {
+bool checkDataFunction(const size_t num, const T *data1, const T *data2, UIN &numError) {
     printf("|---------------------------check data---------------------------|\n");
     printf("| Data size : %ld\n", num);
     printf("| Checking results...\n");
@@ -71,7 +71,7 @@ bool checkDataFunction(const size_t num, const T *data1, const T *data2) {
             }
         }
     }
-
+    numError = errors;
     if (errors > 0) {
         printf("| No Pass! Inconsistent data! %d errors! Error rate : %2.2f%%\n",
                errors, static_cast<float>(errors) / static_cast<float>(num) * 100);
@@ -85,11 +85,27 @@ bool checkDataFunction(const size_t num, const T *data1, const T *data2) {
 }
 
 template<typename T>
+inline bool checkDataFunction(const size_t num, const T *data1, const T *data2) {
+    UIN *numError = (UIN *) malloc(sizeof(UIN));
+    bool res = checkDataFunction(num, data1, data2, numError);
+    free(numError);
+    return res;
+}
+
+template<typename T>
 bool checkData(const std::vector<T> &data1, const std::vector<T> &data2) {
     if (data1.size() != data2.size()) {
         return false;
     }
     return checkDataFunction(data1.size(), data1.data(), data2.data());
+}
+
+template<typename T>
+bool checkData(const std::vector<T> &data1, const std::vector<T> &data2, UIN &numError) {
+    if (data1.size() != data2.size()) {
+        return false;
+    }
+    return checkDataFunction(data1.size(), data1.data(), data2.data(), numError);
 }
 
 template<typename T>
@@ -139,6 +155,13 @@ bool checkData(const std::vector<T> &data1, const dev::vector<T> &devData2) {
     std::vector<T> hostData2;
     d2h(hostData2, devData2);
     return checkData(data1, hostData2);
+}
+
+template<typename T>
+bool checkData(const std::vector<T> &data1, const dev::vector<T> &devData2, UIN &numError) {
+    std::vector<T> hostData2;
+    d2h(hostData2, devData2);
+    return checkData(data1, hostData2, numError);
 }
 
 template<typename T>
