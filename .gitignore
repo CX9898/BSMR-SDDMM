@@ -8,8 +8,7 @@
 **/build*/
 
 # log file
-*Log*
-*log*
+*.log
 
 # Result analysis program
 autoAnalysisResults
