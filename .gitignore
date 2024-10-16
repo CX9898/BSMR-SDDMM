@@ -7,6 +7,9 @@
 # build folder
 **/build*/
 
+# test folder
+**/test/
+
 # log file
 *.log
 
