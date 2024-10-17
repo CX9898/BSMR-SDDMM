@@ -13,7 +13,7 @@
 #include "checkData.hpp"
 #include "devVector.cuh"
 
-const std::string folderPath("../dataset/test/");
+const std::string folderPath("../dataset/test/matrix_10000_10000_/");
 //const std::string folderPath("./");
 //const std::string fileName = ("nips");
 //const std::string fileName = ("test");
@@ -36,10 +36,13 @@ const std::string filePath = folderPath + fileName + fileFormat;
 //                  支持 WMMA 维度 : 32×8×16
 //                  支持 WMMA 维度 : 8×32×16
 
+//#define MAKE_MATRIX_DATA
+
 int main(int argc, char *argv[]) {
+
+#ifdef MAKE_MATRIX_DATA
     // make sparse matrix data
-    bool isMakeSparseData = false;
-    if (isMakeSparseData) {
+    {
         SparseMatrix<int> matrixTmp;
         const size_t thousand = 1000;
         const size_t million = 1000000;
@@ -64,16 +67,21 @@ int main(int argc, char *argv[]) {
                   << std::endl;
         exit(0);
     }
+#endif // MAKE_MATRIX_DATA
 
     size_t K;
     SparseMatrix<float> matrixS;
 
-    if (argc > 1) {
-        const std::string inputFilePath(argv[1]);
-        if (!matrixS.initializeFromMatrixMarketFile(inputFilePath)) {
+    if (argc > 2) {
+        if (!matrixS.initializeFromMatrixMarketFile(argv[1])) {
             exit(1);
         }
         K = std::stol(argv[2]);
+    } else if (argc == 2) {
+        if (!matrixS.initializeFromMatrixMarketFile(argv[1])) {
+            exit(1);
+        }
+        K = 256;
     } else {
         if (!matrixS.initializeFromMatrixMarketFile(filePath)) {
             exit(1);
@@ -244,9 +252,9 @@ int main(int argc, char *argv[]) {
 
     std::cout << "check matrixP_cpu_res and sddmm_gpu_coo_2 : " << std::endl;
 
-    UIN numError = 0;
-    if (!checkData(matrixP_cpu_res.values(), d2h(matrixP_value_coo2), numError)) {
-        printf("@checkData : NO PASS numError = %d @\n", numError);
+    size_t numError = 0;
+    if (!checkData(matrixP_cpu_res.values(), matrixP_value_coo2, numError)) {
+        printf("@checkData : NO PASS numError = %ld @\n", numError);
     }
 
 //    std::cout << "closeTensorCoreMode" << std::endl;

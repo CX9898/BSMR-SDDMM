@@ -140,9 +140,6 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
     row_ = rowBeforeChange_ + rowComplement;
     col_ = colBeforeChange_ + colComplement;
 
-    const UIN numTileM = row_ / WMMA_M;
-    const UIN numTileN = col_ / WMMA_N;
-
     const UIN numWarpX = tensorCoreConfig.numWarpX();
     const UIN numWarpY = tensorCoreConfig.numWarpY();
     const UIN numWarps = numWarpX * numWarpY;
@@ -158,6 +155,9 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
 #ifdef TEST
     std::vector<UIN> rightNum;
     {
+        const UIN numTileM = row_ / WMMA_M;
+        const UIN numTileN = col_ / WMMA_N;
+
         dev::vector<UIN> numOfIndexPerWarp_1(numWarps);
         dev::fill_n(numOfIndexPerWarp_1.data(), numOfIndexPerWarp_1.size(), 0);
 
@@ -212,15 +212,13 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
     //////////////////////////////// 2 OK
     {
 
-        dev::vector<UIN> numIndexOfPerWarp_2(numWarps);
-        dev::fill_n(numIndexOfPerWarp_2.data(), numIndexOfPerWarp_2.size(), 0);
-
 #ifdef PRINT_TIME
         timeCalculator.startClock();
 #endif // PRINT_TIME
 
-        getIndexPerWarp_2<<<numBlocks, numThreadsPerBlock>>>(numWarps,
-                                                             numWarpX,
+        dev::vector<UIN> numIndexOfPerWarp_2(numWarps);
+        dev::fill_n(numIndexOfPerWarp_2.data(), numIndexOfPerWarp_2.size(), 0);
+        getIndexPerWarp_2<<<numBlocks, numThreadsPerBlock>>>(numWarpX,
                                                              nnz_,
                                                              rowIndex_.data(),
                                                              colIndex_.data(),
@@ -261,8 +259,7 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
 #endif // PRINT_TIME
 
         matrixTileMappedToWarpIndexData_.resize(numIndexData_2);
-        getIndexPerWarp_2<<<numBlocks, numThreadsPerBlock>>>(numWarps,
-                                                             numWarpX,
+        getIndexPerWarp_2<<<numBlocks, numThreadsPerBlock>>>(numWarpX,
                                                              nnz_,
                                                              rowIndex_.data(),
                                                              colIndex_.data(),

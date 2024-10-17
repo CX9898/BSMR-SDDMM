@@ -78,7 +78,7 @@ template __global__ void getIndexPerWarp_1<updateIndexDataPerWarpOperator_1>(con
  * error
  **/
 template<typename OP>
-__global__ void getIndexPerWarp_2(const UIN size, const UIN numWarpX,
+__global__ void getIndexPerWarp_2(const UIN numWarpX,
                                   const UIN nnz,
                                   const UIN *rowIndex,
                                   const UIN *colIndex,
@@ -98,6 +98,7 @@ __global__ void getIndexPerWarp_2(const UIN size, const UIN numWarpX,
     const UIN colEndOfTile = (warpIdInSDDMM % numWarpX + 1) * WMMA_N;
 
     op.init(gridDim, blockIdx, blockDim, threadIdx);
+
     for (int loop = 0; loop < nnz; loop += SHARED_MEMORY_SIZE) {
 
 #pragma unroll NUMBER_OF_OPERATIONS_ON_SHARED_MEMORY_BY_ONE_THREAD
@@ -126,14 +127,12 @@ __global__ void getIndexPerWarp_2(const UIN size, const UIN numWarpX,
     op.done();
 }
 
-template __global__ void getIndexPerWarp_2<updateNumOfIndexOperator_2>(const UIN size,
-                                                                       const UIN numWarpX,
+template __global__ void getIndexPerWarp_2<updateNumOfIndexOperator_2>(const UIN numWarpX,
                                                                        const UIN nnz,
                                                                        const UIN *rowIndex,
                                                                        const UIN *colIndex,
                                                                        updateNumOfIndexOperator_2 op);
-template __global__ void getIndexPerWarp_2<updateIndexDataPerWarpOperator_2>(const UIN size,
-                                                                             const UIN numWarpX,
+template __global__ void getIndexPerWarp_2<updateIndexDataPerWarpOperator_2>(const UIN numWarpX,
                                                                              const UIN nnz,
                                                                              const UIN *rowIndex,
                                                                              const UIN *colIndex,

@@ -384,21 +384,21 @@ __global__ void sddmm_gpu_coo_2(TensorCoreConfig tensorCoreConfig,
         FragmentInformation fragmentInformation;
         tensorCoreConfig.positionCalculator(pRowId, pColId, curRow, curCol, fragmentInformation);
 
-//        if (matrixPIdx == 1 && globalWarpId == 0 && laneId_ == 0) {
+//        if (matrixPIdx == 160 && globalWarpId == 0 && laneId == 0) {
 //            printf(" globalWarpId = %d "
 //                   " pRowId = %d, pColId = %d, curRow = %d, curCol = %d, curValue = %f"
-//                   " laneId_ = %d findLaneId = %d, findIdx = %d, cFrag.x[%d] = %f\n",
+//                   " laneId = %d findLaneId = %d, findIdx = %d, cFrag.x[%d] = %f\n",
 //                   globalWarpId,
 //                   static_cast<int>(pRowId),
 //                   static_cast<int>(pColId),
 //                   static_cast<int>(curRow),
 //                   static_cast<int>(curCol),
 //                   static_cast<float>(matrixS[matrixPIdx]),
-//                   laneId_,
-//                   findLaneId,
-//                   findIdx,
-//                   findIdx,
-//                   static_cast<float>(cFrag.x[findIdx]));
+//                   laneId,
+//                   fragmentInformation.laneId_,
+//                   fragmentInformation.index_,
+//                   fragmentInformation.index_,
+//                   static_cast<float>(cFrag.x[fragmentInformation.laneId_]));
 //        }
         if (laneId == fragmentInformation.laneId_) {
             matrixP[matrixPIdx] = cFrag.x[fragmentInformation.index_];
