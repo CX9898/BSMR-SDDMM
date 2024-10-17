@@ -16,29 +16,29 @@ const float epsilon = 1e-4;
 /**
  * error checking
  **/
-template<typename T>
-bool checkDataFunction(const size_t num, const T *data1, const T *data2);
-
-template<typename T>
-bool checkData(const std::vector<T> &data1, const std::vector<T> &data2);
-
-template<typename T>
-bool checkData(const std::vector<T> &data1, const dev::vector<T> &devData2);
-
-template<typename T>
-bool checkData(const dev::vector<T> &devData1, const std::vector<T> &hostData2);
-
-template<typename T>
-bool checkData(const size_t num, const std::vector<T> &dataHost1, const T *dataDev2);
-
-template<typename T>
-bool checkData(const size_t num, const T *dataDev1, const std::vector<T> &dataHost2);
-
-template<typename T>
-bool checkDevData(const size_t num, const T *dataDev1, const T *dataDev2);
-
-template<typename T>
-inline bool checkOneData(const T data1, const T data2);
+//template<typename T>
+//inline bool checkDataFunction(const size_t num, const T *data1, const T *data2, size_t &numError);
+//
+//template<typename T>
+//bool checkData(const std::vector<T> &data1, const std::vector<T> &data2);
+//
+//template<typename T>
+//bool checkData(const std::vector<T> &data1, const dev::vector<T> &devData2);
+//
+//template<typename T>
+//bool checkData(const dev::vector<T> &devData1, const std::vector<T> &hostData2);
+//
+//template<typename T>
+//bool checkData(const size_t num, const std::vector<T> &dataHost1, const T *dataDev2);
+//
+//template<typename T>
+//bool checkData(const size_t num, const T *dataDev1, const std::vector<T> &dataHost2);
+//
+//template<typename T>
+//bool checkDevData(const size_t num, const T *dataDev1, const T *dataDev2);
+//
+//template<typename T>
+//inline bool checkOneData(const T data1, const T data2);
 
 template<typename T>
 inline bool checkOneData(const T data1, const T data2) {
@@ -54,7 +54,7 @@ inline bool checkOneData<double>(const double data1, const double data2) {
 }
 
 template<typename T>
-bool checkDataFunction(const size_t num, const T *data1, const T *data2, UIN &numError) {
+inline bool checkDataFunction(const size_t num, const T *data1, const T *data2, size_t &numError) {
     printf("|---------------------------check data---------------------------|\n");
     printf("| Data size : %ld\n", num);
     printf("| Checking results...\n");
@@ -85,83 +85,34 @@ bool checkDataFunction(const size_t num, const T *data1, const T *data2, UIN &nu
 }
 
 template<typename T>
-inline bool checkDataFunction(const size_t num, const T *data1, const T *data2) {
-    UIN *numError = (UIN *) malloc(sizeof(UIN));
-    bool res = checkDataFunction(num, data1, data2, numError);
-    free(numError);
-    return res;
-}
-
-template<typename T>
-bool checkData(const std::vector<T> &data1, const std::vector<T> &data2) {
-    if (data1.size() != data2.size()) {
+inline bool checkData(const std::vector<T> &hostData1, const std::vector<T> &hostData2) {
+    if (hostData1.size() != hostData2.size()) {
         return false;
     }
-    return checkDataFunction(data1.size(), data1.data(), data2.data());
+    size_t numError;
+    return checkDataFunction(hostData1.size(), hostData1.data(), hostData2.data(), numError);
 }
 
 template<typename T>
-bool checkData(const std::vector<T> &data1, const std::vector<T> &data2, UIN &numError) {
-    if (data1.size() != data2.size()) {
+inline bool checkData(const std::vector<T> &hostData1, const std::vector<T> &hostData2, size_t &numError) {
+    if (hostData1.size() != hostData2.size()) {
         return false;
     }
-    return checkDataFunction(data1.size(), data1.data(), data2.data(), numError);
+    return checkDataFunction(hostData1.size(), hostData1.data(), hostData2.data(), numError);
 }
 
 template<typename T>
-bool checkDevData(const size_t num, const T *dataDev1, const T *dataDev2) {
-    auto dataHost1 = static_cast<T *>(malloc(num * sizeof(float)));
-    auto dataHost2 = static_cast<T *>(malloc(num * sizeof(float)));
-
-    cudaErrCheck(cudaMemcpy(dataHost1, dataDev1, num * sizeof(T), cudaMemcpyDeviceToHost));
-    cudaErrCheck(cudaMemcpy(dataHost2, dataDev2, num * sizeof(T), cudaMemcpyDeviceToHost));
-
-    bool res = checkDataFunction(num, dataHost1, dataHost2);;
-
-    free(dataHost1);
-    free(dataHost2);
-
-    return res;
-}
-
-template<typename T>
-bool checkData(const size_t num, const std::vector<T> &dataHost1, const T *dataDev2) {
-
-    auto dataHost2 = static_cast<T *>(malloc(num * sizeof(T)));
-    cudaErrCheck(cudaMemcpy(dataHost2, dataDev2, num * sizeof(T), cudaMemcpyDeviceToHost));
-
-    bool res = checkDataFunction(num, dataHost1.data(), dataHost2);;
-
-    free(dataHost2);
-
-    return res;
-}
-
-template<typename T>
-bool checkData(const size_t num, const T *dataDev1, const std::vector<T> &dataHost2) {
-
-    auto dataHost1 = static_cast<T *>(malloc(num * sizeof(T)));
-    cudaErrCheck(cudaMemcpy(dataHost1, dataDev1, num * sizeof(T), cudaMemcpyDeviceToHost));
-
-    bool res = checkDataFunction(num, dataHost1, dataHost2.data());;
-
-    free(dataHost1);
-
-    return res;
-}
-
-template<typename T>
-bool checkData(const std::vector<T> &data1, const dev::vector<T> &devData2) {
+bool checkData(const std::vector<T> &hostData1, const dev::vector<T> &devData2) {
     std::vector<T> hostData2;
     d2h(hostData2, devData2);
-    return checkData(data1, hostData2);
+    return checkData(hostData1, hostData2);
 }
 
 template<typename T>
-bool checkData(const std::vector<T> &data1, const dev::vector<T> &devData2, UIN &numError) {
+bool checkData(const std::vector<T> &hostData1, const dev::vector<T> &devData2, size_t &numError) {
     std::vector<T> hostData2;
     d2h(hostData2, devData2);
-    return checkData(data1, hostData2, numError);
+    return checkData(hostData1, hostData2, numError);
 }
 
 template<typename T>
@@ -169,4 +120,11 @@ bool checkData(const dev::vector<T> &devData1, const std::vector<T> &hostData2) 
     std::vector<T> hostData1;
     d2h(hostData1, devData1);
     return checkData(hostData1, hostData2);
+}
+
+template<typename T>
+bool checkData(const dev::vector<T> &devData1, const std::vector<T> &hostData2, size_t &numError) {
+    std::vector<T> hostData1;
+    d2h(hostData1, devData1);
+    return checkData(hostData1, hostData2, numError);
 }
