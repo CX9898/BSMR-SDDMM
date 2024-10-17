@@ -180,17 +180,17 @@ __device__ void matrixTileMultiplicationUseTensorCore_coo(TensorCoreConfig tenso
         FragmentInformation fragmentInformation;
         tensorCoreConfig.positionCalculator(pRowId, pColId, curRow, curCol, fragmentInformation);
 
-//        if (matrixPIdx == 8410 && warpId == 780 && laneId == 0) {
+//        if (matrixPIdx == 8410 && warpId == 780 && laneId_ == 0) {
 //            printf(" warpId = %d\n"
 //                   " pRowId = %d, pColId = %d, curRow = %d, curCol = %d, curValue = %f"
-//                   " laneId = %d findLaneId = %d, findIdx = %d, cFrag.x[%d] = %f\n",
+//                   " laneId_ = %d findLaneId = %d, findIdx = %d, cFrag.x[%d] = %f\n",
 //                   warpId,
 //                   static_cast<int>(pRowId),
 //                   static_cast<int>(pColId),
 //                   static_cast<int>(curRow),
 //                   static_cast<int>(curCol),
 //                   static_cast<float>(matrixS[matrixPIdx]),
-//                   laneId,
+//                   laneId_,
 //                   findLaneId,
 //                   findIdx,
 //                   findIdx,
@@ -201,8 +201,8 @@ __device__ void matrixTileMultiplicationUseTensorCore_coo(TensorCoreConfig tenso
 //            }
 //            printf("\n");
 //        }
-        if (laneId == fragmentInformation.laneId) {
-            matrixP[matrixPIdx] = cFrag.x[fragmentInformation.index];
+        if (laneId == fragmentInformation.laneId_) {
+            matrixP[matrixPIdx] = cFrag.x[fragmentInformation.index_];
 //            printf(
 //                " pRowId = %d, pColId = %d, curRow = %d, curCol = %d, findLaneId = %d, findIdx = %d, cFrag.x[%d] = %f\n",
 //                static_cast<int>(pRowId),
@@ -384,24 +384,24 @@ __global__ void sddmm_gpu_coo_2(TensorCoreConfig tensorCoreConfig,
         FragmentInformation fragmentInformation;
         tensorCoreConfig.positionCalculator(pRowId, pColId, curRow, curCol, fragmentInformation);
 
-//        if (matrixPIdx == 1 && globalWarpId == 0 && laneId == 0) {
+//        if (matrixPIdx == 1 && globalWarpId == 0 && laneId_ == 0) {
 //            printf(" globalWarpId = %d "
 //                   " pRowId = %d, pColId = %d, curRow = %d, curCol = %d, curValue = %f"
-//                   " laneId = %d findLaneId = %d, findIdx = %d, cFrag.x[%d] = %f\n",
+//                   " laneId_ = %d findLaneId = %d, findIdx = %d, cFrag.x[%d] = %f\n",
 //                   globalWarpId,
 //                   static_cast<int>(pRowId),
 //                   static_cast<int>(pColId),
 //                   static_cast<int>(curRow),
 //                   static_cast<int>(curCol),
 //                   static_cast<float>(matrixS[matrixPIdx]),
-//                   laneId,
+//                   laneId_,
 //                   findLaneId,
 //                   findIdx,
 //                   findIdx,
 //                   static_cast<float>(cFrag.x[findIdx]));
 //        }
-        if (laneId == fragmentInformation.laneId) {
-            matrixP[matrixPIdx] = cFrag.x[fragmentInformation.index];
+        if (laneId == fragmentInformation.laneId_) {
+            matrixP[matrixPIdx] = cFrag.x[fragmentInformation.index_];
 //            printf(
 //                " pRowId = %d, pColId = %d, curRow = %d, curCol = %d, findLaneId = %d, findIdx = %d, cFrag.x[%d] = %f\n",
 //                static_cast<int>(pRowId),

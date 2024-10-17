@@ -28,8 +28,8 @@ enum WarpOrder {
  * Used to record where elements in a matrix tile are stored in the cuda::wmma::fragment class
  **/
 struct FragmentInformation {
-  int laneId = -1;
-  int index = -1;
+  int laneId_ = -1;
+  int index_ = -1;
 };
 
 
@@ -125,9 +125,9 @@ class TensorCoreConfig {
 
 //__device__ void positionCalculator(const UIN tileRow, const UIN tileCol,
 //                                   const UIN row, const UIN col,
-//                                   int &laneId, int &idx) {
+//                                   int &laneId_, int &idx) {
 //    if (tileRow > row || tileCol > col || tileRow + WMMA_M <= row || tileCol + WMMA_N <= col) {
-//        laneId = -1;
+//        laneId_ = -1;
 //        idx = -1;
 //        return;
 //    }
@@ -137,7 +137,7 @@ class TensorCoreConfig {
 //    const int numberOfIterations = localCol % 8;
 //
 //    const int startLane = (localRow % 8) * 4;
-//    laneId = startLane + numberOfIterations / 2;
+//    laneId_ = startLane + numberOfIterations / 2;
 //
 //    const int addNum = numberOfIterations % 2;
 //    if (localCol < 8) { // idx : 0~3
@@ -159,8 +159,8 @@ inline __device__ void positionCalculator_m16n16k16(const UIN tileRow, const UIN
                                                     const UIN row, const UIN col,
                                                     FragmentInformation &fragmentInformation) {
     if (tileRow > row || tileCol > col || tileRow + WMMA_M <= row || tileCol + WMMA_N <= col) {
-        fragmentInformation.laneId = -1;
-        fragmentInformation.index = -1;
+        fragmentInformation.laneId_ = -1;
+        fragmentInformation.index_ = -1;
         return;
     }
     const int localRow = row - tileRow;
@@ -169,32 +169,42 @@ inline __device__ void positionCalculator_m16n16k16(const UIN tileRow, const UIN
     const int beginLane = localRow % 8 * 4;
     const int isBigRow = localRow / 8;
     const int isBigCol = localCol / 8;
-    fragmentInformation.laneId = beginLane + localCol % 8 / 2;
-    fragmentInformation.index = isBigRow * 2 + isBigCol * 4 + localCol % 2;
+    fragmentInformation.laneId_ = beginLane + localCol % 8 / 2;
+    fragmentInformation.index_ = isBigRow * 2 + isBigCol * 4 + localCol % 2;
 }
 inline __device__ void positionCalculator_m32n8k16(const UIN tileRow, const UIN tileCol,
                                                    const UIN row, const UIN col,
                                                    FragmentInformation &fragmentInformation) {
     if (tileRow > row || tileCol > col || tileRow + WMMA_M <= row || tileCol + WMMA_N <= col) {
-        fragmentInformation.laneId = -1;
-        fragmentInformation.index = -1;
+        fragmentInformation.laneId_ = -1;
+        fragmentInformation.index_ = -1;
         return;
     }
     const int localRow = row - tileRow;
     const int localCol = col - tileCol;
 
+    const int beginLane = localRow % 8 * 4;
+    const int groupId = localRow / 8;
+    const int isColOdd = localCol % 2;
+    fragmentInformation.laneId_ = beginLane + localCol / 2;
+    fragmentInformation.index_ = groupId * 2 + isColOdd;
 }
 inline __device__ void positionCalculator_m8n32k16(const UIN tileRow, const UIN tileCol,
                                                    const UIN row, const UIN col,
                                                    FragmentInformation &fragmentInformation) {
     if (tileRow > row || tileCol > col || tileRow + WMMA_M <= row || tileCol + WMMA_N <= col) {
-        fragmentInformation.laneId = -1;
-        fragmentInformation.index = -1;
+        fragmentInformation.laneId_ = -1;
+        fragmentInformation.index_ = -1;
         return;
     }
     const int localRow = row - tileRow;
     const int localCol = col - tileCol;
 
+    const int beginLane = localCol % 8 * 4;
+    const int groupId = localCol / 8;
+    const int isColOdd = localRow % 2;
+    fragmentInformation.laneId_ = beginLane + localRow / 2;
+    fragmentInformation.index_ = groupId * 2 + isColOdd;
 }
 
 inline __device__ void TensorCoreConfig::positionCalculator(const UIN tileRow, const UIN tileCol,
