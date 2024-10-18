@@ -203,7 +203,8 @@ T Matrix<T>::getOneValue(UIN row, UIN col) const {
 }
 
 template<typename T>
-void Matrix<T>::openTensorCoreMode(MatrixMultiplicationOrder multiplicationOrder) {
+void Matrix<T>::openTensorCoreMode(const TensorCoreConfig tensorCoreConfig,
+                                   MatrixMultiplicationOrder multiplicationOrder) {
     if (tensorCoreMode_) {
         return;
     }
@@ -211,23 +212,22 @@ void Matrix<T>::openTensorCoreMode(MatrixMultiplicationOrder multiplicationOrder
     rowBeforeChange_ = row_;
     colBeforeChange_ = col_;
 
-    UIN rowComplement = 0;
-    UIN colComplement = 0;
     if (multiplicationOrder == MatrixMultiplicationOrder::left_multiplication) {
-        rowComplement = rowBeforeChange_ % WMMA_M == 0 ? 0 : WMMA_M - rowBeforeChange_ % WMMA_M;
-        colComplement = colBeforeChange_ % WMMA_K == 0 ? 0 : WMMA_K - colBeforeChange_ % WMMA_K;
+        row_ = tensorCoreConfig.MForTensorCore(rowBeforeChange_);
+        col_ = tensorCoreConfig.KForTensorCore(colBeforeChange_);
     } else {
-        rowComplement = rowBeforeChange_ % WMMA_K == 0 ? 0 : WMMA_K - rowBeforeChange_ % WMMA_K;
-        colComplement = colBeforeChange_ % WMMA_N == 0 ? 0 : WMMA_N - colBeforeChange_ % WMMA_N;
+        row_ = tensorCoreConfig.KForTensorCore(rowBeforeChange_);
+        col_ = tensorCoreConfig.NForTensorCore(colBeforeChange_);
     }
 
-    row_ = rowBeforeChange_ + rowComplement;
-    col_ = colBeforeChange_ + colComplement;
     if (storageOrder_ == MatrixStorageOrder::row_major) {
         leadingDimension_ = col_;
     } else {
         leadingDimension_ = row_;
     }
+
+    const UIN rowComplement = row_ - rowBeforeChange_;
+    const UIN colComplement = col_ - colBeforeChange_;
 
     if (storageOrder_ == MatrixStorageOrder::row_major) {
         for (UIN rowIter = 0; rowIter < rowBeforeChange_; ++rowIter) {
@@ -482,7 +482,8 @@ void SparseMatrix<T>::makeData(const UIN numRow, const UIN numCol, const UIN nnz
 }
 
 template<typename T>
-void SparseMatrix<T>::openTensorCoreMode(MatrixMultiplicationOrder multiplicationOrder) {
+void SparseMatrix<T>::openTensorCoreMode(const TensorCoreConfig tensorCoreConfig,
+                                         MatrixMultiplicationOrder multiplicationOrder) {
     if (tensorCoreMode_) {
         return;
     }
@@ -490,17 +491,13 @@ void SparseMatrix<T>::openTensorCoreMode(MatrixMultiplicationOrder multiplicatio
     rowBeforeChange_ = row_;
     colBeforeChange_ = col_;
 
-    UIN rowComplement;
-    UIN colComplement;
     if (multiplicationOrder == MatrixMultiplicationOrder::left_multiplication) {
-        rowComplement = rowBeforeChange_ % WMMA_M == 0 ? 0 : WMMA_M - rowBeforeChange_ % WMMA_M;
-        colComplement = colBeforeChange_ % WMMA_K == 0 ? 0 : WMMA_K - colBeforeChange_ % WMMA_K;
+        row_ = tensorCoreConfig.MForTensorCore(rowBeforeChange_);
+        col_ = tensorCoreConfig.KForTensorCore(colBeforeChange_);
     } else {
-        rowComplement = rowBeforeChange_ % WMMA_K == 0 ? 0 : WMMA_K - rowBeforeChange_ % WMMA_K;
-        colComplement = colBeforeChange_ % WMMA_N == 0 ? 0 : WMMA_N - colBeforeChange_ % WMMA_N;
+        row_ = tensorCoreConfig.KForTensorCore(rowBeforeChange_);
+        col_ = tensorCoreConfig.NForTensorCore(colBeforeChange_);
     }
-    row_ = rowBeforeChange_ + rowComplement;
-    col_ = colBeforeChange_ + colComplement;
 }
 
 template<typename T>
@@ -515,10 +512,8 @@ void SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorCoreCo
     colIndexBeforeChange_ = colIndex_;
     valuesBeforeChange_ = values_;
 
-    const int rowComplement = rowBeforeChange_ % WMMA_M == 0 ? 0 : WMMA_M - rowBeforeChange_ % WMMA_M;
-    const int colComplement = colBeforeChange_ % WMMA_N == 0 ? 0 : WMMA_N - colBeforeChange_ % WMMA_N;
-    row_ = rowBeforeChange_ + rowComplement;
-    col_ = colBeforeChange_ + colComplement;
+    row_ = tensorCoreConfig.MForTensorCore(rowBeforeChange_);
+    col_ = tensorCoreConfig.NForTensorCore(colBeforeChange_);
 
     const UIN numTileM = row_ / WMMA_M;
     const UIN numTileN = col_ / WMMA_N;

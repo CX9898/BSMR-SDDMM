@@ -108,9 +108,9 @@ int main(int argc, char *argv[]) {
 //    std::cout << "matrixB.size() : " << matrixB.values().size() << " matrixB : ";
 //    matrixB.print();
 
-    matrixA.openTensorCoreMode(MatrixMultiplicationOrder::left_multiplication);
+    matrixA.openTensorCoreMode(tensorCoreConfig, MatrixMultiplicationOrder::left_multiplication);
     std::cout << "openTensorCoreMode matrixA : row = " << matrixA.row() << ", col = " << matrixA.col() << std::endl;
-    matrixB.openTensorCoreMode(MatrixMultiplicationOrder::right_multiplication);
+    matrixB.openTensorCoreMode(tensorCoreConfig, MatrixMultiplicationOrder::right_multiplication);
     std::cout << "openTensorCoreMode matrixB : row = " << matrixB.row() << ", col = " << matrixB.col() << std::endl;
 
     CudaTimeCalculator timeCalculator;

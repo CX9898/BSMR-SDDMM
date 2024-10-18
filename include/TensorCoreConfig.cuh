@@ -42,21 +42,30 @@ class TensorCoreConfig {
  public:
   TensorCoreConfig() = delete;
 
-  TensorCoreConfig(size_t matrixRow, size_t matrixCol) {
-      // TODO: Duplicate code, unsafe
-      const int rowComplement = matrixRow % WMMA_M == 0 ? 0 : WMMA_M - matrixRow % WMMA_M;
-      const int colComplement = matrixCol % WMMA_N == 0 ? 0 : WMMA_N - matrixCol % WMMA_N;
-
-      const size_t matrixRowForTensorCore = matrixRow + rowComplement;
-      const size_t matrixColForTensorCore = matrixCol + colComplement;
+  TensorCoreConfig(UIN M, UIN N) {
 
       block_.x = NUM_OF_WARP_X_PER_BLOCK * WARP_SIZE;
       block_.y = NUM_OF_Y_PER_BLOCK;
 
       const int numCountColOfOutputMatrixPerBlock = WMMA_N * block_.x / WARP_SIZE;
       const int numCountRowOfOutputMatrixPerBlock = WMMA_M * block_.y;
-      grid_.x = (matrixColForTensorCore + numCountColOfOutputMatrixPerBlock - 1) / numCountColOfOutputMatrixPerBlock;
-      grid_.y = (matrixRowForTensorCore + numCountRowOfOutputMatrixPerBlock - 1) / numCountRowOfOutputMatrixPerBlock;
+      grid_.x = (MForTensorCore(M) + numCountColOfOutputMatrixPerBlock - 1) / numCountColOfOutputMatrixPerBlock;
+      grid_.y = (NForTensorCore(N) + numCountRowOfOutputMatrixPerBlock - 1) / numCountRowOfOutputMatrixPerBlock;
+  }
+
+  inline UIN MForTensorCore(UIN M) const {
+      const int MComplement = M % WMMA_M == 0 ? 0 : WMMA_M - M % WMMA_M;
+      return M + MComplement;
+  }
+
+  inline UIN NForTensorCore(UIN N) const {
+      const int NComplement = N % WMMA_N == 0 ? 0 : WMMA_N - N % WMMA_N;
+      return N + NComplement;
+  }
+
+  inline UIN KForTensorCore(UIN K) const {
+      const int KComplement = K % WMMA_K == 0 ? 0 : WMMA_K - K % WMMA_K;
+      return K + KComplement;
   }
 
   inline dim3 grid() const {

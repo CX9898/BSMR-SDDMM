@@ -135,10 +135,8 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
     rowBeforeChange_ = row_;
     colBeforeChange_ = col_;
 
-    const int rowComplement = rowBeforeChange_ % WMMA_M == 0 ? 0 : WMMA_M - rowBeforeChange_ % WMMA_M;
-    const int colComplement = colBeforeChange_ % WMMA_N == 0 ? 0 : WMMA_N - colBeforeChange_ % WMMA_N;
-    row_ = rowBeforeChange_ + rowComplement;
-    col_ = colBeforeChange_ + colComplement;
+    row_ = tensorCoreConfig.MForTensorCore(rowBeforeChange_);
+    col_ = tensorCoreConfig.NForTensorCore(colBeforeChange_);
 
     const UIN numWarpX = tensorCoreConfig.numWarpX();
     const UIN numWarpY = tensorCoreConfig.numWarpY();

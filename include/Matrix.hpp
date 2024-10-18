@@ -121,7 +121,7 @@ class Matrix {
   /**
    * tensor core mode
    **/
-  void openTensorCoreMode(MatrixMultiplicationOrder multiplicationOrder);
+  void openTensorCoreMode(const TensorCoreConfig tensorCoreConfig, MatrixMultiplicationOrder multiplicationOrder);
   void closeTensorCoreMode();
 
  private:
@@ -261,7 +261,7 @@ class SparseMatrix {
   /**
    * tensor core mode
    **/
-  void openTensorCoreMode(MatrixMultiplicationOrder multiplicationOrder);
+  void openTensorCoreMode(const TensorCoreConfig tensorCoreConfig, MatrixMultiplicationOrder multiplicationOrder);
   void openTensorCoreModeForSampled(TensorCoreConfig tensorCoreConfig);
   void closeTensorCoreMode();
   const std::vector<UIN> &matrixTileIndex() {
