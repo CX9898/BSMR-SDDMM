@@ -94,7 +94,7 @@ class TensorCoreConfig {
 
       globalWarpId_ = (globalThreadIdxX_ / WARP_SIZE) + globalThreadIdxY_ * (grid_.x * block_.x / WARP_SIZE);
 
-      laneId_ = globalThreadIdxX_ % WARP_SIZE;
+      laneId_ = _threadIdx.x % WARP_SIZE;
   }
 
   inline __device__ size_t globalThreadIdxX() const {

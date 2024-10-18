@@ -46,7 +46,7 @@ build_program(){
   fi
   cmake -S ${cmake_file_path} -B ${build_path} > /dev/null
   cmake --build ${build_path} > /dev/null
-  echo "* Build complete : ${script_file_path}${build_path}"
+  echo "* Build complete : ${build_path}"
 }
 
 build_program ${zcx_build_folder_path} ${zcx_cmake_file_path}

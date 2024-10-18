@@ -23,18 +23,18 @@ const std::string filePath = folderPath + fileName + fileFormat;
 
 // TODO :
 //      测试矩阵的尺寸按照论文中的尺寸
-//      1: 将 comp_sddmm_gpu 全部使用 Tensor core 执行             OK
-//      2: 测试不同尺寸的 wmma 的速度表现                           OK
+//      1: 将 comp_sddmm_gpu 全部使用 Tensor core 执行          OK
+//      2: 测试不同尺寸的 wmma 的速度表现                         OK
 //      3: 测试使用稀疏度比较器的速度表现
 //              稀疏度大于50%使用 isratnisa 的方法
 //              稀疏度小于50%使用 Tensor core 方法
-//      4: 全部数据放在device内存                               OK
-//      5: 优化openTensorCoreModeForSampled()                 OK
-//      6: 测试更大的K(<5k)的结果
-//      7: 优化positionCalculator(),                          OK
+//      4: 全部数据放在device内存                                OK
+//      5: 优化openTensorCoreModeForSampled()                  OK
+//      6: 测试更大的K(<5k)的结果                                doing
+//      7: 优化positionCalculator(),                           OK
 //                  支持 WMMA 维度 : 16×16×16                   OK
-//                  支持 WMMA 维度 : 32×8×16
-//                  支持 WMMA 维度 : 8×32×16
+//                  支持 WMMA 维度 : 32×8×16                    OK
+//                  支持 WMMA 维度 : 8×32×16                    OK
 
 //#define MAKE_MATRIX_DATA
 
@@ -48,14 +48,14 @@ int main(int argc, char *argv[]) {
         const size_t million = 1000000;
 //    const size_t makeDataRow = 3 * thousand;
 //    const size_t makeDataCol = 7 * thousand;
-        const size_t makeDataRow = 10000;
-        const size_t makeDataCol = 10000;
+        const size_t makeDataRow = 20000;
+        const size_t makeDataCol = 20000;
 //    const float density = 4.006f;
 //    const size_t makeDataNNZ = static_cast<int> (makeDataRow * makeDataCol * density / 100);
 //    const float sparsity = 0.80;
 //    const size_t makeDataNNZ = makeDataRow * makeDataCol * (1 - sparsity);
 //    const size_t makeDataNNZ = 1 * million;
-        const size_t makeDataNNZ = 4097;
+        const size_t makeDataNNZ = 20000000;
         matrixTmp.makeData(makeDataRow, makeDataCol, makeDataNNZ);
         matrixTmp.outputToMarketMatrixFile();
         std::cout << "makeData : M : " << makeDataRow
@@ -274,7 +274,7 @@ int main(int argc, char *argv[]) {
 
 //    isratnisa::Matrix isratnisaMatrixS;
 //    isratnisaMatrixS.copyFromMatrix(matrixS);
-
+//
 //    float *valuesP_isratnisa = nullptr;
 //    preprocessing(isratnisaMatrixS, matrixA.values(), matrixB.values(), valuesP_isratnisa);
 
