@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <typeinfo>
 
 //#include "sddmm_isratnisa.h"
 //#include "util_isratnisa.h"
@@ -13,11 +14,11 @@
 #include "checkData.hpp"
 #include "devVector.cuh"
 
-const std::string folderPath("../dataset/test/matrix_10000_10000_/");
+const std::string folderPath("../dataset/test/matrix_5000_5000_/");
 //const std::string folderPath("./");
 //const std::string fileName = ("nips");
 //const std::string fileName = ("test");
-const std::string fileName = ("matrix_10000_10000_5000000");
+const std::string fileName = ("matrix_5000_5000_50000");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 
@@ -98,6 +99,10 @@ int main(int argc, char *argv[]) {
     TensorCoreConfig tensorCoreConfig(matrixS.row(), matrixS.col());
     printf("@WMMA_M : %d @, WMMA_N : %d @, @WMMA_K : %d @\n", WMMA_M, WMMA_N, WMMA_K);
 
+    printf("@matrixA type : %s @\n", typeid(MATRIX_A_TYPE).name());
+    printf("@matrixB type : %s @\n", typeid(MATRIX_B_TYPE).name());
+    printf("@matrixC type : %s @\n", typeid(MATRIX_C_TYPE).name());
+
     Matrix<float> matrixA(matrixS.row(), K, MatrixStorageOrder::row_major);
     matrixA.makeData(matrixA.row(), K, MatrixStorageOrder::row_major);
 //    std::cout << "matrixA.size() : " << matrixA.values().size() << " matrixA : ";
@@ -107,6 +112,11 @@ int main(int argc, char *argv[]) {
     matrixB.makeData(K, matrixS.col(), MatrixStorageOrder::row_major);
 //    std::cout << "matrixB.size() : " << matrixB.values().size() << " matrixB : ";
 //    matrixB.print();
+
+    if (matrixA.storageOrder() == MatrixStorageOrder::row_major) { printf("@matrixA storageOrder : row_major @"); }
+    else { printf("@matrixA storageOrder : col_major @"); }
+    if (matrixB.storageOrder() == MatrixStorageOrder::row_major) { printf("@matrixB storageOrder : row_major @"); }
+    else { printf("@matrixB storageOrder : col_major @"); }
 
     matrixA.openTensorCoreMode(tensorCoreConfig, MatrixMultiplicationOrder::left_multiplication);
     std::cout << "openTensorCoreMode matrixA : row = " << matrixA.row() << ", col = " << matrixA.col() << std::endl;

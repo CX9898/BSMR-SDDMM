@@ -157,17 +157,31 @@ void ResultsInformation::initInformation(const std::string &line) {
       }
     };
 
-    initOperation(line, "@WMMA_M : ", is_initialized_wmma_m_, wmma_m_);
-    initOperation(line, "@WMMA_N : ", is_initialized_wmma_n_, wmma_n_);
-    initOperation(line, "@WMMA_K : ", is_initialized_wmma_k_, wmma_k_);
+    auto initSettingOperation = [](const std::string &line, const std::string &find,
+                                   bool &is_initialized, std::string &output) -> void {
+      if (!is_initialized) {
+          if (contains(line, find)) {
+              const int beginIdx = line.find(find);
+              int endIdx = beginIdx;
+              while (line[endIdx++] != '@') {}
+              const auto data = line.substr(beginIdx, endIdx - beginIdx - 2);
+              output = line.substr(beginIdx, endIdx - beginIdx - 2);
+              is_initialized = true;
+          }
+      }
+    };
 
-    initOperation(line, "@matrixA type : ", is_initialized_matrixA_type_, matrixA_type_);
-    initOperation(line, "@matrixB type : ", is_initialized_matrixB_type_, matrixB_type_);
-    initOperation(line, "@matrixC type : ", is_initialized_matrixC_type_, matrixC_type_);
+    initSettingOperation(line, "@WMMA_M : ", is_initialized_wmma_m_, wmma_m_);
+    initSettingOperation(line, "@WMMA_N : ", is_initialized_wmma_n_, wmma_n_);
+    initSettingOperation(line, "@WMMA_K : ", is_initialized_wmma_k_, wmma_k_);
 
-    initOperation(line, "@matrixA storageOrder : ", is_initialized_matrixA_storageOrder_, matrixA_storageOrder_);
-    initOperation(line, "@matrixB storageOrder : ", is_initialized_matrixB_storageOrder_, matrixB_storageOrder_);
-    initOperation(line, "@matrixC storageOrder : ", is_initialized_matrixC_storageOrder_, matrixC_storageOrder_);
+    initSettingOperation(line, "@matrixA type : ", is_initialized_matrixA_type_, matrixA_type_);
+    initSettingOperation(line, "@matrixB type : ", is_initialized_matrixB_type_, matrixB_type_);
+    initSettingOperation(line, "@matrixC type : ", is_initialized_matrixC_type_, matrixC_type_);
+
+    initSettingOperation(line, "@matrixA storageOrder : ", is_initialized_matrixA_storageOrder_, matrixA_storageOrder_);
+    initSettingOperation(line, "@matrixB storageOrder : ", is_initialized_matrixB_storageOrder_, matrixB_storageOrder_);
+    initSettingOperation(line, "@matrixC storageOrder : ", is_initialized_matrixC_storageOrder_, matrixC_storageOrder_);
 
     initOperation(line, "@M : ", is_initialized_M_, M_);
     initOperation(line, "@N : ", is_initialized_N_, N_);
@@ -183,6 +197,17 @@ void ResultsInformation::initInformation(const std::string &line) {
     initOperation(line, "@zcx : ", is_initialized_zcx_, zcx_);
 
     initOperation(line, "@checkData : ", is_initialized_checkData_, checkData_);
+}
+
+void printSettings(const ResultsInformation &resultsInformation) {
+
+    printf("- %s, %s\n", resultsInformation.matrixA_type_.data(), resultsInformation.matrixA_storageOrder_.data());
+    printf("- %s, %s\n", resultsInformation.matrixB_type_.data(), resultsInformation.matrixB_storageOrder_.data());
+    printf("- %s, %s\n", resultsInformation.matrixC_type_.data(), resultsInformation.matrixC_storageOrder_.data());
+
+    printf("- %s\n", resultsInformation.wmma_m_.data());
+    printf("- %s\n", resultsInformation.wmma_n_.data());
+    printf("- %s\n", resultsInformation.wmma_k_.data());
 }
 
 void printHeadOfList() {
@@ -311,6 +336,8 @@ int main(int argc, char *argv[]) {
     readLogFile(inputFilePath2, resultsInformation);
 
     sortResultsInformation(resultsInformation);
+
+    printSettings(resultsInformation[0]);
 
     printf("Markdown table : \n");
     printHeadOfList();
