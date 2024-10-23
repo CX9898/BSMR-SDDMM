@@ -103,7 +103,7 @@ autoTest(){
 
     local k_id=1
     for k in "${K[@]}"; do
-      echo -e "\t\t * k_id : ${k_id} K = ${k} start testing... [Number remaining: $((${num_K} - ${k_id}))]"
+      echo -e "\t\t * K = ${k} start testing... [Number remaining: $((${num_K} - ${k_id}))]"
       echo -e "\n---new data---\n" >> ${2}
       $1 ${test_file_folder_path}${file} ${k} 192 50000 >> ${2}
       ((k_id++))
