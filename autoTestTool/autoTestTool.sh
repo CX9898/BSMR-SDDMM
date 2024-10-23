@@ -6,7 +6,7 @@ script_file_path="$(dirname "$0")/"
 test_file_folder_path="${script_file_path}../dataset/test/matrix_10000_10000_/"
 
 # 设置多个K
-K=(256 500 1000 2000 3000 4000 5000)
+K=(256)
 num_K=${#K[@]}
 echo -n "* The number of test K is ${num_K}, which are :"
 for element in "${K[@]}"; do
@@ -99,13 +99,16 @@ autoTest(){
 
   local file_id=1
   for file in "${filesList[@]}"; do
-    echo -e "\t * ${test_file_folder_path}$file start testing... [Number remaining: $((${numTestFiles} - ${file_id}))]"
+    echo -e "* \t${test_file_folder_path}$file start testing... [Number remaining: $((${numTestFiles} - ${file_id}))]"
 
     local k_id=1
     for k in "${K[@]}"; do
-      echo -e "\t\t * K = ${k} start testing... [Number remaining: $((${num_K} - ${k_id}))]"
+      echo -e "* \t\tK = ${k} start testing... [Number remaining: $((${num_K} - ${k_id}))]"
       echo -e "\n---new data---\n" >> ${2}
+      local start_time=$(date +%s.%N)
       $1 "${test_file_folder_path}${file}" ${k} 192 50000 >> ${2}
+      local end_time=$(date +%s.%N)
+      echo -e "* \t\tExecution time: $(echo "$end_time - $start_time" | bc) seconds"
       ((k_id++))
     done
 
@@ -113,15 +116,16 @@ autoTest(){
   done
 
   echo "* End test"
-  echo "* Test information file: ${log_file}"
+  echo "* Test information file: ${2}"
 }
 
 autoTest "${zcx_program_path}${zcx_program_name}" "${zcx_test_log_file}"
 autoTest "${isratnisa_program_path}${isratnisa_program_name}" "${isratnisa_test_log_file}"
 
 # 编译分析结果程序
-g++ "${auto_analysis_results_source_filename}" -o "${auto_analysis_results_program}"
+g++ ${auto_analysis_results_source_filename} -o ${auto_analysis_results_program}
+echo "* Auto analysis results program : ${auto_analysis_results_source_filename}"
 
 echo "* Start analyzing results..."
-${auto_analysis_results_program} ${zcx_test_log_file} ${isratnisa_test_log_file} >> "${analysis_results_log_file}"
+${auto_analysis_results_program} ${zcx_test_log_file} ${isratnisa_test_log_file} >> ${analysis_results_log_file}
 echo "* Results analysis completed: ${analysis_results_log_file}"
