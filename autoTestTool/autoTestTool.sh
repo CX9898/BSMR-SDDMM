@@ -123,5 +123,5 @@ autoTest "${isratnisa_program_path}${isratnisa_program_name}" "${isratnisa_test_
 g++ "${auto_analysis_results_source_filename}" -o "${auto_analysis_results_program}"
 
 echo "* Start analyzing results..."
-${auto_analysis_results_program} "${zcx_test_log_file} ${isratnisa_test_log_file}" >> "${analysis_results_log_file}"
+${auto_analysis_results_program} ${zcx_test_log_file} ${isratnisa_test_log_file} >> "${analysis_results_log_file}"
 echo "* Results analysis completed: ${analysis_results_log_file}"
