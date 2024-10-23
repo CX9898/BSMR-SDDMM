@@ -197,7 +197,9 @@ void ResultsInformation::initInformation(const std::string &line) {
     initOperation(line, "@checkData : ", is_initialized_checkData_, checkData_);
 }
 
-void printSettings(const ResultsInformation &resultsInformation) {
+void printSettingInformation(const ResultsInformation &resultsInformation) {
+
+    printf("\n");
 
     printf("- %s, %s\n", resultsInformation.matrixA_type_.data(), resultsInformation.matrixA_storageOrder_.data());
     printf("- %s, %s\n", resultsInformation.matrixB_type_.data(), resultsInformation.matrixB_storageOrder_.data());
@@ -206,14 +208,16 @@ void printSettings(const ResultsInformation &resultsInformation) {
     printf("- %s\n", resultsInformation.wmma_m_.data());
     printf("- %s\n", resultsInformation.wmma_n_.data());
     printf("- %s\n", resultsInformation.wmma_k_.data());
+
+    printf("\n");
 }
 
 void printHeadOfList() {
 
     printf(
-        "|                            | sparsity | k    | isratnisa_sddmm | zcx_sddmm | isratnisa_other | zcx_other | isratnisa | zcx     |\n");
+        "| | sparsity | k | isratnisa_sddmm | zcx_sddmm | isratnisa_other | zcx_other | isratnisa | zcx |\n");
     printf(
-        "|----------------------------|----------|------|-----------------|-----------|-----------------|-----------|-----------|---------|\n");
+        "|-|----------|---|-----------------|-----------|-----------------|-----------|-----------|-----|\n");
 }
 
 void printOneLineOfList(const ResultsInformation &resultsInformation) {
@@ -335,9 +339,10 @@ int main(int argc, char *argv[]) {
 
     sortResultsInformation(resultsInformation);
 
-    printSettings(resultsInformation[0]);
+    printf("Markdown format:\n");
 
-    printf("Markdown table : \n");
+    printSettingInformation(resultsInformation[0]);
+
     printHeadOfList();
     for (int resIdx = 0; resIdx < resultsInformation.size(); ++resIdx) {
         printOneLineOfList(resultsInformation[resIdx]);
