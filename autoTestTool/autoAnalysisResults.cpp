@@ -326,7 +326,7 @@ int main(int argc, char *argv[]) {
     int numData2 = getNumData(inputFilePath2);
 
     if (numData1 != numData2) {
-        fprintf(stderr, "The two files do not have the same amount of data");
+        fprintf(stderr, "Error! The two files do not have the same amount of data\n");
         return -1;
     }
 
