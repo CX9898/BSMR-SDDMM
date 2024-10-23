@@ -150,7 +150,6 @@ void ResultsInformation::initInformation(const std::string &line) {
               const int beginIdx = line.find(find) + find.size();
               int endIdx = beginIdx;
               while (line[endIdx++] != '@') {}
-              const auto data = line.substr(beginIdx, endIdx - beginIdx - 2);
               output = line.substr(beginIdx, endIdx - beginIdx - 2);
               is_initialized = true;
           }
@@ -164,7 +163,6 @@ void ResultsInformation::initInformation(const std::string &line) {
               const int beginIdx = line.find(find) + 1;
               int endIdx = beginIdx + 1;
               while (line[endIdx++] != '@') {}
-              const auto data = line.substr(beginIdx, endIdx - beginIdx - 2);
               output = line.substr(beginIdx, endIdx - beginIdx - 2);
               is_initialized = true;
           }
