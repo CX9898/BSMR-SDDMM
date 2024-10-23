@@ -6,7 +6,7 @@ script_file_path="$(dirname "$0")/"
 test_file_folder_path="${script_file_path}../dataset/test/matrix_10000_10000_/"
 
 # 设置多个K
-K=(256)
+K=(256 500 1000 2000 3000 4000 5000)
 num_K=${#K[@]}
 echo -n "* The number of test K is ${num_K}, which are :"
 for element in "${K[@]}"; do
