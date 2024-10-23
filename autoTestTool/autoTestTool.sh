@@ -3,7 +3,7 @@
 script_file_path="$(dirname "$0")/"
 
 # 测试文件路径
-test_file_folder_path="${script_file_path}../dataset/matrix_10000_10000_/"
+test_file_folder_path="${script_file_path}../dataset/test/matrix_10000_10000_/"
 
 # 设置多个K
 K=(256 500 1000 2000 3000 4000 5000)
