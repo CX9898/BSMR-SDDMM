@@ -105,7 +105,7 @@ autoTest(){
     for k in "${K[@]}"; do
       echo -e "\t\t * K = ${k} start testing... [Number remaining: $((${num_K} - ${k_id}))]"
       echo -e "\n---new data---\n" >> ${2}
-      $1 ${test_file_folder_path}${file} ${k} 192 50000 >> ${2}
+      $1 "${test_file_folder_path}${file}" ${k} 192 50000 >> ${2}
       ((k_id++))
     done
 
@@ -116,12 +116,12 @@ autoTest(){
   echo "* Test information file: ${log_file}"
 }
 
-autoTest ${zcx_program_path}${zcx_program_name} ${zcx_test_log_file}
-autoTest ${isratnisa_program_path}${isratnisa_program_name} ${isratnisa_test_log_file}
+autoTest "${zcx_program_path}${zcx_program_name}" "${zcx_test_log_file}"
+autoTest "${isratnisa_program_path}${isratnisa_program_name}" "${isratnisa_test_log_file}"
 
 # 编译分析结果程序
-g++ ${auto_analysis_results_source_filename} -o ${auto_analysis_results_program}
+g++ "${auto_analysis_results_source_filename}" -o "${auto_analysis_results_program}"
 
 echo "* Start analyzing results..."
-${auto_analysis_results_program} ${zcx_test_log_file} ${isratnisa_test_log_file} >> ${analysis_results_log_file}
+${auto_analysis_results_program} "${zcx_test_log_file} ${isratnisa_test_log_file}" >> "${analysis_results_log_file}"
 echo "* Results analysis completed: ${analysis_results_log_file}"
