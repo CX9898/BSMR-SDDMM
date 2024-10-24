@@ -160,10 +160,10 @@ class SparseMatrix {
    **/
   void openTensorCoreModeForSampled(TensorCoreConfig tensorCoreConfig);
   void closeTensorCoreMode();
-  const dev::vector<UIN> &matrixTileIndex() const {
+  const dev::vector<UIN> &matrixTileMappedToWarpIndex() const {
       return matrixTileMappedToWarpIndex_;
   }
-  const dev::vector<UIN> &matrixTileIndexData() const {
+  const dev::vector<UIN> &matrixTileMappedToWarpIndexData() const {
       return matrixTileMappedToWarpIndexData_;
   }
 

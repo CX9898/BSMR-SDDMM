@@ -129,12 +129,13 @@ int main(int argc, char *argv[]) {
     timeCalculator.startClock();
     matrixS_dev.openTensorCoreModeForSampled(tensorCoreConfig);
     timeCalculator.endClock();
-    const float openTensorCoreModeForSampled_time = timeCalculator.getTime();
-    std::cout << "Func openTensorCoreModeForSampled_time : " << openTensorCoreModeForSampled_time << " ms" << std::endl;
+    const float openTensorCoreModeForSampled_dev_time = timeCalculator.getTime();
+    std::cout << "Func openTensorCoreModeForSampled_dev_time : " << openTensorCoreModeForSampled_dev_time << " ms"
+              << std::endl;
     std::cout << "openTensorCoreModeForSampled matrixS_dev : row = "
               << matrixS_dev.row() << ", col = " << matrixS_dev.col() << std::endl;
 
-    printf("@zcx_other : %.2f @\n", openTensorCoreModeForSampled_time);
+    printf("@zcx_other : %.2f @\n", openTensorCoreModeForSampled_dev_time);
 
 
 //    matrixS.openTensorCoreModeForSampled(tensorCoreConfig);
@@ -211,7 +212,7 @@ int main(int argc, char *argv[]) {
 
 //    dev::vector<UIN> matrixS_rowIndex_coo(matrixS_cpu.rowIndex());
 //    dev::vector<UIN> matrixS_colIndex_coo(matrixS_cpu.colIndex());
-//    dev::vector<UIN> matrixS_tileIndex_coo(matrixS_cpu.matrixTileIndex());
+//    dev::vector<UIN> matrixS_tileIndex_coo(matrixS_cpu.matrixTileMappedToWarpIndex());
 //    dev::vector<float> matrixS_value_coo(matrixS_cpu.values());
 //
 //    dev::vector<float> matrixP_value_coo(matrixS_cpu.nnz());
@@ -251,8 +252,8 @@ int main(int argc, char *argv[]) {
                                                                            matrixS_dev.rowIndex().data(),
                                                                            matrixS_dev.colIndex().data(),
                                                                            matrixS_dev.values().data(),
-                                                                           matrixS_dev.matrixTileIndex().data(),
-                                                                           matrixS_dev.matrixTileIndexData().data(),
+                                                                           matrixS_dev.matrixTileMappedToWarpIndex().data(),
+                                                                           matrixS_dev.matrixTileMappedToWarpIndexData().data(),
                                                                            matrixP_value_coo2.data());
     timeCalculator.endClock();
     const float time_sddmm_gpu_coo2 = timeCalculator.getTime();
@@ -272,7 +273,7 @@ int main(int argc, char *argv[]) {
 //    matrixB.closeTensorCoreMode();
 //    matrixS_dev.closeTensorCoreMode();
 
-    const float time_sddmm_zcx = openTensorCoreModeForSampled_time + time_sddmm_gpu_coo2;
+    const float time_sddmm_zcx = openTensorCoreModeForSampled_dev_time + time_sddmm_gpu_coo2;
     std::cout << "sddmm_zcx time : " << time_sddmm_zcx << " ms" << std::endl;
 
     printf("@zcx : %.2f @\n", time_sddmm_zcx);
