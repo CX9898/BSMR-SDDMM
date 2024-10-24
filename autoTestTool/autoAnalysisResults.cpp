@@ -5,7 +5,7 @@
 #include <vector>
 #include <algorithm>
 
-const std::string dataSplitSymbol("---new data---");
+const std::string dataSplitSymbol("---New data---");
 
 struct ResultsInformation {
  public:
