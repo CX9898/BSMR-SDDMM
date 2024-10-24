@@ -480,8 +480,8 @@ __global__ void sddmm_gpu_coo_3(TensorCoreConfig tensorCoreConfig,
 
     for (int tileIndexDataIdx = tileIndexBegin; tileIndexDataIdx < tileIndexEnd; ++tileIndexDataIdx) {
         const UIN matrixPIdx = tileIndexDataIdx;
-        const UIN curRow = matrixSRowIndex[tileIndexDataIdx];
-        const UIN curCol = matrixSColIndex[tileIndexDataIdx];
+        const UIN curRow = matrixSRowIndex[matrixPIdx];
+        const UIN curCol = matrixSColIndex[matrixPIdx];
 
         FragmentInformation fragmentInformation;
         tensorCoreConfig.positionCalculator(pRowId, pColId, curRow, curCol, fragmentInformation);
