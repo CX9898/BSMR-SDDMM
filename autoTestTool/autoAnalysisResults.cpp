@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <unordered_set>
 
 const std::string dataSplitSymbol("---New data---");
 
@@ -241,31 +242,45 @@ void printOneLineOfList(const ResultsInformation &resultsInformation) {
     printf("\n");
 }
 
+int findNumK(const std::vector<ResultsInformation> &resultsInformation) {
+    std::unordered_set<int> kSet;
+    for (const auto &iter : resultsInformation) {
+        kSet.insert(std::stoi(iter.K_));
+    }
+    return kSet.size();
+}
+
 void sortResultsInformation(std::vector<ResultsInformation> &resultsInformation) {
     printf("sortResultsInformation...\n");
     std::sort(resultsInformation.begin(), resultsInformation.end(),
               [&](ResultsInformation &a, ResultsInformation &b) {
-
                 const float M_a = a.M_.empty() ? 0 : std::stof(a.M_);
                 const float M_b = b.M_.empty() ? 0 : std::stof(b.M_);
                 if (M_a > M_b) {
                     return true;
                 }
+                return false;
+              });
 
+    std::sort(resultsInformation.begin(), resultsInformation.end(),
+              [&](ResultsInformation &a, ResultsInformation &b) {
                 const float sparsity_a = a.sparsity_.empty() ? 0 : std::stof(a.sparsity_);
                 const float sparsity_b = b.sparsity_.empty() ? 0 : std::stof(b.sparsity_);
                 if (sparsity_a < sparsity_b) {
                     return true;
                 }
+                return false;
+              });
 
+//    std::sort(resultsInformation.begin(), resultsInformation.end(),
+//              [&](ResultsInformation &a, ResultsInformation &b) {
 //                const int K_a = a.K_.empty() ? 0 : std::stoi(a.K_);
 //                const int K_b = b.K_.empty() ? 0 : std::stoi(b.K_);
 //                if (K_a > K_b) {
 //                    return true;
 //                }
-
-                return false;
-              });
+//                return false;
+//              });
 }
 
 void readLogFile(const std::string &file, std::vector<ResultsInformation> &resultsInformation) {
