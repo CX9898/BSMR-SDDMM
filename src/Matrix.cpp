@@ -621,7 +621,7 @@ void SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorCoreCo
 
 //#endif //TEST
 
-    //////////////////////////// 2-1: 循环: nnz. 单CPU 不使用push_back() OK
+    //////////////////////////// 2-1: 循环: nnz. 单CPU 不使用push_back() OK TODO: Error rowIndex错了
 #ifdef TEST
     {
 #ifdef PRINT_TIME
@@ -725,6 +725,123 @@ void SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorCoreCo
 #ifdef TEST
         printf("    check numIndexPerTile_right and numIndexPerTile_2_1\n");
         if (!checkData(numIndexPerTile_right, numIndexPerTile_2_1)) {
+            exit(1);
+        }
+        printf("    check matrixTileIndexForTensorCore_right and matrixTileMappedToWarpIndex_\n");
+        if (!checkData(matrixTileIndexForTensorCore_right, matrixTileMappedToWarpIndex_)) {
+            exit(1);
+        }
+#endif //TEST
+
+    }
+#endif //TEST
+
+    //////////////////////////// 2-2: 循环: nnz. 多CPU 使用锁 不使用push_back() OK
+#ifdef TEST
+    {
+#ifdef PRINT_TIME
+        timeCalculator.startClock();
+#endif //PRINT_TIME
+
+        std::vector<UIN> numIndexPerTile_2_2(numWarps);
+
+#ifdef PRINT_TIME
+        CudaTimeCalculator timeCalculator1;
+        timeCalculator1.startClock();
+#endif //PRINT_TIME
+
+        std::vector<UIN> matrixForWarpId(nnz_);
+        for (int mtxId = 0; mtxId < nnz_; ++mtxId) {
+            const UIN curRow = rowIndexBeforeChange_[mtxId];
+            const UIN curCol = colIndexBeforeChange_[mtxId];
+            const UIN warpId = tensorCoreConfig.calculateWarpId(curRow, curCol);
+
+            matrixForWarpId[mtxId] = warpId;
+            numIndexPerTile_2_2[warpId]++;
+        }
+
+#ifdef PRINT_TIME
+        timeCalculator1.endClock();
+        const float getNum_time = timeCalculator1.getTime();
+        std::cout << "      循环: nnz. 多CPU 使用锁 不使用push_back() getNum_time : " << getNum_time << "ms"
+                  << std::endl;
+#endif //PRINT_TIME
+
+#ifdef PRINT_TIME
+        timeCalculator1.startClock();
+#endif //PRINT_TIME
+
+        matrixTileMappedToWarpIndex_.resize(numWarps + 1);
+        matrixTileMappedToWarpIndex_[0] = 0;
+        host::inclusive_scan(numIndexPerTile_2_2.data(),
+                             numIndexPerTile_2_2.data() + numIndexPerTile_2_2.size(),
+                             matrixTileMappedToWarpIndex_.data() + 1);
+
+#ifdef PRINT_TIME
+        timeCalculator1.endClock();
+        const float inclusive_scan_time = timeCalculator1.getTime();
+        std::cout << "      循环: nnz. 多CPU 使用锁 不使用push_back() inclusive_scan_time : " << inclusive_scan_time
+                  << "ms"
+                  << std::endl;
+#endif //PRINT_TIME
+
+#ifdef PRINT_TIME
+        timeCalculator1.startClock();
+#endif //PRINT_TIME
+
+        std::vector<std::vector<UIN>> indexVectorsPerWarp_2_2(numWarps);
+
+#pragma omp parallel for
+        for (int warpId = 0; warpId < numWarps; ++warpId) {
+            indexVectorsPerWarp_2_2[warpId].resize(numIndexPerTile_2_2[warpId]);
+        }
+
+        std::vector<UIN> count(numWarps);
+        for (int mtxId = 0; mtxId < nnz_; ++mtxId) {
+            const UIN warpId = matrixForWarpId[mtxId];
+            const UIN beginIdx = matrixTileMappedToWarpIndex_[warpId];
+            indexVectorsPerWarp_2_2[warpId][beginIdx + count[warpId]];
+            count[warpId]++;
+        }
+
+#ifdef PRINT_TIME
+        timeCalculator1.endClock();
+        const float getIndex_time = timeCalculator1.getTime();
+        std::cout << "      循环: nnz. 多CPU 使用锁 不使用push_back() getIndex_time : " << getIndex_time << "ms"
+                  << std::endl;
+#endif //PRINT_TIME
+
+#ifdef PRINT_TIME
+        timeCalculator1.startClock();
+#endif //PRINT_TIME
+
+#pragma omp parallel for
+        for (int warpId = 0; warpId < numWarps; ++warpId) {
+            const std::vector<UIN> &curIndexVector = indexVectorsPerWarp_2_2[warpId];
+            for (int idx = 0; idx < curIndexVector.size(); ++idx) {
+                const UIN newIdx = matrixTileMappedToWarpIndex_[warpId] + idx;
+                const UIN oldIdx = curIndexVector[idx];
+                rowIndex_[newIdx] = rowIndexBeforeChange_[oldIdx];
+                colIndex_[newIdx] = colIndexBeforeChange_[oldIdx];
+                values_[newIdx] = valuesBeforeChange_[oldIdx];
+            }
+        }
+
+#ifdef PRINT_TIME
+        timeCalculator1.endClock();
+        const float sort_time = timeCalculator1.getTime();
+        std::cout << "      循环: nnz. 多CPU 使用锁 不使用push_back() sort_time : " << sort_time << "ms" << std::endl;
+#endif //PRINT_TIME
+
+#ifdef PRINT_TIME
+        timeCalculator.endClock();
+        const float time_2 = timeCalculator.getTime();
+        std::cout << "    循环: nnz. 多CPU 使用锁 time 不使用push_back() : " << time_2 << "ms" << std::endl;
+#endif //PRINT_TIME
+
+#ifdef TEST
+        printf("    check numIndexPerTile_right and numIndexPerTile_2_2\n");
+        if (!checkData(numIndexPerTile_right, numIndexPerTile_2_2)) {
             exit(1);
         }
         printf("    check matrixTileIndexForTensorCore_right and matrixTileMappedToWarpIndex_\n");
