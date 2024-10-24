@@ -10,6 +10,8 @@
 #include "Matrix.hpp"
 #include "util.hpp"
 #include "parallelAlgorithm.cuh"
+#include "CudaTimeCalculator.cuh"
+#include "checkData.hpp"
 
 template<typename T>
 Matrix<T>::Matrix(const SparseMatrix<T> &matrixS) {
@@ -500,6 +502,9 @@ void SparseMatrix<T>::openTensorCoreMode(const TensorCoreConfig tensorCoreConfig
     }
 }
 
+//#define TEST
+//#define PRINT_TIME
+
 template<typename T>
 void SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorCoreConfig) {
     if (tensorCoreMode_) {
@@ -515,12 +520,23 @@ void SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorCoreCo
     row_ = tensorCoreConfig.MForTensorCore(rowBeforeChange_);
     col_ = tensorCoreConfig.NForTensorCore(colBeforeChange_);
 
-    const UIN numTileM = row_ / WMMA_M;
-    const UIN numTileN = col_ / WMMA_N;
-
     const UIN numWarpX = tensorCoreConfig.numWarpX();
     const UIN numWarpY = tensorCoreConfig.numWarpY();
     const UIN numWarps = numWarpX * numWarpY;
+
+#ifdef PRINT_TIME
+    CudaTimeCalculator timeCalculator;
+#endif //PRINT_TIME
+
+    //////////////////////////// 双重循环: numWarp, nnz. 多CPU
+#ifdef TEST
+
+#ifdef PRINT_TIME
+    timeCalculator.startClock();
+#endif //PRINT_TIME
+
+    const UIN numTileM = row_ / WMMA_M;
+    const UIN numTileN = col_ / WMMA_N;
 
     std::vector<std::vector<UIN>> indexVectorsPerWarp(numWarps);
     std::vector<UIN> numIndexPerTile(numWarps);
@@ -546,43 +562,112 @@ void SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorCoreCo
         numIndexPerTile[warpId] = indexVectorsPerWarp[warpId].size();
     }
 
-    matrixTileIndexForTensorCore_.resize(numWarps + 1);
-    matrixTileIndexForTensorCore_[0] = 0;
+    matrixTileMappedToWarpIndex_.resize(numWarps + 1);
+    matrixTileMappedToWarpIndex_[0] = 0;
     host::inclusive_scan(numIndexPerTile.data(),
                          numIndexPerTile.data() + numIndexPerTile.size(),
-                         matrixTileIndexForTensorCore_.data() + 1);
+                         matrixTileMappedToWarpIndex_.data() + 1);
 
 #pragma omp parallel for
     for (int warpId = 0; warpId < numWarps; ++warpId) {
         const auto &curIndexVector = indexVectorsPerWarp[warpId];
         for (int idx = 0; idx < curIndexVector.size(); ++idx) {
-            const int newIdx = matrixTileIndexForTensorCore_[warpId] + idx;
+            const int newIdx = matrixTileMappedToWarpIndex_[warpId] + idx;
             rowIndex_[newIdx] = rowIndexBeforeChange_[curIndexVector[idx]];
             colIndex_[newIdx] = colIndexBeforeChange_[curIndexVector[idx]];
             values_[newIdx] = valuesBeforeChange_[curIndexVector[idx]];
         }
     }
 
-//    std::set<std::pair<UIN, UIN>> rowColSet;
-//    for (int idx = 0; idx < nnz_; ++idx) { // 检查是否有相同行列值
-//        std::pair<UIN, UIN> rowColPair(rowIndexBeforeChange_[idx], colIndexBeforeChange_[idx]);
-//        if (rowColSet.find(rowColPair) != rowColSet.end()) {
-//            std::cout << " 有相同行列值1111???!!!!???!!! " << rowIndexBeforeChange_[idx] << " "
-//                      << colIndexBeforeChange_[idx]
-//                      << std::endl;
-//            exit(1);
-//        }
-//        rowColSet.insert(rowColPair);
-//    }
-//
-//    for (int idx = 0; idx < nnz_; ++idx) { // 检查是否出现不一样的值
-//        std::pair<UIN, UIN> rowColPair(rowIndex_[idx], colIndex_[idx]);
-//        if (rowColSet.find(rowColPair) == rowColSet.end()) {
-//            std::cout << " 出现不一样的值333???!!!!???!!! " << rowIndex_[idx] << " " << rowIndex_[idx]
-//                      << std::endl;
-//            exit(1);
-//        }
-//    }
+#ifdef PRINT_TIME
+    timeCalculator.endClock();
+    const float time_1 = timeCalculator.getTime();
+    std::cout << "    双重循环: numWarp, nnz. 多CPU time : " << time_1 << "ms" << std::endl;
+#endif //PRINT_TIME
+
+    std::vector<UIN> numIndexPerTile_right = numIndexPerTile;
+    std::vector<UIN> matrixTileIndexForTensorCore_right = matrixTileMappedToWarpIndex_;
+
+#endif //TEST
+
+    //////////////////////////// 循环: nnz. 单CPU OK
+
+#ifdef PRINT_TIME
+    timeCalculator.startClock();
+#endif //PRINT_TIME
+
+    std::vector<UIN> numIndexPerTile_2(numWarps);
+    std::vector<std::vector<UIN>> indexVectorsPerWarp_2(numWarps);
+    for (int mtxId = 0; mtxId < nnz_; ++mtxId) {
+        const UIN curRow = rowIndex_[mtxId];
+        const UIN curCol = colIndex_[mtxId];
+        const UIN warpId = tensorCoreConfig.calculateWarpId(curRow, curCol);
+
+        numIndexPerTile_2[warpId]++;
+        indexVectorsPerWarp_2[warpId].push_back(mtxId);
+    }
+
+    matrixTileMappedToWarpIndex_.resize(numWarps + 1);
+    matrixTileMappedToWarpIndex_[0] = 0;
+    host::inclusive_scan(numIndexPerTile_2.data(),
+                         numIndexPerTile_2.data() + numIndexPerTile_2.size(),
+                         matrixTileMappedToWarpIndex_.data() + 1);
+
+#pragma omp parallel for
+    for (int warpId = 0; warpId < numWarps; ++warpId) {
+        const std::vector<UIN> &curIndexVector = indexVectorsPerWarp_2[warpId];
+        for (int idx = 0; idx < curIndexVector.size(); ++idx) {
+            const UIN newIdx = matrixTileMappedToWarpIndex_[warpId] + idx;
+            const UIN oldIdx = curIndexVector[idx];
+            rowIndex_[newIdx] = rowIndexBeforeChange_[oldIdx];
+            colIndex_[newIdx] = colIndexBeforeChange_[oldIdx];
+            values_[newIdx] = valuesBeforeChange_[oldIdx];
+        }
+    }
+
+#ifdef PRINT_TIME
+    timeCalculator.endClock();
+    const float time_2 = timeCalculator.getTime();
+    std::cout << "    循环: nnz. 单CPU time : " << time_2 << "ms" << std::endl;
+#endif //PRINT_TIME
+
+#ifdef TEST
+
+    printf("    check numIndexPerTile_right and numIndexPerTile_2\n");
+    if (!checkData(numIndexPerTile_right, numIndexPerTile_2)) {
+        exit(1);
+    }
+    printf("    check matrixTileIndexForTensorCore_right and matrixTileMappedToWarpIndex_\n");
+    if (!checkData(matrixTileIndexForTensorCore_right, matrixTileMappedToWarpIndex_)) {
+        exit(1);
+    }
+#endif //TEST
+
+    //////////////////////////// 循环: nnz. 多CPU
+
+
+#ifdef TEST
+    std::set<std::pair<UIN, UIN>> rowColSet;
+    for (int idx = 0; idx < nnz_; ++idx) { // 检查是否有相同行列值
+        std::pair<UIN, UIN> rowColPair(rowIndexBeforeChange_[idx], colIndexBeforeChange_[idx]);
+        if (rowColSet.find(rowColPair) != rowColSet.end()) {
+            std::cout << " Error! 有相同行列值 " << rowIndexBeforeChange_[idx] << " "
+                      << colIndexBeforeChange_[idx]
+                      << std::endl;
+            exit(1);
+        }
+        rowColSet.insert(rowColPair);
+    }
+
+    for (int idx = 0; idx < nnz_; ++idx) { // 检查是否出现不一样的值
+        std::pair<UIN, UIN> rowColPair(rowIndex_[idx], colIndex_[idx]);
+        if (rowColSet.find(rowColPair) == rowColSet.end()) {
+            std::cout << " Error! 出现不一样的值 " << rowIndex_[idx] << " " << rowIndex_[idx]
+                      << std::endl;
+            exit(1);
+        }
+    }
+#endif // TEST
 
 }
 
@@ -601,7 +686,7 @@ void SparseMatrix<T>::closeTensorCoreMode() {
     rowIndexBeforeChange_.clear();
     colIndexBeforeChange_.clear();
     valuesBeforeChange_.clear();
-    matrixTileIndexForTensorCore_.clear();
+    matrixTileMappedToWarpIndex_.clear();
 }
 
 template

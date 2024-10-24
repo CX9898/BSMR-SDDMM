@@ -26,6 +26,11 @@ __global__ void sddmm_gpu_coo_1(class TensorCoreConfig tensorCoreConfig,
                                 const float *matrixS,
                                 float *matrixP);
 
+/**
+ *  使用COO格式储存稀疏矩阵进行运算
+ *
+ * 使用的 dev::SparseMatrix::openTensorCoreModeForSampled()
+ **/
 __global__ void sddmm_gpu_coo_2(class TensorCoreConfig tensorCoreConfig,
                                 const UIN M, const UIN N, const UIN K, const UIN nnz,
                                 const half *matrixA, const half *matrixB,
@@ -34,4 +39,18 @@ __global__ void sddmm_gpu_coo_2(class TensorCoreConfig tensorCoreConfig,
                                 const float *matrixS,
                                 const UIN *matrixSTileMappedToWarpIndex,
                                 const UIN *matrixSTileMappedToWarpIndexData,
+                                float *matrixP);
+
+/**
+ *  使用COO格式储存稀疏矩阵进行运算
+ *
+ * 使用的 SparseMatrix::openTensorCoreModeForSampled()
+ **/
+__global__ void sddmm_gpu_coo_3(class TensorCoreConfig tensorCoreConfig,
+                                const UIN M, const UIN N, const UIN K, const UIN nnz,
+                                const half *matrixA, const half *matrixB,
+                                const UIN *matrixSRowIndex,
+                                const UIN *matrixSColIndex,
+                                const float *matrixS,
+                                const UIN *matrixSTileMappedToWarpIndex,
                                 float *matrixP);

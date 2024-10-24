@@ -264,8 +264,8 @@ class SparseMatrix {
   void openTensorCoreMode(const TensorCoreConfig tensorCoreConfig, MatrixMultiplicationOrder multiplicationOrder);
   void openTensorCoreModeForSampled(TensorCoreConfig tensorCoreConfig);
   void closeTensorCoreMode();
-  const std::vector<UIN> &matrixTileIndex() {
-      return matrixTileIndexForTensorCore_;
+  const std::vector<UIN> &matrixTileMappedToWarpIndex() {
+      return matrixTileMappedToWarpIndex_;
   }
 
  private:
@@ -278,7 +278,7 @@ class SparseMatrix {
   std::vector<T> values_;
 
   bool tensorCoreMode_ = false;
-  std::vector<UIN> matrixTileIndexForTensorCore_;
+  std::vector<UIN> matrixTileMappedToWarpIndex_;
   UIN rowBeforeChange_;
   UIN colBeforeChange_;
   std::vector<UIN> rowIndexBeforeChange_;

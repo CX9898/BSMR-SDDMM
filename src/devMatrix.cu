@@ -475,13 +475,13 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
 //        rowColSet.insert(rowColPair);
 //    }
 //
-//    std::vector<UIN> matrixTileIndexData;
-//    d2h(matrixTileIndexData, matrixTileIndexData_);
+//    std::vector<UIN> matrixTileMappedToWarpIndexData;
+//    d2h(matrixTileMappedToWarpIndexData, matrixTileIndexData_);
 //    for (int idx = 0; idx < matrixTileIndexData_.size(); ++idx) { // 检查是否出现不一样的值
-//        std::pair<size_t, size_t> rowColPair(rowIndex[matrixTileIndexData[idx]], colIndex[matrixTileIndexData[idx]]);
+//        std::pair<size_t, size_t> rowColPair(rowIndex[matrixTileIndexData[idx]], colIndex[matrixTileMappedToWarpIndexData[idx]]);
 //        if (rowColSet.find(rowColPair) == rowColSet.end()) {
-//            std::cout << " 出现不一样的值333???!!!!???!!! " << rowIndex[matrixTileIndexData[idx]]
-//                      << " " << colIndex[matrixTileIndexData[idx]]
+//            std::cout << " 出现不一样的值333???!!!!???!!! " << rowIndex[matrixTileMappedToWarpIndexData[idx]]
+//                      << " " << colIndex[matrixTileMappedToWarpIndexData[idx]]
 //                      << std::endl;
 //            exit(1);
 //        }
