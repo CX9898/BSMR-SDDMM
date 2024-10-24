@@ -13,12 +13,13 @@
 #include "host.hpp"
 #include "checkData.hpp"
 #include "devVector.cuh"
+//#include ""
 
-const std::string folderPath("../dataset/test/matrix_5000_5000_/");
+const std::string folderPath("../dataset/test/matrix_10000_10000_/");
 //const std::string folderPath("./");
 //const std::string fileName = ("nips");
 //const std::string fileName = ("test");
-const std::string fileName = ("matrix_5000_5000_50000");
+const std::string fileName = ("matrix_10000_10000_5000000");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 
@@ -123,46 +124,6 @@ int main(int argc, char *argv[]) {
     matrixB.openTensorCoreMode(tensorCoreConfig, MatrixMultiplicationOrder::right_multiplication);
     std::cout << "openTensorCoreMode matrixB : row = " << matrixB.row() << ", col = " << matrixB.col() << std::endl;
 
-    CudaTimeCalculator timeCalculator;
-
-    dev::SparseMatrix<float> matrixS_dev(matrixS);
-    timeCalculator.startClock();
-    matrixS_dev.openTensorCoreModeForSampled(tensorCoreConfig);
-    timeCalculator.endClock();
-    const float openTensorCoreModeForSampled_dev_time = timeCalculator.getTime();
-    std::cout << "Func openTensorCoreModeForSampled_dev_time : " << openTensorCoreModeForSampled_dev_time << " ms"
-              << std::endl;
-    std::cout << "openTensorCoreModeForSampled matrixS_dev : row = "
-              << matrixS_dev.row() << ", col = " << matrixS_dev.col() << std::endl;
-
-    printf("@zcx_other : %.2f @\n", openTensorCoreModeForSampled_dev_time);
-
-
-//    matrixS.openTensorCoreModeForSampled(tensorCoreConfig);
-//    std::cout << "openTensorCoreModeForSampled matrixS : row = " << matrixS.row() << ", col = " << matrixS.col()
-//              << std::endl;
-
-    SparseMatrix<float> matrixS_cpu(matrixS_dev.row(), matrixS_dev.col(), matrixS_dev.nnz());
-    d2h(matrixS_cpu.setRowIndex(), matrixS_dev.rowIndex());
-    d2h(matrixS_cpu.setColIndex(), matrixS_dev.colIndex());
-    d2h(matrixS_cpu.setValues(), matrixS_dev.values());
-
-    SparseMatrix<float> matrixP_cpu_res(matrixS_cpu.row(), matrixS_cpu.col(), matrixS_cpu.nnz(),
-                                        matrixS_cpu.rowIndex(), matrixS_cpu.colIndex());
-
-    timeCalculator.startClock();
-    // comp by cpu
-    sddmm_cpu_coo(matrixA, matrixB, matrixS_cpu, matrixP_cpu_res);
-    timeCalculator.endClock();
-    std::cout << "Func sddmm_cpu_coo time : " << timeCalculator.getTime() << " ms" << std::endl;
-
-//    Matrix<float> matrixC(matrixS.row(), matrixS.col(), MatrixStorageOrder::row_major);
-//    dmm_cpu(matrixA, matrixB, matrixC);
-//    matrixC.printToMarkdownTable();
-
-//    matrixA.changeStorageOrder();
-//    matrixB.changeStorageOrder();
-
     dev::vector<MATRIX_A_TYPE> matrixA_values_convertedType(matrixA.size());
     dev::vector<MATRIX_B_TYPE> matrixB_values_convertedType(matrixB.size());
     {
@@ -176,96 +137,110 @@ int main(int argc, char *argv[]) {
             matrixB.size(), matrixB_values_dev.data(), matrixB_values_convertedType.data());
     }
 
-//    Matrix<float> matrixS2D(matrixS_cpu);
+    CudaTimeCalculator timeCalculator;
 
-//    dev::vector<float> valuesS_d(matrixS2D.values());
-//    dev::vector<float> valuesP_d(matrixS2D.size());
-
-//    dim3 grid;
-//    dim3 block;
-//    block.x = 4 * WARP_SIZE;
-//    block.y = 4;
-//    const UIN numCountRowOfOutputMatrixPerBlock = WMMA_M * block.x / WARP_SIZE;
-//    const UIN numCountColOfOutputMatrixPerBlock = WMMA_N * block.y;
-//    grid.x = (matrixS_dev.row() + numCountRowOfOutputMatrixPerBlock - 1) / numCountRowOfOutputMatrixPerBlock;
-//    grid.y = (matrixS_dev.col() + numCountColOfOutputMatrixPerBlock - 1) / numCountColOfOutputMatrixPerBlock;
-//    printf("grid : [%d %d %d] block : [%d %d %d]\n", grid.x, grid.y, grid.z, block.x, block.y, block.z);
-//    printf("WMMA : %d×%d×%d\n", WMMA_M, WMMA_N, WMMA_K);
-//
-//    timeCalculator.startClock();
-//
-//    sddmm_gpu<<<grid, block>>>(matrixS_cpu.row(), matrixS_cpu.col(), matrixA.col(),
-//                               matrixA_values_convertedType.data(), matrixB_values_convertedType.data(), valuesS_d.data(), valuesP_d.data());
-//
-//    timeCalculator.endClock();
-//    std::cout << "Func sddmm_gpu time : " << timeCalculator.getTime() << " ms" << std::endl;
-//
-//    Matrix<float> matrixP_gpu_res_tmp(matrixS_dev.row(), matrixS_dev.col(),
-//                                      MatrixStorageOrder::row_major, d2h(valuesP_d));
-//
-//    SparseMatrix<float> matrixP_gpu_res(matrixS_cpu.row(), matrixS_cpu.col(), matrixS_cpu.nnz(),
-//                                        matrixS_cpu.rowIndex(), matrixS_cpu.colIndex());
-//    matrixP_gpu_res.setValuesFromMatrix(matrixP_gpu_res_tmp);
-//
-//    std::cout << "Test : sddmm_gpu" << std::endl;
-//    checkData(matrixP_cpu_res.values(), matrixP_gpu_res.values());
-
-//    dev::vector<UIN> matrixS_rowIndex_coo(matrixS_cpu.rowIndex());
-//    dev::vector<UIN> matrixS_colIndex_coo(matrixS_cpu.colIndex());
-//    dev::vector<UIN> matrixS_tileIndex_coo(matrixS_cpu.matrixTileMappedToWarpIndex());
-//    dev::vector<float> matrixS_value_coo(matrixS_cpu.values());
-//
-//    dev::vector<float> matrixP_value_coo(matrixS_cpu.nnz());
-//
-//    printf("grid : [%d %d %d] block : [%d %d %d]\n",
-//           tensorCoreConfig.grid().x, tensorCoreConfig.grid().y, tensorCoreConfig.grid().z,
-//           tensorCoreConfig.block().x, tensorCoreConfig.block().y, tensorCoreConfig.block().z);
-//
-//    timeCalculator.startClock();
-//    sddmm_gpu_coo_1<<<tensorCoreConfig.grid(), tensorCoreConfig.block()>>>(tensorCoreConfig,
-//                                                                         matrixS_cpu.row(),
-//                                                                         matrixS_cpu.col(),
-//                                                                         matrixA.col(),
-//                                                                         matrixS_cpu.nnz(),
-//                                                                         matrixA_values_convertedType.data(),
-//                                                                         matrixB_values_convertedType.data(),
-//                                                                         matrixS_rowIndex_coo.data(),
-//                                                                         matrixS_colIndex_coo.data(),
-//                                                                         matrixS_tileIndex_coo.data(),
-//                                                                         matrixS_value_coo.data(),
-//                                                                         matrixP_value_coo.data());
-//    timeCalculator.endClock();
-//    std::cout << "Func sddmm_gpu_coo_1 time : " << timeCalculator.getTime() << " ms" << std::endl;
-//
-//    std::cout << "Test : sddmm_gpu_coo_1" << std::endl;
-//    checkData(matrixP_cpu_res.values(), d2h(matrixP_value_coo));
-
-    dev::vector<float> matrixP_value_coo2(matrixS_dev.nnz());
     timeCalculator.startClock();
-    sddmm_gpu_coo_2<<<tensorCoreConfig.grid(), tensorCoreConfig.block()>>>(tensorCoreConfig,
-                                                                           matrixS_dev.row(),
-                                                                           matrixS_dev.col(),
+    matrixS.openTensorCoreModeForSampled(tensorCoreConfig);
+    timeCalculator.endClock();
+    const float openTensorCoreModeForSampled_time = timeCalculator.getTime();
+    std::cout << "Func openTensorCoreModeForSampled_time : " << openTensorCoreModeForSampled_time << " ms"
+              << std::endl;
+    std::cout << "openTensorCoreModeForSampled matrixS : row = "
+              << matrixS.row() << ", col = " << matrixS.col() << std::endl;
+
+    SparseMatrix<float> matrixP_cpu_res(matrixS.row(), matrixS.col(), matrixS.nnz(),
+                                        matrixS.rowIndex(), matrixS.colIndex());
+
+    timeCalculator.startClock();
+    // comp by cpu
+    sddmm_cpu_coo(matrixA, matrixB, matrixS, matrixP_cpu_res);
+    timeCalculator.endClock();
+    std::cout << "Func sddmm_cpu_coo time : " << timeCalculator.getTime() << " ms" << std::endl;
+
+
+//    dev::SparseMatrix<float> matrixS_dev(matrixS);
+//    timeCalculator.startClock();
+//    matrixS_dev.openTensorCoreModeForSampled(tensorCoreConfig);
+//    timeCalculator.endClock();
+//    const float openTensorCoreModeForSampled_dev_time = timeCalculator.getTime();
+//    std::cout << "Func openTensorCoreModeForSampled_dev_time : " << openTensorCoreModeForSampled_dev_time << " ms"
+//              << std::endl;
+//    std::cout << "openTensorCoreModeForSampled matrixS_dev : row = "
+//              << matrixS_dev.row() << ", col = " << matrixS_dev.col() << std::endl;
+//
+//    printf("@zcx_other : %.2f @\n", openTensorCoreModeForSampled_dev_time);
+//
+//
+////    matrixS.openTensorCoreModeForSampled(tensorCoreConfig);
+////    std::cout << "openTensorCoreModeForSampled matrixS : row = " << matrixS.row() << ", col = " << matrixS.col()
+////              << std::endl;
+//
+//    SparseMatrix<float> matrixS_cpu(matrixS.row(), matrixS_dev.col(), matrixS_dev.nnz());
+//    d2h(matrixS_cpu.setRowIndex(), matrixS_dev.rowIndex());
+//    d2h(matrixS_cpu.setColIndex(), matrixS_dev.colIndex());
+//    d2h(matrixS_cpu.setValues(), matrixS_dev.values());
+//
+//
+////    Matrix<float> matrixC(matrixS.row(), matrixS.col(), MatrixStorageOrder::row_major);
+////    dmm_cpu(matrixA, matrixB, matrixC);
+////    matrixC.printToMarkdownTable();
+//
+////    matrixA.changeStorageOrder();
+////    matrixB.changeStorageOrder();
+//
+//    dev::vector<float> matrixP_value_coo2(matrixS_dev.nnz());
+//    timeCalculator.startClock();
+//    sddmm_gpu_coo_2<<<tensorCoreConfig.grid(), tensorCoreConfig.block()>>>(tensorCoreConfig,
+//                                                                           matrixS_dev.row(),
+//                                                                           matrixS_dev.col(),
+//                                                                           matrixA.col(),
+//                                                                           matrixS_dev.nnz(),
+//                                                                           matrixA_values_convertedType.data(),
+//                                                                           matrixB_values_convertedType.data(),
+//                                                                           matrixS_dev.rowIndex().data(),
+//                                                                           matrixS_dev.colIndex().data(),
+//                                                                           matrixS_dev.values().data(),
+//                                                                           matrixS_dev.matrixTileMappedToWarpIndex().data(),
+//                                                                           matrixS_dev.matrixTileMappedToWarpIndexData().data(),
+//                                                                           matrixP_value_coo2.data());
+//    timeCalculator.endClock();
+//    const float time_sddmm_gpu_coo2 = timeCalculator.getTime();
+//    std::cout << "Func sddmm_gpu_coo_2 time : " << time_sddmm_gpu_coo2 << " ms" << std::endl;
+//
+//    std::cout << "check matrixP_cpu_res and sddmm_gpu_coo_2 : " << std::endl;
+//
+//    size_t numError = 0;
+//    if (!checkData(matrixP_cpu_res.values(), matrixP_value_coo2, numError)) {
+//        printf("@checkData : NO PASS numError = %ld @\n", numError);
+//    }
+
+    dev::vector<UIN> matrixS_rowIndex_coo(matrixS.rowIndex());
+    dev::vector<UIN> matrixS_colIndex_coo(matrixS.colIndex());
+    dev::vector<UIN> matrixS_matrixTileMappedToWarpIndex_coo(matrixS.matrixTileMappedToWarpIndex());
+    dev::vector<float> matrixS_value_coo(matrixS.values());
+    dev::vector<float> matrixP_value_coo3(matrixS.nnz());
+    timeCalculator.startClock();
+    sddmm_gpu_coo_3<<<tensorCoreConfig.grid(), tensorCoreConfig.block()>>>(tensorCoreConfig,
+                                                                           matrixS.row(),
+                                                                           matrixS.col(),
                                                                            matrixA.col(),
-                                                                           matrixS_dev.nnz(),
+                                                                           matrixS.nnz(),
                                                                            matrixA_values_convertedType.data(),
                                                                            matrixB_values_convertedType.data(),
-                                                                           matrixS_dev.rowIndex().data(),
-                                                                           matrixS_dev.colIndex().data(),
-                                                                           matrixS_dev.values().data(),
-                                                                           matrixS_dev.matrixTileMappedToWarpIndex().data(),
-                                                                           matrixS_dev.matrixTileMappedToWarpIndexData().data(),
-                                                                           matrixP_value_coo2.data());
+                                                                           matrixS_rowIndex_coo.data(),
+                                                                           matrixS_colIndex_coo.data(),
+                                                                           matrixS_value_coo.data(),
+                                                                           matrixS_matrixTileMappedToWarpIndex_coo.data(),
+                                                                           matrixP_value_coo3.data());
     timeCalculator.endClock();
-    const float time_sddmm_gpu_coo2 = timeCalculator.getTime();
-    std::cout << "Func sddmm_gpu_coo_2 time : " << time_sddmm_gpu_coo2 << " ms" << std::endl;
+    const float time_sddmm_gpu_coo3 = timeCalculator.getTime();
+    std::cout << "Func time_sddmm_gpu_coo3 time : " << time_sddmm_gpu_coo3 << " ms" << std::endl;
 
-    printf("@zcx_sddmm : %.2f @\n", time_sddmm_gpu_coo2);
+    std::cout << "check matrixP_cpu_res and sddmm_gpu_coo_3 : " << std::endl;
 
-    std::cout << "check matrixP_cpu_res and sddmm_gpu_coo_2 : " << std::endl;
-
-    size_t numError = 0;
-    if (!checkData(matrixP_cpu_res.values(), matrixP_value_coo2, numError)) {
-        printf("@checkData : NO PASS numError = %ld @\n", numError);
+    size_t numError_3 = 0;
+    if (!checkData(matrixP_cpu_res.values(), matrixP_value_coo3, numError_3)) {
+        printf("@checkData : NO PASS numError = %ld @\n", numError_3);
     }
 
 //    std::cout << "closeTensorCoreMode" << std::endl;
@@ -273,9 +248,11 @@ int main(int argc, char *argv[]) {
 //    matrixB.closeTensorCoreMode();
 //    matrixS_dev.closeTensorCoreMode();
 
-    const float time_sddmm_zcx = openTensorCoreModeForSampled_dev_time + time_sddmm_gpu_coo2;
+    const float time_sddmm_zcx = openTensorCoreModeForSampled_time + time_sddmm_gpu_coo3;
     std::cout << "sddmm_zcx time : " << time_sddmm_zcx << " ms" << std::endl;
 
+    printf("@zcx_sddmm : %.2f @\n", time_sddmm_gpu_coo3);
+    printf("@zcx_other : %.2f @\n", openTensorCoreModeForSampled_time);
     printf("@zcx : %.2f @\n", time_sddmm_zcx);
 
 //    dmm_cpu(matrixA,matrixB,matrixS2D);
