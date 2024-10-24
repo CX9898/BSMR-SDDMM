@@ -42,8 +42,7 @@ class TensorCoreConfig {
  public:
   TensorCoreConfig() = delete;
 
-  TensorCoreConfig(UIN M, UIN N) {
-
+  TensorCoreConfig(UIN M, UIN N, WarpOrder warpOrder = WarpOrder::y_major) {
       block_.x = NUM_OF_WARP_X_PER_BLOCK * WARP_SIZE;
       block_.y = NUM_OF_Y_PER_BLOCK;
 
@@ -51,6 +50,11 @@ class TensorCoreConfig {
       const int numCountRowOfOutputMatrixPerBlock = WMMA_M * block_.y;
       grid_.x = (MForTensorCore(M) + numCountColOfOutputMatrixPerBlock - 1) / numCountColOfOutputMatrixPerBlock;
       grid_.y = (NForTensorCore(N) + numCountRowOfOutputMatrixPerBlock - 1) / numCountRowOfOutputMatrixPerBlock;
+
+      warpOrder_ = warpOrder;
+
+      numWarpX_ = grid_.x * block_.x / WARP_SIZE;
+      numWarpY_ = grid_.y * block_.y;;
   }
 
   inline UIN MForTensorCore(UIN M) const {
@@ -77,15 +81,15 @@ class TensorCoreConfig {
   }
 
   inline size_t numWarpX() const {
-      return grid_.x * block_.x / WARP_SIZE;
+      return numWarpX_;
   }
 
   inline size_t numWarpY() const {
-      return grid_.y * block_.y;
+      return numWarpY_;
   }
 
-  inline size_t calculatedWarpId(size_t row, size_t col) const {
-      return row / WMMA_M * numWarpX() + col / WMMA_N;
+  inline size_t calculateWarpId(size_t row, size_t col) const {
+      return row / WMMA_M * numWarpY_ + col / WMMA_N;
   }
 
   inline __device__ void initByKernel(dim3 _blockIdx, dim3 _blockDim, dim3 _threadIdx) {
@@ -126,12 +130,17 @@ class TensorCoreConfig {
                                             FragmentInformation &fragmentInformation);
 
  private:
+  WarpOrder warpOrder_;
+
   dim3 grid_;
   dim3 block_;
 
+  UIN numWarpX_;
+  UIN numWarpY_;
+
   // kernel
-  size_t globalThreadIdxX_;
-  size_t globalThreadIdxY_;
+  UIN globalThreadIdxX_;
+  UIN globalThreadIdxY_;
   int globalWarpId_;
   int laneId_;
 };
