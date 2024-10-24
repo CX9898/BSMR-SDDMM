@@ -120,9 +120,9 @@ int main(int argc, char *argv[]) {
     else { printf("@matrixB storageOrder : col_major @"); }
 
     matrixA.openTensorCoreMode(tensorCoreConfig, MatrixMultiplicationOrder::left_multiplication);
-    std::cout << "openTensorCoreMode matrixA : row = " << matrixA.row() << ", col = " << matrixA.col() << std::endl;
+    printf("openTensorCoreMode matrixA : row = %d, col = %d\n", matrixA.row(), matrixA.col());
     matrixB.openTensorCoreMode(tensorCoreConfig, MatrixMultiplicationOrder::right_multiplication);
-    std::cout << "openTensorCoreMode matrixB : row = " << matrixB.row() << ", col = " << matrixB.col() << std::endl;
+    printf("openTensorCoreMode matrixB : row = %d, col = %d\n", matrixB.row(), matrixB.col());
 
     dev::vector<MATRIX_A_TYPE> matrixA_values_convertedType(matrixA.size());
     dev::vector<MATRIX_B_TYPE> matrixB_values_convertedType(matrixB.size());
@@ -143,10 +143,7 @@ int main(int argc, char *argv[]) {
     matrixS.openTensorCoreModeForSampled(tensorCoreConfig);
     timeCalculator.endClock();
     const float openTensorCoreModeForSampled_time = timeCalculator.getTime();
-    std::cout << "Func openTensorCoreModeForSampled_time : " << openTensorCoreModeForSampled_time << " ms"
-              << std::endl;
-    std::cout << "openTensorCoreModeForSampled matrixS : row = "
-              << matrixS.row() << ", col = " << matrixS.col() << std::endl;
+    printf("openTensorCoreModeForSampled matrixS : row = %d, col = %d\n", matrixS.row(), matrixS.col());
 
     SparseMatrix<float> matrixP_cpu_res(matrixS.row(), matrixS.col(), matrixS.nnz(),
                                         matrixS.rowIndex(), matrixS.colIndex());
