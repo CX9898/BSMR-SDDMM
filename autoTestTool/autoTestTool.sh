@@ -44,7 +44,7 @@ build_program(){
   if [ ! -e ${build_path} ]; then
       mkdir ${build_path}
   fi
-  cmake -S ${cmake_file_path} -B ${build_path} > /dev/null
+  cmake -S ${cmake_file_path} -B ${build_path} -DCMAKE_BUILD_TYPE=Release > /dev/null
   cmake --build ${build_path} > /dev/null
   echo "* Build complete : ${build_path}"
 }
@@ -99,11 +99,11 @@ autoTest(){
 
   local file_id=1
   for file in "${filesList[@]}"; do
-    echo -e "* \t${test_file_folder_path}$file start testing... [Number remaining: $((${numTestFiles} - ${file_id}))]"
+    echo -e "* \t${test_file_folder_path}$file start testing... [Remaining: $((${numTestFiles} - ${file_id}))]"
 
     local k_id=1
     for k in "${K[@]}"; do
-      echo -e "* \t\tK = ${k} start testing... [Number remaining: $((${num_K} - ${k_id}))]"
+      echo -e "* \t\tK = ${k} start testing... [Remaining: $((${num_K} - ${k_id}))]"
       echo -e "\n---new data---\n" >> ${2}
       local start_time=$(date +%s.%N)
       $1 "${test_file_folder_path}${file}" ${k} 192 50000 >> ${2}
