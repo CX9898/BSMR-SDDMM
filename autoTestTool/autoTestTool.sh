@@ -89,6 +89,11 @@ autoTest(){
   local autoTest_program="${1}"
   local autoTest_autoTestlog_file="${2}"
 
+  echo "* Start test..."
+
+  echo "* Test program: ${autoTest_program}"
+  echo "* Test log file: ${autoTest_autoTestlog_file}"
+
   # 使用 find 命令读取目录中的所有文件名，并存储到数组中
   local filesList=($(find "${test_file_folder_path}" -maxdepth 1 -type f -printf '%f\n'))
 
@@ -98,7 +103,6 @@ autoTest(){
   local numResultData=$((${numTestFiles} * ${num_K}))
   echo "* Number of test data : ${numResultData}"
 
-  echo "* Start test..."
   echo -e "@numTestFiles : ${numTestFiles} @\n" >> ${autoTest_autoTestlog_file}
   echo -e "@num_K : ${num_K} @\n" >> ${autoTest_autoTestlog_file}
   echo -e "@numResultData : ${numResultData} @\n" >> ${autoTest_autoTestlog_file}
