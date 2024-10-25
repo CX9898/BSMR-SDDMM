@@ -80,16 +80,16 @@ class TensorCoreConfig {
       return block_;
   }
 
-  inline size_t numWarpX() const {
+  inline UIN numWarpX() const {
       return numWarpX_;
   }
 
-  inline size_t numWarpY() const {
+  inline UIN numWarpY() const {
       return numWarpY_;
   }
 
-  inline size_t calculateWarpId(size_t row, size_t col) const {
-      return row / WMMA_M * numWarpY_ + col / WMMA_N;
+  inline UIN calculateWarpId(UIN row, UIN col) const {
+      return row / WMMA_M * numWarpX_ + col / WMMA_N;
   }
 
   inline __device__ void initByKernel(dim3 _blockIdx, dim3 _blockDim, dim3 _threadIdx) {
@@ -101,28 +101,28 @@ class TensorCoreConfig {
       laneId_ = _threadIdx.x % WARP_SIZE;
   }
 
-  inline __device__ size_t globalThreadIdxX() const {
+  inline __device__ UIN globalThreadIdxX() const {
       return globalThreadIdxX_;
   }
-  inline __device__ size_t globalThreadIdxY() const {
+  inline __device__ UIN globalThreadIdxY() const {
       return globalThreadIdxY_;
   }
-  inline __device__ size_t globalWarpId() const {
+  inline __device__ UIN globalWarpId() const {
       return globalWarpId_;
   }
   inline __device__ int laneId() const {
       return laneId_;
   }
-  inline __device__ size_t rowBeginOfTile() const {
+  inline __device__ UIN rowBeginOfTile() const {
       return globalThreadIdxY_ * WMMA_M;
   }
-  inline __device__ size_t colBeginOfTile() const {
+  inline __device__ UIN colBeginOfTile() const {
       return globalThreadIdxX_ / WARP_SIZE * WMMA_N;
   }
-  inline __device__ size_t rowEndOfTile() const {
+  inline __device__ UIN rowEndOfTile() const {
       return globalThreadIdxY_ * WMMA_M + WMMA_M;
   }
-  inline __device__ size_t colEndOfTile() const {
+  inline __device__ UIN colEndOfTile() const {
       return globalThreadIdxX_ / WARP_SIZE * WMMA_N + WMMA_N;
   }
   inline __device__ void positionCalculator(const UIN tileRow, const UIN tileCol,
