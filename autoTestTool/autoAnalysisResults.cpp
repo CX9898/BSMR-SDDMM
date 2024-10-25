@@ -252,6 +252,7 @@ int findNumK(const std::vector<ResultsInformation> &resultsInformation) {
 
 void sortResultsInformation(std::vector<ResultsInformation> &resultsInformation) {
     printf("sortResultsInformation...\n");
+
     std::sort(resultsInformation.begin(), resultsInformation.end(),
               [&](ResultsInformation &a, ResultsInformation &b) {
                 const float M_a = a.M_.empty() ? 0 : std::stof(a.M_);
@@ -272,15 +273,19 @@ void sortResultsInformation(std::vector<ResultsInformation> &resultsInformation)
                 return false;
               });
 
-//    std::sort(resultsInformation.begin(), resultsInformation.end(),
-//              [&](ResultsInformation &a, ResultsInformation &b) {
-//                const int K_a = a.K_.empty() ? 0 : std::stoi(a.K_);
-//                const int K_b = b.K_.empty() ? 0 : std::stoi(b.K_);
-//                if (K_a > K_b) {
-//                    return true;
-//                }
-//                return false;
-//              });
+    int numK = findNumK(resultsInformation);
+
+    for (int idx = 0; idx < resultsInformation.size(); idx += numK) {
+        std::sort(resultsInformation.data() + idx, resultsInformation.data() + idx + numK,
+                  [&](ResultsInformation &a, ResultsInformation &b) {
+                    const int K_a = a.K_.empty() ? 0 : std::stoi(a.K_);
+                    const int K_b = b.K_.empty() ? 0 : std::stoi(b.K_);
+                    if (K_a < K_b) {
+                        return true;
+                    }
+                    return false;
+                  });
+    }
 }
 
 void readLogFile(const std::string &file, std::vector<ResultsInformation> &resultsInformation) {

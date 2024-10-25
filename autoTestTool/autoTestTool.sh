@@ -127,8 +127,8 @@ autoTest(){
   echo "* Test information file: ${autoTest_autoTestlog_file}"
 }
 
-autoTest ${zcx_program_path}${zcx_program_name} ${zcx_test_log_file}
 autoTest ${isratnisa_program_path}${isratnisa_program_name} ${isratnisa_test_log_file}
+autoTest ${zcx_program_path}${zcx_program_name} ${zcx_test_log_file}
 
 # 编译分析结果程序
 g++ ${auto_analysis_results_source_filename} -o ${auto_analysis_results_program}
