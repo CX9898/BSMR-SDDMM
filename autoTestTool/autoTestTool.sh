@@ -86,8 +86,8 @@ analysis_results_log_file=${log_file}
 # 参数1 : 进行测试的程序
 # 参数2 : 测试日志文件
 autoTest(){
-  local autoTest_program=${1}
-  local autoTest_autoTestlog_file=${2}
+  local autoTest_program="${1}"
+  local autoTest_autoTestlog_file="${2}"
 
   # 使用 find 命令读取目录中的所有文件名，并存储到数组中
   local filesList=($(find "${test_file_folder_path}" -maxdepth 1 -type f -printf '%f\n'))
@@ -112,7 +112,7 @@ autoTest(){
       echo -e "* \t\tK = ${k} start testing... [Remaining: $((${num_K} - ${k_id}))]"
       echo -e ${data_split_symbol} >> ${autoTest_autoTestlog_file}
       local start_time=$(date +%s.%N)
-      ${autoTest_program} "${test_file_folder_path}${file}" ${k} 192 50000 >> ${autoTest_autoTestlog_file}
+      ${autoTest_program} ${test_file_folder_path}${file} ${k} 192 50000 >> ${autoTest_autoTestlog_file}
       local end_time=$(date +%s.%N)
       echo -e "* \t\tExecution time: $(echo "$end_time - $start_time" | bc) seconds"
       ((k_id++))
