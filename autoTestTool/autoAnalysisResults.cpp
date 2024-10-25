@@ -214,7 +214,7 @@ void printSettingInformation(const ResultsInformation &resultsInformation) {
 }
 
 void printHeadOfList() {
-
+    printf("\n");
     printf(
         "| | sparsity | k | isratnisa_sddmm | zcx_sddmm | isratnisa_other | zcx_other | isratnisa | zcx |\n");
     printf(
@@ -248,6 +248,14 @@ int findNumK(const std::vector<ResultsInformation> &resultsInformation) {
         kSet.insert(std::stoi(iter.K_));
     }
     return kSet.size();
+}
+
+int findNumMatrix(const std::vector<ResultsInformation> &resultsInformation) {
+    std::unordered_set<int> matrixSet;
+    for (const auto &iter : resultsInformation) {
+        matrixSet.insert(std::stoi(iter.M_));
+    }
+    return matrixSet.size();
 }
 
 void sortResultsInformation(std::vector<ResultsInformation> &resultsInformation) {
@@ -331,19 +339,26 @@ int getNumData(const std::string &file) {
 }
 
 void printInformationToMarkDown(const std::vector<ResultsInformation> &resultsInformation) {
+    const int numMatrix = findNumMatrix(resultsInformation);
+
     const int numK = findNumK(resultsInformation);
     const int numDataSets = resultsInformation.size() / numK;
 
-    printSettingInformation(resultsInformation[0]);
-
+    size_t M = 0;
     for (int dataSetId = 0; dataSetId < numDataSets; ++dataSetId) {
-        printf("\n");
+        const size_t curM = std::stol(resultsInformation[dataSetId].M_);
+        if (M != curM) {
+            printSettingInformation(resultsInformation[dataSetId]);
+            M = curM;
+        }
+
         printHeadOfList();
         for (int resIdx = dataSetId * numK; resIdx < (dataSetId + 1) * numK && resIdx < resultsInformation.size();
              ++resIdx) {
             printOneLineOfList(resultsInformation[resIdx]);
         }
     }
+
 }
 
 int main(int argc, char *argv[]) {

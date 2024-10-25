@@ -9,11 +9,13 @@ test_done_symbol="\n---Test done---\n"
 script_file_path="$(dirname "$0")/"
 
 # 设置多个测试文件路径
-test_file_folder_path_list=("${script_file_path}../dataset/test/matrix_10000_10000_/" \
-                            "${script_file_path}../dataset/test/matrix_15000_15000_/")
+test_file_folder_path_list=("${script_file_path}../dataset/test/matrix_5000_5000_/" \
+                            "${script_file_path}../dataset/test/matrix_10000_10000_/" \
+                            "${script_file_path}../dataset/test/matrix_15000_15000_/" \
+                            "${script_file_path}../dataset/test/matrix_20000_20000_/")
 
 # 设置多个K
-k_list=(256 500 1000 2000 3000 4000 5000)
+k_list=(256 512 1024 2048 3072 4096)
 
 zcx_build_folder_path="${script_file_path}build_zcx/"
 zcx_cmake_file_path="${script_file_path}../"
