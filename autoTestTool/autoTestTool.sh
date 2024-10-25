@@ -89,6 +89,7 @@ autoTest(){
   local autoTest_program="${1}"
   local autoTest_autoTestlog_file="${2}"
 
+  echo "* * * * * * * * * * * * * * * * * * * * * * * * * * *"
   echo "* Start test..."
 
   echo "* Test program: ${autoTest_program}"
@@ -129,6 +130,7 @@ autoTest(){
 
   echo "* End test"
   echo "* Test information file: ${autoTest_autoTestlog_file}"
+  echo "* * * * * * * * * * * * * * * * * * * * * * * * * * *"
 }
 
 autoTest ${isratnisa_program_path}${isratnisa_program_name} ${isratnisa_test_log_file}
