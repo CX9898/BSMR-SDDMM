@@ -13,7 +13,6 @@
 #include "host.hpp"
 #include "checkData.hpp"
 #include "devVector.cuh"
-//#include ""
 
 const std::string folderPath("../dataset/test/matrix_10000_10000_/");
 //const std::string folderPath("./");
