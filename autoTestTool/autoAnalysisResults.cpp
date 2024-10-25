@@ -330,6 +330,22 @@ int getNumData(const std::string &file) {
     return numData;
 }
 
+void printInformationToMarkDown(const std::vector<ResultsInformation> &resultsInformation) {
+    const int numK = findNumK(resultsInformation);
+    const int numDataSets = resultsInformation.size() / numK;
+
+    printSettingInformation(resultsInformation[0]);
+
+    for (int dataSetId = 0; dataSetId < numDataSets; ++dataSetId) {
+        printf("\n");
+        printHeadOfList();
+        for (int resIdx = dataSetId * numK; resIdx < (dataSetId + 1) * numK && resIdx < resultsInformation.size();
+             ++resIdx) {
+            printOneLineOfList(resultsInformation[resIdx]);
+        }
+    }
+}
+
 int main(int argc, char *argv[]) {
 
     if (argc != 3) {
@@ -361,12 +377,7 @@ int main(int argc, char *argv[]) {
 
     printf("Markdown format:\n");
 
-    printSettingInformation(resultsInformation[0]);
-
-    printHeadOfList();
-    for (int resIdx = 0; resIdx < resultsInformation.size(); ++resIdx) {
-        printOneLineOfList(resultsInformation[resIdx]);
-    }
+    printInformationToMarkDown(resultsInformation);
 
     return 0;
 }
