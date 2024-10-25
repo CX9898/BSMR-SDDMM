@@ -1,21 +1,19 @@
 #!/bin/bash
 
+##############################################################################################
+# Parameter setting
+
 data_split_symbol="\n---New data---\n"
 test_done_symbol="\n---Test done---\n"
 
 script_file_path="$(dirname "$0")/"
 
-# 测试文件路径
-test_file_folder_path="${script_file_path}../dataset/test/matrix_10000_10000_/"
+# 设置多个测试文件路径
+test_file_folder_path_list=("${script_file_path}../dataset/test/matrix_10000_10000_/" \
+                            "${script_file_path}../dataset/test/matrix_15000_15000_/")
 
 # 设置多个K
-K=(256 500 1000 2000 3000 4000 5000)
-num_K=${#K[@]}
-echo -n "* The number of test K is ${num_K}, which are :"
-for element in "${K[@]}"; do
-    echo -n " $element"
-done
-echo
+k_list=(256 500 1000 2000 3000 4000 5000)
 
 zcx_build_folder_path="${script_file_path}build_zcx/"
 zcx_cmake_file_path="${script_file_path}../"
@@ -36,6 +34,22 @@ analysis_results_log_filename="analysisResultsLog"
 
 auto_analysis_results_source_filename="${script_file_path}autoAnalysisResults.cpp"
 auto_analysis_results_program="${script_file_path}autoAnalysisResults"
+
+##############################################################################################
+
+num_test_file_folder=${#test_file_folder_path_list[@]}
+echo -n "* The number of test file folder is ${num_test_file_folder}, which are :"
+for element in "${test_file_folder_path_list[@]}"; do
+    echo -n " $element"
+done
+echo
+
+num_k=${#k_list[@]}
+echo -n "* The number of test k is ${num_k}, which are :"
+for element in "${k_list[@]}"; do
+    echo -n " $element"
+done
+echo
 
 # 参数1: 构建地址
 # 参数2: "CMakeLists.txt"文件路径
@@ -95,35 +109,40 @@ autoTest(){
   echo "* Test program: ${autoTest_program}"
   echo "* Test log file: ${autoTest_autoTestlog_file}"
 
-  # 使用 find 命令读取目录中的所有文件名，并存储到数组中
-  local filesList=($(find "${test_file_folder_path}" -maxdepth 1 -type f -printf '%f\n'))
+  local test_file_folder_id=1
+  for test_file_folder_path in "${test_file_folder_path_list[@]}"; do
 
-  local numTestFiles=${#filesList[@]}
-  echo "* Number of test files: = ${numTestFiles}"
+    # 使用 find 命令读取目录中的所有文件名，并存储到数组中
+    local files_list=($(find "${test_file_folder_path}" -maxdepth 1 -type f -printf '%f\n'))
 
-  local numResultData=$((${numTestFiles} * ${num_K}))
-  echo "* Number of test data : ${numResultData}"
+    echo "* Test file folder : ${test_file_folder_path} [Remaining: $((${num_test_file_folder} - ${test_file_folder_id}))]"
 
-  echo -e "@numTestFiles : ${numTestFiles} @\n" >> ${autoTest_autoTestlog_file}
-  echo -e "@num_K : ${num_K} @\n" >> ${autoTest_autoTestlog_file}
-  echo -e "@numResultData : ${numResultData} @\n" >> ${autoTest_autoTestlog_file}
+    local numTestFiles=${#files_list[@]}
+    echo "* Number of test files: = ${numTestFiles}"
 
-  local file_id=1
-  for file in "${filesList[@]}"; do
-    echo -e "* \t${test_file_folder_path}$file start testing... [Remaining: $((${numTestFiles} - ${file_id}))]"
+    echo -e "@Test file folder : ${test_file_folder_path} @\n" >> ${autoTest_autoTestlog_file}
+    echo -e "@numTestFiles : ${numTestFiles} @\n" >> ${autoTest_autoTestlog_file}
+    echo -e "@num_k : ${num_k} @\n" >> ${autoTest_autoTestlog_file}
 
-    local k_id=1
-    for k in "${K[@]}"; do
-      echo -e "* \t\tK = ${k} start testing... [Remaining: $((${num_K} - ${k_id}))]"
-      echo -e ${data_split_symbol} >> ${autoTest_autoTestlog_file}
-      local start_time=$(date +%s.%N)
-      ${autoTest_program} ${test_file_folder_path}${file} ${k} 192 50000 >> ${autoTest_autoTestlog_file}
-      local end_time=$(date +%s.%N)
-      echo -e "* \t\tExecution time: $(echo "$end_time - $start_time" | bc) seconds"
-      ((k_id++))
+    local file_id=1
+    for file in "${files_list[@]}"; do
+      echo -e "* \t${test_file_folder_path}$file start testing... [Remaining: $((${numTestFiles} - ${file_id}))]"
+
+      local k_id=1
+      for k in "${k_list[@]}"; do
+        echo -e "* \t\tK = ${k} start testing... [Remaining: $((${num_k} - ${k_id}))]"
+        echo -e ${data_split_symbol} >> ${autoTest_autoTestlog_file}
+        local start_time=$(date +%s.%N)
+        ${autoTest_program} ${test_file_folder_path}${file} ${k} 192 50000 >> ${autoTest_autoTestlog_file}
+        local end_time=$(date +%s.%N)
+        echo -e "* \t\tExecution time: $(echo "$end_time - $start_time" | bc) seconds"
+        ((k_id++))
+      done
+
+      ((file_id++))
     done
 
-    ((file_id++))
+    ((test_file_folder_id++))
   done
 
   echo -e ${test_done_symbol} >> ${autoTest_autoTestlog_file}
