@@ -11,7 +11,6 @@ const std::string dataSplitSymbol("---New data---");
 struct ResultsInformation {
  public:
 
-  void initInformation(std::ifstream &file);
   void initInformation(const std::string &line);
   void clear();
 
@@ -148,8 +147,8 @@ void ResultsInformation::initInformation(const std::string &line) {
                             bool &is_initialized, std::string &output) -> void {
       if (!is_initialized) {
           if (contains(line, find)) {
-              const int beginIdx = line.find(find) + find.size();
-              int endIdx = beginIdx;
+              const size_t beginIdx = line.find(find) + find.size();
+              size_t endIdx = beginIdx;
               while (line[endIdx++] != '@') {}
               output = line.substr(beginIdx, endIdx - beginIdx - 2);
               is_initialized = true;
@@ -161,8 +160,8 @@ void ResultsInformation::initInformation(const std::string &line) {
                                    bool &is_initialized, std::string &output) -> void {
       if (!is_initialized) {
           if (contains(line, find)) {
-              const int beginIdx = line.find(find) + 1;
-              int endIdx = beginIdx + 1;
+              const size_t beginIdx = line.find(find) + 1;
+              size_t endIdx = beginIdx + 1;
               while (line[endIdx++] != '@') {}
               output = line.substr(beginIdx, endIdx - beginIdx - 2);
               is_initialized = true;
@@ -242,20 +241,12 @@ void printOneLineOfList(const ResultsInformation &resultsInformation) {
     printf("\n");
 }
 
-int findNumK(const std::vector<ResultsInformation> &resultsInformation) {
+size_t findNumK(const std::vector<ResultsInformation> &resultsInformation) {
     std::unordered_set<int> kSet;
     for (const auto &iter : resultsInformation) {
         kSet.insert(std::stoi(iter.K_));
     }
     return kSet.size();
-}
-
-int findNumMatrix(const std::vector<ResultsInformation> &resultsInformation) {
-    std::unordered_set<int> matrixSet;
-    for (const auto &iter : resultsInformation) {
-        matrixSet.insert(std::stoi(iter.M_));
-    }
-    return matrixSet.size();
 }
 
 void sortResultsInformation(std::vector<ResultsInformation> &resultsInformation) {
@@ -265,33 +256,50 @@ void sortResultsInformation(std::vector<ResultsInformation> &resultsInformation)
               [&](ResultsInformation &a, ResultsInformation &b) {
                 const float M_a = a.M_.empty() ? 0 : std::stof(a.M_);
                 const float M_b = b.M_.empty() ? 0 : std::stof(b.M_);
-                if (M_a > M_b) {
+
+                const float N_a = a.N_.empty() ? 0 : std::stof(a.N_);
+                const float N_b = b.N_.empty() ? 0 : std::stof(b.N_);
+
+                if (M_a < M_b) {
                     return true;
+                } else {
+                    return N_a < N_b;
                 }
-                return false;
               });
 
-    std::sort(resultsInformation.begin(), resultsInformation.end(),
+    size_t compareM = 0, compareN = 0;
+    size_t endIdxForLastSorted = 0;
+    for (int idx = 0; idx < resultsInformation.size(); ++idx) {
+        const size_t curM = std::stoll(resultsInformation[idx].M_);
+        const size_t curN = std::stoll(resultsInformation[idx].N_);
+        if (curM != compareM || curN != compareN) {
+            std::sort(resultsInformation.data() + endIdxForLastSorted, resultsInformation.data() + idx,
+                      [&](ResultsInformation &a, ResultsInformation &b) {
+                        const float sparsity_a = a.sparsity_.empty() ? 0 : std::stof(a.sparsity_);
+                        const float sparsity_b = b.sparsity_.empty() ? 0 : std::stof(b.sparsity_);
+                        return sparsity_a < sparsity_b;
+                      });
+            endIdxForLastSorted = idx;
+            compareM = curM;
+            compareN = curN;
+        }
+    }
+
+    std::sort(resultsInformation.data() + endIdxForLastSorted,
+              resultsInformation.data() + resultsInformation.size(),
               [&](ResultsInformation &a, ResultsInformation &b) {
                 const float sparsity_a = a.sparsity_.empty() ? 0 : std::stof(a.sparsity_);
                 const float sparsity_b = b.sparsity_.empty() ? 0 : std::stof(b.sparsity_);
-                if (sparsity_a < sparsity_b) {
-                    return true;
-                }
-                return false;
+                return sparsity_a < sparsity_b;
               });
 
-    int numK = findNumK(resultsInformation);
-
+    const size_t numK = findNumK(resultsInformation);
     for (int idx = 0; idx < resultsInformation.size(); idx += numK) {
         std::sort(resultsInformation.data() + idx, resultsInformation.data() + idx + numK,
                   [&](ResultsInformation &a, ResultsInformation &b) {
                     const int K_a = a.K_.empty() ? 0 : std::stoi(a.K_);
                     const int K_b = b.K_.empty() ? 0 : std::stoi(b.K_);
-                    if (K_a < K_b) {
-                        return true;
-                    }
-                    return false;
+                    return K_a < K_b;
                   });
     }
 }
@@ -339,17 +347,20 @@ int getNumData(const std::string &file) {
 }
 
 void printInformationToMarkDown(const std::vector<ResultsInformation> &resultsInformation) {
-    const int numMatrix = findNumMatrix(resultsInformation);
 
-    const int numK = findNumK(resultsInformation);
-    const int numDataSets = resultsInformation.size() / numK;
+    const size_t numK = findNumK(resultsInformation);
+    const size_t numDataSets = resultsInformation.size() / numK;
 
-    size_t M = 0;
+    printSettingInformation(resultsInformation[0]);
+    size_t compareM = 0, compareN = 0;
     for (int dataSetId = 0; dataSetId < numDataSets; ++dataSetId) {
-        const size_t curM = std::stol(resultsInformation[dataSetId].M_);
-        if (M != curM) {
-            printSettingInformation(resultsInformation[dataSetId]);
-            M = curM;
+
+        const size_t curM = std::stol(resultsInformation[dataSetId * numK].M_);
+        const size_t curN = std::stol(resultsInformation[dataSetId * numK].N_);
+        if (curM != compareM || curN != compareN) {
+            printf(" matrix %ld %ld\n", curM, curN);
+            compareM = curM;
+            compareN = curN;
         }
 
         printHeadOfList();
@@ -357,6 +368,7 @@ void printInformationToMarkDown(const std::vector<ResultsInformation> &resultsIn
              ++resIdx) {
             printOneLineOfList(resultsInformation[resIdx]);
         }
+        printf("\n");
     }
 
 }

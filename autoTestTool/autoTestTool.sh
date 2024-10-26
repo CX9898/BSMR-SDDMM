@@ -34,6 +34,8 @@ isratnisa_test_log_filename="isratnisaTestLog"
 # 分析结果日志文件名
 analysis_results_log_filename="analysisResultsLog"
 
+log_file_suffix=".log"
+
 auto_analysis_results_source_filename="${script_file_path}autoAnalysisResults.cpp"
 auto_analysis_results_program="${script_file_path}autoAnalysisResults"
 
@@ -73,7 +75,6 @@ build_program ${isratnisa_build_folder_path} ${isratnisa_cmake_file_path}
 
 # 创建不重名的日志文件, 并且将日志文件名更新在全局变量`log_file`中
 # 参数1 : 原始日志文件名
-log_file_suffix=".log"
 create_log_file(){
   local log_filename=${1}
 
@@ -120,7 +121,7 @@ autoTest(){
     echo "* Test file folder : ${test_file_folder_path} [Remaining: $((${num_test_file_folder} - ${test_file_folder_id}))]"
 
     local numTestFiles=${#files_list[@]}
-    echo "* Number of test files: = ${numTestFiles}"
+    echo "* Number of test files in the test folder: ${numTestFiles}"
 
     echo -e "@Test file folder : ${test_file_folder_path} @\n" >> ${autoTest_autoTestlog_file}
     echo -e "@numTestFiles : ${numTestFiles} @\n" >> ${autoTest_autoTestlog_file}
