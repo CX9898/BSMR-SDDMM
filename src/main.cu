@@ -104,19 +104,23 @@ int main(int argc, char *argv[]) {
     printf("@matrixC type : %s @\n", typeid(MATRIX_C_TYPE).name());
 
     Matrix<float> matrixA(matrixS.row(), K, MatrixStorageOrder::row_major);
-    matrixA.makeData(matrixA.row(), K, MatrixStorageOrder::row_major);
+    matrixA.makeData(matrixA.row(), K);
 //    std::cout << "matrixA.size() : " << matrixA.values().size() << " matrixA : ";
 //    matrixA.print();
 
     Matrix<float> matrixB(K, matrixS.col(), MatrixStorageOrder::row_major);
-    matrixB.makeData(K, matrixS.col(), MatrixStorageOrder::row_major);
+    matrixB.makeData(K, matrixS.col());
 //    std::cout << "matrixB.size() : " << matrixB.values().size() << " matrixB : ";
 //    matrixB.print();
 
-    if (matrixA.storageOrder() == MatrixStorageOrder::row_major) { printf("@matrixA storageOrder : row_major @"); }
-    else { printf("@matrixA storageOrder : col_major @"); }
-    if (matrixB.storageOrder() == MatrixStorageOrder::row_major) { printf("@matrixB storageOrder : row_major @"); }
-    else { printf("@matrixB storageOrder : col_major @"); }
+//    matrixB.changeStorageOrder();
+//    std::cout << "matrixB.size() : " << matrixB.values().size() << " matrixB : ";
+//    matrixB.print();
+
+    if (matrixA.storageOrder() == MatrixStorageOrder::row_major) { printf("@matrixA storageOrder : row_major @\n"); }
+    else { printf("@matrixA storageOrder : col_major @\n"); }
+    if (matrixB.storageOrder() == MatrixStorageOrder::row_major) { printf("@matrixB storageOrder : row_major @\n"); }
+    else { printf("@matrixB storageOrder : col_major @\n"); }
 
     matrixA.openTensorCoreMode(tensorCoreConfig, MatrixMultiplicationOrder::left_multiplication);
     printf("openTensorCoreMode matrixA : row = %d, col = %d\n", matrixA.row(), matrixA.col());
@@ -149,9 +153,9 @@ int main(int argc, char *argv[]) {
 
     timeCalculator.startClock();
     // comp by cpu
-    sddmm_cpu_coo(matrixA, matrixB, matrixS, matrixP_cpu_res);
+    sddmm_cpu(matrixA, matrixB, matrixS, matrixP_cpu_res);
     timeCalculator.endClock();
-    std::cout << "Func sddmm_cpu_coo time : " << timeCalculator.getTime() << " ms" << std::endl;
+    std::cout << "Func sddmm_cpu time : " << timeCalculator.getTime() << " ms" << std::endl;
 
 
 //    dev::SparseMatrix<float> matrixS_dev(matrixS);
@@ -220,9 +224,10 @@ int main(int argc, char *argv[]) {
                                                                            matrixS.row(),
                                                                            matrixS.col(),
                                                                            matrixA.col(),
-                                                                           matrixS.nnz(),
                                                                            matrixA_values_convertedType.data(),
+                                                                           matrixA.storageOrder(),
                                                                            matrixB_values_convertedType.data(),
+                                                                           matrixB.storageOrder(),
                                                                            matrixS_rowIndex_coo.data(),
                                                                            matrixS_colIndex_coo.data(),
                                                                            matrixS_value_coo.data(),
@@ -239,10 +244,10 @@ int main(int argc, char *argv[]) {
         printf("@checkData : NO PASS numError = %ld @\n", numError_3);
     }
 
-//    std::cout << "closeTensorCoreMode" << std::endl;
-//    matrixA.closeTensorCoreMode();
-//    matrixB.closeTensorCoreMode();
-//    matrixS_dev.closeTensorCoreMode();
+    std::cout << "closeTensorCoreMode" << std::endl;
+    matrixA.closeTensorCoreMode();
+    matrixB.closeTensorCoreMode();
+    matrixS.closeTensorCoreMode();
 
     const float time_sddmm_zcx = openTensorCoreModeForSampled_time + time_sddmm_gpu_coo3;
     std::cout << "sddmm_zcx time : " << time_sddmm_zcx << " ms" << std::endl;
