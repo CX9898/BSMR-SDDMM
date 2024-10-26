@@ -73,9 +73,15 @@ bool Matrix<T>::initializeValue(const std::vector<T> &src) {
 
 template<typename T>
 void Matrix<T>::changeStorageOrder() {
+    const auto oldTensorCoreMode = tensorCoreMode_;
     const auto oldMajorOrder = storageOrder_;
     const auto oldLd = leadingDimension_;
     const auto &oldValues = values_;
+
+    if(oldTensorCoreMode){
+        // TODO
+        std::cout << "Warning! Try changeStorageOrder bug the tensor core mode is not supported" << std::endl;
+    }
 
     MatrixStorageOrder newMatrixOrder;
     UIN newLd;
@@ -122,16 +128,16 @@ void Matrix<T>::makeData(UIN numRow, UIN numCol) {
     }
     values_.resize(numRow * numCol);
 
-//    for (UIN idx = 0; idx < values_.size(); ++idx) {
-//        values_[idx] = idx;
-//    }
-    std::mt19937 generator;
-    auto distribution = util::createRandomUniformDistribution(static_cast<T>(0), static_cast<T>(2));
-
-#pragma omp parallel for
-    for (int idx = 0; idx < values_.size(); ++idx) {
-        values_[idx] = distribution(generator);
+    for (UIN idx = 0; idx < values_.size(); ++idx) {
+        values_[idx] = idx;
     }
+//    std::mt19937 generator;
+//    auto distribution = util::createRandomUniformDistribution(static_cast<T>(0), static_cast<T>(2));
+//
+//#pragma omp parallel for
+//    for (int idx = 0; idx < values_.size(); ++idx) {
+//        values_[idx] = distribution(generator);
+//    }
 }
 
 template<typename T>
