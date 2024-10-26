@@ -112,11 +112,10 @@ void Matrix<T>::changeStorageOrder() {
 }
 
 template<typename T>
-void Matrix<T>::makeData(UIN numRow, UIN numCol, MatrixStorageOrder storageOrder) {
+void Matrix<T>::makeData(UIN numRow, UIN numCol) {
     row_ = numRow;
     col_ = numCol;
-    storageOrder_ = storageOrder;
-    if (storageOrder == MatrixStorageOrder::row_major) {
+    if (storageOrder_ == MatrixStorageOrder::row_major) {
         leadingDimension_ = numCol;
     } else {
         leadingDimension_ = numRow;

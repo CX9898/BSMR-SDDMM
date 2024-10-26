@@ -78,7 +78,7 @@ class Matrix {
                                  UIN colMtxC,
                                  UIN positionOfKIter) const;
 
-  void makeData(UIN numRow, UIN numCol, MatrixStorageOrder storageOrder = MatrixStorageOrder::row_major);
+  void makeData(UIN numRow, UIN numCol);
 
   void print() const;
   void printToMarkdownTable() const;
