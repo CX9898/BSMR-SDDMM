@@ -69,7 +69,7 @@ void sddmm_cpu_coo_isratnisa(
 }
 
 template<typename T>
-void sddmm_cpu_coo(
+void sddmm_cpu(
     const Matrix<T> &matrixA,
     const Matrix<T> &matrixB,
     const SparseMatrix<T> &matrixS,
@@ -101,17 +101,17 @@ void sddmm_cpu_coo(
         matrixP.setValues()[matrixSIdx] = val;
     }
 }
-template void sddmm_cpu_coo<int>(const Matrix<int> &matrixA,
+template void sddmm_cpu<int>(const Matrix<int> &matrixA,
                                  const Matrix<int> &matrixB,
                                  const SparseMatrix<int> &matrixS,
                                  SparseMatrix<int> &matrixP);
 
-template void sddmm_cpu_coo<float>(const Matrix<float> &matrixA,
+template void sddmm_cpu<float>(const Matrix<float> &matrixA,
                                    const Matrix<float> &matrixB,
                                    const SparseMatrix<float> &matrixS,
                                    SparseMatrix<float> &matrixP);
 
-template void sddmm_cpu_coo<double>(const Matrix<double> &matrixA,
+template void sddmm_cpu<double>(const Matrix<double> &matrixA,
                                     const Matrix<double> &matrixB,
                                     const SparseMatrix<double> &matrixS,
                                     SparseMatrix<double> &matrixP);

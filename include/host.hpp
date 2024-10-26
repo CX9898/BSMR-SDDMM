@@ -16,7 +16,7 @@ void sddmm_cpu_coo_isratnisa(
     SparseMatrix<float> &matrixP);
 
 template<typename T>
-void sddmm_cpu_coo(
+void sddmm_cpu(
     const Matrix<T> &matrixA,
     const Matrix<T> &matrixB,
     const SparseMatrix<T> &matrixS,
