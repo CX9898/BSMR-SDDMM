@@ -4,7 +4,6 @@
 
 #include "kernel.cuh"
 #include "TensorCoreConfig.cuh"
-#include "Matrix.hpp"
 
 template<typename T>
 __global__ void printData(UIN n, T *a) {
@@ -417,14 +416,17 @@ __global__ void sddmm_gpu_coo_2(TensorCoreConfig tensorCoreConfig,
 
 }
 
-__global__ void sddmm_gpu_coo_3(TensorCoreConfig tensorCoreConfig,
-                                const UIN M, const UIN N, const UIN K, const UIN nnz,
-                                const half *matrixA, const half *matrixB,
-                                const UIN *matrixSRowIndex,
-                                const UIN *matrixSColIndex,
-                                const float *matrixS,
-                                const UIN *matrixSTileMappedToWarpIndex,
-                                float *matrixP) {
+__device__ void sddmm_gpu_coo_3_matrixA_row_matrixB_row(TensorCoreConfig tensorCoreConfig,
+                                                        const UIN M,
+                                                        const UIN N,
+                                                        const UIN K,
+                                                        const half *matrixA,
+                                                        const half *matrixB,
+                                                        const UIN *matrixSRowIndex,
+                                                        const UIN *matrixSColIndex,
+                                                        const float *matrixS,
+                                                        const UIN *matrixSTileMappedToWarpIndex,
+                                                        float *matrixP) {
     tensorCoreConfig.initByKernel(blockIdx, blockDim, threadIdx);
 
     const UIN pRowId = tensorCoreConfig.rowBeginOfTile();
@@ -489,6 +491,30 @@ __global__ void sddmm_gpu_coo_3(TensorCoreConfig tensorCoreConfig,
         if (laneId == fragmentInformation.laneId_) {
             matrixP[matrixPIdx] = cFrag.x[fragmentInformation.index_];
         }
+    }
+}
+
+__global__ void sddmm_gpu_coo_3(TensorCoreConfig tensorCoreConfig,
+                                const UIN M, const UIN N, const UIN K,
+                                const half *matrixA, const MatrixStorageOrder matrixAStorageOrder,
+                                const half *matrixB, const MatrixStorageOrder matrixBStorageOrder,
+                                const UIN *matrixSRowIndex,
+                                const UIN *matrixSColIndex,
+                                const float *matrixS,
+                                const UIN *matrixSTileMappedToWarpIndex,
+                                float *matrixP) {
+    if (matrixAStorageOrder == MatrixStorageOrder::row_major && matrixBStorageOrder == MatrixStorageOrder::row_major) {
+        sddmm_gpu_coo_3_matrixA_row_matrixB_row(tensorCoreConfig,
+                                                M,
+                                                N,
+                                                K,
+                                                matrixA,
+                                                matrixB,
+                                                matrixSRowIndex,
+                                                matrixSColIndex,
+                                                matrixS,
+                                                matrixSTileMappedToWarpIndex,
+                                                matrixP);
     }
 
 }

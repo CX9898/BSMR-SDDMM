@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cuda_fp16.h>
+#include "Matrix.hpp"
 
 #include "TensorCoreConfig.cuh"
 
@@ -46,9 +47,10 @@ __global__ void sddmm_gpu_coo_2(class TensorCoreConfig tensorCoreConfig,
  *
  * 使用的 SparseMatrix::openTensorCoreModeForSampled()
  **/
-__global__ void sddmm_gpu_coo_3(class TensorCoreConfig tensorCoreConfig,
-                                const UIN M, const UIN N, const UIN K, const UIN nnz,
-                                const half *matrixA, const half *matrixB,
+__global__ void sddmm_gpu_coo_3(TensorCoreConfig tensorCoreConfig,
+                                const UIN M, const UIN N, const UIN K,
+                                const half *matrixA,const MatrixStorageOrder matrixAStorageOrder,
+                                const half *matrixB,const MatrixStorageOrder matrixBStorageOrder,
                                 const UIN *matrixSRowIndex,
                                 const UIN *matrixSColIndex,
                                 const float *matrixS,
