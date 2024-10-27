@@ -16,7 +16,7 @@ struct ResultsInformation {
 
   std::string checkData_;
 
-  std::string gpu_ = "4090"; // TODO
+  std::string gpu_;
   std::string buildType_ = "Release build"; // TODO
 
   std::string wmma_m_;
@@ -49,7 +49,7 @@ struct ResultsInformation {
  private:
   bool is_initialized_checkData_ = false;
 
-  bool is_initialized_gpu_ = true; // TODO
+  bool is_initialized_gpu_ = false;
   bool is_initialized_buildType_ = true; // TODO
 
   bool is_initialized_wmma_m_ = false;
@@ -79,7 +79,7 @@ struct ResultsInformation {
 };
 
 void ResultsInformation::clear() {
-    gpu_ = "4090"; // TODO
+    gpu_.clear();
     buildType_ = "Release build"; // TODO
 
     wmma_m_.clear();
@@ -169,6 +169,7 @@ void ResultsInformation::initInformation(const std::string &line) {
       }
     };
 
+    initSettingOperation(line, "@Device : ", is_initialized_gpu_, gpu_);
     initSettingOperation(line, "@WMMA_M : ", is_initialized_wmma_m_, wmma_m_);
     initSettingOperation(line, "@WMMA_N : ", is_initialized_wmma_n_, wmma_n_);
     initSettingOperation(line, "@WMMA_K : ", is_initialized_wmma_k_, wmma_k_);
@@ -201,13 +202,15 @@ void printSettingInformation(const ResultsInformation &resultsInformation) {
 
     printf("\n");
 
-    printf("- %s, %s\n", resultsInformation.matrixA_type_.data(), resultsInformation.matrixA_storageOrder_.data());
-    printf("- %s, %s\n", resultsInformation.matrixB_type_.data(), resultsInformation.matrixB_storageOrder_.data());
-    printf("- %s, %s\n", resultsInformation.matrixC_type_.data(), resultsInformation.matrixC_storageOrder_.data());
+    printf("- %s\n", resultsInformation.gpu_.c_str());
 
-    printf("- %s\n", resultsInformation.wmma_m_.data());
-    printf("- %s\n", resultsInformation.wmma_n_.data());
-    printf("- %s\n", resultsInformation.wmma_k_.data());
+    printf("- %s, %s\n", resultsInformation.matrixA_type_.c_str(), resultsInformation.matrixA_storageOrder_.c_str());
+    printf("- %s, %s\n", resultsInformation.matrixB_type_.c_str(), resultsInformation.matrixB_storageOrder_.c_str());
+    printf("- %s, %s\n", resultsInformation.matrixC_type_.c_str(), resultsInformation.matrixC_storageOrder_.c_str());
+
+    printf("- %s\n", resultsInformation.wmma_m_.c_str());
+    printf("- %s\n", resultsInformation.wmma_n_.c_str());
+    printf("- %s\n", resultsInformation.wmma_k_.c_str());
 
     printf("\n");
 }
@@ -237,7 +240,7 @@ void printOneLineOfList(const ResultsInformation &resultsInformation) {
     printOneInformation(resultsInformation.isratnisa_);
     printOneInformation(resultsInformation.zcx_);
 
-    printf("%s", resultsInformation.checkData_.data());
+    printf("%s", resultsInformation.checkData_.c_str());
     printf("\n");
 }
 
