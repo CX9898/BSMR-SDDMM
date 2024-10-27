@@ -49,14 +49,14 @@ int main(int argc, char *argv[]) {
         const size_t million = 1000000;
 //    const size_t makeDataRow = 3 * thousand;
 //    const size_t makeDataCol = 7 * thousand;
-        const size_t makeDataRow = 20000;
-        const size_t makeDataCol = 20000;
+        const size_t makeDataRow = 10000;
+        const size_t makeDataCol = 10000;
 //    const float density = 4.006f;
 //    const size_t makeDataNNZ = static_cast<int> (makeDataRow * makeDataCol * density / 100);
 //    const float sparsity = 0.80;
 //    const size_t makeDataNNZ = makeDataRow * makeDataCol * (1 - sparsity);
 //    const size_t makeDataNNZ = 1 * million;
-        const size_t makeDataNNZ = 20000000;
+        const size_t makeDataNNZ = 5000000;
         matrixTmp.makeData(makeDataRow, makeDataCol, makeDataNNZ);
         matrixTmp.outputToMarketMatrixFile();
         std::cout << "makeData : M : " << makeDataRow
@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
 
     printf("@M : %d @, ", matrixS.row());
     printf("@N : %d @, ", matrixS.col());
-    printf("@K : %ld @, ", K);
+    printf("@K : %lld @, ", K);
     printf("@NNZ : %d @, ", matrixS.nnz());
     printf("@sparsity : %.2f%% @\n", matrixS.getSparsity() * 100);
 
@@ -113,9 +113,8 @@ int main(int argc, char *argv[]) {
 //    std::cout << "matrixB.size() : " << matrixB.values().size() << " matrixB : ";
 //    matrixB.print();
 
-//    matrixB.changeStorageOrder();
-//    std::cout << "matrixB.size() : " << matrixB.values().size() << " matrixB : ";
-//    matrixB.print();
+    matrixA.changeStorageOrder();
+    matrixB.changeStorageOrder();
 
     if (matrixA.storageOrder() == MatrixStorageOrder::row_major) { printf("@matrixA storageOrder : row_major @\n"); }
     else { printf("@matrixA storageOrder : col_major @\n"); }
@@ -185,9 +184,6 @@ int main(int argc, char *argv[]) {
 ////    dmm_cpu(matrixA, matrixB, matrixC);
 ////    matrixC.printToMarkdownTable();
 //
-////    matrixA.changeStorageOrder();
-////    matrixB.changeStorageOrder();
-//
 //    dev::vector<float> matrixP_value_coo2(matrixS_dev.nnz());
 //    timeCalculator.startClock();
 //    sddmm_gpu_coo_2<<<tensorCoreConfig.grid(), tensorCoreConfig.block()>>>(tensorCoreConfig,
@@ -241,7 +237,7 @@ int main(int argc, char *argv[]) {
 
     size_t numError_3 = 0;
     if (!checkData(matrixP_cpu_res.values(), matrixP_value_coo3, numError_3)) {
-        printf("@checkData : NO PASS numError = %ld @\n", numError_3);
+        printf("@checkData : NO PASS numError = %lld @\n", numError_3);
     }
 
     std::cout << "closeTensorCoreMode" << std::endl;
