@@ -17,7 +17,7 @@ struct ResultsInformation {
   std::string checkData_;
 
   std::string gpu_;
-  std::string buildType_ = "Release build"; // TODO
+  std::string buildType_;
 
   std::string wmma_m_;
   std::string wmma_n_;
@@ -50,7 +50,7 @@ struct ResultsInformation {
   bool is_initialized_checkData_ = false;
 
   bool is_initialized_gpu_ = false;
-  bool is_initialized_buildType_ = true; // TODO
+  bool is_initialized_buildType_ = false;
 
   bool is_initialized_wmma_m_ = false;
   bool is_initialized_wmma_n_ = false;
@@ -80,7 +80,7 @@ struct ResultsInformation {
 
 void ResultsInformation::clear() {
     gpu_.clear();
-    buildType_ = "Release build"; // TODO
+    buildType_.clear();
 
     wmma_m_.clear();
     wmma_n_.clear();
@@ -169,6 +169,7 @@ void ResultsInformation::initInformation(const std::string &line) {
       }
     };
 
+    initSettingOperation(line, "@Build type : ", is_initialized_buildType_, buildType_);
     initSettingOperation(line, "@Device : ", is_initialized_gpu_, gpu_);
     initSettingOperation(line, "@WMMA_M : ", is_initialized_wmma_m_, wmma_m_);
     initSettingOperation(line, "@WMMA_N : ", is_initialized_wmma_n_, wmma_n_);
@@ -202,6 +203,7 @@ void printSettingInformation(const ResultsInformation &resultsInformation) {
 
     printf("\n");
 
+    printf("- %s\n", resultsInformation.buildType_.c_str());
     printf("- %s\n", resultsInformation.gpu_.c_str());
 
     printf("- %s, %s\n", resultsInformation.matrixA_type_.c_str(), resultsInformation.matrixA_storageOrder_.c_str());
