@@ -564,6 +564,8 @@ __device__ void sddmm_gpu_coo_3_matrixA_row_matrixB_col(TensorCoreConfig tensorC
     }
 }
 
+
+// TODO：Finish the following kernels. Error occurs when compiling the code.
 __device__ void sddmm_gpu_coo_3_matrixA_col_matrixB_row(TensorCoreConfig tensorCoreConfig,
                                                         const UIN M,
                                                         const UIN N,
@@ -640,6 +642,7 @@ __device__ void sddmm_gpu_coo_3_matrixA_col_matrixB_row(TensorCoreConfig tensorC
     }
 }
 
+// TODO: Finish the following kernels. Error occurs when compiling the code.
 __device__ void sddmm_gpu_coo_3_matrixA_col_matrixB_col(TensorCoreConfig tensorCoreConfig,
                                                         const UIN M,
                                                         const UIN N,
