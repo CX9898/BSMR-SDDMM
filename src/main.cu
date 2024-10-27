@@ -113,7 +113,7 @@ int main(int argc, char *argv[]) {
 //    std::cout << "matrixB.size() : " << matrixB.values().size() << " matrixB : ";
 //    matrixB.print();
 
-    matrixA.changeStorageOrder();
+//    matrixA.changeStorageOrder();
     matrixB.changeStorageOrder();
 
     if (matrixA.storageOrder() == MatrixStorageOrder::row_major) { printf("@matrixA storageOrder : row_major @\n"); }
