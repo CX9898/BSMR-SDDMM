@@ -90,6 +90,14 @@ int main(int argc, char *argv[]) {
         K = 256;
     }
 
+#ifdef _DEBUG
+    printf("@Build : Debug @\n");
+#endif
+
+#ifdef NDEBUG
+    printf("@Build: Release @\n");
+#endif
+
     cudaDeviceProp deviceProp;
     cudaGetDeviceProperties(&deviceProp, 0);
     printf("@Device : %s @\n", deviceProp.name);
