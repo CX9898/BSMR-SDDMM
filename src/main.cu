@@ -91,11 +91,11 @@ int main(int argc, char *argv[]) {
     }
 
 #ifdef _DEBUG
-    printf("@Build : Debug @\n");
+    printf("@Build type : Debug @\n");
 #endif
 
 #ifdef NDEBUG
-    printf("@Build: Release @\n");
+    printf("@Build type : Release @\n");
 #endif
 
     cudaDeviceProp deviceProp;
