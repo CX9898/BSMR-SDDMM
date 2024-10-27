@@ -90,6 +90,10 @@ int main(int argc, char *argv[]) {
         K = 256;
     }
 
+    cudaDeviceProp deviceProp;
+    cudaGetDeviceProperties(&deviceProp, 0);
+    printf("@Device : %s @\n", deviceProp.name);
+
     printf("@M : %d @, ", matrixS.row());
     printf("@N : %d @, ", matrixS.col());
     printf("@K : %lld @, ", K);
@@ -114,7 +118,7 @@ int main(int argc, char *argv[]) {
 //    matrixB.print();
 
 //    matrixA.changeStorageOrder();
-    matrixB.changeStorageOrder();
+//    matrixB.changeStorageOrder();
 
     if (matrixA.storageOrder() == MatrixStorageOrder::row_major) { printf("@matrixA storageOrder : row_major @\n"); }
     else { printf("@matrixA storageOrder : col_major @\n"); }

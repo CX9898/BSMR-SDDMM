@@ -425,17 +425,17 @@ __device__ void sddmm_gpu_coo_3_matrixA_row_matrixB_row(TensorCoreConfig tensorC
                                                         float *matrixP) {
     tensorCoreConfig.initByKernel(blockIdx, blockDim, threadIdx);
 
+    const UIN globalWarpId = tensorCoreConfig.globalWarpId();
+
     const UIN pRowId = tensorCoreConfig.rowBeginOfTile();
     const UIN pColId = tensorCoreConfig.colBeginOfTile();
 
-    if (pRowId >= M || pColId >= N) {
-        return;
-    }
-
-    const int globalWarpId = tensorCoreConfig.globalWarpId();
-
     const int tileIndexBegin = matrixSTileMappedToWarpIndex[globalWarpId];
     const int tileIndexEnd = matrixSTileMappedToWarpIndex[globalWarpId + 1];
+
+    __shared__ half aTile[WMMA_M * NUM_OF_Y_PER_BLOCK * WMMA_K * NUM_OF_WARP_X_PER_BLOCK];
+    __shared__ half bTile[WMMA_K * NUM_OF_Y_PER_BLOCK * WMMA_K * NUM_OF_WARP_X_PER_BLOCK];
+
     const int numData = tileIndexEnd - tileIndexBegin;
     if (numData <= 0) {
         return;
