@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
     printf("@Build type : Release @\n");
 #endif
 
-    cudaDeviceProp deviceProp;
+    cudaDeviceProp deviceProp{};
     cudaGetDeviceProperties(&deviceProp, 0);
     printf("@Device : %s @\n", deviceProp.name);
 
@@ -132,7 +132,7 @@ int main(int argc, char *argv[]) {
 //    matrixB.print();
 
 //    matrixA.changeStorageOrder();
-    matrixB.changeStorageOrder();
+//    matrixB.changeStorageOrder();
 
     if (matrixA.storageOrder() == MatrixStorageOrder::row_major) { printf("@matrixA storageOrder : row_major @\n"); }
     else { printf("@matrixA storageOrder : col_major @\n"); }
@@ -225,7 +225,7 @@ int main(int argc, char *argv[]) {
 //
 //    size_t numError = 0;
 //    if (!checkData(matrixP_cpu_res.values(), matrixP_value_coo2, numError)) {
-//        printf("@checkData : NO PASS numError = %ld @\n", numError);
+//        printf("@checkData : NO PASS numError = %leadingDimension @\n", numError);
 //    }
 
     dev::vector<UIN> matrixS_rowIndex_coo(matrixS.rowIndex());
@@ -255,7 +255,7 @@ int main(int argc, char *argv[]) {
 
     size_t numError_3 = 0;
     if (!checkData(matrixP_cpu_res.values(), matrixP_value_coo3, numError_3)) {
-        printf("@checkData : NO PASS numError = %lld @\n", numError_3);
+        printf("@checkData : NO PASS numError = %zu @\n", numError_3);
     }
 
     std::cout << "closeTensorCoreMode" << std::endl;

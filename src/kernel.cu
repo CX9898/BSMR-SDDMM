@@ -431,23 +431,8 @@ __global__ void sddmm_gpu_tensorCore(TensorCoreConfig tensorCoreConfig,
 
     const UIN globalWarpId = tensorCoreConfig.globalWarpId();
 
-    const UIN pRowId = tensorCoreConfig.rowBeginOfTile();
-    const UIN pColId = tensorCoreConfig.colBeginOfTile();
-
-    const int tileIndexBegin = matrixSTileMappedToWarpIndex[globalWarpId];
-    const int tileIndexEnd = matrixSTileMappedToWarpIndex[globalWarpId + 1];
-
-    __shared__ half aTile[WMMA_M * NUM_OF_Y_PER_BLOCK * WMMA_K * NUM_OF_WARP_X_PER_BLOCK];
-    __shared__ half bTile[WMMA_K * NUM_OF_Y_PER_BLOCK * WMMA_N * NUM_OF_WARP_X_PER_BLOCK];
-
-    const int numData = tileIndexEnd - tileIndexBegin;
-    if (numData <= 0) {
-        return;
-    }
-
-    // Leading dimensions. Packed with no transpositions.
-    const UIN lda = K;
-    const UIN ldb = N;
+    __shared__ half aTile[MATRIX_A_TILE_SIZE_PER_BLOCK];
+    __shared__ half bTile[MATRIX_B_TILE_SIZE_PER_BLOCK];
 
     wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE, wmma::row_major> aFrag;
     wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE, wmma::row_major> bFrag;
@@ -456,24 +441,42 @@ __global__ void sddmm_gpu_tensorCore(TensorCoreConfig tensorCoreConfig,
 
     fill_fragment(cFrag, 0.0f);
 
+    const UIN pRowId = tensorCoreConfig.rowBeginOfTile();
+    const UIN pColId = tensorCoreConfig.colBeginOfTile();
+
+    // Leading dimensions. Packed with no transpositions.
+    const UIN lda = K;
+    const UIN ldb = N;
+
     // Loop over k
-    for (int kIter = 0; kIter < K; kIter += WMMA_K) {
+    for (int kIter = 0; kIter < K; kIter += WMMA_K * NUM_OF_Y_PER_BLOCK) {
         const int aRowId = pRowId;
         const int aColId = kIter;
 
         const int bRowId = kIter;
         const int bColId = pColId;
 
+        const auto aOffsetPtr = matrixA + aRowId * lda + aColId;
+        const auto bOffsetPtr = matrixB + bRowId * ldb + bColId;
+
+
+
         // Bounds checking
         if (aRowId < M && aColId < K && bRowId < K && bColId < N) {
-            const auto aOffsetPtr = matrixA + aRowId * lda + aColId;
-            const auto bOffsetPtr = matrixB + bRowId * ldb + bColId;
 
             wmma::load_matrix_sync(aFrag, aOffsetPtr, lda);
             wmma::load_matrix_sync(bFrag, bOffsetPtr, ldb);
 
             wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
         }
+    }
+
+    const int tileIndexBegin = matrixSTileMappedToWarpIndex[globalWarpId];
+    const int tileIndexEnd = matrixSTileMappedToWarpIndex[globalWarpId + 1];
+
+    const int numData = tileIndexEnd - tileIndexBegin;
+    if (numData <= 0) {
+        return;
     }
 
     const int laneId = tensorCoreConfig.laneId();
