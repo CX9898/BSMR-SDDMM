@@ -61,18 +61,18 @@ class TensorCoreConfig {
   TensorCoreConfig() = delete;
 
   TensorCoreConfig(UIN M, UIN N, WarpOrder warpOrder = WarpOrder::y_major) {
-      block_.x = NUM_OF_WARP_X_PER_BLOCK * WARP_SIZE;
-      block_.y = NUM_OF_Y_PER_BLOCK;
+      blockDim_.x = NUM_OF_WARP_X_PER_BLOCK * WARP_SIZE;
+      blockDim_.y = NUM_OF_Y_PER_BLOCK;
 
-      const int numCountColOfOutputMatrixPerBlock = WMMA_N * block_.x / WARP_SIZE;
-      const int numCountRowOfOutputMatrixPerBlock = WMMA_M * block_.y;
-      grid_.x = (NForTensorCore(N) + numCountColOfOutputMatrixPerBlock - 1) / numCountColOfOutputMatrixPerBlock;
-      grid_.y = (MForTensorCore(M) + numCountRowOfOutputMatrixPerBlock - 1) / numCountRowOfOutputMatrixPerBlock;
+      const int numCountColOfOutputMatrixPerBlock = WMMA_N * blockDim_.x / WARP_SIZE;
+      const int numCountRowOfOutputMatrixPerBlock = WMMA_M * blockDim_.y;
+      gridDim_.x = (NForTensorCore(N) + numCountColOfOutputMatrixPerBlock - 1) / numCountColOfOutputMatrixPerBlock;
+      gridDim_.y = (MForTensorCore(M) + numCountRowOfOutputMatrixPerBlock - 1) / numCountRowOfOutputMatrixPerBlock;
 
       warpOrder_ = warpOrder;
 
-      numWarpX_ = grid_.x * block_.x / WARP_SIZE;
-      numWarpY_ = grid_.y * block_.y;;
+      numWarpX_ = gridDim_.x * blockDim_.x / WARP_SIZE;
+      numWarpY_ = gridDim_.y * blockDim_.y;;
   }
 
   inline UIN MForTensorCore(UIN M) const {
@@ -90,12 +90,12 @@ class TensorCoreConfig {
       return K + KComplement;
   }
 
-  inline dim3 grid() const {
-      return grid_;
+  inline dim3 gridDim() const {
+      return gridDim_;
   }
 
-  inline dim3 block() const {
-      return block_;
+  inline dim3 blockDim() const {
+      return blockDim_;
   }
 
   inline UIN numWarpX() const {
@@ -114,7 +114,7 @@ class TensorCoreConfig {
       globalThreadIdxX_ = _blockDim.x * _blockIdx.x + _threadIdx.x;
       globalThreadIdxY_ = _blockDim.y * _blockIdx.y + _threadIdx.y;
 
-      globalWarpId_ = (globalThreadIdxX_ / WARP_SIZE) + globalThreadIdxY_ * (grid_.x * block_.x / WARP_SIZE);
+      globalWarpId_ = (globalThreadIdxX_ / WARP_SIZE) + globalThreadIdxY_ * (gridDim_.x * blockDim_.x / WARP_SIZE);
 
       laneId_ = _threadIdx.x % WARP_SIZE;
   }
@@ -150,8 +150,8 @@ class TensorCoreConfig {
  private:
   WarpOrder warpOrder_;
 
-  dim3 grid_;
-  dim3 block_;
+  dim3 gridDim_;
+  dim3 blockDim_;
 
   UIN numWarpX_;
   UIN numWarpY_;
