@@ -48,8 +48,8 @@ class TensorCoreConfig {
 
       const int numCountColOfOutputMatrixPerBlock = WMMA_N * block_.x / WARP_SIZE;
       const int numCountRowOfOutputMatrixPerBlock = WMMA_M * block_.y;
-      grid_.x = (MForTensorCore(M) + numCountColOfOutputMatrixPerBlock - 1) / numCountColOfOutputMatrixPerBlock;
-      grid_.y = (NForTensorCore(N) + numCountRowOfOutputMatrixPerBlock - 1) / numCountRowOfOutputMatrixPerBlock;
+      grid_.x = (NForTensorCore(N) + numCountColOfOutputMatrixPerBlock - 1) / numCountColOfOutputMatrixPerBlock;
+      grid_.y = (MForTensorCore(M) + numCountRowOfOutputMatrixPerBlock - 1) / numCountRowOfOutputMatrixPerBlock;
 
       warpOrder_ = warpOrder;
 
