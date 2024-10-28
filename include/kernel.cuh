@@ -1,10 +1,12 @@
 #pragma once
 
 #include <cuda_fp16.h>
-#include "Matrix.hpp"
 
+#include "devVector.cuh"
+#include "Matrix.hpp"
 #include "TensorCoreConfig.cuh"
 
+namespace kernel {
 template<typename T>
 __global__ void printData(UIN n, T *a);
 
@@ -47,12 +49,25 @@ __global__ void sddmm_gpu_coo_2(class TensorCoreConfig tensorCoreConfig,
  *
  * 使用的 SparseMatrix::openTensorCoreModeForSampled()
  **/
-__global__ void sddmm_gpu_coo_3(TensorCoreConfig tensorCoreConfig,
-                                const UIN M, const UIN N, const UIN K,
-                                const half *matrixA,const MatrixStorageOrder matrixAStorageOrder,
-                                const half *matrixB,const MatrixStorageOrder matrixBStorageOrder,
-                                const UIN *matrixSRowIndex,
-                                const UIN *matrixSColIndex,
-                                const float *matrixS,
-                                const UIN *matrixSTileMappedToWarpIndex,
-                                float *matrixP);
+__global__ void sddmm_gpu_coo_3_matrixA_row_matrixB_row(TensorCoreConfig tensorCoreConfig,
+                                                        const UIN M,
+                                                        const UIN N,
+                                                        const UIN K,
+                                                        const half *matrixA,
+                                                        const half *matrixB,
+                                                        const UIN *matrixSRowIndex,
+                                                        const UIN *matrixSColIndex,
+                                                        const float *matrixS,
+                                                        const UIN *matrixSTileMappedToWarpIndex,
+                                                        float *matrixP);
+} // namespace kernel
+
+void sddmm_gpu_coo_3(TensorCoreConfig tensorCoreConfig,
+                     const UIN M, const UIN N, const UIN K,
+                     const half *matrixA, const MatrixStorageOrder matrixAStorageOrder,
+                     const half *matrixB, const MatrixStorageOrder matrixBStorageOrder,
+                     const UIN *matrixSRowIndex,
+                     const UIN *matrixSColIndex,
+                     const float *matrixS,
+                     const UIN *matrixSTileMappedToWarpIndex,
+                     float *matrixP);

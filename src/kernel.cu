@@ -5,6 +5,8 @@
 #include "kernel.cuh"
 #include "TensorCoreConfig.cuh"
 
+namespace kernel {
+
 using namespace nvcuda;
 
 template<typename T>
@@ -414,17 +416,17 @@ __global__ void sddmm_gpu_coo_2(TensorCoreConfig tensorCoreConfig,
 
 }
 
-__device__ void sddmm_gpu_tensorCore(TensorCoreConfig tensorCoreConfig,
-                                           const UIN M,
-                                           const UIN N,
-                                           const UIN K,
-                                           const half *matrixA,
-                                           const half *matrixB,
-                                           const UIN *matrixSRowIndex,
-                                           const UIN *matrixSColIndex,
-                                           const float *matrixS,
-                                           const UIN *matrixSTileMappedToWarpIndex,
-                                           float *matrixP) {
+__global__ void sddmm_gpu_tensorCore(TensorCoreConfig tensorCoreConfig,
+                                     const UIN M,
+                                     const UIN N,
+                                     const UIN K,
+                                     const half *matrixA,
+                                     const half *matrixB,
+                                     const UIN *matrixSRowIndex,
+                                     const UIN *matrixSColIndex,
+                                     const float *matrixS,
+                                     const UIN *matrixSTileMappedToWarpIndex,
+                                     float *matrixP) {
     tensorCoreConfig.initByKernel(blockIdx, blockDim, threadIdx);
 
     const UIN globalWarpId = tensorCoreConfig.globalWarpId();
@@ -490,7 +492,7 @@ __device__ void sddmm_gpu_tensorCore(TensorCoreConfig tensorCoreConfig,
     }
 }
 
-__device__ void sddmm_gpu_coo_3_matrixA_row_matrixB_row(TensorCoreConfig tensorCoreConfig,
+__global__ void sddmm_gpu_coo_3_matrixA_row_matrixB_row(TensorCoreConfig tensorCoreConfig,
                                                         const UIN M,
                                                         const UIN N,
                                                         const UIN K,
@@ -566,7 +568,7 @@ __device__ void sddmm_gpu_coo_3_matrixA_row_matrixB_row(TensorCoreConfig tensorC
     }
 }
 
-__device__ void sddmm_gpu_coo_3_matrixA_row_matrixB_col(TensorCoreConfig tensorCoreConfig,
+__global__ void sddmm_gpu_coo_3_matrixA_row_matrixB_col(TensorCoreConfig tensorCoreConfig,
                                                         const UIN M,
                                                         const UIN N,
                                                         const UIN K,
@@ -644,7 +646,7 @@ __device__ void sddmm_gpu_coo_3_matrixA_row_matrixB_col(TensorCoreConfig tensorC
 
 
 // TODO：Finish the following kernels. Error occurs when compiling the code.
-__device__ void sddmm_gpu_coo_3_matrixA_col_matrixB_row(TensorCoreConfig tensorCoreConfig,
+__global__ void sddmm_gpu_coo_3_matrixA_col_matrixB_row(TensorCoreConfig tensorCoreConfig,
                                                         const UIN M,
                                                         const UIN N,
                                                         const UIN K,
@@ -721,7 +723,7 @@ __device__ void sddmm_gpu_coo_3_matrixA_col_matrixB_row(TensorCoreConfig tensorC
 }
 
 // TODO: Finish the following kernels. Error occurs when compiling the code.
-__device__ void sddmm_gpu_coo_3_matrixA_col_matrixB_col(TensorCoreConfig tensorCoreConfig,
+__global__ void sddmm_gpu_coo_3_matrixA_col_matrixB_col(TensorCoreConfig tensorCoreConfig,
                                                         const UIN M,
                                                         const UIN N,
                                                         const UIN K,
@@ -797,64 +799,67 @@ __device__ void sddmm_gpu_coo_3_matrixA_col_matrixB_col(TensorCoreConfig tensorC
     }
 }
 
-__global__ void sddmm_gpu_coo_3(TensorCoreConfig tensorCoreConfig,
-                                const UIN M, const UIN N, const UIN K,
-                                const half *matrixA, const MatrixStorageOrder matrixAStorageOrder,
-                                const half *matrixB, const MatrixStorageOrder matrixBStorageOrder,
-                                const UIN *matrixSRowIndex,
-                                const UIN *matrixSColIndex,
-                                const float *matrixS,
-                                const UIN *matrixSTileMappedToWarpIndex,
-                                float *matrixP) {
+} // namespace kernel
+
+void sddmm_gpu_coo_3(TensorCoreConfig tensorCoreConfig,
+                     const UIN M, const UIN N, const UIN K,
+                     const half *matrixA, const MatrixStorageOrder matrixAStorageOrder,
+                     const half *matrixB, const MatrixStorageOrder matrixBStorageOrder,
+                     const UIN *matrixSRowIndex,
+                     const UIN *matrixSColIndex,
+                     const float *matrixS,
+                     const UIN *matrixSTileMappedToWarpIndex,
+                     float *matrixP) {
     if (matrixAStorageOrder == MatrixStorageOrder::row_major && matrixBStorageOrder == MatrixStorageOrder::row_major) {
-        sddmm_gpu_coo_3_matrixA_row_matrixB_row(tensorCoreConfig,
-                                                M,
-                                                N,
-                                                K,
-                                                matrixA,
-                                                matrixB,
-                                                matrixSRowIndex,
-                                                matrixSColIndex,
-                                                matrixS,
-                                                matrixSTileMappedToWarpIndex,
-                                                matrixP);
+        kernel::sddmm_gpu_coo_3_matrixA_row_matrixB_row<<<tensorCoreConfig.gridDim(), tensorCoreConfig.blockDim()>>>(tensorCoreConfig,
+            M,
+            N,
+            K,
+            matrixA,
+            matrixB,
+            matrixSRowIndex,
+            matrixSColIndex,
+            matrixS,
+            matrixSTileMappedToWarpIndex,
+            matrixP);
     } else if (matrixAStorageOrder == MatrixStorageOrder::row_major
         && matrixBStorageOrder == MatrixStorageOrder::col_major) {
-        sddmm_gpu_coo_3_matrixA_row_matrixB_col(tensorCoreConfig,
-                                                M,
-                                                N,
-                                                K,
-                                                matrixA,
-                                                matrixB,
-                                                matrixSRowIndex,
-                                                matrixSColIndex,
-                                                matrixS,
-                                                matrixSTileMappedToWarpIndex,
-                                                matrixP);
+        kernel::sddmm_gpu_coo_3_matrixA_row_matrixB_col<<<tensorCoreConfig.gridDim(), tensorCoreConfig.blockDim()>>>(tensorCoreConfig,
+            M,
+            N,
+            K,
+            matrixA,
+            matrixB,
+            matrixSRowIndex,
+            matrixSColIndex,
+            matrixS,
+            matrixSTileMappedToWarpIndex,
+            matrixP);
     } else if (matrixAStorageOrder == MatrixStorageOrder::col_major
         && matrixBStorageOrder == MatrixStorageOrder::row_major) {
-        sddmm_gpu_coo_3_matrixA_col_matrixB_row(tensorCoreConfig,
-                                                M,
-                                                N,
-                                                K,
-                                                matrixB,
-                                                matrixA,
-                                                matrixSColIndex,
-                                                matrixSRowIndex,
-                                                matrixS,
-                                                matrixSTileMappedToWarpIndex,
-                                                matrixP);
+        kernel::sddmm_gpu_coo_3_matrixA_col_matrixB_row<<<tensorCoreConfig.gridDim(), tensorCoreConfig.blockDim()>>>(tensorCoreConfig,
+            M,
+            N,
+            K,
+            matrixB,
+            matrixA,
+            matrixSColIndex,
+            matrixSRowIndex,
+            matrixS,
+            matrixSTileMappedToWarpIndex,
+            matrixP);
     } else {
-        sddmm_gpu_coo_3_matrixA_col_matrixB_col(tensorCoreConfig,
-                                                M,
-                                                N,
-                                                K,
-                                                matrixB,
-                                                matrixA,
-                                                matrixSColIndex,
-                                                matrixSRowIndex,
-                                                matrixS,
-                                                matrixSTileMappedToWarpIndex,
-                                                matrixP);
+        kernel::sddmm_gpu_coo_3_matrixA_col_matrixB_col<<<tensorCoreConfig.gridDim(), tensorCoreConfig.blockDim()>>>(tensorCoreConfig,
+            M,
+            N,
+            K,
+            matrixB,
+            matrixA,
+            matrixSColIndex,
+            matrixSRowIndex,
+            matrixS,
+            matrixSTileMappedToWarpIndex,
+            matrixP);
     }
+
 }
