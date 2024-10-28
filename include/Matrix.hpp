@@ -89,7 +89,7 @@ class Matrix {
   MatrixStorageOrder storageOrder() const {
       return storageOrder_;
   }
-  UIN ld() const {
+  UIN leadingDimension() const {
       return leadingDimension_;
   }
   UIN row() const {
