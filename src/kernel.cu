@@ -434,7 +434,7 @@ __device__ void sddmm_gpu_coo_3_matrixA_row_matrixB_row(TensorCoreConfig tensorC
     const int tileIndexEnd = matrixSTileMappedToWarpIndex[globalWarpId + 1];
 
     __shared__ half aTile[WMMA_M * NUM_OF_Y_PER_BLOCK * WMMA_K * NUM_OF_WARP_X_PER_BLOCK];
-    __shared__ half bTile[WMMA_K * NUM_OF_Y_PER_BLOCK * WMMA_K * NUM_OF_WARP_X_PER_BLOCK];
+    __shared__ half bTile[WMMA_K * NUM_OF_Y_PER_BLOCK * WMMA_N * NUM_OF_WARP_X_PER_BLOCK];
 
     const int numData = tileIndexEnd - tileIndexBegin;
     if (numData <= 0) {
@@ -519,7 +519,7 @@ __device__ void sddmm_gpu_coo_3_matrixA_row_matrixB_col(TensorCoreConfig tensorC
 
     // Leading dimensions. Packed with no transpositions.
     const UIN lda = K;
-    const UIN ldb = K;
+    const UIN ldb = N;
 
     wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE, wmma::row_major> aFrag;
     wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE, wmma::col_major> bFrag;
@@ -596,7 +596,7 @@ __device__ void sddmm_gpu_coo_3_matrixA_col_matrixB_row(TensorCoreConfig tensorC
     }
 
     // Leading dimensions. Packed with no transpositions.
-    const UIN lda = M;
+    const UIN lda = K;
     const UIN ldb = N;
 
     wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE, wmma::col_major> aFrag;
@@ -673,8 +673,8 @@ __device__ void sddmm_gpu_coo_3_matrixA_col_matrixB_col(TensorCoreConfig tensorC
     }
 
     // Leading dimensions. Packed with no transpositions.
-    const UIN lda = M;
-    const UIN ldb = K;
+    const UIN lda = K;
+    const UIN ldb = N;
 
     wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE, wmma::col_major> aFrag;
     wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE, wmma::col_major> bFrag;
