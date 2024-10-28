@@ -59,7 +59,7 @@ inline bool checkDataFunction(const size_t num, const T *data1, const T *data2, 
     printf("| Data size : %ld\n", num);
     printf("| Checking results...\n");
 
-    int errors = 0;
+    size_t errors = 0;
     for (int idx = 0; idx < num; ++idx) {
         const T oneData1 = data1[idx];
         const T oneData2 = data2[idx];
