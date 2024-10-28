@@ -414,7 +414,7 @@ __global__ void sddmm_gpu_coo_2(TensorCoreConfig tensorCoreConfig,
 
 }
 
-__device__ void sddmm_gpu_coo_3_tensorCore(TensorCoreConfig tensorCoreConfig,
+__device__ void sddmm_gpu_tensorCore(TensorCoreConfig tensorCoreConfig,
                                            const UIN M,
                                            const UIN N,
                                            const UIN K,
