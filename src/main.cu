@@ -42,6 +42,7 @@ const std::string filePath = folderPath + fileName + fileFormat;
 //                    matrixA: col_major matrixB: row_major
 //                    matrixA: col_major matrixB: col_major
 //      9: 在sddmm函数中使用共享内存
+
 //#define MAKE_MATRIX_DATA
 
 int main(int argc, char *argv[]) {
@@ -61,7 +62,7 @@ int main(int argc, char *argv[]) {
 //    const float sparsity = 0.80;
 //    const size_t makeDataNNZ = makeDataRow * makeDataCol * (1 - sparsity);
 //    const size_t makeDataNNZ = 1 * million;
-        const size_t makeDataNNZ = 1500000;
+        const size_t makeDataNNZ = 7500000;
         matrixTmp.makeData(makeDataRow, makeDataCol, makeDataNNZ);
         matrixTmp.outputToMarketMatrixFile();
         std::cout << "makeData : M : " << makeDataRow
@@ -150,9 +151,9 @@ int main(int argc, char *argv[]) {
         dev::vector<float> matrixB_values_dev(matrixB.values());
 
         const int numThreadPerBlock = 1024;
-        convertDataType<<< (matrixA.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
+        kernel::convertDataType<<< (matrixA.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
             matrixA.size(), matrixA_values_dev.data(), matrixA_values_convertedType.data());
-        convertDataType<<< (matrixB.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
+        kernel::convertDataType<<< (matrixB.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
             matrixB.size(), matrixB_values_dev.data(), matrixB_values_convertedType.data());
     }
 
@@ -203,7 +204,7 @@ int main(int argc, char *argv[]) {
 //
 //    dev::vector<float> matrixP_value_coo2(matrixS_dev.nnz());
 //    timeCalculator.startClock();
-//    sddmm_gpu_coo_2<<<tensorCoreConfig.grid(), tensorCoreConfig.block()>>>(tensorCoreConfig,
+//    sddmm_gpu_coo_2<<<tensorCoreConfig.gridDim(), tensorCoreConfig.blockDim()>>>(tensorCoreConfig,
 //                                                                           matrixS_dev.row(),
 //                                                                           matrixS_dev.col(),
 //                                                                           matrixA.col(),
@@ -233,19 +234,19 @@ int main(int argc, char *argv[]) {
     dev::vector<float> matrixS_value_coo(matrixS.values());
     dev::vector<float> matrixP_value_coo3(matrixS.nnz());
     timeCalculator.startClock();
-    sddmm_gpu_coo_3<<<tensorCoreConfig.grid(), tensorCoreConfig.block()>>>(tensorCoreConfig,
-                                                                           matrixS.row(),
-                                                                           matrixS.col(),
-                                                                           matrixA.col(),
-                                                                           matrixA_values_convertedType.data(),
-                                                                           matrixA.storageOrder(),
-                                                                           matrixB_values_convertedType.data(),
-                                                                           matrixB.storageOrder(),
-                                                                           matrixS_rowIndex_coo.data(),
-                                                                           matrixS_colIndex_coo.data(),
-                                                                           matrixS_value_coo.data(),
-                                                                           matrixS_matrixTileMappedToWarpIndex_coo.data(),
-                                                                           matrixP_value_coo3.data());
+    sddmm_gpu_coo_3(tensorCoreConfig,
+                    matrixS.row(),
+                    matrixS.col(),
+                    matrixA.col(),
+                    matrixA_values_convertedType.data(),
+                    matrixA.storageOrder(),
+                    matrixB_values_convertedType.data(),
+                    matrixB.storageOrder(),
+                    matrixS_rowIndex_coo.data(),
+                    matrixS_colIndex_coo.data(),
+                    matrixS_value_coo.data(),
+                    matrixS_matrixTileMappedToWarpIndex_coo.data(),
+                    matrixP_value_coo3.data());
     timeCalculator.endClock();
     const float time_sddmm_gpu_coo3 = timeCalculator.getTime();
     std::cout << "Func time_sddmm_gpu_coo3 time : " << time_sddmm_gpu_coo3 << " ms" << std::endl;
