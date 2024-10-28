@@ -39,17 +39,19 @@ log_file_suffix=".log"
 auto_analysis_results_source_filename="${script_file_path}autoAnalysisResults.cpp"
 auto_analysis_results_program="${script_file_path}autoAnalysisResults"
 
+print_tag="* "
+
 ##############################################################################################
 
 num_test_file_folder=${#test_file_folder_path_list[@]}
-echo -n "* The number of test file folder is ${num_test_file_folder}, which are :"
+echo -n "${print_tag}The number of test file folder is ${num_test_file_folder}, which are :"
 for element in "${test_file_folder_path_list[@]}"; do
     echo -n " $element"
 done
 echo
 
 num_k=${#k_list[@]}
-echo -n "* The number of test k is ${num_k}, which are :"
+echo -n "${print_tag}The number of test k is ${num_k}, which are :"
 for element in "${k_list[@]}"; do
     echo -n " $element"
 done
@@ -61,13 +63,13 @@ build_program(){
   local build_path=${1}
   local cmake_file_path=${2}
 
-  echo "* Building the program..."
+  echo "${print_tag}Building the program..."
   if [ ! -e ${build_path} ]; then
       mkdir ${build_path}
   fi
   cmake -S ${cmake_file_path} -B ${build_path} -DCMAKE_BUILD_TYPE=Release > /dev/null
   cmake --build ${build_path} > /dev/null
-  echo "* Build complete : ${build_path}"
+  echo "${print_tag}Build complete : ${build_path}"
 }
 
 build_program ${zcx_build_folder_path} ${zcx_cmake_file_path}
@@ -88,7 +90,7 @@ create_log_file(){
     log_filename="${log_filename}${file_id}"
   fi
   log_file=${script_file_path}${log_filename}${log_file_suffix}
-  echo "* Create file: ${log_file}"
+  echo "${print_tag}Create file: ${log_file}"
   touch ${log_file}
 }
 
@@ -106,11 +108,16 @@ autoTest(){
   local autoTest_program="${1}"
   local autoTest_autoTestlog_file="${2}"
 
-  echo "* * * * * * * * * * * * * * * * * * * * * * * * * * *"
-  echo "* Start test..."
+  for ((i=0; i<50; i++))
+  do
+    echo -n "${print_tag}"
+  done
+  echo ""
 
-  echo "* Test program: ${autoTest_program}"
-  echo "* Test log file: ${autoTest_autoTestlog_file}"
+  echo "${print_tag}Start test..."
+
+  echo "${print_tag}Test program: ${autoTest_program}"
+  echo "${print_tag}Test log file: ${autoTest_autoTestlog_file}"
 
   local test_file_folder_id=1
   for test_file_folder_path in "${test_file_folder_path_list[@]}"; do
@@ -118,10 +125,10 @@ autoTest(){
     # 使用 find 命令读取目录中的所有文件名，并存储到数组中
     local files_list=($(find "${test_file_folder_path}" -maxdepth 1 -type f -printf '%f\n'))
 
-    echo "* Test file folder : ${test_file_folder_path} [Remaining: $((${num_test_file_folder} - ${test_file_folder_id}))]"
+    echo "${print_tag}Test file folder : ${test_file_folder_path} [Remaining: $((${num_test_file_folder} - ${test_file_folder_id}))]"
 
     local numTestFiles=${#files_list[@]}
-    echo "* Number of test files in the test folder: ${numTestFiles}"
+    echo "${print_tag}Number of test files in the test folder: ${numTestFiles}"
 
     echo -e "@Test file folder : ${test_file_folder_path} @\n" >> ${autoTest_autoTestlog_file}
     echo -e "@numTestFiles : ${numTestFiles} @\n" >> ${autoTest_autoTestlog_file}
@@ -129,16 +136,16 @@ autoTest(){
 
     local file_id=1
     for file in "${files_list[@]}"; do
-      echo -e "* \t${test_file_folder_path}$file start testing... [Remaining: $((${numTestFiles} - ${file_id}))]"
+      echo -e "${print_tag}\t${test_file_folder_path}$file start testing... [Remaining: $((${numTestFiles} - ${file_id}))]"
 
       local k_id=1
       for k in "${k_list[@]}"; do
-        echo -e "* \t\tK = ${k} start testing... [Remaining: $((${num_k} - ${k_id}))]"
+        echo -e "${print_tag}\t\tK = ${k} start testing... [Remaining: $((${num_k} - ${k_id}))]"
         echo -e ${data_split_symbol} >> ${autoTest_autoTestlog_file}
         local start_time=$(date +%s.%N)
         ${autoTest_program} ${test_file_folder_path}${file} ${k} 192 50000 >> ${autoTest_autoTestlog_file}
         local end_time=$(date +%s.%N)
-        echo -e "* \t\tExecution time: $(echo "$end_time - $start_time" | bc) seconds"
+        echo -e "${print_tag}\t\tExecution time: $(echo "$end_time - $start_time" | bc) seconds"
         ((k_id++))
       done
 
@@ -150,9 +157,14 @@ autoTest(){
 
   echo -e ${test_done_symbol} >> ${autoTest_autoTestlog_file}
 
-  echo "* End test"
-  echo "* Test information file: ${autoTest_autoTestlog_file}"
-  echo "* * * * * * * * * * * * * * * * * * * * * * * * * * *"
+  echo "${print_tag}Test done"
+  echo "${print_tag}Test information file: ${autoTest_autoTestlog_file}"
+
+  for ((i=0; i<50; i++))
+  do
+    echo -n "${print_tag}"
+  done
+  echo ""
 }
 
 autoTest ${isratnisa_program_path}${isratnisa_program_name} ${isratnisa_test_log_file}
@@ -160,8 +172,8 @@ autoTest ${zcx_program_path}${zcx_program_name} ${zcx_test_log_file}
 
 # 编译分析结果程序
 g++ ${auto_analysis_results_source_filename} -o ${auto_analysis_results_program}
-echo "* Auto analysis results program : ${auto_analysis_results_source_filename}"
+echo "${print_tag}Auto analysis results program : ${auto_analysis_results_source_filename}"
 
-echo "* Start analyzing results..."
+echo "${print_tag}Start analyzing results..."
 ${auto_analysis_results_program} ${zcx_test_log_file} ${isratnisa_test_log_file} >> ${analysis_results_log_file}
-echo "* Results analysis completed: ${analysis_results_log_file}"
+echo "${print_tag}Results analysis completed: ${analysis_results_log_file}"
