@@ -14,11 +14,11 @@
 #include "checkData.hpp"
 #include "devVector.cuh"
 
-const std::string folderPath("../dataset/test/matrix_10000_10000_/");
+const std::string folderPath("../dataset/test/matrix_10000_15000_/");
 //const std::string folderPath("./");
 //const std::string fileName = ("nips");
 //const std::string fileName = ("test");
-const std::string fileName = ("matrix_10000_10000_5000000");
+const std::string fileName = ("matrix_10000_15000_7500000");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 
@@ -31,12 +31,17 @@ const std::string filePath = folderPath + fileName + fileFormat;
 //              稀疏度小于50%使用 Tensor core 方法
 //      4: 全部数据放在device内存                                OK
 //      5: 优化openTensorCoreModeForSampled()                  OK
-//      6: 测试更大的K(<5k)的结果                                doing
+//      6: 测试更大的K(<5k)的结果                                OK
 //      7: 优化positionCalculator(),                           OK
 //                  支持 WMMA 维度 : 16×16×16                   OK
 //                  支持 WMMA 维度 : 32×8×16                    OK
 //                  支持 WMMA 维度 : 8×32×16                    OK
-
+//      8: sddmm函数中支持各种矩阵储存维度
+//                    matrixA: row_major matrixB: row_major    OK
+//                    matrixA: row_major matrixB: col_major    OK
+//                    matrixA: col_major matrixB: row_major
+//                    matrixA: col_major matrixB: col_major
+//      9: 在sddmm函数中使用共享内存
 //#define MAKE_MATRIX_DATA
 
 int main(int argc, char *argv[]) {
@@ -50,13 +55,13 @@ int main(int argc, char *argv[]) {
 //    const size_t makeDataRow = 3 * thousand;
 //    const size_t makeDataCol = 7 * thousand;
         const size_t makeDataRow = 10000;
-        const size_t makeDataCol = 10000;
+        const size_t makeDataCol = 15000;
 //    const float density = 4.006f;
 //    const size_t makeDataNNZ = static_cast<int> (makeDataRow * makeDataCol * density / 100);
 //    const float sparsity = 0.80;
 //    const size_t makeDataNNZ = makeDataRow * makeDataCol * (1 - sparsity);
 //    const size_t makeDataNNZ = 1 * million;
-        const size_t makeDataNNZ = 5000000;
+        const size_t makeDataNNZ = 1500000;
         matrixTmp.makeData(makeDataRow, makeDataCol, makeDataNNZ);
         matrixTmp.outputToMarketMatrixFile();
         std::cout << "makeData : M : " << makeDataRow
@@ -126,7 +131,7 @@ int main(int argc, char *argv[]) {
 //    matrixB.print();
 
 //    matrixA.changeStorageOrder();
-//    matrixB.changeStorageOrder();
+    matrixB.changeStorageOrder();
 
     if (matrixA.storageOrder() == MatrixStorageOrder::row_major) { printf("@matrixA storageOrder : row_major @\n"); }
     else { printf("@matrixA storageOrder : col_major @\n"); }
