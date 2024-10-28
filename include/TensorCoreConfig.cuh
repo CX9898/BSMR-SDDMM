@@ -5,14 +5,32 @@
 
 using UIN = uint32_t;
 
-using MATRIX_A_TYPE = __half;
-using MATRIX_B_TYPE = __half;
-using MATRIX_C_TYPE = float;
-
 // The dimension supported by WMMA
+#define WMMA_16_16_16
+//#define WMMA_32_8_16
+//#define WMMA_8_32_16
+
+#ifdef WMMA_16_16_16
 const int WMMA_M = 16;
 const int WMMA_N = 16;
 const int WMMA_K = 16;
+#endif // WMMA_16_16_16
+
+#ifdef WMMA_32_8_16
+const int WMMA_M = 32;
+const int WMMA_N = 8;
+const int WMMA_K = 16;
+#endif // WMMA_32_8_16
+
+#ifdef WMMA_8_32_16
+const int WMMA_M = 8;
+const int WMMA_N = 32;
+const int WMMA_K = 16;
+#endif // WMMA_8_32_16
+
+using MATRIX_A_TYPE = __half;
+using MATRIX_B_TYPE = __half;
+using MATRIX_C_TYPE = float;
 
 const int WARP_SIZE = 32;
 
@@ -226,13 +244,15 @@ inline __device__ void positionCalculator_m8n32k16(const UIN tileRow, const UIN 
 inline __device__ void TensorCoreConfig::positionCalculator(const UIN tileRow, const UIN tileCol,
                                                             const UIN row, const UIN col,
                                                             FragmentInformation &fragmentInformation) {
-    if (WMMA_M == 16 && WMMA_N == 16 && WMMA_K == 16) {
-        positionCalculator_m16n16k16(tileRow, tileCol, row, col, fragmentInformation);
-    }
-    if (WMMA_M == 32 && WMMA_N == 8 && WMMA_K == 16) {
-        positionCalculator_m32n8k16(tileRow, tileCol, row, col, fragmentInformation);
-    }
-    if (WMMA_M == 8 && WMMA_N == 32 && WMMA_K == 16) {
-        positionCalculator_m8n32k16(tileRow, tileCol, row, col, fragmentInformation);
-    }
+#ifdef WMMA_16_16_16
+    positionCalculator_m16n16k16(tileRow, tileCol, row, col, fragmentInformation);
+#endif //WMMA_16_16_16
+
+#ifdef WMMA_32_16_16
+    positionCalculator_m32n8k16(tileRow, tileCol, row, col, fragmentInformation);
+#endif //WMMA_32_16_16
+
+#ifdef WMMA_8_32_16
+    positionCalculator_m8n32k16(tileRow, tileCol, row, col, fragmentInformation);
+#endif //WMMA_8_32_16
 }
