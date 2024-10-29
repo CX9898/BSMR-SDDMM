@@ -41,7 +41,8 @@ const std::string filePath = folderPath + fileName + fileFormat;
 //                    matrixA: row_major matrixB: col_major    OK
 //                    matrixA: col_major matrixB: row_major
 //                    matrixA: col_major matrixB: col_major
-//      9: 在sddmm函数中使用共享内存
+//      9: TensorCoreConfig 支持 WarpOrder
+//      10: 在sddmm函数中使用共享内存
 
 //#define MAKE_MATRIX_DATA
 
