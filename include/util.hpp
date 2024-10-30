@@ -2,21 +2,18 @@
 
 #include <string>
 #include <vector>
+#include <fstream>
+#include <random>
 
 namespace util {
-/**
- * namespace io
- * Including file IO functions
- **/
-namespace io {
 
 /**
  * @funcitonName: createRandomUniformDistribution
  * @functionInterpretation: Checks if the file exists
  * @input:
- *
+ *  `filename` : File name to check
  * @output:
- *
+ * Return true if the file exists and false if the file does not
  **/
 inline bool fileExists(const std::string &filename) {
     std::ifstream file(filename);
@@ -24,7 +21,16 @@ inline bool fileExists(const std::string &filename) {
     return file.good();
 }
 
-} // namespace io
+/**
+ * @funcitonName: getFolderPath
+ * @functionInterpretation:
+ *  Enter the file path or folder path, and return the parent folder path.
+ * @input:
+ *  `path` : File path.
+ * @output:
+ *  Returns the parent folder path of the input path.
+ **/
+std::string getParentFolderPath(const std::string &path);
 
 /**
  * @funcitonName: createRandomUniformDistribution
@@ -47,15 +53,12 @@ inline std::uniform_real_distribution<double> createRandomUniformDistribution(do
 inline std::uniform_int_distribution<int> createRandomUniformDistribution(int min, int max) {
     return std::uniform_int_distribution<int>(min, max);
 }
-inline std::uniform_int_distribution<int> createRandomUniformDistribution(uint32_t min, uint32_t max) {
-    return std::uniform_int_distribution<int>(min, max);
+inline std::uniform_int_distribution<uint32_t> createRandomUniformDistribution(uint32_t min, uint32_t max) {
+    return std::uniform_int_distribution<uint32_t>(min, max);
 }
 inline std::uniform_int_distribution<uint64_t> createRandomUniformDistribution(uint64_t min, uint64_t max) {
     return std::uniform_int_distribution<uint64_t>(min, max);
 }
-
-template<typename T>
-T getRandomData(std::mt19937 &generator, T min, T max);
 
 /**
  * @funcitonName: iterateOneWordFromLine

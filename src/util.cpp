@@ -6,6 +6,16 @@
 
 namespace util {
 
+std::string getParentFolderPath(const std::string &path) {
+    for (int idx = path.size() - 2; idx >= 0; --idx) {
+        if (path[idx] == '/') {
+            return path.substr(0,idx+1);
+        }
+    }
+    std::cerr << "Warning. The input path has no parent folder" << std::endl;
+    return path;
+}
+
 std::string iterateOneWordFromLine(const std::string &line, int &wordIter) {
     const int begin = wordIter;
     while (wordIter < line.size() && line[wordIter] != ' ') {
