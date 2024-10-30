@@ -73,7 +73,7 @@ inline bool checkDataFunction(const size_t num, const T *data1, const T *data2, 
     }
     numError = errors;
     if (errors > 0) {
-        printf("| No Pass! Inconsistent data! %d errors! Error rate : %2.2f%%\n",
+        printf("| No Pass! Inconsistent data! %zu errors! Error rate : %2.2f%%\n",
                errors, static_cast<float>(errors) / static_cast<float>(num) * 100);
         printf("|----------------------------------------------------------------|\n");
         return false;
