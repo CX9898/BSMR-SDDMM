@@ -385,10 +385,10 @@ bool SparseMatrix<T>::outputToMarketMatrixFile(const std::string &fileName) cons
     std::string fileString(fileName + fileFormat);
 
     // check fileExists
-    if (util::io::fileExists(fileString)) {
+    if (util::fileExists(fileString)) {
         std::cout << fileName + fileFormat << " file already exists" << std::endl;
         int fileId = 1;
-        while (util::io::fileExists(fileName + "_" + std::to_string(fileId) + fileFormat)) {
+        while (util::fileExists(fileName + "_" + std::to_string(fileId) + fileFormat)) {
             ++fileId;
         }
         fileString = fileName + "_" + std::to_string(fileId) + fileFormat;
