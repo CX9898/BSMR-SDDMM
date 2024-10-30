@@ -416,17 +416,34 @@ __global__ void sddmm_gpu_coo_2(TensorCoreConfig tensorCoreConfig,
 
 }
 
-__global__ void sddmm_gpu_tensorCore(TensorCoreConfig tensorCoreConfig,
-                                     const UIN M,
-                                     const UIN N,
-                                     const UIN K,
-                                     const half *matrixA,
-                                     const half *matrixB,
-                                     const UIN *matrixSRowIndex,
-                                     const UIN *matrixSColIndex,
-                                     const float *matrixS,
-                                     const UIN *matrixSTileMappedToWarpIndex,
-                                     float *matrixP) {
+__global__ void bank_conflicts_test(const int *matrixA) {
+
+    int pRowId = 0;
+    int pColId = 0;
+
+    int localWarpId = threadIdx.x / WARP_SIZE;
+    int laneId = threadIdx.x % WARP_SIZE;
+
+    __shared__ int aTile[MATRIX_A_TILE_SIZE_PER_BLOCK];
+
+    for (int iter = 0; iter < 8; ++iter) {
+        int beginIdxOfSharedMemory = localWarpId * NUMBER_OF_MATRIX_A_TILE_MEMORY_ACCESSES_PER_WARP;
+        aTile[beginIdxOfSharedMemory + laneId + iter * WARP_SIZE] = matrixA[beginIdxOfSharedMemory + laneId + iter * WARP_SIZE];
+    }
+
+}
+
+__global__ void sddmm_gpu_coo_4_matrixA_row_matrixB_row(TensorCoreConfig tensorCoreConfig,
+                                                        const UIN M,
+                                                        const UIN N,
+                                                        const UIN K,
+                                                        const half *matrixA,
+                                                        const half *matrixB,
+                                                        const UIN *matrixSRowIndex,
+                                                        const UIN *matrixSColIndex,
+                                                        const float *matrixS,
+                                                        const UIN *matrixSTileMappedToWarpIndex,
+                                                        float *matrixP) {
     tensorCoreConfig.initByKernel(blockIdx, blockDim, threadIdx);
 
     const UIN globalWarpId = tensorCoreConfig.globalWarpId();

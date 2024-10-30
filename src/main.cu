@@ -13,12 +13,13 @@
 #include "host.hpp"
 #include "checkData.hpp"
 #include "devVector.cuh"
+#include "util.hpp"
 
 const std::string folderPath("../dataset/test/matrix_10000_15000_/");
 //const std::string folderPath("./");
 //const std::string fileName = ("nips");
 //const std::string fileName = ("test");
-const std::string fileName = ("matrix_10000_15000_7500000");
+const std::string fileName("matrix_10000_15000_7500000");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 
@@ -91,7 +92,7 @@ int main(int argc, char *argv[]) {
         }
         K = 256;
     } else {
-        if (!matrixS.initializeFromMatrixMarketFile(filePath)) {
+        if (!matrixS.initializeFromMatrixMarketFile(util::getParentFolderPath(argv[0]) + filePath)) {
             exit(1);
         }
         K = 256;
@@ -111,7 +112,7 @@ int main(int argc, char *argv[]) {
 
     printf("@M : %d @, ", matrixS.row());
     printf("@N : %d @, ", matrixS.col());
-    printf("@K : %lld @, ", K);
+    printf("@K : %ld @, ", K);
     printf("@NNZ : %d @, ", matrixS.nnz());
     printf("@sparsity : %.2f%% @\n", matrixS.getSparsity() * 100);
 
@@ -256,7 +257,8 @@ int main(int argc, char *argv[]) {
 
     size_t numError_3 = 0;
     if (!checkData(matrixP_cpu_res.values(), matrixP_value_coo3, numError_3)) {
-        printf("@checkData : NO PASS numError = %zu @\n", numError_3);
+        printf("@checkData : NO PASS Error rate : %2.2f%% @\n",
+               static_cast<float>(numError_3) / static_cast<float>(matrixP_cpu_res.values().size()) * 100);
     }
 
     std::cout << "closeTensorCoreMode" << std::endl;
