@@ -125,6 +125,7 @@ class TensorCoreConfig {
 
       globalWarpId_ = (globalThreadIdxX_ / WARP_SIZE) + globalThreadIdxY_ * (gridDim_.x * blockDim_.x / WARP_SIZE);
 
+      localWarpId_ = _threadIdx.x / WARP_SIZE;
       laneId_ = _threadIdx.x % WARP_SIZE;
   }
 
@@ -137,7 +138,10 @@ class TensorCoreConfig {
   inline __device__ UIN globalWarpId() const {
       return globalWarpId_;
   }
-  inline __device__ int laneId() const {
+  inline __device__ UIN localWarpId() const {
+      return localWarpId_;
+  }
+  inline __device__ UIN laneId() const {
       return laneId_;
   }
   inline __device__ UIN rowBeginOfTile() const {
@@ -168,8 +172,9 @@ class TensorCoreConfig {
   // kernel
   UIN globalThreadIdxX_;
   UIN globalThreadIdxY_;
-  int globalWarpId_;
-  int laneId_;
+  UIN globalWarpId_;
+  UIN localWarpId_;
+  UIN laneId_;
 };
 
 //__device__ void positionCalculator_m16n16k16(const UIN tileRow, const UIN tileCol,
