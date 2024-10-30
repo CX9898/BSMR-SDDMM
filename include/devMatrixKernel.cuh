@@ -8,11 +8,6 @@ const int SHARED_MEMORY_SIZE = NUMBER_OF_OPERATIONS_ON_SHARED_MEMORY_BY_ONE_THRE
 
 const int NUMBER_OF_CALCULATED_BY_ONE_BLOCK = NUMBER_OF_THREADS_PER_BLOCK / WARP_SIZE;
 
-template<typename T>
-__global__ void getValuesFromDenseData(const UIN row, const UIN col, const UIN nnz, const UIN ld,
-                                       const UIN *rowIndex, const UIN *colIndex,
-                                       const T *denseData, T *output);
-
 class updateNumOfIndexOperator_1 {
  public:
   updateNumOfIndexOperator_1(UIN *nums) : nums_(nums) {}
