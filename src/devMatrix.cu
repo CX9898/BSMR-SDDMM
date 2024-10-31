@@ -46,26 +46,6 @@ void dev::Matrix<T>::closeTensorCoreMode() {
     // TODO
 }
 
-template<typename T>
-void dev::SparseMatrix<T>::setValuesFromDenseData(UIN row, UIN col, UIN ld, const dev::vector<T> &denseData) {
-    if (row < row_ || col < col_) {
-        std::cerr << "row < row_ || col < col_" << std::endl;
-    }
-    values_.resize(nnz_);
-
-    const int numThreads = 1024;
-    const int numBlocks = (nnz_ + numThreads - 1) / numThreads;
-    getValuesFromDenseData<<<numBlocks, numThreads>>>(row,
-                                                      col,
-                                                      nnz_,
-                                                      ld,
-                                                      rowIndex_.data(),
-                                                      colIndex_.data(),
-                                                      denseData.data(),
-                                                      values_.data());
-    cudaDeviceSynchronize();
-}
-
 //template<typename T>
 //void dev::SparseMatrix<T>::initializeFromMatrixMarketFile(const std::string &filePath) {
 //    std::ifstream inFile;
