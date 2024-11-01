@@ -526,7 +526,7 @@ __global__ void sddmm_gpu_coo_4_matrixA_row_matrixB_row(TensorCoreConfig tensorC
         }
         __syncthreads();
 
-        const UIN aRowId = pRowId;
+        const UIN aRowId = pRowId;l
         const UIN aColId = kIter;
 
         const UIN bRowId = kIter;
