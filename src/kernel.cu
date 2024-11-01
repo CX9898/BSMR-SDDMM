@@ -424,7 +424,7 @@ __global__ void bank_conflicts_test(UIN N, UIN K, const int *matrixB, const int 
     int localWarpId = threadIdx.x / WARP_SIZE;
     int laneId = threadIdx.x % WARP_SIZE;
 
-    __shared__ int aTile[MATRIX_A_TILE_SIZE_PER_BLOCK];
+    __shared__ int aTile[MATRIX_TILE_A_SIZE_PER_BLOCK];
 
     // Leading dimensions. Packed with no transpositions.
     const UIN lda = K;
@@ -442,7 +442,7 @@ __global__ void bank_conflicts_test(UIN N, UIN K, const int *matrixB, const int 
         const auto bOffsetPtr = matrixB + bRowId * ldb + bColId;
 
         for (int iter = 0; iter < 8; ++iter) {
-            int beginIdxOfSharedMemory = localWarpId * NUMBER_OF_MATRIX_A_TILE_MEMORY_ACCESSES_PER_WARP;
+            int beginIdxOfSharedMemory = localWarpId * NUMBER_OF_MATRIX_TILE_A_MEMORY_ACCESSES_PER_WARP;
             aTile[beginIdxOfSharedMemory + laneId + iter * WARP_SIZE] =
                 matrixA[beginIdxOfSharedMemory + laneId + iter * WARP_SIZE];
         }
@@ -478,8 +478,8 @@ __global__ void sddmm_gpu_coo_4_matrixA_row_matrixB_row(TensorCoreConfig tensorC
 
     const UIN globalWarpId = tensorCoreConfig.globalWarpId();
 
-    __shared__ half aTileSharedMem[MATRIX_A_TILE_SIZE_PER_BLOCK];
-    __shared__ half bTileSharedMem[MATRIX_B_TILE_SIZE_PER_BLOCK];
+    __shared__ half aTileSharedMem[MATRIX_TILE_A_SIZE_PER_BLOCK];
+    __shared__ half bTileSharedMem[MATRIX_TILE_B_SIZE_PER_BLOCK];
 
     wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE, wmma::row_major> aFrag;
     wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE, wmma::row_major> bFrag;
@@ -501,16 +501,28 @@ __global__ void sddmm_gpu_coo_4_matrixA_row_matrixB_row(TensorCoreConfig tensorC
     const UIN lda = K;
     const UIN ldb = N;
 
+    const UIN startIdxOfSharedMemoryOfMtxA = localWarpId * NUMBER_OF_MATRIX_TILE_A_MEMORY_ACCESSES_PER_WARP;
+    const UIN startIdxOfSharedMemoryOfMtxB = startIdxOfSharedMemoryOfMtxA;
+
     // Loop over k
     for (int kIter = 0; kIter < K; kIter += WMMA_K * NUM_OF_Y_PER_BLOCK) {
 
+        // load matrix tile A to shared memory
+        const UIN startIdxOfGlobalMemoryOfMtxA =
+            (pRowIdForBlock + localWarpId * NUMBER_OF_MATRIX_TILE_A_MEMORY_ACCESSES_ROWS_PER_WARP) * lda + kIter;
+
+        const UIN startIdxOfGlobalMemoryOfMtxB =
+            (kIter + localWarpId * NUMBER_OF_MATRIX_TILE_A_MEMORY_ACCESSES_ROWS_PER_WARP) * ldb + pColIdForBlock;
+
 #pragma unroll
         for (int iter = 0; iter < 8; ++iter) {
-            const UIN startIdxOfSharedMemoryOfMtxA = localWarpId * NUMBER_OF_MATRIX_A_TILE_MEMORY_ACCESSES_PER_WARP;
-            const UIN startIdxOfGlobalMemoryOfMtxA = pRowIdForBlock * lda + K;
-            const UIN iterationSpan = laneId + iter * WARP_SIZE;
-            aTileSharedMem[startIdxOfSharedMemoryOfMtxA + iterationSpan] =
-                matrixA[startIdxOfGlobalMemoryOfMtxA + iterationSpan];
+            const UIN indexForThisIterationA = laneId + iter * WARP_SIZE;
+            aTileSharedMem[startIdxOfSharedMemoryOfMtxA + indexForThisIterationA] =
+                matrixA[startIdxOfGlobalMemoryOfMtxA + indexForThisIterationA];
+
+            const UIN indexForThisIterationB = laneId + iter * WARP_SIZE;
+            bTileSharedMem[startIdxOfSharedMemoryOfMtxB + indexForThisIterationB] =
+                matrixB[startIdxOfGlobalMemoryOfMtxB + indexForThisIterationB];
         }
         __syncthreads();
 
@@ -520,16 +532,17 @@ __global__ void sddmm_gpu_coo_4_matrixA_row_matrixB_row(TensorCoreConfig tensorC
         const UIN bRowId = kIter;
         const UIN bColId = pColId;
 
-        const auto aOffsetPtr = matrixA + aRowId * lda + aColId;
-        const auto bOffsetPtr = matrixB + bRowId * ldb + bColId;
+        const auto aOffsetPtr = aTileSharedMem + aRowId * MATRIX_TILE_A_LEADING_DIMENSION + aColId;
+        const auto bOffsetPtr = bTileSharedMem + bRowId * MATRIX_TILE_B_LEADING_DIMENSION + bColId;
+        for (int sharedMemIter = 0; sharedMemIter < 4; ++sharedMemIter) {
+            // Bounds checking
+            if (aRowId < M && aColId < K && bRowId < K && bColId < N) {
 
-        // Bounds checking
-        if (aRowId < M && aColId < K && bRowId < K && bColId < N) {
+                wmma::load_matrix_sync(aFrag, aOffsetPtr, lda);
+                wmma::load_matrix_sync(bFrag, bOffsetPtr, ldb);
 
-            wmma::load_matrix_sync(aFrag, aOffsetPtr, lda);
-            wmma::load_matrix_sync(bFrag, bOffsetPtr, ldb);
-
-            wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
+                wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
+            }
         }
     }
 
@@ -864,6 +877,12 @@ __global__ void sddmm_gpu_coo_3_matrixA_col_matrixB_col(TensorCoreConfig tensorC
 
 } // namespace kernel
 
+void calculateKernelSettings(const UIN size, UIN &numBlocks, UIN &numThreads) {
+    const UIN maxThreadsPerBlock = 1024;
+    numThreads = size < maxThreadsPerBlock ? size : maxThreadsPerBlock;
+    numBlocks = (size + numThreads - 1) / numThreads;
+}
+
 void sddmm_gpu_coo_3(TensorCoreConfig tensorCoreConfig,
                      const UIN M, const UIN N, const UIN K,
                      const half *matrixA, const MatrixStorageOrder matrixAStorageOrder,
@@ -874,7 +893,7 @@ void sddmm_gpu_coo_3(TensorCoreConfig tensorCoreConfig,
                      const UIN *matrixSTileMappedToWarpIndex,
                      float *matrixP) {
     if (matrixAStorageOrder == MatrixStorageOrder::row_major && matrixBStorageOrder == MatrixStorageOrder::row_major) {
-        kernel::sddmm_gpu_coo_3_matrixA_row_matrixB_row<<<tensorCoreConfig.gridDim(), tensorCoreConfig.blockDim()>>>(tensorCoreConfig,
+        kernel::sddmm_gpu_coo_4_matrixA_row_matrixB_row<<<tensorCoreConfig.gridDim(), tensorCoreConfig.blockDim()>>>(tensorCoreConfig,
             M,
             N,
             K,
