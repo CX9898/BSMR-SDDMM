@@ -37,6 +37,8 @@ const int WARP_SIZE = 32;
 const int NUM_OF_WARP_X_PER_BLOCK = 4;
 const int NUM_OF_Y_PER_BLOCK = 4;
 
+const int NUMBER_OF_MATRIX_TILE_K_IN_SHARED_MEMORY = 4;
+
 const int BLOCK_COUNTS_NUMBER_OF_MATRIX_C_ROWS = WMMA_M * NUM_OF_Y_PER_BLOCK;
 const int BLOCK_COUNTS_NUMBER_OF_MATRIX_C_COLS = WMMA_N * NUM_OF_WARP_X_PER_BLOCK;
 
@@ -154,6 +156,12 @@ class TensorCoreConfig {
   }
   inline __device__ UIN localWarpId() const {
       return localWarpId_;
+  }
+  inline __device__ UIN localWarpX() const {
+      return localWarpId_ % NUM_OF_WARP_X_PER_BLOCK;
+  }
+  inline __device__ UIN localWarpY() const {
+      return localWarpId_ / NUM_OF_WARP_X_PER_BLOCK;
   }
   inline __device__ UIN laneId() const {
       return laneId_;

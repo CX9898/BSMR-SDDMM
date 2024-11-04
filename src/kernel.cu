@@ -497,6 +497,14 @@ __global__ void sddmm_gpu_coo_4_matrixA_row_matrixB_row(TensorCoreConfig tensorC
     const UIN localWarpId = tensorCoreConfig.localWarpId();
     const UIN laneId = tensorCoreConfig.laneId();
 
+    const UIN localWarpX = tensorCoreConfig.localWarpX();
+    const UIN localWarpY = tensorCoreConfig.localWarpY();
+
+    const int tileIndexBegin = matrixSTileMappedToWarpIndex[globalWarpId];
+    const int tileIndexEnd = matrixSTileMappedToWarpIndex[globalWarpId + 1];
+
+    const int numDataInThisWarp = tileIndexEnd - tileIndexBegin;
+
     // Leading dimensions. Packed with no transpositions.
     const UIN lda = K;
     const UIN ldb = N;
@@ -523,35 +531,45 @@ __global__ void sddmm_gpu_coo_4_matrixA_row_matrixB_row(TensorCoreConfig tensorC
             const UIN indexForThisIterationB = laneId + iter * WARP_SIZE;
             bTileSharedMem[startIdxOfSharedMemoryOfMtxB + indexForThisIterationB] =
                 matrixB[startIdxOfGlobalMemoryOfMtxB + indexForThisIterationB];
+
+            if (globalWarpId == 2 && laneId == 31 && kIter == 0) {
+                printf("indexForThisIterationA = %d, indexForThisIterationB = %d\n",
+                       indexForThisIterationA, indexForThisIterationB);
+            }
+
         }
         __syncthreads();
 
-        const UIN aRowId = pRowId;l
-        const UIN aColId = kIter;
+        if (globalWarpId == 0 && laneId == 0 && kIter == 0) {
+            for (int i = 0; i < 8; ++i) {
+                printf(" %.0f ", static_cast<float>(aTileSharedMem[i]));
+            }
+            printf("\n");
+        }
 
-        const UIN bRowId = kIter;
-        const UIN bColId = pColId;
+        if (numDataInThisWarp > 0) {
+            for (int sharedMemIter = 0; sharedMemIter < NUMBER_OF_MATRIX_TILE_K_IN_SHARED_MEMORY; ++sharedMemIter) {
+                const UIN localKIterInSharedMem = sharedMemIter * WMMA_K;
+//            const auto aOffset = (localWarpY * WMMA_M * MATRIX_TILE_A_LEADING_DIMENSION)
+//                + localKIterInSharedMem;
+//            const auto bOffset = (localKIterInSharedMem * MATRIX_TILE_B_LEADING_DIMENSION)
+//                + localWarpX * WMMA_N;
+//            if(globalWarpId == 0 && laneId == 0){
+//                printf("  globalWarpId == 0 && laneId == 0   aOffset = %d, bOffset = %d\n", aOffset, bOffset);
+//            }
+                const auto aOffsetPtr = aTileSharedMem
+                    + (localWarpY * WMMA_M * MATRIX_TILE_A_LEADING_DIMENSION)
+                    + localKIterInSharedMem;
+                const auto bOffsetPtr = bTileSharedMem
+                    + (localKIterInSharedMem * MATRIX_TILE_B_LEADING_DIMENSION)
+                    + localWarpX * WMMA_N;
 
-        const auto aOffsetPtr = aTileSharedMem + aRowId * MATRIX_TILE_A_LEADING_DIMENSION + aColId;
-        const auto bOffsetPtr = bTileSharedMem + bRowId * MATRIX_TILE_B_LEADING_DIMENSION + bColId;
-        for (int sharedMemIter = 0; sharedMemIter < 4; ++sharedMemIter) {
-            // Bounds checking
-            if (aRowId < M && aColId < K && bRowId < K && bColId < N) {
-
-                wmma::load_matrix_sync(aFrag, aOffsetPtr, lda);
-                wmma::load_matrix_sync(bFrag, bOffsetPtr, ldb);
+                wmma::load_matrix_sync(aFrag, aOffsetPtr, MATRIX_TILE_A_LEADING_DIMENSION);
+                wmma::load_matrix_sync(bFrag, bOffsetPtr, MATRIX_TILE_B_LEADING_DIMENSION);
 
                 wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
             }
         }
-    }
-
-    const int tileIndexBegin = matrixSTileMappedToWarpIndex[globalWarpId];
-    const int tileIndexEnd = matrixSTileMappedToWarpIndex[globalWarpId + 1];
-
-    const int numData = tileIndexEnd - tileIndexBegin;
-    if (numData <= 0) {
-        return;
     }
 
     for (int tileIndexDataIdx = tileIndexBegin; tileIndexDataIdx < tileIndexEnd; ++tileIndexDataIdx) {
