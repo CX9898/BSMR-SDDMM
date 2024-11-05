@@ -8,8 +8,9 @@ namespace util {
 
 std::string getParentFolderPath(const std::string &path) {
     for (int idx = path.size() - 2; idx >= 0; --idx) {
-        if (path[idx] == '/') {
-            return path.substr(0,idx+1);
+        if (path[idx] == '/' || path[idx] == '\\') {
+            std::cout << path[idx] << std::endl;
+            return path.substr(0, idx + 1);
         }
     }
     std::cerr << "Warning. The input path has no parent folder" << std::endl;
