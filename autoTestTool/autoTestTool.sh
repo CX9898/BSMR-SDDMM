@@ -75,6 +75,10 @@ build_program(){
 build_program ${zcx_build_folder_path} ${zcx_cmake_file_path}
 build_program ${isratnisa_build_folder_path} ${isratnisa_cmake_file_path}
 
+# 编译分析结果程序
+g++ ${auto_analysis_results_source_filename} -o ${auto_analysis_results_program}
+echo "${print_tag}Auto analysis results program : ${auto_analysis_results_source_filename}"
+
 # 创建不重名的日志文件, 并且将日志文件名更新在全局变量`log_file`中
 # 参数1 : 原始日志文件名
 create_log_file(){
@@ -169,10 +173,6 @@ autoTest(){
 
 autoTest ${isratnisa_program_path}${isratnisa_program_name} ${isratnisa_test_log_file}
 autoTest ${zcx_program_path}${zcx_program_name} ${zcx_test_log_file}
-
-# 编译分析结果程序
-g++ ${auto_analysis_results_source_filename} -o ${auto_analysis_results_program}
-echo "${print_tag}Auto analysis results program : ${auto_analysis_results_source_filename}"
 
 echo "${print_tag}Start analyzing results..."
 ${auto_analysis_results_program} ${zcx_test_log_file} ${isratnisa_test_log_file} >> ${analysis_results_log_file}
