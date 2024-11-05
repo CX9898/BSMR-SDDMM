@@ -9,17 +9,6 @@ namespace kernel {
 
 using namespace nvcuda;
 
-template<typename T>
-__global__ void printData(UIN n, T *a) {
-    for (UIN i = 0; i < n; ++i) {
-        printf("%f ", static_cast<float>(a[i]));
-    }
-}
-
-template __global__ void printData<float>(UIN n, float *a);
-
-template __global__ void printData<half>(UIN n, half *a);
-
 __global__ void convertFp32ToFp16(const UIN n, const float *in, half *out) {
     UIN idx = static_cast<UIN> (blockDim.x * blockIdx.x + threadIdx.x);
     if (idx < n) {
@@ -510,18 +499,18 @@ __global__ void sddmm_gpu_coo_4_matrixA_row_matrixB_row(TensorCoreConfig tensorC
     const UIN ldb = N;
 
     const UIN startIdxOfSharedMemoryOfMtxA = localWarpId * NUMBER_OF_MATRIX_TILE_A_MEMORY_ACCESSES_PER_WARP;
-    const UIN startIdxOfSharedMemoryOfMtxB = startIdxOfSharedMemoryOfMtxA;
+    const UIN startIdxOfSharedMemoryOfMtxB = localWarpId * NUMBER_OF_MATRIX_TILE_B_MEMORY_ACCESSES_PER_WARP;
 
     // Loop over k
-    for (int kIter = 0; kIter < K; kIter += WMMA_K * NUM_OF_Y_PER_BLOCK) {
+    for (int kIter = 0; kIter < K; kIter += WMMA_K * NUM_OF_WARP_X_PER_BLOCK) {
 
-        // load matrix tile A to shared memory
         const UIN startIdxOfGlobalMemoryOfMtxA =
             (pRowIdForBlock + localWarpId * NUMBER_OF_MATRIX_TILE_A_MEMORY_ACCESSES_ROWS_PER_WARP) * lda + kIter;
 
         const UIN startIdxOfGlobalMemoryOfMtxB =
             (kIter + localWarpId * NUMBER_OF_MATRIX_TILE_A_MEMORY_ACCESSES_ROWS_PER_WARP) * ldb + pColIdForBlock;
 
+        // load matrix tile A to shared memory
 #pragma unroll
         for (int iter = 0; iter < 8; ++iter) {
             const UIN indexForThisIterationA = laneId + iter * WARP_SIZE;
@@ -532,31 +521,22 @@ __global__ void sddmm_gpu_coo_4_matrixA_row_matrixB_row(TensorCoreConfig tensorC
             bTileSharedMem[startIdxOfSharedMemoryOfMtxB + indexForThisIterationB] =
                 matrixB[startIdxOfGlobalMemoryOfMtxB + indexForThisIterationB];
 
-            if (globalWarpId == 2 && laneId == 31 && kIter == 0) {
-                printf("indexForThisIterationA = %d, indexForThisIterationB = %d\n",
-                       indexForThisIterationA, indexForThisIterationB);
+            if (globalWarpId == 0 && localWarpId == 5 && laneId == 0 && kIter == 0) {
+                printf("startIdxOfSharedMemoryOfMtxA + indexForThisIterationA = %d",
+                       startIdxOfSharedMemoryOfMtxA + indexForThisIterationA);
             }
-
         }
         __syncthreads();
 
-        if (globalWarpId == 0 && laneId == 0 && kIter == 0) {
-            for (int i = 0; i < 8; ++i) {
-                printf(" %.0f ", static_cast<float>(aTileSharedMem[i]));
+        if (blockIdx.x == 0 && blockIdx.y == 0 && localWarpId == 0 && laneId == 0 && kIter == 0) {
+            for (int i = 0; i < 4096; ++i) {
+                printf("%.0d ", static_cast<int>(aTileSharedMem[i]));
             }
-            printf("\n");
         }
 
         if (numDataInThisWarp > 0) {
             for (int sharedMemIter = 0; sharedMemIter < NUMBER_OF_MATRIX_TILE_K_IN_SHARED_MEMORY; ++sharedMemIter) {
                 const UIN localKIterInSharedMem = sharedMemIter * WMMA_K;
-//            const auto aOffset = (localWarpY * WMMA_M * MATRIX_TILE_A_LEADING_DIMENSION)
-//                + localKIterInSharedMem;
-//            const auto bOffset = (localKIterInSharedMem * MATRIX_TILE_B_LEADING_DIMENSION)
-//                + localWarpX * WMMA_N;
-//            if(globalWarpId == 0 && laneId == 0){
-//                printf("  globalWarpId == 0 && laneId == 0   aOffset = %d, bOffset = %d\n", aOffset, bOffset);
-//            }
                 const auto aOffsetPtr = aTileSharedMem
                     + (localWarpY * WMMA_M * MATRIX_TILE_A_LEADING_DIMENSION)
                     + localKIterInSharedMem;
@@ -570,6 +550,7 @@ __global__ void sddmm_gpu_coo_4_matrixA_row_matrixB_row(TensorCoreConfig tensorC
                 wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
             }
         }
+        __syncthreads();
     }
 
     for (int tileIndexDataIdx = tileIndexBegin; tileIndexDataIdx < tileIndexEnd; ++tileIndexDataIdx) {

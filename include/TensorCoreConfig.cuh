@@ -98,34 +98,34 @@ class TensorCoreConfig {
       numWarpY_ = gridDim_.y * blockDim_.y;;
   }
 
-  inline UIN MForTensorCore(UIN M) const {
+  inline __host__ __device__ UIN MForTensorCore(UIN M) const {
       const int MComplement = M % WMMA_M == 0 ? 0 : WMMA_M - M % WMMA_M;
       return M + MComplement;
   }
 
-  inline UIN NForTensorCore(UIN N) const {
+  inline __host__ __device__ UIN NForTensorCore(UIN N) const {
       const int NComplement = N % WMMA_N == 0 ? 0 : WMMA_N - N % WMMA_N;
       return N + NComplement;
   }
 
-  inline UIN KForTensorCore(UIN K) const {
+  inline __host__ __device__ UIN KForTensorCore(UIN K) const {
       const int KComplement = K % WMMA_K == 0 ? 0 : WMMA_K - K % WMMA_K;
       return K + KComplement;
   }
 
-  inline dim3 gridDim() const {
+  inline __host__ __device__ dim3 gridDim() const {
       return gridDim_;
   }
 
-  inline dim3 blockDim() const {
+  inline __host__ __device__ dim3 blockDim() const {
       return blockDim_;
   }
 
-  inline UIN numWarpX() const {
+  inline __host__ __device__ UIN numWarpX() const {
       return numWarpX_;
   }
 
-  inline UIN numWarpY() const {
+  inline __host__ __device__ UIN numWarpY() const {
       return numWarpY_;
   }
 
@@ -138,7 +138,7 @@ class TensorCoreConfig {
       globalThreadIdxY_ = _blockIdx.y * _blockDim.y + _threadIdx.y;
 
       globalWarpId_ = (globalThreadIdxX_ / WARP_SIZE) + globalThreadIdxY_ * (gridDim_.x * blockDim_.x / WARP_SIZE);
-      localWarpId_ = _threadIdx.x / WARP_SIZE;
+      localWarpId_ = _threadIdx.x / WARP_SIZE + _threadIdx.y * NUM_OF_WARP_X_PER_BLOCK;
       laneId_ = _threadIdx.x % WARP_SIZE;
 
       blockStarRow_ = _blockIdx.y * BLOCK_COUNTS_NUMBER_OF_MATRIX_C_ROWS;

@@ -7,8 +7,6 @@
 #include "TensorCoreConfig.cuh"
 
 namespace kernel {
-template<typename T>
-__global__ void printData(UIN n, T *a);
 
 __global__ void convertFp32ToFp16(const UIN n, const float *in, half *out);
 
