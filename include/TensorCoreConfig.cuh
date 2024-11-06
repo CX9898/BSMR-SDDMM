@@ -39,6 +39,9 @@ const int NUM_OF_Y_PER_BLOCK = 4;
 
 const int NUMBER_OF_MATRIX_TILE_K_IN_SHARED_MEMORY = 4;
 
+const int MATRIX_TILE_A_SIZE = WMMA_M * WMMA_K;
+const int MATRIX_TILE_B_SIZE = WMMA_K * WMMA_N;
+
 const int BLOCK_COUNTS_NUMBER_OF_MATRIX_C_ROWS = WMMA_M * NUM_OF_Y_PER_BLOCK;
 const int BLOCK_COUNTS_NUMBER_OF_MATRIX_C_COLS = WMMA_N * NUM_OF_WARP_X_PER_BLOCK;
 
@@ -99,17 +102,20 @@ class TensorCoreConfig {
   }
 
   inline __host__ __device__ UIN MForTensorCore(UIN M) const {
-      const int MComplement = M % WMMA_M == 0 ? 0 : WMMA_M - M % WMMA_M;
+      const UIN numMInOneIteration = WMMA_M * NUM_OF_Y_PER_BLOCK;
+      const UIN MComplement = M % numMInOneIteration == 0 ? 0 : numMInOneIteration - M % numMInOneIteration;
       return M + MComplement;
   }
 
   inline __host__ __device__ UIN NForTensorCore(UIN N) const {
-      const int NComplement = N % WMMA_N == 0 ? 0 : WMMA_N - N % WMMA_N;
+      const UIN numNInOneIteration = WMMA_N * NUM_OF_WARP_X_PER_BLOCK;
+      const UIN NComplement = N % numNInOneIteration == 0 ? 0 : numNInOneIteration - N % numNInOneIteration;
       return N + NComplement;
   }
 
   inline __host__ __device__ UIN KForTensorCore(UIN K) const {
-      const int KComplement = K % WMMA_K == 0 ? 0 : WMMA_K - K % WMMA_K;
+      const UIN numKInOneIteration = WMMA_K * NUM_OF_WARP_X_PER_BLOCK;
+      const UIN KComplement = K % numKInOneIteration == 0 ? 0 : numKInOneIteration - K % numKInOneIteration;
       return K + KComplement;
   }
 

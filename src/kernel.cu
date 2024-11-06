@@ -21,6 +21,7 @@ __global__ void convertDataType(const UIN n, const float *in, T *out) {
     const UIN idx = blockDim.x * blockIdx.x + threadIdx.x;
     if (idx < n) {
         out[idx] = static_cast<T>(in[idx]);
+        printf("in[%d] = %f, out[%d] = %f\n", idx, in[idx], idx, static_cast<float>(out[idx]));
     }
 }
 
@@ -452,6 +453,10 @@ __global__ void bank_conflicts_test(UIN N, UIN K, const int *matrixB, const int 
 //    __syncthreads();
 //}
 
+// 在核函数中加入共享内存: 整块64×64的矩阵块A和块B按连续的顺序载入共享内存.
+// 未完全实现.
+// 问题: 共享内存中一次储存64×64个矩阵数据, 但是超过这个大小的矩阵无法载入, 会出现错误
+// 放弃原因: 在 `wmma::load_matrix_sync` 中, 出现了bank conflict, 无法解决
 __global__ void sddmm_gpu_coo_4_matrixA_row_matrixB_row(TensorCoreConfig tensorCoreConfig,
                                                         const UIN M,
                                                         const UIN N,
@@ -521,18 +526,32 @@ __global__ void sddmm_gpu_coo_4_matrixA_row_matrixB_row(TensorCoreConfig tensorC
             bTileSharedMem[startIdxOfSharedMemoryOfMtxB + indexForThisIterationB] =
                 matrixB[startIdxOfGlobalMemoryOfMtxB + indexForThisIterationB];
 
-            if (globalWarpId == 0 && localWarpId == 5 && laneId == 0 && kIter == 0) {
-                printf("startIdxOfSharedMemoryOfMtxA + indexForThisIterationA = %d",
-                       startIdxOfSharedMemoryOfMtxA + indexForThisIterationA);
-            }
+//            if (globalWarpId == 0 && localWarpId == 5 && laneId == 0 && kIter == 0) {
+//                printf("startIdxOfSharedMemoryOfMtxA + indexForThisIterationA = %d",
+//                       startIdxOfSharedMemoryOfMtxA + indexForThisIterationA);
+//            }
+
+//            if (static_cast<int>( matrixA[startIdxOfGlobalMemoryOfMtxA + indexForThisIterationA]) == 1024
+//                && blockIdx.y == 0 && globalWarpId == 29) {
+//                printf(
+//                    "globalWarpId = %d, localWarpId = %d, laneId = %d, kIter = %d, startIdxOfSharedMemoryOfMtxA = %d, startIdxOfGlobalMemoryOfMtxA = %d, indexForThisIterationA = %d, matrixA = %d\n",
+//                    globalWarpId,
+//                    localWarpId,
+//                    laneId,
+//                    kIter,
+//                    startIdxOfSharedMemoryOfMtxA,
+//                    startIdxOfGlobalMemoryOfMtxA,
+//                    indexForThisIterationA,
+//                    static_cast<int>(matrixA[startIdxOfGlobalMemoryOfMtxA + indexForThisIterationA]));
+//            }
         }
         __syncthreads();
 
-        if (blockIdx.x == 0 && blockIdx.y == 0 && localWarpId == 0 && laneId == 0 && kIter == 0) {
-            for (int i = 0; i < 4096; ++i) {
-                printf("%.0d ", static_cast<int>(aTileSharedMem[i]));
-            }
-        }
+//        if (blockIdx.x == 0 && blockIdx.y == 0 && localWarpId == 0 && laneId == 0 && kIter == 0) {
+//            for (int i = 0; i < MATRIX_TILE_A_SIZE_PER_BLOCK; ++i) {
+//                printf("[%d] = %.0d\n",i, static_cast<int>(aTileSharedMem[i]));
+//            }
+//        }
 
         if (numDataInThisWarp > 0) {
             for (int sharedMemIter = 0; sharedMemIter < NUMBER_OF_MATRIX_TILE_K_IN_SHARED_MEMORY; ++sharedMemIter) {
@@ -545,6 +564,127 @@ __global__ void sddmm_gpu_coo_4_matrixA_row_matrixB_row(TensorCoreConfig tensorC
                     + localWarpX * WMMA_N;
 
                 wmma::load_matrix_sync(aFrag, aOffsetPtr, MATRIX_TILE_A_LEADING_DIMENSION);
+                wmma::load_matrix_sync(bFrag, bOffsetPtr, MATRIX_TILE_B_LEADING_DIMENSION);
+
+                wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
+            }
+        }
+        __syncthreads();
+    }
+
+    for (int tileIndexDataIdx = tileIndexBegin; tileIndexDataIdx < tileIndexEnd; ++tileIndexDataIdx) {
+        const UIN matrixPIdx = tileIndexDataIdx;
+        const UIN curRow = matrixSRowIndex[matrixPIdx];
+        const UIN curCol = matrixSColIndex[matrixPIdx];
+
+        FragmentInformation fragmentInformation;
+        tensorCoreConfig.positionCalculator(pRowId, pColId, curRow, curCol, fragmentInformation);
+
+        if (laneId == fragmentInformation.laneId_) {
+            matrixP[matrixPIdx] = cFrag.x[fragmentInformation.index_];
+        }
+    }
+}
+
+// 在核函数中加入共享内存: 整块64×64的矩阵块A和块B按照16×16的块的顺序载入共享内存
+__global__ void sddmm_gpu_coo_5_matrixA_row_matrixB_row(TensorCoreConfig tensorCoreConfig,
+                                                        const UIN M,
+                                                        const UIN N,
+                                                        const UIN K,
+                                                        const half *matrixA,
+                                                        const half *matrixB,
+                                                        const UIN *matrixSRowIndex,
+                                                        const UIN *matrixSColIndex,
+                                                        const float *matrixS,
+                                                        const UIN *matrixSTileMappedToWarpIndex,
+                                                        float *matrixP) {
+    tensorCoreConfig.initByKernel(blockIdx, blockDim, threadIdx);
+
+    const UIN globalWarpId = tensorCoreConfig.globalWarpId();
+
+    __shared__ half aTileSharedMem[MATRIX_TILE_A_SIZE_PER_BLOCK];
+    __shared__ half bTileSharedMem[MATRIX_TILE_B_SIZE_PER_BLOCK];
+
+    wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE, wmma::row_major> aFrag;
+    wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE, wmma::row_major> bFrag;
+
+    wmma::fragment<wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> cFrag;
+
+    fill_fragment(cFrag, 0.0f);
+
+    const UIN pRowId = tensorCoreConfig.warpStarRow();
+    const UIN pColId = tensorCoreConfig.warpStarCol();
+
+    const UIN pRowIdForBlock = tensorCoreConfig.blockStarRow();
+    const UIN pColIdForBlock = tensorCoreConfig.blockStarCol();
+
+    const UIN localWarpId = tensorCoreConfig.localWarpId();
+    const UIN laneId = tensorCoreConfig.laneId();
+
+    const UIN localWarpX = tensorCoreConfig.localWarpX();
+    const UIN localWarpY = tensorCoreConfig.localWarpY();
+
+    const int tileIndexBegin = matrixSTileMappedToWarpIndex[globalWarpId];
+    const int tileIndexEnd = matrixSTileMappedToWarpIndex[globalWarpId + 1];
+
+    const int numDataInThisWarp = tileIndexEnd - tileIndexBegin;
+
+    // Leading dimensions. Packed with no transpositions.
+    const UIN lda = K;
+    const UIN ldb = N;
+
+    const UIN startIdxOfSharedMemoryOfMtxA = localWarpId * NUMBER_OF_MATRIX_TILE_A_MEMORY_ACCESSES_PER_WARP;
+    const UIN startIdxOfSharedMemoryOfMtxB = localWarpId * NUMBER_OF_MATRIX_TILE_B_MEMORY_ACCESSES_PER_WARP;
+
+
+    // Loop over k
+    for (int kIter = 0; kIter < K; kIter += WMMA_K * NUM_OF_WARP_X_PER_BLOCK) {
+
+        const UIN startIdxOfGlobalMemoryOfMtxA = pRowId * lda + (localWarpX * WMMA_K + kIter);
+        const UIN startIdxOfGlobalMemoryOfMtxB = (kIter + localWarpY * WMMA_K) * ldb + pColId;
+
+        // load matrix tile A to shared memory
+#pragma unroll
+        for (int iter = 0; iter < 8; ++iter) {
+            const UIN indexForThisIterationInSharedMemory = iter * WARP_SIZE + laneId;
+            const UIN indexForThisIterationInGlobalMemory = (2 * iter + laneId / WMMA_K) * lda + laneId % WMMA_K;
+
+            aTileSharedMem[startIdxOfSharedMemoryOfMtxA + indexForThisIterationInSharedMemory] =
+                matrixA[startIdxOfGlobalMemoryOfMtxA + indexForThisIterationInGlobalMemory];
+
+            bTileSharedMem[startIdxOfSharedMemoryOfMtxB + indexForThisIterationInSharedMemory] =
+                matrixB[startIdxOfGlobalMemoryOfMtxB + indexForThisIterationInGlobalMemory];
+
+        }
+        __syncthreads();
+
+//        if (blockIdx.x == 0 && blockIdx.y == 0 && localWarpId == 0 && laneId == 0 && kIter == 0) {
+//            for (int i = 0; i < MATRIX_TILE_A_SIZE_PER_BLOCK; ++i) {
+//                printf("matrixA[%d] = %.0f\n", i, static_cast<float>(matrixA[i]));
+//            }
+//        }
+
+        if (numDataInThisWarp > 0) {
+            for (int sharedMemIter = 0; sharedMemIter < NUMBER_OF_MATRIX_TILE_K_IN_SHARED_MEMORY; ++sharedMemIter) {
+                const auto aOffsetPtr = aTileSharedMem
+                    + (localWarpY * NUM_OF_WARP_X_PER_BLOCK + sharedMemIter) * MATRIX_TILE_A_SIZE;
+
+                const auto bOffsetPtr = bTileSharedMem
+                    + (sharedMemIter * NUM_OF_WARP_X_PER_BLOCK + localWarpX) * MATRIX_TILE_B_SIZE;
+//                if (localWarpId == 0 && laneId == 0) {
+//                    printf("(localWarpY * NUM_OF_WARP_X_PER_BLOCK + sharedMemIter) * MATRIX_TILE_A_SIZE = %d "
+//                           "(sharedMemIter * NUM_OF_WARP_X_PER_BLOCK + localWarpX) * MATRIX_TILE_B_SIZE = %d\n",
+//                           (localWarpY * NUM_OF_WARP_X_PER_BLOCK + sharedMemIter) * MATRIX_TILE_A_SIZE,
+//                        (sharedMemIter * NUM_OF_WARP_X_PER_BLOCK + localWarpX) * MATRIX_TILE_B_SIZE);
+//
+//                }
+                wmma::load_matrix_sync(aFrag, aOffsetPtr, MATRIX_TILE_A_LEADING_DIMENSION);
+
+//                if (localWarpId == 0 && laneId == 0 && sharedMemIter == 0) {
+//                    for (int i = 0; i < 8; i++) {
+//                        printf("laneId = %d : aFrag[%d] = %f\n", i, laneId, static_cast<float>(aFrag.x[i]));
+//                    }
+//                }
                 wmma::load_matrix_sync(bFrag, bOffsetPtr, MATRIX_TILE_B_LEADING_DIMENSION);
 
                 wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
@@ -892,7 +1032,7 @@ void sddmm_gpu_coo_3(TensorCoreConfig tensorCoreConfig,
                      const UIN *matrixSTileMappedToWarpIndex,
                      float *matrixP) {
     if (matrixAStorageOrder == MatrixStorageOrder::row_major && matrixBStorageOrder == MatrixStorageOrder::row_major) {
-        kernel::sddmm_gpu_coo_4_matrixA_row_matrixB_row<<<tensorCoreConfig.gridDim(), tensorCoreConfig.blockDim()>>>(tensorCoreConfig,
+        kernel::sddmm_gpu_coo_5_matrixA_row_matrixB_row<<<tensorCoreConfig.gridDim(), tensorCoreConfig.blockDim()>>>(tensorCoreConfig,
             M,
             N,
             K,

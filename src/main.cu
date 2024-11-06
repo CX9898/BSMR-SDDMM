@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
     }
 #endif // MAKE_MATRIX_DATA
 
-    size_t K;
+    size_t K = 64;
     SparseMatrix<float> matrixS;
 
     if (argc > 2) {
@@ -90,12 +90,10 @@ int main(int argc, char *argv[]) {
         if (!matrixS.initializeFromMatrixMarketFile(argv[1])) {
             exit(1);
         }
-        K = 256;
     } else {
         if (!matrixS.initializeFromMatrixMarketFile(util::getParentFolderPath(argv[0]) + filePath)) {
             exit(1);
         }
-        K = 256;
     }
 
 #ifdef _DEBUG
@@ -117,6 +115,9 @@ int main(int argc, char *argv[]) {
     printf("@sparsity : %.2f%% @\n", matrixS.getSparsity() * 100);
 
     TensorCoreConfig tensorCoreConfig(matrixS.row(), matrixS.col());
+    printf("Kernel gridDim : [%d,%d,%d], blockDim : [%d,%d,%d]\n",
+           tensorCoreConfig.gridDim().x,tensorCoreConfig.gridDim().y,tensorCoreConfig.gridDim().z,
+           tensorCoreConfig.blockDim().x,tensorCoreConfig.blockDim().y,tensorCoreConfig.blockDim().z);
     printf("@WMMA_M : %d @, @WMMA_N : %d @, @WMMA_K : %d @\n", WMMA_M, WMMA_N, WMMA_K);
 
     printf("@matrixA type : %s @\n", typeid(MATRIX_A_TYPE).name());

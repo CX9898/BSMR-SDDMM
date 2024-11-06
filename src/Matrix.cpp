@@ -78,7 +78,7 @@ void Matrix<T>::changeStorageOrder() {
     const auto oldLd = leadingDimension_;
     const auto &oldValues = values_;
 
-    if(oldTensorCoreMode){
+    if (oldTensorCoreMode) {
         // TODO
         std::cout << "Warning! Try changeStorageOrder bug the tensor core mode is not supported" << std::endl;
     }
@@ -142,6 +142,9 @@ void Matrix<T>::makeData(UIN numRow, UIN numCol) {
 
 template<typename T>
 void Matrix<T>::print() const {
+//    for (size_t idx = 0; idx < size(); ++idx) {
+//        printf("matrix[%d] = %f\n", idx, static_cast<float>(values_[idx]));
+//    }
     for (auto iter : values_) {
         std::cout << iter << " ";
     }
