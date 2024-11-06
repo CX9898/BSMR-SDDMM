@@ -21,7 +21,7 @@ __global__ void convertDataType(const UIN n, const float *in, T *out) {
     const UIN idx = blockDim.x * blockIdx.x + threadIdx.x;
     if (idx < n) {
         out[idx] = static_cast<T>(in[idx]);
-        printf("in[%d] = %f, out[%d] = %f\n", idx, in[idx], idx, static_cast<float>(out[idx]));
+//        printf("in[%d] = %f, static_cast<float>out[%d] = %f\n", idx, in[idx], idx, static_cast<float>(out[idx]));
     }
 }
 
