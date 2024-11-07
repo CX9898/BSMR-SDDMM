@@ -503,28 +503,25 @@ __global__ void sddmm_gpu_coo_4_matrixA_row_matrixB_row(TensorCoreConfig tensorC
     const UIN lda = K;
     const UIN ldb = N;
 
-    const UIN startIdxOfSharedMemoryOfMtxA = localWarpId * NUMBER_OF_MATRIX_TILE_A_MEMORY_ACCESSES_PER_WARP;
-    const UIN startIdxOfSharedMemoryOfMtxB = localWarpId * NUMBER_OF_MATRIX_TILE_B_MEMORY_ACCESSES_PER_WARP;
-
     // Loop over k
     for (int kIter = 0; kIter < K; kIter += WMMA_K * NUM_OF_WARP_X_PER_BLOCK) {
-
-        const UIN startIdxOfGlobalMemoryOfMtxA =
-            (pRowIdForBlock + localWarpId * NUMBER_OF_MATRIX_TILE_A_MEMORY_ACCESSES_ROWS_PER_WARP) * lda + kIter;
-
-        const UIN startIdxOfGlobalMemoryOfMtxB =
-            (kIter + localWarpId * NUMBER_OF_MATRIX_TILE_B_MEMORY_ACCESSES_ROWS_PER_WARP) * ldb + pColIdForBlock;
 
         // load matrix tile A to shared memory
 #pragma unroll
         for (int iter = 0; iter < 8; ++iter) {
-            const UIN indexForThisIterationA = laneId + iter * WARP_SIZE;
-            aTileSharedMem[startIdxOfSharedMemoryOfMtxA + indexForThisIterationA] =
-                matrixA[startIdxOfGlobalMemoryOfMtxA + indexForThisIterationA];
 
-            const UIN indexForThisIterationB = laneId + iter * WARP_SIZE;
-            bTileSharedMem[startIdxOfSharedMemoryOfMtxB + indexForThisIterationB] =
-                matrixB[startIdxOfGlobalMemoryOfMtxB + indexForThisIterationB];
+//            const UIN localARowIdForThisIteration = ;
+//            const UIN localAColIdForThisIteration = ;
+//            const UIN localBRowIdForThisIteration = ;
+//            const UIN localBColIdForThisIteration = ;
+//
+//            const UIN indexForThisIterationA = laneId + iter * WARP_SIZE;
+//            aTileSharedMem[startIdxOfSharedMemoryOfMtxA + indexForThisIterationA] =
+//                matrixA[startIdxOfGlobalMemoryOfMtxA + indexForThisIterationA];
+//
+//            const UIN indexForThisIterationB = laneId + iter * WARP_SIZE;
+//            bTileSharedMem[startIdxOfSharedMemoryOfMtxB + indexForThisIterationB] =
+//                matrixB[startIdxOfGlobalMemoryOfMtxB + indexForThisIterationB];
 
 //            if (globalWarpId == 0 && localWarpId == 5 && laneId == 0 && kIter == 0) {
 //                printf("startIdxOfSharedMemoryOfMtxA + indexForThisIterationA = %d",
@@ -637,22 +634,35 @@ __global__ void sddmm_gpu_coo_5_matrixA_row_matrixB_row(TensorCoreConfig tensorC
     // Loop over k
     for (int kIter = 0; kIter < K; kIter += WMMA_K * NUM_OF_WARP_X_PER_BLOCK) {
 
-        const UIN startIdxOfGlobalMemoryOfMtxA = pRowId * lda + (localWarpX * WMMA_K + kIter);
-        const UIN startIdxOfGlobalMemoryOfMtxB = (kIter + localWarpY * WMMA_K) * ldb + pColId;
-
         // load matrix tile A to shared memory
 #pragma unroll
         for (int iter = 0; iter < 8; ++iter) {
+
+            const UIN localRowIdForThisIteration = 2 * iter + laneId / WMMA_K;
+            const UIN localColIdForThisIteration = laneId % WMMA_K;
+
+            const UIN aRowId = pRowId + localRowIdForThisIteration;
+            const UIN aColId = kIter + localWarpX * WMMA_K + localColIdForThisIteration;
+
+            const UIN bRowId = kIter + localWarpY * WMMA_K + localRowIdForThisIteration;
+            const UIN bColId = pColId + localColIdForThisIteration;
+
+            const UIN indexForThisIterationInGlobalMemoryOfMtxA = aRowId * lda + aColId;
+            const UIN indexForThisIterationInGlobalMemoryOfMtxB = bRowId * ldb + bColId;
+
             const UIN indexForThisIterationInSharedMemory = iter * WARP_SIZE + laneId;
-            const UIN indexForThisIterationInGlobalMemory = (2 * iter + laneId / WMMA_K) * lda + laneId % WMMA_K;
-
-            // TODO: 边界检查
-            aTileSharedMem[startIdxOfSharedMemoryOfMtxA + indexForThisIterationInSharedMemory] =
-                matrixA[startIdxOfGlobalMemoryOfMtxA + indexForThisIterationInGlobalMemory];
-
-            bTileSharedMem[startIdxOfSharedMemoryOfMtxB + indexForThisIterationInSharedMemory] =
-                matrixB[startIdxOfGlobalMemoryOfMtxB + indexForThisIterationInGlobalMemory];
-
+            if (aRowId < M && aColId < K) {
+                aTileSharedMem[startIdxOfSharedMemoryOfMtxA + indexForThisIterationInSharedMemory] =
+                    matrixA[indexForThisIterationInGlobalMemoryOfMtxA];
+            } else {
+                aTileSharedMem[startIdxOfSharedMemoryOfMtxA + indexForThisIterationInSharedMemory] = 0;
+            }
+            if (bRowId < K && bColId < N) {
+                bTileSharedMem[startIdxOfSharedMemoryOfMtxB + indexForThisIterationInSharedMemory] =
+                    matrixB[indexForThisIterationInGlobalMemoryOfMtxB];
+            } else {
+                bTileSharedMem[startIdxOfSharedMemoryOfMtxB + indexForThisIterationInSharedMemory] = 0;
+            }
         }
         __syncthreads();
 
