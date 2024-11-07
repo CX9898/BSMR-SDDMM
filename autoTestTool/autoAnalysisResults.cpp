@@ -220,9 +220,9 @@ void printSettingInformation(const ResultsInformation &resultsInformation) {
 void printHeadOfList() {
     printf("\n");
     printf(
-        "| | sparsity | k | isratnisa_sddmm | zcx_sddmm | isratnisa_other | zcx_other | isratnisa | zcx |\n");
+        "| matrix_M_N_NNZ | sparsity | k | isratnisa_sddmm | zcx_sddmm | isratnisa_other | zcx_other | isratnisa | zcx |\n");
     printf(
-        "|-|----------|---|-----------------|-----------|-----------------|-----------|-----------|-----|\n");
+        "|----------------|----------|---|-----------------|-----------|-----------------|-----------|-----------|-----|\n");
 }
 
 void printOneLineOfList(const ResultsInformation &resultsInformation) {
