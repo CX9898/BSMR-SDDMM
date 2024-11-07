@@ -37,6 +37,8 @@ const int WARP_SIZE = 32;
 const int NUM_OF_WARP_X_PER_BLOCK = 4;
 const int NUM_OF_Y_PER_BLOCK = 4;
 
+const int ITERATION_STEP_OF_K = NUM_OF_WARP_X_PER_BLOCK * WMMA_K;
+
 const int NUMBER_OF_MATRIX_TILE_K_IN_SHARED_MEMORY = 4;
 
 const int MATRIX_TILE_A_SIZE = WMMA_M * WMMA_K;
