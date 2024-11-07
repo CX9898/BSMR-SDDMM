@@ -647,22 +647,13 @@ __global__ void sddmm_gpu_coo_5_matrixA_row_matrixB_row(TensorCoreConfig tensorC
             const UIN bRowId = kIter + localWarpY * WMMA_K + localRowIdForThisIteration;
             const UIN bColId = pColId + localColIdForThisIteration;
 
-            const UIN indexForThisIterationInGlobalMemoryOfMtxA = aRowId * lda + aColId;
-            const UIN indexForThisIterationInGlobalMemoryOfMtxB = bRowId * ldb + bColId;
+            const UIN indexOfThisIterationInSharedMemory = iter * WARP_SIZE + laneId;
 
-            const UIN indexForThisIterationInSharedMemory = iter * WARP_SIZE + laneId;
-            if (aRowId < M && aColId < K) {
-                aTileSharedMem[startIdxOfSharedMemoryOfMtxA + indexForThisIterationInSharedMemory] =
-                    matrixA[indexForThisIterationInGlobalMemoryOfMtxA];
-            } else {
-                aTileSharedMem[startIdxOfSharedMemoryOfMtxA + indexForThisIterationInSharedMemory] = 0;
-            }
-            if (bRowId < K && bColId < N) {
-                bTileSharedMem[startIdxOfSharedMemoryOfMtxB + indexForThisIterationInSharedMemory] =
-                    matrixB[indexForThisIterationInGlobalMemoryOfMtxB];
-            } else {
-                bTileSharedMem[startIdxOfSharedMemoryOfMtxB + indexForThisIterationInSharedMemory] = 0;
-            }
+            aTileSharedMem[startIdxOfSharedMemoryOfMtxA + indexOfThisIterationInSharedMemory] =
+                (aRowId < M && aColId < K) ? matrixA[aRowId * lda + aColId] : static_cast<half>(0);
+
+            bTileSharedMem[startIdxOfSharedMemoryOfMtxB + indexOfThisIterationInSharedMemory] =
+                (bRowId < K && bColId < N) ? matrixB[bRowId * ldb + bColId] : static_cast<half>(0);
         }
         __syncthreads();
 
