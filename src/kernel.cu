@@ -432,7 +432,7 @@ __global__ void bank_conflicts_test(UIN N, UIN K, const int *matrixB, const int 
         const auto bOffsetPtr = matrixB + bRowId * ldb + bColId;
 
         for (int iter = 0; iter < 8; ++iter) {
-            int beginIdxOfSharedMemory = localWarpId * NUMBER_OF_MATRIX_TILE_A_MEMORY_ACCESSES_PER_WARP;
+            int beginIdxOfSharedMemory = localWarpId * NUMBER_OF_MEMORY_ACCESSES_MATRIX_TILE_A_PER_WARP;
             aTile[beginIdxOfSharedMemory + laneId + iter * WARP_SIZE] =
                 matrixA[beginIdxOfSharedMemory + laneId + iter * WARP_SIZE];
         }
@@ -627,8 +627,8 @@ __global__ void sddmm_gpu_coo_5_matrixA_row_matrixB_row(TensorCoreConfig tensorC
     const UIN lda = K;
     const UIN ldb = N;
 
-    const UIN startIndexOfSharedMemoryOfMatrixA = localWarpId * NUMBER_OF_MATRIX_TILE_A_MEMORY_ACCESSES_PER_WARP;
-    const UIN startIndexOfSharedMemoryOfMatrixB = localWarpId * NUMBER_OF_MATRIX_TILE_B_MEMORY_ACCESSES_PER_WARP;
+    const UIN startIndexOfSharedMemoryOfMatrixA = localWarpId * NUMBER_OF_MEMORY_ACCESSES_MATRIX_TILE_A_PER_WARP;
+    const UIN startIndexOfSharedMemoryOfMatrixB = localWarpId * NUMBER_OF_MEMORY_ACCESSES_MATRIX_TILE_B_PER_WARP;
 
     // Loop over k
     for (int kIter = 0; kIter < K; kIter += ITERATION_STEP_OF_K) {
@@ -644,6 +644,10 @@ __global__ void sddmm_gpu_coo_5_matrixA_row_matrixB_row(TensorCoreConfig tensorC
 
             const UIN bRowId = kIter + localWarpY * WMMA_K + localRowIdInThisIteration;
             const UIN bColId = pColId + localColIdInThisIteration;
+
+            if (globalWarpId == 0 && localWarpId == 0 && laneId == 0 && kIter == 0) {
+                printf("aRowId = %d, aColId = %d, bRowId = %d, bColId = %d\n", aRowId, aColId, bRowId, bColId);
+            }
 
             const UIN indexOfSharedMemoryInThisIteration = iter * WARP_SIZE + laneId;
 
