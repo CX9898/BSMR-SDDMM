@@ -645,10 +645,6 @@ __global__ void sddmm_gpu_coo_5_matrixA_row_matrixB_row(TensorCoreConfig tensorC
             const UIN bRowId = kIter + localWarpY * WMMA_K + localRowIdInThisIteration;
             const UIN bColId = pColId + localColIdInThisIteration;
 
-            if (globalWarpId == 0 && localWarpId == 0 && laneId == 0 && kIter == 0) {
-                printf("aRowId = %d, aColId = %d, bRowId = %d, bColId = %d\n", aRowId, aColId, bRowId, bColId);
-            }
-
             const UIN indexOfSharedMemoryInThisIteration = iter * WARP_SIZE + laneId;
 
             aTileSMEM[startIndexOfSharedMemoryOfMatrixA + indexOfSharedMemoryInThisIteration] =
