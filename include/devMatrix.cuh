@@ -110,8 +110,8 @@ class SparseMatrix {
       : row_(src.row()),
         col_(src.col()),
         nnz_(src.nnz()),
-        rowIndex_(src.rowIndex()),
-        colIndex_(src.colIndex()),
+        rowIndex_(src.rowIndices()),
+        colIndex_(src.colIndices()),
         values_(src.values()) {};
 
   /**

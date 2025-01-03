@@ -149,8 +149,8 @@ class SparseMatrix {
   ~SparseMatrix() = default;
 
   SparseMatrix(UIN row, UIN col, UIN nnz) : row_(row), col_(col), nnz_(nnz) {
-      rowIndex_.resize(nnz);
-      colIndex_.resize(nnz);
+      rowIndices_.resize(nnz);
+      colIndices_.resize(nnz);
       values_.resize(nnz);
       rowBeforeChange_ = row;
       colBeforeChange_ = col;
@@ -160,7 +160,7 @@ class SparseMatrix {
                UIN nnz,
                const std::vector<UIN> &rowIndex,
                const std::vector<UIN> &colIndex)
-      : row_(row), col_(col), nnz_(nnz), rowIndex_(rowIndex), colIndex_(colIndex) {
+      : row_(row), col_(col), nnz_(nnz), rowIndices_(rowIndex), colIndices_(colIndex) {
       values_.resize(nnz);
       if (rowIndex.size() != colIndex.size()) {
           std::cout << "Warning! SparseMatrix initialization error!" << std::endl;
@@ -174,7 +174,7 @@ class SparseMatrix {
                const std::vector<UIN> &rowIndex,
                const std::vector<UIN> &colIndex,
                const std::vector<T> &values)
-      : row_(row), col_(col), nnz_(nnz), rowIndex_(rowIndex), colIndex_(colIndex), values_(values) {
+      : row_(row), col_(col), nnz_(nnz), rowIndices_(rowIndex), colIndices_(colIndex), values_(values) {
       if (rowIndex.size() != colIndex.size() != values.size()) {
           std::cout << "Warning! SparseMatrix initialization error!" << std::endl;
       }
@@ -212,6 +212,10 @@ class SparseMatrix {
       return static_cast<float>(row_ * col_ - nnz_) / (row_ * col_);
   }
 
+  void draw() const;
+
+  void outputCsrData(std::vector<UIN> &rowPtr, std::vector<UIN> &colIndices, std::vector<T> &values) const;
+
   void print() const;
 
   UIN nnz() const {
@@ -225,21 +229,21 @@ class SparseMatrix {
       return col_;
   }
 
-  const std::vector<UIN> &rowIndex() const {
-      return rowIndex_;
+  const std::vector<UIN> &rowIndices() const {
+      return rowIndices_;
   }
-  const std::vector<UIN> &colIndex() const {
-      return colIndex_;
+  const std::vector<UIN> &colIndices() const {
+      return colIndices_;
   }
   const std::vector<T> &values() const {
       return values_;
   }
 
-  std::vector<UIN> &setRowIndex() {
-      return rowIndex_;
+  std::vector<UIN> &setRowIndices() {
+      return rowIndices_;
   }
-  std::vector<UIN> &setColIndex() {
-      return colIndex_;
+  std::vector<UIN> &setColIndices() {
+      return colIndices_;
   }
   std::vector<T> &setValues() {
       return values_;
@@ -273,8 +277,8 @@ class SparseMatrix {
   UIN col_ = 0;
   UIN nnz_ = 0;
 
-  std::vector<UIN> rowIndex_;
-  std::vector<UIN> colIndex_;
+  std::vector<UIN> rowIndices_;
+  std::vector<UIN> colIndices_;
   std::vector<T> values_;
 
   bool tensorCoreMode_ = false;

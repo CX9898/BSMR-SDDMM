@@ -4,6 +4,7 @@
 #include <random>
 #include <set>
 #include <unordered_map>
+#include <unordered_set>
 
 #include <omp.h>
 
@@ -26,8 +27,8 @@ Matrix<T>::Matrix(const SparseMatrix<T> &matrixS) {
     values_.resize(size);
 #pragma omp parallel for
     for (int idx = 0; idx < matrixS.nnz(); ++idx) {
-        const UIN curRow = matrixS.rowIndex()[idx];
-        const UIN curCol = matrixS.colIndex()[idx];
+        const UIN curRow = matrixS.rowIndices()[idx];
+        const UIN curCol = matrixS.colIndices()[idx];
         const auto curVal = matrixS.values()[idx];
 
         values_[curRow * ld + curCol] = curVal;
@@ -287,11 +288,91 @@ template<typename T>
 void SparseMatrix<T>::print() const {
     std::cout << "SparseMatrix : [row,col,value]" << std::endl;
     for (UIN idx = 0; idx < nnz_; ++idx) {
-        std::cout << "[" << rowIndex_[idx] << ","
-                  << colIndex_[idx] << ","
+        std::cout << "[" << rowIndices_[idx] << ","
+                  << colIndices_[idx] << ","
                   << values_[idx] << "] ";
     }
     std::cout << std::endl;
+}
+
+template<typename T>
+void SparseMatrix<T>::draw() const {
+    std::cout << "SparseMatrix : [row,col,value]" << std::endl;
+
+    std::vector<UIN> rowIndicesTmp = rowIndices_;
+    std::vector<UIN> colIndicesTmp = colIndices_;
+
+    host::sort_by_key(rowIndicesTmp.data(),
+                      rowIndicesTmp.data() + rowIndicesTmp.size(),
+                      colIndicesTmp.data());
+    UIN lastRowNumber = rowIndices_[0];
+    UIN lastBegin = 0;
+    for (UIN idx = 0; idx < nnz_; ++idx) {
+        const UIN curRowNumber = rowIndices_[idx];
+        if (curRowNumber != lastRowNumber) { // new row
+            host::sort(colIndicesTmp.data() + lastBegin, colIndicesTmp.data() + idx);
+
+            lastBegin = idx + 1;
+            lastRowNumber = curRowNumber;
+        }
+
+        if (idx == nnz_ - 1) {
+            host::sort(colIndicesTmp.data() + lastBegin, colIndicesTmp.data() + colIndicesTmp.size());
+        }
+    }
+
+    std::vector<UIN> rowPtr(row_ + 1);
+    rowPtr[0] = 0;
+    UIN curRow = 0;
+    for (int idx = 0; idx < nnz_; ++idx) {
+        if (curRow != rowIndicesTmp[idx]) {
+            rowPtr[curRow + 1] = idx;
+            curRow = rowIndicesTmp[idx];
+        }
+    }
+
+    for (UIN rowIdx = 0; rowIdx < row_; ++rowIdx) {
+        std::unordered_set<UIN> colSet;
+        for (UIN idx = rowPtr[rowIdx]; idx < rowPtr[rowIdx + 1]; ++idx) {
+            colSet.insert(colIndicesTmp[idx]);
+        }
+        for (UIN colIdx = 0; colIdx < col_; ++colIdx) {
+            if (colSet.find(colIdx) != colSet.end()) {
+                std::cout << "1 ";
+            } else {
+                std::cout << "0 ";
+            }
+        }
+    }
+}
+
+template<typename T>
+void SparseMatrix<T>::outputCsrData(std::vector<UIN> &rowPtr,
+                                    std::vector<UIN> &colIndices,
+                                    std::vector<T> &values) const {
+    std::vector<UIN> rowIndicesTmp = rowIndices_;
+    std::vector<UIN> colIndicesTmp = colIndices_;
+    std::vector<T> valuesTmp = values_;
+
+    host::sort_by_key_for_multiple_vectors(rowIndicesTmp.data(),
+                                           rowIndicesTmp.data() + rowIndicesTmp.size(),
+                                           colIndicesTmp.data(),
+                                           valuesTmp.data());
+
+    rowPtr.resize(row_ + 1);
+    colIndices.resize(nnz_);
+    values.resize(nnz_);
+
+    rowPtr[0] = 0;
+    UIN curRow = 0;
+    for (int idx = 0; idx < nnz_; ++idx) {
+        if (curRow != rowIndicesTmp[idx]) {
+            rowPtr[curRow + 1] = idx;
+            curRow = rowIndicesTmp[idx];
+        }
+        colIndices[idx] = colIndicesTmp[idx];
+        values[idx] = valuesTmp[idx];
+    }
 }
 
 template<typename T>
@@ -304,8 +385,8 @@ bool SparseMatrix<T>::setValuesFromMatrix(const Matrix<T> &inputMatrix) {
 
 #pragma omp parallel for
     for (int idx = 0; idx < nnz_; ++idx) {
-        const UIN row = rowIndex_[idx];
-        const UIN col = colIndex_[idx];
+        const UIN row = rowIndices_[idx];
+        const UIN col = colIndices_[idx];
 
         values_[idx] = inputMatrix.getOneValue(row, col);
     }
@@ -337,8 +418,8 @@ bool SparseMatrix<T>::initializeFromMatrixMarketFile(const std::string &filePath
         std::cerr << "Error, Matrix Market file " << line << " line format is incorrect!" << std::endl;
     }
 
-    rowIndex_.resize(nnz_);
-    colIndex_.resize(nnz_);
+    rowIndices_.resize(nnz_);
+    colIndices_.resize(nnz_);
     values_.resize(nnz_);
 
     UIN idx = 0;
@@ -352,8 +433,8 @@ bool SparseMatrix<T>::initializeFromMatrixMarketFile(const std::string &filePath
             std::cerr << "Error, Matrix Market file " << line << " line format is incorrect!" << std::endl;
         }
 
-        rowIndex_[idx] = row;
-        colIndex_[idx] = col;
+        rowIndices_[idx] = row;
+        colIndices_[idx] = col;
         values_[idx] = val;
 
         ++idx;
@@ -369,8 +450,8 @@ bool SparseMatrix<T>::initializeFromMatrixMarketFile(const std::string &filePath
 
 template<typename T>
 void SparseMatrix<T>::getSpareMatrixOneDataByCOO(const UIN idx, UIN &row, UIN &col, T &value) const {
-    row = rowIndex_[idx];
-    col = colIndex_[idx];
+    row = rowIndices_[idx];
+    col = colIndices_[idx];
     value = values_[idx];
 }
 
@@ -417,8 +498,8 @@ bool SparseMatrix<T>::outputToMarketMatrixFile(const std::string &fileName) cons
     outfile << secondLine;
 
     for (UIN idx = 0; idx < nnz_; ++idx) {
-        outfile << std::to_string(rowIndex_[idx] + 1) << " ";
-        outfile << std::to_string(colIndex_[idx] + 1) << " ";
+        outfile << std::to_string(rowIndices_[idx] + 1) << " ";
+        outfile << std::to_string(colIndices_[idx] + 1) << " ";
         outfile << std::to_string(values_[idx]);
 
         if (idx < nnz_ - 1) {
@@ -440,8 +521,8 @@ void SparseMatrix<T>::makeData(const UIN numRow, const UIN numCol, const UIN nnz
     col_ = numCol;
     nnz_ = nnz;
 
-    rowIndex_.resize(nnz);
-    colIndex_.resize(nnz);
+    rowIndices_.resize(nnz);
+    colIndices_.resize(nnz);
     values_.resize(nnz);
 
     // make data
@@ -467,26 +548,26 @@ void SparseMatrix<T>::makeData(const UIN numRow, const UIN numCol, const UIN nnz
 
         rowColSet.insert(rowColPair);
 
-        rowIndex_[idx] = row;
-        colIndex_[idx] = col;
+        rowIndices_[idx] = row;
+        colIndices_[idx] = col;
         values_[idx] = distributionValue(generator);
     }
 
-    // sort rowIndex and colIndex
-    host::sort_by_key(rowIndex_.data(), rowIndex_.data() + rowIndex_.size(), colIndex_.data());
-    UIN lastRowNumber = rowIndex_[0];
+    // sort rowIndices and colIndices
+    host::sort_by_key(rowIndices_.data(), rowIndices_.data() + rowIndices_.size(), colIndices_.data());
+    UIN lastRowNumber = rowIndices_[0];
     UIN lastBegin = 0;
     for (UIN idx = 0; idx < nnz_; ++idx) {
-        const UIN curRowNumber = rowIndex_[idx];
+        const UIN curRowNumber = rowIndices_[idx];
         if (curRowNumber != lastRowNumber) { // new row
-            host::sort(colIndex_.data() + lastBegin, colIndex_.data() + idx);
+            host::sort(colIndices_.data() + lastBegin, colIndices_.data() + idx);
 
             lastBegin = idx + 1;
             lastRowNumber = curRowNumber;
         }
 
         if (idx == nnz_ - 1) {
-            host::sort(colIndex_.data() + lastBegin, colIndex_.data() + colIndex_.size());
+            host::sort(colIndices_.data() + lastBegin, colIndices_.data() + colIndices_.size());
         }
     }
 }
@@ -521,8 +602,8 @@ void SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorCoreCo
     tensorCoreMode_ = true;
     rowBeforeChange_ = row_;
     colBeforeChange_ = col_;
-    rowIndexBeforeChange_ = rowIndex_;
-    colIndexBeforeChange_ = colIndex_;
+    rowIndexBeforeChange_ = rowIndices_;
+    colIndexBeforeChange_ = colIndices_;
     valuesBeforeChange_ = values_;
 
     row_ = tensorCoreConfig.MForTensorCore(rowBeforeChange_);
@@ -709,8 +790,8 @@ void SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorCoreCo
 
 #pragma omp parallel for
         for (int mtxId = 0; mtxId < nnz_; ++mtxId) {
-            rowIndex_[mtxId] = rowIndexBeforeChange_[indexVectorsPerWarp_2_2[mtxId]];
-            colIndex_[mtxId] = colIndexBeforeChange_[indexVectorsPerWarp_2_2[mtxId]];
+            rowIndices_[mtxId] = rowIndexBeforeChange_[indexVectorsPerWarp_2_2[mtxId]];
+            colIndices_[mtxId] = colIndexBeforeChange_[indexVectorsPerWarp_2_2[mtxId]];
         }
 
 #ifdef PRINT_TIME
@@ -774,8 +855,8 @@ void SparseMatrix<T>::closeTensorCoreMode() {
     tensorCoreMode_ = false;
     row_ = rowBeforeChange_;
     col_ = colBeforeChange_;
-    rowIndex_ = rowIndexBeforeChange_;
-    colIndex_ = colIndexBeforeChange_;
+    rowIndices_ = rowIndexBeforeChange_;
+    colIndices_ = colIndexBeforeChange_;
     values_ = valuesBeforeChange_;
 
     rowIndexBeforeChange_.clear();

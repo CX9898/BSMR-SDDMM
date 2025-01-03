@@ -55,8 +55,8 @@ void sddmm_cpu_coo_isratnisa(
 #pragma omp parallel for //reduction(+:tot)
     for (int idx = 0; idx < matrixS.nnz(); ++idx) {
         float sm = 0;
-        const int row = matrixS.rowIndex()[idx];
-        const int col = matrixS.colIndex()[idx];
+        const int row = matrixS.rowIndices()[idx];
+        const int col = matrixS.colIndices()[idx];
         for (int t = 0; t < K; ++t)
             sm += matrixA.values()[row * K + t] * matrixB.values()[col * K + t];
         matrixP.setValues()[idx] = sm;//* val_ind[ind];
@@ -83,8 +83,8 @@ void sddmm_cpu(
     const int K = matrixA.col();
 #pragma omp parallel for
     for (int matrixSIdx = 0; matrixSIdx < matrixS.nnz(); ++matrixSIdx) {
-        const size_t row = matrixS.rowIndex()[matrixSIdx];
-        const size_t col = matrixS.colIndex()[matrixSIdx];
+        const size_t row = matrixS.rowIndices()[matrixSIdx];
+        const size_t col = matrixS.colIndices()[matrixSIdx];
 
         float val = 0.0f;
         for (int kIter = 0; kIter < K; ++kIter) {

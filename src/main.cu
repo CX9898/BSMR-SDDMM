@@ -169,7 +169,7 @@ int main(int argc, char *argv[]) {
     printf("openTensorCoreModeForSampled matrixS : row = %d, col = %d\n", matrixS.row(), matrixS.col());
 
     SparseMatrix<float> matrixP_cpu_res(matrixS.row(), matrixS.col(), matrixS.nnz(),
-                                        matrixS.rowIndex(), matrixS.colIndex());
+                                        matrixS.rowIndices(), matrixS.colIndices());
 
     timeCalculator.startClock();
     // comp by cpu
@@ -196,8 +196,8 @@ int main(int argc, char *argv[]) {
 ////              << std::endl;
 //
 //    SparseMatrix<float> matrixS_cpu(matrixS.row(), matrixS_dev.col(), matrixS_dev.nnz());
-//    d2h(matrixS_cpu.setRowIndex(), matrixS_dev.rowIndex());
-//    d2h(matrixS_cpu.setColIndex(), matrixS_dev.colIndex());
+//    d2h(matrixS_cpu.setRowIndices(), matrixS_dev.rowIndices());
+//    d2h(matrixS_cpu.setColIndices(), matrixS_dev.colIndices());
 //    d2h(matrixS_cpu.setValues(), matrixS_dev.values());
 //
 //
@@ -214,8 +214,8 @@ int main(int argc, char *argv[]) {
 //                                                                           matrixS_dev.nnz(),
 //                                                                           matrixA_values_convertedType.data(),
 //                                                                           matrixB_values_convertedType.data(),
-//                                                                           matrixS_dev.rowIndex().data(),
-//                                                                           matrixS_dev.colIndex().data(),
+//                                                                           matrixS_dev.rowIndices().data(),
+//                                                                           matrixS_dev.colIndices().data(),
 //                                                                           matrixS_dev.values().data(),
 //                                                                           matrixS_dev.matrixTileMappedToWarpIndex().data(),
 //                                                                           matrixS_dev.matrixTileMappedToWarpIndexData().data(),
@@ -231,8 +231,8 @@ int main(int argc, char *argv[]) {
 //        printf("@checkData : NO PASS numError = %leadingDimension @\n", numError);
 //    }
 
-    dev::vector<UIN> matrixS_rowIndex_coo(matrixS.rowIndex());
-    dev::vector<UIN> matrixS_colIndex_coo(matrixS.colIndex());
+    dev::vector<UIN> matrixS_rowIndex_coo(matrixS.rowIndices());
+    dev::vector<UIN> matrixS_colIndex_coo(matrixS.colIndices());
     dev::vector<UIN> matrixS_matrixTileMappedToWarpIndex_coo(matrixS.matrixTileMappedToWarpIndex());
     dev::vector<float> matrixS_value_coo(matrixS.values());
     dev::vector<float> matrixP_value_coo3(matrixS.nnz());

@@ -70,8 +70,8 @@ void dev::Matrix<T>::closeTensorCoreMode() {
 //        std::cerr << "Error, Matrix Market file " << line << " line format is incorrect!" << std::endl;
 //    }
 //
-//    std::vector<UIN> rowIndex(nnz_);
-//    std::vector<UIN> colIndex(nnz_);
+//    std::vector<UIN> rowIndices(nnz_);
+//    std::vector<UIN> colIndices(nnz_);
 //    std::vector<T> values(nnz_);
 //
 //    UIN idx = 0;
@@ -85,8 +85,8 @@ void dev::Matrix<T>::closeTensorCoreMode() {
 //            std::cerr << "Error, Matrix Market file " << line << " line format is incorrect!" << std::endl;
 //        }
 //
-//        rowIndex[idx] = row;
-//        colIndex[idx] = col;
+//        rowIndices[idx] = row;
+//        colIndices[idx] = col;
 //        values[idx] = val;
 //
 //        ++idx;
@@ -94,8 +94,8 @@ void dev::Matrix<T>::closeTensorCoreMode() {
 //
 //    inFile.close();
 //
-//    h2d(rowIndex_,rowIndex);
-//    h2d(colIndex_,colIndex);
+//    h2d(rowIndices_,rowIndices);
+//    h2d(colIndices_,colIndices);
 //    h2d(values_,values);
 //
 //    rowBeforeChange_ = row_;
@@ -145,8 +145,8 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
                                                                       numTileM,
                                                                       numTileN,
                                                                       nnz_,
-                                                                      rowIndex_.data(),
-                                                                      colIndex_.data(),
+                                                                      rowIndices_.data(),
+                                                                      colIndices_.data(),
                                                                       updateNumOfIndexOperator_1(numOfIndexPerWarp_1.data()));
         timeCalculator.endClock();
         float getNumIndexPerWarp_1_time = timeCalculator.getTime();
@@ -174,8 +174,8 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
                                                              numTileM,
                                                              numTileN,
                                                              nnz_,
-                                                             rowIndex_.data(),
-                                                             colIndex_.data(),
+                                                             rowIndices_.data(),
+                                                             colIndices_.data(),
                                                              updateIndexDataPerWarpOperator_1(
                                                                  matrixTileMappedToWarpIndex_.data(),
                                                                  matrixTileMappedToWarpIndexData_.data()));
@@ -270,8 +270,8 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
 
         getIndexPerWarp_3<<<gridForGetIndex, NUMBER_OF_THREADS_PER_BLOCK>>>(numWarpX,
                                                                             nnz_,
-                                                                            rowIndex_.data(),
-                                                                            colIndex_.data(),
+                                                                            rowIndices_.data(),
+                                                                            colIndices_.data(),
                                                                             updateScatteredNumOfIndexOperator_3(
                                                                                 scatteredNumOfIndexPerWarp_3.data()));
 
@@ -330,8 +330,8 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
         dev::vector<UIN> scatteredIndexData(scatteredNumIndexData);
         getIndexPerWarp_3<<<gridForGetIndex, NUMBER_OF_THREADS_PER_BLOCK>>>(numWarpX,
                                                                             nnz_,
-                                                                            rowIndex_.data(),
-                                                                            colIndex_.data(),
+                                                                            rowIndices_.data(),
+                                                                            colIndices_.data(),
                                                                             updateScatteredIndexDataPerWarpOperator_3(
                                                                                 indexForScatteredNumOfIndex.data(),
                                                                                 scatteredIndexData.data()));
@@ -403,8 +403,8 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
 //        getIndexPerWarp_4<<<gridForGetIndex, NUMBER_OF_THREADS_PER_BLOCK>>>(tensorCoreConfig,
 //                                                                            numWarpX,
 //                                                                            nnz_,
-//                                                                            rowIndex_.data(),
-//                                                                            colIndex_.data(),
+//                                                                            rowIndices_.data(),
+//                                                                            colIndices_.data(),
 //                                                                            updateScatteredNumOfIndexOperator_4(
 //                                                                                scatteredNumOfIndexPerWarp_4.data()));
 //        timeCalculator.endClock();
@@ -436,19 +436,19 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
 //    std::cout << cudaGetErrorString(cudaDeviceSynchronize()) << std::endl;
 
 //    // check
-//    std::vector<UIN> rowIndex;
-//    d2h(rowIndex, rowIndex_);
-//    std::vector<UIN> colIndex;
-//    d2h(colIndex, colIndex_);
+//    std::vector<UIN> rowIndices;
+//    d2h(rowIndices, rowIndices_);
+//    std::vector<UIN> colIndices;
+//    d2h(colIndices, colIndices_);
 //
 //    std::set<std::pair<size_t, size_t>> rowColSet;
 //    for (int idx = 0; idx < nnz_; ++idx) { // 检查是否有相同行列值
-//        std::pair<size_t, size_t> rowColPair(rowIndex[idx], colIndex[idx]);
+//        std::pair<size_t, size_t> rowColPair(rowIndices[idx], colIndices[idx]);
 //        if (rowColSet.find(rowColPair) != rowColSet.end()) {
 //            std::cout << " 有相同行列值1111???!!!!???!!! "
 //                      << "idx = " << idx << ", "
-//                      << rowIndex[idx] << " "
-//                      << colIndex[idx]
+//                      << rowIndices[idx] << " "
+//                      << colIndices[idx]
 //                      << std::endl;
 //            exit(1);
 //        }
@@ -458,10 +458,10 @@ void dev::SparseMatrix<T>::openTensorCoreModeForSampled(TensorCoreConfig tensorC
 //    std::vector<UIN> matrixTileMappedToWarpIndexData;
 //    d2h(matrixTileMappedToWarpIndexData, matrixTileIndexData_);
 //    for (int idx = 0; idx < matrixTileIndexData_.size(); ++idx) { // 检查是否出现不一样的值
-//        std::pair<size_t, size_t> rowColPair(rowIndex[matrixTileIndexData[idx]], colIndex[matrixTileMappedToWarpIndexData[idx]]);
+//        std::pair<size_t, size_t> rowColPair(rowIndices[matrixTileIndexData[idx]], colIndices[matrixTileMappedToWarpIndexData[idx]]);
 //        if (rowColSet.find(rowColPair) == rowColSet.end()) {
-//            std::cout << " 出现不一样的值333???!!!!???!!! " << rowIndex[matrixTileMappedToWarpIndexData[idx]]
-//                      << " " << colIndex[matrixTileMappedToWarpIndexData[idx]]
+//            std::cout << " 出现不一样的值333???!!!!???!!! " << rowIndices[matrixTileMappedToWarpIndexData[idx]]
+//                      << " " << colIndices[matrixTileMappedToWarpIndexData[idx]]
 //                      << std::endl;
 //            exit(1);
 //        }
