@@ -297,53 +297,79 @@ void SparseMatrix<T>::print() const {
 
 template<typename T>
 void SparseMatrix<T>::draw() const {
-    std::cout << "SparseMatrix : [row,col,value]" << std::endl;
-
     std::vector<UIN> rowIndicesTmp = rowIndices_;
     std::vector<UIN> colIndicesTmp = colIndices_;
 
-    host::sort_by_key(rowIndicesTmp.data(),
-                      rowIndicesTmp.data() + rowIndicesTmp.size(),
-                      colIndicesTmp.data());
-    UIN lastRowNumber = rowIndices_[0];
-    UIN lastBegin = 0;
-    for (UIN idx = 0; idx < nnz_; ++idx) {
-        const UIN curRowNumber = rowIndices_[idx];
-        if (curRowNumber != lastRowNumber) { // new row
-            host::sort(colIndicesTmp.data() + lastBegin, colIndicesTmp.data() + idx);
+    {
+        host::sort_by_key(rowIndicesTmp.data(),
+                          rowIndicesTmp.data() + rowIndicesTmp.size(),
+                          colIndicesTmp.data());
 
-            lastBegin = idx + 1;
-            lastRowNumber = curRowNumber;
-        }
+        UIN lastRowNumber = rowIndices_[0];
+        UIN lastBegin = 0;
+        for (UIN idx = 0; idx < nnz_; ++idx) {
+            const UIN curRowNumber = rowIndices_[idx];
+            if (curRowNumber != lastRowNumber) { // new row
+                host::sort(colIndicesTmp.data() + lastBegin, colIndicesTmp.data() + idx);
 
-        if (idx == nnz_ - 1) {
-            host::sort(colIndicesTmp.data() + lastBegin, colIndicesTmp.data() + colIndicesTmp.size());
+                lastBegin = idx + 1;
+                lastRowNumber = curRowNumber;
+            }
+
+            if (idx == nnz_ - 1) {
+                host::sort(colIndicesTmp.data() + lastBegin, colIndicesTmp.data() + colIndicesTmp.size());
+            }
         }
     }
 
     std::vector<UIN> rowPtr(row_ + 1);
-    rowPtr[0] = 0;
-    UIN curRow = 0;
-    for (int idx = 0; idx < nnz_; ++idx) {
-        if (curRow != rowIndicesTmp[idx]) {
-            rowPtr[curRow + 1] = idx;
-            curRow = rowIndicesTmp[idx];
+    {
+        rowPtr[0] = 0;
+        UIN rowPtrIdx = 0;
+        for (int idx = 0; idx < nnz_; ++idx) {
+            const UIN curRow = rowIndicesTmp[idx];
+            if (rowPtrIdx != curRow) {
+                rowPtr[rowPtrIdx + 1] = idx;
+                for (int rowPtrIndex = rowPtrIdx + 2; rowPtrIndex <= curRow; ++rowPtrIndex) {
+                    rowPtr[rowPtrIndex] = rowPtr[rowPtrIdx + 1];
+                }
+                rowPtrIdx = curRow;
+            }
+            if (idx == nnz_ - 1) {
+                rowPtr[rowPtrIdx + 1] = idx;
+                for (int rowPtrIndex = rowPtrIdx + 2; rowPtrIndex <= curRow; ++rowPtrIndex) {
+                    rowPtr[rowPtrIndex] = rowPtr[rowPtrIdx + 1];
+                }
+                rowPtrIdx = curRow;
+            }
         }
     }
 
+    printf("SparseMatrix : [%d,%d,%d]\n", row_, col_, nnz_);
+    for (int colIdx = 0; colIdx < col_ + 2; ++colIdx) {
+        std::cout << "-";
+    }
+    std::cout << std::endl;
     for (UIN rowIdx = 0; rowIdx < row_; ++rowIdx) {
+        std::cout << "|";
         std::unordered_set<UIN> colSet;
         for (UIN idx = rowPtr[rowIdx]; idx < rowPtr[rowIdx + 1]; ++idx) {
             colSet.insert(colIndicesTmp[idx]);
         }
         for (UIN colIdx = 0; colIdx < col_; ++colIdx) {
             if (colSet.find(colIdx) != colSet.end()) {
-                std::cout << "1 ";
+                std::cout << "X";
             } else {
-                std::cout << "0 ";
+                std::cout << " ";
             }
         }
+        std::cout << "|";
+        std::cout << std::endl;
     }
+    for (int colIdx = 0; colIdx < col_ + 2; ++colIdx) {
+        std::cout << "-";
+    }
+    std::cout << std::endl;
 }
 
 template<typename T>

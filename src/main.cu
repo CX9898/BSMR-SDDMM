@@ -15,11 +15,11 @@
 #include "devVector.cuh"
 #include "util.hpp"
 
-const std::string folderPath("../dataset/test/matrix_10000_15000_/");
+const std::string folderPath("../dataset/");
 //const std::string folderPath("./");
 //const std::string fileName = ("nips");
 //const std::string fileName = ("test");
-const std::string fileName("matrix_10000_15000_7500000");
+const std::string fileName("test2");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 
@@ -95,6 +95,9 @@ int main(int argc, char *argv[]) {
             exit(1);
         }
     }
+
+    matrixS.draw();
+    exit(0);
 
 #ifdef _DEBUG
     printf("@Build type : Debug @\n");
