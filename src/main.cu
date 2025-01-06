@@ -96,9 +96,6 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    matrixS.draw();
-    exit(0);
-
 #ifdef _DEBUG
     printf("@Build type : Debug @\n");
 #endif

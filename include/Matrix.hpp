@@ -214,7 +214,7 @@ class SparseMatrix {
 
   void draw() const;
 
-  void outputCsrData(std::vector<UIN> &rowPtr, std::vector<UIN> &colIndices, std::vector<T> &values) const;
+  void getCsrData(std::vector<UIN> &rowPtr, std::vector<UIN> &colIndices, std::vector<T> &values) const;
 
   void print() const;
 

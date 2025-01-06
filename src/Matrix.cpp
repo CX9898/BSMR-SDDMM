@@ -295,6 +295,22 @@ void SparseMatrix<T>::print() const {
     std::cout << std::endl;
 }
 
+void getCsrRowPtr(const UIN row, const std::vector<UIN> &rowIndices, std::vector<UIN>& rowPtr) {
+    rowPtr.resize(row + 1);
+    rowPtr[0] = 0;
+    UIN rowPtrIdx = 0;
+    for (int idx = 0; idx < rowIndices.size(); ++idx) {
+        while (rowPtrIdx < rowPtr.size() && rowPtrIdx != rowIndices[idx]) {
+            rowPtr[rowPtrIdx + 1] = idx;
+            ++rowPtrIdx;
+        }
+    }
+    while (rowPtrIdx < rowPtr.size()){
+        rowPtr[rowPtrIdx + 1] = rowIndices.size();
+        ++rowPtrIdx;
+    }
+}
+
 template<typename T>
 void SparseMatrix<T>::draw() const {
     std::vector<UIN> rowIndicesTmp = rowIndices_;
@@ -323,37 +339,17 @@ void SparseMatrix<T>::draw() const {
     }
 
     std::vector<UIN> rowPtr(row_ + 1);
-    {
-        rowPtr[0] = 0;
-        UIN rowPtrIdx = 0;
-        for (int idx = 0; idx < nnz_; ++idx) {
-            const UIN curRow = rowIndicesTmp[idx];
-            if (rowPtrIdx != curRow) {
-                rowPtr[rowPtrIdx + 1] = idx;
-                for (int rowPtrIndex = rowPtrIdx + 2; rowPtrIndex <= curRow; ++rowPtrIndex) {
-                    rowPtr[rowPtrIndex] = rowPtr[rowPtrIdx + 1];
-                }
-                rowPtrIdx = curRow;
-            }
-            if (idx == nnz_ - 1) {
-                rowPtr[rowPtrIdx + 1] = idx;
-                for (int rowPtrIndex = rowPtrIdx + 2; rowPtrIndex <= curRow; ++rowPtrIndex) {
-                    rowPtr[rowPtrIndex] = rowPtr[rowPtrIdx + 1];
-                }
-                rowPtrIdx = curRow;
-            }
-        }
-    }
+    getCsrRowPtr(row_,rowIndicesTmp,rowPtr);
 
     printf("SparseMatrix : [%d,%d,%d]\n", row_, col_, nnz_);
     for (int colIdx = 0; colIdx < col_ + 2; ++colIdx) {
         std::cout << "-";
     }
     std::cout << std::endl;
-    for (UIN rowIdx = 0; rowIdx < row_; ++rowIdx) {
+    for (UIN row = 0; row < row_; ++row) {
         std::cout << "|";
         std::unordered_set<UIN> colSet;
-        for (UIN idx = rowPtr[rowIdx]; idx < rowPtr[rowIdx + 1]; ++idx) {
+        for (UIN idx = rowPtr[row]; idx < rowPtr[row + 1]; ++idx) {
             colSet.insert(colIndicesTmp[idx]);
         }
         for (UIN colIdx = 0; colIdx < col_; ++colIdx) {
@@ -373,9 +369,9 @@ void SparseMatrix<T>::draw() const {
 }
 
 template<typename T>
-void SparseMatrix<T>::outputCsrData(std::vector<UIN> &rowPtr,
-                                    std::vector<UIN> &colIndices,
-                                    std::vector<T> &values) const {
+void SparseMatrix<T>::getCsrData(std::vector<UIN> &rowPtr,
+                                 std::vector<UIN> &colIndices,
+                                 std::vector<T> &values) const {
     std::vector<UIN> rowIndicesTmp = rowIndices_;
     std::vector<UIN> colIndicesTmp = colIndices_;
     std::vector<T> valuesTmp = values_;
@@ -389,16 +385,9 @@ void SparseMatrix<T>::outputCsrData(std::vector<UIN> &rowPtr,
     colIndices.resize(nnz_);
     values.resize(nnz_);
 
-    rowPtr[0] = 0;
-    UIN curRow = 0;
-    for (int idx = 0; idx < nnz_; ++idx) {
-        if (curRow != rowIndicesTmp[idx]) {
-            rowPtr[curRow + 1] = idx;
-            curRow = rowIndicesTmp[idx];
-        }
-        colIndices[idx] = colIndicesTmp[idx];
-        values[idx] = valuesTmp[idx];
-    }
+    getCsrRowPtr(row_,rowIndicesTmp,rowPtr);
+    colIndices = colIndicesTmp;
+    values = valuesTmp;
 }
 
 template<typename T>
