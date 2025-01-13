@@ -14,13 +14,13 @@
 #include "checkData.hpp"
 #include "devVector.cuh"
 #include "util.hpp"
-#include "CuSparseSDDMM.hpp"
+#include "cuSparseSDDMM.hpp"
 
-const std::string folderPath("../dataset/");
+const std::string folderPath("../dataset/test/matrix_10000_15000_/");
 //const std::string folderPath("./");
 //const std::string fileName = ("nips");
 //const std::string fileName = ("test");
-const std::string fileName("test2");
+const std::string fileName("matrix_10000_15000_7500000");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 
@@ -137,6 +137,8 @@ int main(int argc, char *argv[]) {
 
 //    matrixA.changeStorageOrder();
 //    matrixB.changeStorageOrder();
+
+    cuSparseSDDMM(matrixA, matrixB, matrixS);
 
     if (matrixA.storageOrder() == MatrixStorageOrder::row_major) { printf("@matrixA storageOrder : row_major @\n"); }
     else { printf("@matrixA storageOrder : col_major @\n"); }

@@ -77,7 +77,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE CUDA::curand)
 #target_link_libraries(${PROJECT_NAME} PRIVATE CUDA::cusolver)
 
 # Linked cuSPARSE library
-#target_link_libraries(${PROJECT_NAME} PRIVATE CUDA::cusparse)
+target_link_libraries(${PROJECT_NAME} PRIVATE CUDA::cusparse)
 
 # Find OpenMP package
 find_package(OpenMP REQUIRED)
