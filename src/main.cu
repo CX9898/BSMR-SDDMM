@@ -14,6 +14,7 @@
 #include "checkData.hpp"
 #include "devVector.cuh"
 #include "util.hpp"
+#include "CuSparseSDDMM.hpp"
 
 const std::string folderPath("../dataset/");
 //const std::string folderPath("./");
@@ -116,8 +117,8 @@ int main(int argc, char *argv[]) {
 
     TensorCoreConfig tensorCoreConfig(matrixS.row(), matrixS.col());
     printf("Kernel gridDim : [%d,%d,%d], blockDim : [%d,%d,%d]\n",
-           tensorCoreConfig.gridDim().x,tensorCoreConfig.gridDim().y,tensorCoreConfig.gridDim().z,
-           tensorCoreConfig.blockDim().x,tensorCoreConfig.blockDim().y,tensorCoreConfig.blockDim().z);
+           tensorCoreConfig.gridDim().x, tensorCoreConfig.gridDim().y, tensorCoreConfig.gridDim().z,
+           tensorCoreConfig.blockDim().x, tensorCoreConfig.blockDim().y, tensorCoreConfig.blockDim().z);
     printf("@WMMA_M : %d @, @WMMA_N : %d @, @WMMA_K : %d @\n", WMMA_M, WMMA_N, WMMA_K);
 
     printf("@matrixA type : %s @\n", typeid(MATRIX_A_TYPE).name());
