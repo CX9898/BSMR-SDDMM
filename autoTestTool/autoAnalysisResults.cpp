@@ -45,6 +45,7 @@ struct ResultsInformation {
 
   std::string isratnisa_;
   std::string zcx_;
+  std::string cuSparse_;
 
  private:
   bool is_initialized_checkData_ = false;
@@ -76,6 +77,7 @@ struct ResultsInformation {
   bool is_initialized_zcx_other_ = false;
   bool is_initialized_isratnisa_ = false;
   bool is_initialized_zcx_ = false;
+  bool is_initialized_cuSparse_ = false;
 };
 
 void ResultsInformation::clear() {
@@ -136,6 +138,7 @@ void ResultsInformation::clear() {
     is_initialized_zcx_other_ = false;
     is_initialized_isratnisa_ = false;
     is_initialized_zcx_ = false;
+    is_initialized_cuSparse_ = false;
 }
 
 inline bool contains(const std::string &str, const std::string &toFind) {
@@ -195,6 +198,7 @@ void ResultsInformation::initInformation(const std::string &line) {
     initOperation(line, "@zcx_other : ", is_initialized_zcx_other_, zcx_other_);
     initOperation(line, "@isratnisa : ", is_initialized_isratnisa_, isratnisa_);
     initOperation(line, "@zcx : ", is_initialized_zcx_, zcx_);
+    initOperation(line, "@cuSparse : ", is_initialized_cuSparse_, cuSparse_);
 
     initOperation(line, "@checkData : ", is_initialized_checkData_, checkData_);
 }
@@ -220,9 +224,9 @@ void printSettingInformation(const ResultsInformation &resultsInformation) {
 void printHeadOfList() {
     printf("\n");
     printf(
-        "| matrix_M_N_NNZ | sparsity | k | isratnisa_sddmm | zcx_sddmm | isratnisa_other | zcx_other | isratnisa | zcx |\n");
+        "| matrix_M_N_NNZ | sparsity | k | isratnisa_sddmm | zcx_sddmm | isratnisa_other | zcx_other | isratnisa | zcx | cuSparse |\n");
     printf(
-        "|----------------|----------|---|-----------------|-----------|-----------------|-----------|-----------|-----|\n");
+        "|----------------|----------|---|-----------------|-----------|-----------------|-----------|-----------|-----|----------|\n");
 }
 
 void printOneLineOfList(const ResultsInformation &resultsInformation) {
@@ -241,6 +245,7 @@ void printOneLineOfList(const ResultsInformation &resultsInformation) {
     printOneInformation(resultsInformation.zcx_other_);
     printOneInformation(resultsInformation.isratnisa_);
     printOneInformation(resultsInformation.zcx_);
+    printOneInformation(resultsInformation.cuSparse_);
 
     printf("%s", resultsInformation.checkData_.c_str());
     printf("\n");

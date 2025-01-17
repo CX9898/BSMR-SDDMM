@@ -29,8 +29,6 @@ void cuSparseSDDMM(const Matrix<float> &mtxA,
     cusparseDnMatDescr_t mtxB_;
     cusparseSpMatDescr_t mtxS_;
 
-    float time;
-
     cusparseCreate(&handle);
 
     // Create dense matrix A
@@ -85,6 +83,5 @@ void cuSparseSDDMM(const Matrix<float> &mtxA,
                   CUSPARSE_SDDMM_ALG_DEFAULT, dBuffer);
 
     timer.endClock();
-    time = timer.getTime();
-    std::cout << "cuSparse SDDMM time : " << time << " ms" << std::endl;
+    printf("@cuSparse : %.2f @\n", timer.getTime());
 }
