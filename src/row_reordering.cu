@@ -1,7 +1,8 @@
 #include <cmath>
 #include <omp.h>
+#include <numeric>
+#include <algorithm>
 
-#include "bsa.hpp"
 #include "Matrix.hpp"
 #include "parallelAlgorithm.cuh"
 
@@ -39,9 +40,21 @@ void calculateDispersion(const UIN col,
     }
 }
 
+void clustering() {
+
+}
+
 void reordering(sparseDataType::CSR &matrix) {
     std::vector<std::vector<UIN>> encodings;
     encoding(matrix, encodings);
+
     std::vector<float> dispersions(matrix.row_);
     calculateDispersion(matrix.col_, encodings, dispersions);
+
+    std::vector<UIN> ascending(matrix.row_);
+    std::iota(ascending.begin(), ascending.end(), 0); // ascending = {0, 1, 2, 3, ... lhs.rows-1}
+    std::stable_sort(ascending.begin(),
+                     ascending.end(),
+                     [dispersions](size_t i, size_t j) { return dispersions[i] < dispersions[j]; });
+
 }
