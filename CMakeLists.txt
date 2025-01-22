@@ -21,15 +21,6 @@ set(CMAKE_CUDA_ARCHITECTURES 86)
 set(INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")
 set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
 
-# test isratnisa code
-set(testIsratnisaCode false)
-
-if (${testIsratnisaCode})
-    set(isratnisa_DIR "${CMAKE_SOURCE_DIR}/isratnisa")
-    file(GLOB isratnisa_SRC_FILES "${isratnisa_DIR}/newSrc/*.c" "${isratnisa_DIR}/newSrc/*.cpp" "${isratnisa_DIR}/newSrc/*.cc" "${isratnisa_DIR}/newSrc/*.cxx" "${isratnisa_DIR}/newSrc/*.cu")
-endif ()
-
-
 # All source files in src folder are stored in SRC_FILES variable
 file(GLOB SRC_FILES "${SRC_DIR}/*.c" "${SRC_DIR}/*.cpp" "${SRC_DIR}/*.cc" "${SRC_DIR}/*.cxx" "${SRC_DIR}/*.cu")
 
@@ -52,11 +43,6 @@ set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}")
 
 # Set installation rules
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
-
-# test isratnisa code
-if (${testIsratnisaCode})
-    target_include_directories(${PROJECT_NAME} PRIVATE "${isratnisa_DIR}/newInclude")
-endif ()
 
 # Add header directory (locally)
 target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIR})

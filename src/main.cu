@@ -16,11 +16,11 @@
 #include "util.hpp"
 #include "cuSparseSDDMM.hpp"
 
-const std::string folderPath("../dataset/test/matrix_10000_15000_/");
+const std::string folderPath("../dataset/test/matrix_20000_20000_/");
 //const std::string folderPath("./");
 //const std::string fileName = ("nips");
 //const std::string fileName = ("test");
-const std::string fileName("matrix_10000_15000_7500000");
+const std::string fileName("matrix_20000_20000_4000000");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 

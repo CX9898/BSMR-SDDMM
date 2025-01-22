@@ -301,3 +301,23 @@ inline std::ostream &operator<<(std::ostream &os, const SparseMatrix<T> &mtxS) {
     os << " [row : " << mtxS.row() << ", col : " << mtxS.col() << ", nnz : " << mtxS.nnz() << "]";
     return os;
 }
+
+namespace sparseDataType {
+struct DataBase {
+  UIN row_;
+  UIN col_;
+  UIN nnz_;
+};
+
+struct CSR : public DataBase {
+  std::vector<UIN> rowPtr_;
+  std::vector<UIN> colIndices_;
+  std::vector<float> values_;
+};
+
+struct COO : public DataBase {
+  std::vector<UIN> rowIndices_;
+  std::vector<UIN> colIndices_;
+  std::vector<float> values_;
+};
+} // namespace sparseDataType
