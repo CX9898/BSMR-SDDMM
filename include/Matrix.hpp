@@ -22,6 +22,16 @@ class Matrix;
 template<typename T>
 class SparseMatrix;
 
+namespace sparseDataType {
+struct DataBase;
+
+template<typename T>
+struct CSR;
+
+template<typename T>
+struct COO;
+}
+
 /**
  * The default is row-major order, but if you want to switch to column-major order, call the changeMajorOrder function.
  **/
@@ -214,7 +224,7 @@ class SparseMatrix {
 
   void draw() const;
 
-  void getCsrData(std::vector<UIN> &rowOffsets, std::vector<UIN> &colIndices, std::vector<T> &values) const;
+  sparseDataType::CSR<T> getCsrData() const;
 
   void print() const;
 

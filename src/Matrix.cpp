@@ -295,7 +295,7 @@ void SparseMatrix<T>::print() const {
     std::cout << std::endl;
 }
 
-void getCsrRowPtr(const UIN row, const std::vector<UIN> &rowIndices, std::vector<UIN>& rowOffsets) {
+void getCsrRowOffsets(const UIN row, const std::vector<UIN> &rowIndices, std::vector<UIN> &rowOffsets) {
     rowOffsets.resize(row + 1);
     rowOffsets[0] = 0;
     UIN rowPtrIdx = 0;
@@ -305,7 +305,7 @@ void getCsrRowPtr(const UIN row, const std::vector<UIN> &rowIndices, std::vector
             ++rowPtrIdx;
         }
     }
-    while (rowPtrIdx < rowOffsets.size()){
+    while (rowPtrIdx < rowOffsets.size()) {
         rowOffsets[rowPtrIdx + 1] = rowIndices.size();
         ++rowPtrIdx;
     }
@@ -339,7 +339,7 @@ void SparseMatrix<T>::draw() const {
     }
 
     std::vector<UIN> rowOffsets(row_ + 1);
-    getCsrRowPtr(row_, rowIndicesTmp, rowOffsets);
+    getCsrRowOffsets(row_, rowIndicesTmp, rowOffsets);
 
     printf("SparseMatrix : [%d,%d,%d]\n", row_, col_, nnz_);
     for (int colIdx = 0; colIdx < col_ + 2; ++colIdx) {
@@ -369,9 +369,7 @@ void SparseMatrix<T>::draw() const {
 }
 
 template<typename T>
-void SparseMatrix<T>::getCsrData(std::vector<UIN> &rowOffsets,
-                                 std::vector<UIN> &colIndices,
-                                 std::vector<T> &values) const {
+sparseDataType::CSR<T> SparseMatrix<T>::getCsrData() const {
     std::vector<UIN> rowIndicesTmp = rowIndices_;
     std::vector<UIN> colIndicesTmp = colIndices_;
     std::vector<T> valuesTmp = values_;
@@ -381,13 +379,12 @@ void SparseMatrix<T>::getCsrData(std::vector<UIN> &rowOffsets,
                                            colIndicesTmp.data(),
                                            valuesTmp.data());
 
-    rowOffsets.resize(row_ + 1);
-    colIndices.resize(nnz_);
-    values.resize(nnz_);
+    sparseDataType::CSR<T> csrData;
+    getCsrRowOffsets(row_, rowIndicesTmp, csrData.rowOffsets_);
+    csrData.colIndices_ = colIndicesTmp;
+    csrData.values_ = valuesTmp;
 
-    getCsrRowPtr(row_, rowIndicesTmp, rowOffsets);
-    colIndices = colIndicesTmp;
-    values = valuesTmp;
+    return csrData;
 }
 
 template<typename T>
