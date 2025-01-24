@@ -323,6 +323,7 @@ struct DataBase {
 
 template<typename T>
 struct CSR : public DataBase {
+  CSR() = default;
   CSR(UIN row,
       UIN col,
       UIN nnz,
@@ -341,6 +342,7 @@ struct CSR : public DataBase {
 
 template<typename T>
 struct COO : public DataBase {
+  COO() = default;
   COO(UIN row,
       UIN col,
       UIN nnz,
