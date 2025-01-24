@@ -1,4 +1,5 @@
 #include <numeric>
+#include <cmath>
 
 #include "reordering.hpp"
 #include "TensorCoreConfig.cuh"
