@@ -25,7 +25,7 @@ struct ReorderedMatrix {
  * `matrix`: Sparse matrix data in CSR format.
  * @output: ReorderedMatrix struct
  **/
-ReorderedMatrix reordering(const sparseDataType::CSR &matrix);
+ReorderedMatrix reordering(const sparseDataType::CSR<float> &matrix);
 
 /**
  * @funcitonName: row_reordering
@@ -34,7 +34,7 @@ ReorderedMatrix reordering(const sparseDataType::CSR &matrix);
  * `matrix`: Sparse matrix data in CSR format.
  * @output: Update `rowIndices_` in the ReorderedMatrix structure.
  **/
-void row_reordering(const sparseDataType::CSR &matrix, struct ReorderedMatrix &reorderedMatrix);
+void row_reordering(const sparseDataType::CSR<float> &matrix, struct ReorderedMatrix &reorderedMatrix);
 
 /**
  * @funcitonName: col_reordering
@@ -44,4 +44,4 @@ void row_reordering(const sparseDataType::CSR &matrix, struct ReorderedMatrix &r
  * And `rowIndices_` in the ReorderedMatrix struct.
  * @output: Update `colIndicesOffset_` and `colIndicesInEachRowPanel_` in the ReorderedMatrix structure.
  **/
-void col_reordering(const sparseDataType::CSR &matrix, struct ReorderedMatrix &reorderedMatrix);
+void col_reordering(const sparseDataType::CSR<float> &matrix, struct ReorderedMatrix &reorderedMatrix);

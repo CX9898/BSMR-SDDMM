@@ -8,7 +8,7 @@
 
 #define COL_BLOCK_SIZE 32
 
-void encoding(const sparseDataType::CSR &matrix, std::vector<std::vector<UIN>> &encodings) {
+void encoding(const sparseDataType::CSR<float> &matrix, std::vector<std::vector<UIN>> &encodings) {
     const int colBlock = std::ceil(matrix.col_ / COL_BLOCK_SIZE);
     encodings.resize(matrix.row_);
 #pragma omp parallel for dynamic
@@ -88,7 +88,7 @@ void clustering(const UIN row, const std::vector<std::vector<UIN>> &encodings,
     }
 }
 
-void row_reordering(const sparseDataType::CSR &matrix, struct ReorderedMatrix &reorderedMatrix) {
+void row_reordering(const sparseDataType::CSR<float> &matrix, struct ReorderedMatrix &reorderedMatrix) {
     std::vector<std::vector<UIN>> encodings;
     encoding(matrix, encodings);
 

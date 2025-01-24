@@ -214,7 +214,7 @@ class SparseMatrix {
 
   void draw() const;
 
-  void getCsrData(std::vector<UIN> &rowPtr, std::vector<UIN> &colIndices, std::vector<T> &values) const;
+  void getCsrData(std::vector<UIN> &rowOffsets, std::vector<UIN> &colIndices, std::vector<T> &values) const;
 
   void print() const;
 
@@ -304,20 +304,46 @@ inline std::ostream &operator<<(std::ostream &os, const SparseMatrix<T> &mtxS) {
 
 namespace sparseDataType {
 struct DataBase {
+  DataBase() = default;
+
   UIN row_;
   UIN col_;
   UIN nnz_;
 };
 
+template<typename T>
 struct CSR : public DataBase {
+  CSR(UIN row,
+      UIN col,
+      UIN nnz,
+      const std::vector<UIN> &rowOffsets,
+      const std::vector<UIN> &colIndices,
+      const std::vector<T> &values) : rowOffsets_(rowOffsets), colIndices_(colIndices), values_(values) {
+      row_ = row;
+      col_ = col;
+      nnz_ = nnz;
+  }
+
   std::vector<UIN> rowOffsets_;
   std::vector<UIN> colIndices_;
-  std::vector<float> values_;
+  std::vector<T> values_;
 };
 
+template<typename T>
 struct COO : public DataBase {
+  COO(UIN row,
+      UIN col,
+      UIN nnz,
+      const std::vector<UIN> &rowIndices,
+      const std::vector<UIN> &colIndices,
+      const std::vector<T> &values) : rowIndices_(rowIndices), colIndices_(colIndices), values_(values) {
+      row_ = row;
+      col_ = col;
+      nnz_ = nnz;
+  }
+
   std::vector<UIN> rowIndices_;
   std::vector<UIN> colIndices_;
-  std::vector<float> values_;
+  std::vector<T> values_;
 };
 } // namespace sparseDataType

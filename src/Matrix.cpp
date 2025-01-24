@@ -295,18 +295,18 @@ void SparseMatrix<T>::print() const {
     std::cout << std::endl;
 }
 
-void getCsrRowPtr(const UIN row, const std::vector<UIN> &rowIndices, std::vector<UIN>& rowPtr) {
-    rowPtr.resize(row + 1);
-    rowPtr[0] = 0;
+void getCsrRowPtr(const UIN row, const std::vector<UIN> &rowIndices, std::vector<UIN>& rowOffsets) {
+    rowOffsets.resize(row + 1);
+    rowOffsets[0] = 0;
     UIN rowPtrIdx = 0;
     for (int idx = 0; idx < rowIndices.size(); ++idx) {
-        while (rowPtrIdx < rowPtr.size() && rowPtrIdx != rowIndices[idx]) {
-            rowPtr[rowPtrIdx + 1] = idx;
+        while (rowPtrIdx < rowOffsets.size() && rowPtrIdx != rowIndices[idx]) {
+            rowOffsets[rowPtrIdx + 1] = idx;
             ++rowPtrIdx;
         }
     }
-    while (rowPtrIdx < rowPtr.size()){
-        rowPtr[rowPtrIdx + 1] = rowIndices.size();
+    while (rowPtrIdx < rowOffsets.size()){
+        rowOffsets[rowPtrIdx + 1] = rowIndices.size();
         ++rowPtrIdx;
     }
 }
@@ -338,8 +338,8 @@ void SparseMatrix<T>::draw() const {
         }
     }
 
-    std::vector<UIN> rowPtr(row_ + 1);
-    getCsrRowPtr(row_,rowIndicesTmp,rowPtr);
+    std::vector<UIN> rowOffsets(row_ + 1);
+    getCsrRowPtr(row_, rowIndicesTmp, rowOffsets);
 
     printf("SparseMatrix : [%d,%d,%d]\n", row_, col_, nnz_);
     for (int colIdx = 0; colIdx < col_ + 2; ++colIdx) {
@@ -349,7 +349,7 @@ void SparseMatrix<T>::draw() const {
     for (UIN row = 0; row < row_; ++row) {
         std::cout << "|";
         std::unordered_set<UIN> colSet;
-        for (UIN idx = rowPtr[row]; idx < rowPtr[row + 1]; ++idx) {
+        for (UIN idx = rowOffsets[row]; idx < rowOffsets[row + 1]; ++idx) {
             colSet.insert(colIndicesTmp[idx]);
         }
         for (UIN colIdx = 0; colIdx < col_; ++colIdx) {
@@ -369,7 +369,7 @@ void SparseMatrix<T>::draw() const {
 }
 
 template<typename T>
-void SparseMatrix<T>::getCsrData(std::vector<UIN> &rowPtr,
+void SparseMatrix<T>::getCsrData(std::vector<UIN> &rowOffsets,
                                  std::vector<UIN> &colIndices,
                                  std::vector<T> &values) const {
     std::vector<UIN> rowIndicesTmp = rowIndices_;
@@ -381,11 +381,11 @@ void SparseMatrix<T>::getCsrData(std::vector<UIN> &rowPtr,
                                            colIndicesTmp.data(),
                                            valuesTmp.data());
 
-    rowPtr.resize(row_ + 1);
+    rowOffsets.resize(row_ + 1);
     colIndices.resize(nnz_);
     values.resize(nnz_);
 
-    getCsrRowPtr(row_,rowIndicesTmp,rowPtr);
+    getCsrRowPtr(row_, rowIndicesTmp, rowOffsets);
     colIndices = colIndicesTmp;
     values = valuesTmp;
 }

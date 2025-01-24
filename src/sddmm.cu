@@ -5,9 +5,16 @@
 #include "CudaTimeCalculator.cuh"
 #include "host.hpp"
 #include "checkData.hpp"
+#include "reordering.hpp"
 
 void sddmm(Matrix<float> &matrixA, Matrix<float> &matrixB, SparseMatrix<float> &matrixS, SparseMatrix<float> &matrixP) {
+
+    sparseDataType::CSR<float> matrixS_csr
+        (matrixS.row(), matrixS.col(), matrixS.nnz(), matrixS.rowIndices(), matrixS.colIndices(), matrixS.values());
+    reordering(matrixS_csr);
+
     TensorCoreConfig tensorCoreConfig(matrixS.row(), matrixS.col());
+
     printf("Kernel gridDim : [%d,%d,%d], blockDim : [%d,%d,%d]\n",
            tensorCoreConfig.gridDim().x, tensorCoreConfig.gridDim().y, tensorCoreConfig.gridDim().z,
            tensorCoreConfig.blockDim().x, tensorCoreConfig.blockDim().y, tensorCoreConfig.blockDim().z);
@@ -18,6 +25,7 @@ void sddmm(Matrix<float> &matrixA, Matrix<float> &matrixB, SparseMatrix<float> &
     matrixB.openTensorCoreMode(tensorCoreConfig, MatrixMultiplicationOrder::right_multiplication);
     printf("openTensorCoreMode matrixB : row = %d, col = %d\n", matrixB.row(), matrixB.col());
 
+    //
     dev::vector<MATRIX_A_TYPE> matrixA_values_convertedType(matrixA.size());
     dev::vector<MATRIX_B_TYPE> matrixB_values_convertedType(matrixB.size());
     {
