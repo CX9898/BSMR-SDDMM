@@ -24,6 +24,7 @@ void sort_by_key(uint32_t *key_first, uint32_t *key_last, float *value_first);
 void sort_by_key(uint32_t *key_first, uint32_t *key_last, double *value_first);
 void sort_by_key(uint64_t *key_first, uint64_t *key_last, uint64_t *value_first);
 void sort_by_key(uint64_t *key_first, uint64_t *key_last, float *value_first);
+void sort_by_key_descending_order(uint32_t *key_first, uint32_t *key_last, uint32_t *value_first);
 void sort_by_key_for_multiple_vectors(uint32_t *key_first,
                                       uint32_t *key_last,
                                       uint32_t *value1_first,

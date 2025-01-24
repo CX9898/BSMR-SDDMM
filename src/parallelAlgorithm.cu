@@ -1,6 +1,7 @@
 #include <thrust/sort.h>
 #include <thrust/execution_policy.h>
 #include <thrust/iterator/zip_iterator.h>
+#include <thrust/functional.h>
 
 #include "parallelAlgorithm.cuh"
 
@@ -31,6 +32,10 @@ void sort_by_key(uint32_t *key_first, uint32_t *key_last, double *value_first) {
 }
 void sort_by_key(uint64_t *key_first, uint64_t *key_last, float *value_first) {
     thrust::sort_by_key(thrust::host, key_first, key_last, value_first);
+}
+void sort_by_key_descending_order(uint32_t *key_first, uint32_t *key_last, uint32_t *value_first) {
+    auto descending = thrust::greater<int>();
+    thrust::sort_by_key(thrust::host, key_first, key_last, value_first, descending);
 }
 void sort_by_key_for_multiple_vectors(uint32_t *key_first,
                                       uint32_t *key_last,

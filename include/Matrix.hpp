@@ -310,7 +310,7 @@ struct DataBase {
 };
 
 struct CSR : public DataBase {
-  std::vector<UIN> rowPtr_;
+  std::vector<UIN> rowOffsets_;
   std::vector<UIN> colIndices_;
   std::vector<float> values_;
 };
