@@ -22,10 +22,10 @@ struct ReorderedMatrix {
  * @funcitonName: reordering
  * @functionInterpretation: Main entry function. Calls `row_reordering` and `col_reordering` to reorder rows and columns respectively.
  * @input:
- * `matrix`: Sparse matrix data in CSR format
- * @output:
+ * `matrix`: Sparse matrix data in CSR format.
+ * @output: ReorderedMatrix struct
  **/
-void reordering(const sparseDataType::CSR &matrix);
+ReorderedMatrix reordering(const sparseDataType::CSR &matrix);
 
 /**
  * @funcitonName: row_reordering

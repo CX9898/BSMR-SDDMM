@@ -1,6 +1,8 @@
 #include "reordering.hpp"
 
-void reordering(const sparseDataType::CSR &matrix) {
-    std::vector<UIN> sortedRowIndex = row_reordering(matrix);
-    col_reordering(matrix, sortedRowIndex);
+ReorderedMatrix reordering(const sparseDataType::CSR &matrix) {
+    ReorderedMatrix reorderedMatrix;
+    row_reordering(matrix, reorderedMatrix);
+    col_reordering(matrix, reorderedMatrix);
+    return reorderedMatrix;
 }
