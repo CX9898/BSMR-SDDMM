@@ -6,13 +6,15 @@
 #include "reordering.hpp"
 #include "parallelAlgorithm.cuh"
 
+#define COL_BLOCK_SIZE 32
+
 void encoding(const sparseDataType::CSR &matrix, std::vector<std::vector<UIN>> &encodings) {
     const int colBlock = std::ceil(matrix.col_ / COL_BLOCK_SIZE);
     encodings.resize(matrix.row_);
 #pragma omp parallel for dynamic
     for (int row = 0; row < matrix.row_; ++row) {
         encodings[row].resize(colBlock);
-        for (int idx = matrix.rowPtr_[row]; idx < matrix.rowPtr_[idx + 1]; ++idx) {
+        for (int idx = matrix.rowOffsets_[row]; idx < matrix.rowOffsets_[idx + 1]; ++idx) {
             const int col = matrix.colIndices_[idx];
             ++encodings[row][col / COL_BLOCK_SIZE];
         }
@@ -79,14 +81,14 @@ void clustering(const UIN row, const std::vector<std::vector<UIN>> &encodings,
             }
             const float similarity =
                 clusterComparison(encodings[ascending[startIndexOfNonZeroRow]], encodings[ascending[cmpIdx]]);
-            if (similarity > similarity_threshold_alpha) {
+            if (similarity > row_similarity_threshold_alpha) {
                 clusterIds[ascending[cmpIdx]] = clusterIds[ascending[idx]];
             }
         }
     }
 }
 
-void row_reordering(const sparseDataType::CSR &matrix) {
+void row_reordering(const sparseDataType::CSR &matrix, struct ReorderedMatrix &reorderedMatrix) {
     std::vector<std::vector<UIN>> encodings;
     encoding(matrix, encodings);
 
@@ -107,10 +109,23 @@ void row_reordering(const sparseDataType::CSR &matrix) {
     }
     clustering(matrix.row_, encodings, ascending, startIndexOfNonZeroRow, clusterIds);
 
-    std::vector<UIN> indices(matrix.row_);
-    std::iota(indices.begin(), indices.end(), 0); // indices = {0, 1, 2, 3, ... rows-1}
-    std::stable_sort(indices.begin(),
-                     indices.end(),
+    reorderedMatrix.rowIndices_.resize(matrix.row_);
+    std::iota(reorderedMatrix.rowIndices_.begin(),
+              reorderedMatrix.rowIndices_.end(),
+              0); // rowIndices = {0, 1, 2, 3, ... rows-1}
+    std::stable_sort(reorderedMatrix.rowIndices_.begin(),
+                     reorderedMatrix.rowIndices_.end(),
                      [&clusterIds](int i, int j) { return clusterIds[i] < clusterIds[j]; });
 
+    // Remove zero rows
+    {
+        UIN startIndexOfNonZeroRow = 0;
+        while (startIndexOfNonZeroRow < matrix.row_
+            && matrix.rowOffsets_[reorderedMatrix.rowIndices_[startIndexOfNonZeroRow] + 1]
+                - matrix.rowOffsets_[reorderedMatrix.rowIndices_[startIndexOfNonZeroRow]] == 0) {
+            ++startIndexOfNonZeroRow;
+        }
+        reorderedMatrix.rowIndices_.erase(reorderedMatrix.rowIndices_.begin(),
+                                          reorderedMatrix.rowIndices_.begin() + startIndexOfNonZeroRow);
+    }
 }
