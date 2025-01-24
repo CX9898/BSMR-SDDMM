@@ -9,8 +9,7 @@
 
 void sddmm(Matrix<float> &matrixA, Matrix<float> &matrixB, SparseMatrix<float> &matrixS, SparseMatrix<float> &matrixP) {
 
-    sparseDataType::CSR<float> matrixS_csr
-        (matrixS.row(), matrixS.col(), matrixS.nnz(), matrixS.rowIndices(), matrixS.colIndices(), matrixS.values());
+    sparseDataType::CSR<float> matrixS_csr = matrixS.getCsrData();
     reordering(matrixS_csr);
 
     TensorCoreConfig tensorCoreConfig(matrixS.row(), matrixS.col());

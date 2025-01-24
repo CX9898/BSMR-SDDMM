@@ -380,6 +380,9 @@ sparseDataType::CSR<T> SparseMatrix<T>::getCsrData() const {
                                            valuesTmp.data());
 
     sparseDataType::CSR<T> csrData;
+    csrData.row_ = row_;
+    csrData.col_ = col_;
+    csrData.nnz_ = nnz_;
     getCsrRowOffsets(row_, rowIndicesTmp, csrData.rowOffsets_);
     csrData.colIndices_ = colIndicesTmp;
     csrData.values_ = valuesTmp;
