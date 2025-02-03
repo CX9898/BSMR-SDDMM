@@ -33,11 +33,6 @@ add_executable(${PROJECT_NAME})
 # Link the source file to the build target
 target_sources(${PROJECT_NAME} PRIVATE ${SRC_FILES})
 
-# test isratnisa code
-if (${testIsratnisaCode})
-    target_sources(${PROJECT_NAME} PUBLIC ${isratnisa_SRC_FILES})
-endif ()
-
 # Set the installation Path
 set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}")
 
