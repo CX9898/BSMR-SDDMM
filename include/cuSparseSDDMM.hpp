@@ -44,12 +44,12 @@ void cuSparseSDDMM(const Matrix<float> &mtxA,
     // Create sparse matrix S in CSR format
     std::vector<UIN> mtxS_csrRowOffsets, mtxS_csrColIndices;
     std::vector<float> mtxS_csrValues;
-    mtxS.getCsrData(mtxS_csrRowOffsets, mtxS_csrColIndices, mtxS_csrValues);
-    dev::vector<UIN> dS_offsets(mtxS_csrRowOffsets);
-    dev::vector<UIN> dS_colIndices(mtxS_csrColIndices);
-    dev::vector<float> dS_values(mtxS_csrValues);
+    sparseDataType::CSR<float> mtxS_csrData = mtxS.getCsrData();
+    dev::vector<UIN> mtxS_offsets_dev(mtxS_csrData.rowOffsets_);
+    dev::vector<UIN> mtxS_colIndices_dev(mtxS_csrData.colIndices_);
+    dev::vector<float> mtxS_values_dev(mtxS_csrData.values_);
     cusparseCreateCsr(&mtxS_, mtxS.row(), mtxS.col(), mtxS.nnz(),
-                      dS_offsets.data(), dS_colIndices.data(), dS_values.data(),
+                      mtxS_offsets_dev.data(), mtxS_colIndices_dev.data(), mtxS_values_dev.data(),
                       CUSPARSE_INDEX_32I, CUSPARSE_INDEX_32I,
                       CUSPARSE_INDEX_BASE_ZERO, CUDA_R_32F);
 
