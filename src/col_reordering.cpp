@@ -5,8 +5,6 @@
 #include "TensorCoreConfig.cuh"
 #include "parallelAlgorithm.cuh"
 
-const int row_panel_size = WMMA_M;
-
 void col_reordering(const sparseDataType::CSR<float> &matrix, struct ReorderedMatrix &reorderedMatrix) {
     UIN numRowPanel = std::ceil(static_cast<float>(reorderedMatrix.rowIndices_.size()) / row_panel_size);
 

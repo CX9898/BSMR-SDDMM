@@ -4,6 +4,8 @@
 
 const float row_similarity_threshold_alpha = 0.3f;
 
+const int row_panel_size = WMMA_M;
+
 /**
  * @structName: ReorderedMatrix
  * @structInterpretation: Main entry function. Calls `row_reordering` and `col_reordering` to reorder rows and columns respectively.

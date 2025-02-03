@@ -9,7 +9,7 @@
 #define COL_BLOCK_SIZE 32
 
 void encoding(const sparseDataType::CSR<float> &matrix, std::vector<std::vector<UIN>> &encodings) {
-    const int colBlock = std::ceil(matrix.col_ / COL_BLOCK_SIZE);
+    const int colBlock = std::ceil(static_cast<float>(matrix.col_) / COL_BLOCK_SIZE);
     encodings.resize(matrix.row_);
 #pragma omp parallel for dynamic
     for (int row = 0; row < matrix.row_; ++row) {

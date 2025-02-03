@@ -4,6 +4,7 @@
 
 #include "kernel.cuh"
 #include "TensorCoreConfig.cuh"
+#include "reordering.hpp"
 
 namespace kernel {
 
@@ -989,6 +990,56 @@ __global__ void sddmm_gpu_coo_3_matrixA_col_matrixB_col(TensorCoreConfig tensorC
         if (laneId == fragmentInformation.laneId_) {
             matrixP[matrixPIdx] = cFrag.x[fragmentInformation.index_];
         }
+    }
+}
+
+// blockDim: [64, 1, 1]
+__global__ void sddmm_gpu_csr_matrix_row_matrix_row(const UIN M,
+                                                    const UIN N,
+                                                    const UIN K,
+                                                    const half *matrixA,
+                                                    const half *matrixB,
+                                                    const UIN *reorderedMatrixRowIndices,
+                                                    const UIN *reorderedMatrixColIndicesOffset,
+                                                    const UIN *reorderedMatrixColIndicesInEachRowPanel,
+                                                    float *matrixP) {
+    __shared__ half aTileSMEM[256];
+    __shared__ half bTileSMEM[256];
+
+    const UIN laneId = threadIdx.x % WARP_SIZE;
+    const UIN warpId = threadIdx.x % WARP_SIZE;
+
+    const UIN rowPanelId = blockIdx.x;
+    const UIN startIndexOfRowPanel = rowPanelId * row_panel_size;
+    const UIN endIndexOfRowPanel = startIndexOfRowPanel + row_panel_size;
+
+    for (int reorderedRowIdx = startIndexOfRowPanel; reorderedRowIdx < endIndexOfRowPanel; ++reorderedRowIdx) {
+        const UIN row = reorderedMatrixRowIndices[reorderedRowIdx];
+
+    }
+
+    const UIN lda = K;
+    const UIN ldb = N;
+
+    for (int kIter = 0; kIter < K; kIter += WMMA_K) {
+        // Load matrix A data
+#pragma unroll
+        for (int iter = 0; iter < 4; ++iter) {
+            const UIN aRowId =
+                reorderedMatrixRowIndices[(rowPanelId * row_panel_size) + (warpId * 8) + (laneId / 16) + (iter * 2)];
+            const UIN aColId = kIter + laneId;
+
+            aTileSMEM[warpId * 128 + iter * 32 + laneId] =
+                (aRowId < M && aColId < K) ? matrixA[aRowId * lda + aColId] : static_cast<half>(0);
+        }
+
+        // Load matrix B data
+#pragma unroll
+        for () {
+
+        }
+        __syncthreads();
+
     }
 }
 
