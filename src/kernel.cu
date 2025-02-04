@@ -1008,6 +1008,13 @@ __global__ void sddmm_gpu_csr_matrix_row_matrix_row(const UIN M,
     __shared__ half aTileSMEM[256];
     __shared__ half bTileSMEM[256];
 
+    wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE, wmma::row_major> aFrag;
+    wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE, wmma::col_major> bFrag;
+
+    wmma::fragment<wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> cFrag;
+
+    fill_fragment(cFrag, 0.0f);
+
     const UIN laneId = threadIdx.x % WARP_SIZE;
     const UIN warpId = threadIdx.x % WARP_SIZE;
 
@@ -1049,10 +1056,21 @@ __global__ void sddmm_gpu_csr_matrix_row_matrix_row(const UIN M,
                     (bRowId < K && bColId < N) ? matrixB[bRowId * ldb + bColId] : static_cast<half>(0);
             }
 
-            // Synchronize threads
             __syncthreads();
 
+            // Compute the matrix multiplication
+            {
+                wmma::load_matrix_sync(aFrag, aTileSMEM, WMMA_N);
+                wmma::load_matrix_sync(bFrag, bTileSMEM + warpId * WMMA_N, WMMA_N * 2);
+
+                wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
+            }
+
+            __syncthreads();
         }
+
+        // Store the result
+
     }
 }
 

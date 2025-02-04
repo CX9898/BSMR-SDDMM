@@ -7,12 +7,8 @@
 #include "checkData.hpp"
 #include "reordering.hpp"
 
+// 旧方法, 直接计算
 void sddmm(Matrix<float> &matrixA, Matrix<float> &matrixB, SparseMatrix<float> &matrixS, SparseMatrix<float> &matrixP) {
-
-    sparseDataType::CSR<float> matrixS_csr = matrixS.getCsrData();
-    ReorderedMatrix reorderedMatrix = reordering(matrixS_csr);
-
-
 
     TensorCoreConfig tensorCoreConfig(matrixS.row(), matrixS.col());
 
@@ -99,4 +95,12 @@ void sddmm(Matrix<float> &matrixA, Matrix<float> &matrixB, SparseMatrix<float> &
     printf("@zcx_sddmm : %.2f @\n", time_sddmm_gpu_coo3);
     printf("@zcx_other : %.2f @\n", openTensorCoreModeForSampled_time);
     printf("@zcx : %.2f @\n", time_sddmm_zcx);
+}
+
+// 重排序方法
+void sddmm(const Matrix<float> &matrixA,
+           const Matrix<float> &matrixB,
+           const sparseDataType::CSR<float> &matrixS,
+           sparseDataType::CSR<float> &matrixP) {
+    ReorderedMatrix reorderedMatrix = reordering(matrixS);
 }
