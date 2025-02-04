@@ -15,7 +15,7 @@ void sddmm(Matrix<float> &matrixA, Matrix<float> &matrixB, SparseMatrix<float> &
     printf("Kernel gridDim : [%d,%d,%d], blockDim : [%d,%d,%d]\n",
            tensorCoreConfig.gridDim().x, tensorCoreConfig.gridDim().y, tensorCoreConfig.gridDim().z,
            tensorCoreConfig.blockDim().x, tensorCoreConfig.blockDim().y, tensorCoreConfig.blockDim().z);
-    printf("@WMMA_M : %d @, @WMMA_N : %d @, @WMMA_K : %d @\n", WMMA_M, WMMA_N, WMMA_K);
+    printf("[WMMA_M : %d],]WMMA_N : %d],]WMMA_K : %d]\n", WMMA_M, WMMA_N, WMMA_K);
 
     matrixA.openTensorCoreMode(tensorCoreConfig, MatrixMultiplicationOrder::left_multiplication);
     printf("openTensorCoreMode matrixA : row = %d, col = %d\n", matrixA.row(), matrixA.col());
@@ -80,7 +80,7 @@ void sddmm(Matrix<float> &matrixA, Matrix<float> &matrixB, SparseMatrix<float> &
 
     size_t numError_3 = 0;
     if (!checkData(matrixP_cpu_res.values(), matrixP_value_coo3, numError_3)) {
-        printf("@checkData : NO PASS Error rate : %2.2f%% @\n",
+        printf("[checkData : NO PASS Error rate : %2.2f%%]\n",
                static_cast<float>(numError_3) / static_cast<float>(matrixP_cpu_res.values().size()) * 100);
     }
 
@@ -92,9 +92,9 @@ void sddmm(Matrix<float> &matrixA, Matrix<float> &matrixB, SparseMatrix<float> &
     const float time_sddmm_zcx = openTensorCoreModeForSampled_time + time_sddmm_gpu_coo3;
     std::cout << "sddmm_zcx time : " << time_sddmm_zcx << " ms" << std::endl;
 
-    printf("@zcx_sddmm : %.2f @\n", time_sddmm_gpu_coo3);
-    printf("@zcx_other : %.2f @\n", openTensorCoreModeForSampled_time);
-    printf("@zcx : %.2f @\n", time_sddmm_zcx);
+    printf("[zcx_sddmm : %.2f]\n", time_sddmm_gpu_coo3);
+    printf("[zcx_other : %.2f]\n", openTensorCoreModeForSampled_time);
+    printf("[zcx : %.2f]\n", time_sddmm_zcx);
 }
 
 // 重排序方法

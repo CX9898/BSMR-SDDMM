@@ -7,11 +7,11 @@
 #include "cuSparseSDDMM.hpp"
 #include "sddmm.hpp"
 
-const std::string folderPath("../dataset/test/matrix_20000_20000_/");
+const std::string folderPath("../dataset/");
 //const std::string folderPath("./");
 //const std::string fileName = ("nips");
-//const std::string fileName = ("test");
-const std::string fileName("matrix_20000_20000_4000000");
+const std::string fileName = ("test2");
+//const std::string fileName("matrix_20000_20000_4000000");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 
@@ -40,6 +40,7 @@ const std::string filePath = folderPath + fileName + fileFormat;
 //                   1) 代码实现
 //                   2) 测试
 //                   3) 比较数据
+//      12: 核函数中, 将K迭代放在调用核函数的外部. 增加矩阵A的数据重用性. 但是写回全局内存的次数将会增加. 具体效果还需要测试
 
 //#define MAKE_MATRIX_DATA
 
@@ -93,26 +94,26 @@ int main(int argc, char *argv[]) {
     }
 
 #ifdef _DEBUG
-    printf("@Build type : Debug @\n");
+    printf("[Build type : Debug]\n");
 #endif
 
 #ifdef NDEBUG
-    printf("@Build type : Release @\n");
+    printf("[Build type : Release]\n");
 #endif
 
     cudaDeviceProp deviceProp{};
     cudaGetDeviceProperties(&deviceProp, 0);
-    printf("@Device : %s @\n", deviceProp.name);
+    printf("[Device : %s]\n", deviceProp.name);
 
-    printf("@M : %d @, ", matrixS.row());
-    printf("@N : %d @, ", matrixS.col());
-    printf("@K : %ld @, ", K);
-    printf("@NNZ : %d @, ", matrixS.nnz());
-    printf("@sparsity : %.2f%% @\n", matrixS.getSparsity() * 100);
+    printf("[M : %d], ", matrixS.row());
+    printf("[N : %d], ", matrixS.col());
+    printf("[K : %ld], ", K);
+    printf("[NNZ : %d], ", matrixS.nnz());
+    printf("[sparsity : %.2f%%]\n", matrixS.getSparsity() * 100);
 
-    printf("@matrixA type : %s @\n", typeid(MATRIX_A_TYPE).name());
-    printf("@matrixB type : %s @\n", typeid(MATRIX_B_TYPE).name());
-    printf("@matrixC type : %s @\n", typeid(MATRIX_C_TYPE).name());
+    printf("[matrixA type : %s]\n", typeid(MATRIX_A_TYPE).name());
+    printf("[matrixB type : %s]\n", typeid(MATRIX_B_TYPE).name());
+    printf("[matrixC type : %s]\n", typeid(MATRIX_C_TYPE).name());
 
     Matrix<float> matrixA(matrixS.row(), K, MatrixStorageOrder::row_major);
     matrixA.makeData(matrixA.row(), K);
@@ -127,10 +128,10 @@ int main(int argc, char *argv[]) {
 //    matrixA.changeStorageOrder();
 //    matrixB.changeStorageOrder();
 
-    if (matrixA.storageOrder() == MatrixStorageOrder::row_major) { printf("@matrixA storageOrder : row_major @\n"); }
-    else { printf("@matrixA storageOrder : col_major @\n"); }
-    if (matrixB.storageOrder() == MatrixStorageOrder::row_major) { printf("@matrixB storageOrder : row_major @\n"); }
-    else { printf("@matrixB storageOrder : col_major @\n"); }
+    if (matrixA.storageOrder() == MatrixStorageOrder::row_major) { printf("[matrixA storageOrder : row_major]\n"); }
+    else { printf("[matrixA storageOrder : col_major]\n"); }
+    if (matrixB.storageOrder() == MatrixStorageOrder::row_major) { printf("[matrixB storageOrder : row_major]\n"); }
+    else { printf("[matrixB storageOrder : col_major]\n"); }
 
     // cuSparse library
     cuSparseSDDMM(matrixA, matrixB, matrixS);

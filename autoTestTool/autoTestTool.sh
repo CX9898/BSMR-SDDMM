@@ -9,10 +9,7 @@ test_done_symbol="\n---Test done---\n"
 script_file_path="$(dirname "$0")/"
 
 # 设置多个测试文件路径
-test_file_folder_path_list=("${script_file_path}../dataset/test/matrix_5000_5000_/" \
-                            "${script_file_path}../dataset/test/matrix_10000_10000_/" \
-                            "${script_file_path}../dataset/test/matrix_15000_15000_/" \
-                            "${script_file_path}../dataset/test/matrix_20000_20000_/")
+test_file_folder_path_list=("${script_file_path}../dataset/test/matrix_5000_5000_/")
 
 # 设置多个K
 k_list=(256 512 1024 2048 3072 4096)
@@ -134,9 +131,9 @@ autoTest(){
     local numTestFiles=${#files_list[@]}
     echo "${print_tag}Number of test files in the test folder: ${numTestFiles}"
 
-    echo -e "@Test file folder : ${test_file_folder_path} @\n" >> ${autoTest_autoTestlog_file}
-    echo -e "@numTestFiles : ${numTestFiles} @\n" >> ${autoTest_autoTestlog_file}
-    echo -e "@num_k : ${num_k} @\n" >> ${autoTest_autoTestlog_file}
+    echo -e "[Test file folder : ${test_file_folder_path}]\n" >> ${autoTest_autoTestlog_file}
+    echo -e "[numTestFiles : ${numTestFiles}]\n" >> ${autoTest_autoTestlog_file}
+    echo -e "[num_k : ${num_k}]\n" >> ${autoTest_autoTestlog_file}
 
     local file_id=1
     for file in "${files_list[@]}"; do

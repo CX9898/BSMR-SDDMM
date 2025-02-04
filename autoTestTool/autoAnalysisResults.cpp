@@ -152,7 +152,7 @@ void ResultsInformation::initInformation(const std::string &line) {
           if (contains(line, find)) {
               const size_t beginIdx = line.find(find) + find.size();
               size_t endIdx = beginIdx;
-              while (line[endIdx++] != '@') {}
+              while (line[endIdx++] != ']') {}
               output = line.substr(beginIdx, endIdx - beginIdx - 2);
               is_initialized = true;
           }
@@ -165,42 +165,42 @@ void ResultsInformation::initInformation(const std::string &line) {
           if (contains(line, find)) {
               const size_t beginIdx = line.find(find) + 1;
               size_t endIdx = beginIdx + 1;
-              while (line[endIdx++] != '@') {}
+              while (line[endIdx++] != ']') {}
               output = line.substr(beginIdx, endIdx - beginIdx - 2);
               is_initialized = true;
           }
       }
     };
 
-    initSettingOperation(line, "@Build type : ", is_initialized_buildType_, buildType_);
-    initSettingOperation(line, "@Device : ", is_initialized_gpu_, gpu_);
-    initSettingOperation(line, "@WMMA_M : ", is_initialized_wmma_m_, wmma_m_);
-    initSettingOperation(line, "@WMMA_N : ", is_initialized_wmma_n_, wmma_n_);
-    initSettingOperation(line, "@WMMA_K : ", is_initialized_wmma_k_, wmma_k_);
+    initSettingOperation(line, "[Build type : ", is_initialized_buildType_, buildType_);
+    initSettingOperation(line, "[Device : ", is_initialized_gpu_, gpu_);
+    initSettingOperation(line, "[WMMA_M : ", is_initialized_wmma_m_, wmma_m_);
+    initSettingOperation(line, "[WMMA_N : ", is_initialized_wmma_n_, wmma_n_);
+    initSettingOperation(line, "[WMMA_K : ", is_initialized_wmma_k_, wmma_k_);
 
-    initSettingOperation(line, "@matrixA type : ", is_initialized_matrixA_type_, matrixA_type_);
-    initSettingOperation(line, "@matrixB type : ", is_initialized_matrixB_type_, matrixB_type_);
-    initSettingOperation(line, "@matrixC type : ", is_initialized_matrixC_type_, matrixC_type_);
+    initSettingOperation(line, "[matrixA type : ", is_initialized_matrixA_type_, matrixA_type_);
+    initSettingOperation(line, "[matrixB type : ", is_initialized_matrixB_type_, matrixB_type_);
+    initSettingOperation(line, "[matrixC type : ", is_initialized_matrixC_type_, matrixC_type_);
 
-    initSettingOperation(line, "@matrixA storageOrder : ", is_initialized_matrixA_storageOrder_, matrixA_storageOrder_);
-    initSettingOperation(line, "@matrixB storageOrder : ", is_initialized_matrixB_storageOrder_, matrixB_storageOrder_);
-    initSettingOperation(line, "@matrixC storageOrder : ", is_initialized_matrixC_storageOrder_, matrixC_storageOrder_);
+    initSettingOperation(line, "[matrixA storageOrder : ", is_initialized_matrixA_storageOrder_, matrixA_storageOrder_);
+    initSettingOperation(line, "[matrixB storageOrder : ", is_initialized_matrixB_storageOrder_, matrixB_storageOrder_);
+    initSettingOperation(line, "[matrixC storageOrder : ", is_initialized_matrixC_storageOrder_, matrixC_storageOrder_);
 
-    initOperation(line, "@M : ", is_initialized_M_, M_);
-    initOperation(line, "@N : ", is_initialized_N_, N_);
-    initOperation(line, "@K : ", is_initialized_K_, K_);
-    initOperation(line, "@NNZ : ", is_initialized_NNZ_, NNZ_);
-    initOperation(line, "@sparsity : ", is_initialized_sparsity_, sparsity_);
+    initOperation(line, "[M : ", is_initialized_M_, M_);
+    initOperation(line, "[N : ", is_initialized_N_, N_);
+    initOperation(line, "[K : ", is_initialized_K_, K_);
+    initOperation(line, "[NNZ : ", is_initialized_NNZ_, NNZ_);
+    initOperation(line, "[sparsity : ", is_initialized_sparsity_, sparsity_);
 
-    initOperation(line, "@isratnisa_sddmm : ", is_initialized_isratnisa_sddmm_, isratnisa_sddmm_);
-    initOperation(line, "@zcx_sddmm : ", is_initialized_zcx_sddmm_, zcx_sddmm_);
-    initOperation(line, "@isratnisa_other : ", is_initialized_isratnisa_other_, isratnisa_other_);
-    initOperation(line, "@zcx_other : ", is_initialized_zcx_other_, zcx_other_);
-    initOperation(line, "@isratnisa : ", is_initialized_isratnisa_, isratnisa_);
-    initOperation(line, "@zcx : ", is_initialized_zcx_, zcx_);
-    initOperation(line, "@cuSparse : ", is_initialized_cuSparse_, cuSparse_);
+    initOperation(line, "[isratnisa_sddmm : ", is_initialized_isratnisa_sddmm_, isratnisa_sddmm_);
+    initOperation(line, "[zcx_sddmm : ", is_initialized_zcx_sddmm_, zcx_sddmm_);
+    initOperation(line, "[isratnisa_other : ", is_initialized_isratnisa_other_, isratnisa_other_);
+    initOperation(line, "[zcx_other : ", is_initialized_zcx_other_, zcx_other_);
+    initOperation(line, "[isratnisa : ", is_initialized_isratnisa_, isratnisa_);
+    initOperation(line, "[zcx : ", is_initialized_zcx_, zcx_);
+    initOperation(line, "[cuSparse : ", is_initialized_cuSparse_, cuSparse_);
 
-    initOperation(line, "@checkData : ", is_initialized_checkData_, checkData_);
+    initOperation(line, "[checkData : ", is_initialized_checkData_, checkData_);
 }
 
 void printSettingInformation(const ResultsInformation &resultsInformation) {
@@ -280,8 +280,12 @@ void sortResultsInformation(std::vector<ResultsInformation> &resultsInformation)
     size_t compareM = 0, compareN = 0;
     size_t endIdxForLastSorted = 0;
     for (int idx = 0; idx < resultsInformation.size(); ++idx) {
-        const size_t curM = std::stoll(resultsInformation[idx].M_);
-        const size_t curN = std::stoll(resultsInformation[idx].N_);
+        const size_t curM = resultsInformation[idx].M_.empty()
+            && std::all_of(resultsInformation[idx].M_.begin(), resultsInformation[idx].M_.end(), ::isdigit) ?
+            0 : std::stoll(resultsInformation[idx].M_);
+        const size_t curN = resultsInformation[idx].N_.empty()
+            && std::all_of(resultsInformation[idx].N_.begin(), resultsInformation[idx].N_.end(), ::isdigit) ?
+            0 : std::stoll(resultsInformation[idx].N_);
         if (curM != compareM || curN != compareN) {
             std::sort(resultsInformation.data() + endIdxForLastSorted, resultsInformation.data() + idx,
                       [&](ResultsInformation &a, ResultsInformation &b) {

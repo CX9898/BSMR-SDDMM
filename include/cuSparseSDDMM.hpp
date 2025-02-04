@@ -83,5 +83,5 @@ void cuSparseSDDMM(const Matrix<float> &mtxA,
                   CUSPARSE_SDDMM_ALG_DEFAULT, dBuffer);
 
     timer.endClock();
-    printf("@cuSparse : %.2f @\n", timer.getTime());
+    printf("[cuSparse : %.2f]\n", timer.getTime());
 }
