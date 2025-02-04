@@ -15,7 +15,7 @@ void sddmm(Matrix<float> &matrixA, Matrix<float> &matrixB, SparseMatrix<float> &
     printf("Kernel gridDim : [%d,%d,%d], blockDim : [%d,%d,%d]\n",
            tensorCoreConfig.gridDim().x, tensorCoreConfig.gridDim().y, tensorCoreConfig.gridDim().z,
            tensorCoreConfig.blockDim().x, tensorCoreConfig.blockDim().y, tensorCoreConfig.blockDim().z);
-    printf("[WMMA_M : %d],]WMMA_N : %d],]WMMA_K : %d]\n", WMMA_M, WMMA_N, WMMA_K);
+    printf("[WMMA_M : %d], [WMMA_N : %d], [WMMA_K : %d]\n", WMMA_M, WMMA_N, WMMA_K);
 
     matrixA.openTensorCoreMode(tensorCoreConfig, MatrixMultiplicationOrder::left_multiplication);
     printf("openTensorCoreMode matrixA : row = %d, col = %d\n", matrixA.row(), matrixA.col());
