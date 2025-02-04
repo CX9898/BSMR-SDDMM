@@ -999,9 +999,11 @@ __global__ void sddmm_gpu_csr_matrix_row_matrix_row(const UIN M,
                                                     const UIN K,
                                                     const half *matrixA,
                                                     const half *matrixB,
+                                                    const UIN numNonZeroRow,
                                                     const UIN *reorderedMatrixRowIndices,
                                                     const UIN *reorderedMatrixColIndicesOffset,
                                                     const UIN *reorderedMatrixColIndicesInEachRowPanel,
+                                                    const UIN *reorderedMatrixPanelOffsets,
                                                     float *matrixP) {
     __shared__ half aTileSMEM[256];
     __shared__ half bTileSMEM[256];
@@ -1010,36 +1012,47 @@ __global__ void sddmm_gpu_csr_matrix_row_matrix_row(const UIN M,
     const UIN warpId = threadIdx.x % WARP_SIZE;
 
     const UIN rowPanelId = blockIdx.x;
-    const UIN startIndexOfRowPanel = rowPanelId * row_panel_size;
-    const UIN endIndexOfRowPanel = startIndexOfRowPanel + row_panel_size;
-
-    for (int reorderedRowIdx = startIndexOfRowPanel; reorderedRowIdx < endIndexOfRowPanel; ++reorderedRowIdx) {
-        const UIN row = reorderedMatrixRowIndices[reorderedRowIdx];
-
-    }
 
     const UIN lda = K;
     const UIN ldb = N;
 
-    for (int kIter = 0; kIter < K; kIter += WMMA_K) {
-        // Load matrix A data
+    const UIN numPanels = reorderedMatrixPanelOffsets[rowPanelId + 1] - reorderedMatrixPanelOffsets[rowPanelId];
+    for (int colTileIdx = 0; colTileIdx < numPanels; colTileIdx += 2) {
+        const UIN startIndexOfColTile =
+            reorderedMatrixColIndicesOffset[rowPanelId] + col_tile_size * colTileIdx;
+        const UIN endIndexOfColTile = reorderedMatrixColIndicesOffset[rowPanelId + 1];
+
+        // Loop over K
+        for (int kIter = 0; kIter < K; kIter += WMMA_K) {
+            // Load matrix A into shared memory, each thread loads 4 elements, conflict-free access
 #pragma unroll
-        for (int iter = 0; iter < 4; ++iter) {
-            const UIN aRowId =
-                reorderedMatrixRowIndices[(rowPanelId * row_panel_size) + (warpId * 8) + (laneId / 16) + (iter * 2)];
-            const UIN aColId = kIter + laneId;
+            for (int iter = 0; iter < 4; ++iter) {
+                const UIN idxOfReorderedMatrixRowIndices =
+                    (rowPanelId * row_panel_size) + (warpId * 8) + (laneId / 16) + (iter * 2);
+                const UIN aRowId = idxOfReorderedMatrixRowIndices < numNonZeroRow ?
+                    reorderedMatrixRowIndices[idxOfReorderedMatrixRowIndices] : M;
+                const UIN aColId = kIter + laneId;
 
-            aTileSMEM[warpId * 128 + iter * 32 + laneId] =
-                (aRowId < M && aColId < K) ? matrixA[aRowId * lda + aColId] : static_cast<half>(0);
-        }
+                aTileSMEM[warpId * 128 + iter * 32 + laneId] =
+                    (aRowId < M && aColId < K) ? matrixA[aRowId * lda + aColId] : static_cast<half>(0);
+            }
 
-        // Load matrix B data
+            // Load matrix B data into shared memory, each thread loads 8 elements, conflict-free access
 #pragma unroll
-        for () {
+            for (int iter = 0; iter < 8; ++iter) {
+                const UIN bRowId = warpId * 8 + iter;
+                const UIN idxOfReorderedMatrixColIndicesInEachRowPanel = startIndexOfColTile + laneId;
+                const UIN bColId = idxOfReorderedMatrixColIndicesInEachRowPanel < endIndexOfColTile ?
+                    reorderedMatrixColIndicesInEachRowPanel[idxOfReorderedMatrixColIndicesInEachRowPanel] : N;
+
+                bTileSMEM[warpId * 256 + laneId * 32] =
+                    (bRowId < K && bColId < N) ? matrixB[bRowId * ldb + bColId] : static_cast<half>(0);
+            }
+
+            // Synchronize threads
+            __syncthreads();
 
         }
-        __syncthreads();
-
     }
 }
 

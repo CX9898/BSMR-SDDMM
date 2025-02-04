@@ -5,6 +5,7 @@
 const float row_similarity_threshold_alpha = 0.3f;
 
 const int row_panel_size = WMMA_M;
+const int col_tile_size = WMMA_N;
 
 /**
  * @structName: ReorderedMatrix
