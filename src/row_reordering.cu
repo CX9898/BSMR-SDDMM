@@ -109,23 +109,23 @@ void row_reordering(const sparseDataType::CSR<float> &matrix, struct ReorderedMa
     }
     clustering(matrix.row_, encodings, ascending, startIndexOfNonZeroRow, clusterIds);
 
-    reorderedMatrix.rowIndices_.resize(matrix.row_);
-    std::iota(reorderedMatrix.rowIndices_.begin(),
-              reorderedMatrix.rowIndices_.end(),
+    reorderedMatrix.reorderedRowIndices_.resize(matrix.row_);
+    std::iota(reorderedMatrix.reorderedRowIndices_.begin(),
+              reorderedMatrix.reorderedRowIndices_.end(),
               0); // rowIndices = {0, 1, 2, 3, ... rows-1}
-    std::stable_sort(reorderedMatrix.rowIndices_.begin(),
-                     reorderedMatrix.rowIndices_.end(),
+    std::stable_sort(reorderedMatrix.reorderedRowIndices_.begin(),
+                     reorderedMatrix.reorderedRowIndices_.end(),
                      [&clusterIds](int i, int j) { return clusterIds[i] < clusterIds[j]; });
 
     // Remove zero rows
     {
         UIN startIndexOfNonZeroRow = 0;
         while (startIndexOfNonZeroRow < matrix.row_
-            && matrix.rowOffsets_[reorderedMatrix.rowIndices_[startIndexOfNonZeroRow] + 1]
-                - matrix.rowOffsets_[reorderedMatrix.rowIndices_[startIndexOfNonZeroRow]] == 0) {
+            && matrix.rowOffsets_[reorderedMatrix.reorderedRowIndices_[startIndexOfNonZeroRow] + 1]
+                - matrix.rowOffsets_[reorderedMatrix.reorderedRowIndices_[startIndexOfNonZeroRow]] == 0) {
             ++startIndexOfNonZeroRow;
         }
-        reorderedMatrix.rowIndices_.erase(reorderedMatrix.rowIndices_.begin(),
-                                          reorderedMatrix.rowIndices_.begin() + startIndexOfNonZeroRow);
+        reorderedMatrix.reorderedRowIndices_.erase(reorderedMatrix.reorderedRowIndices_.begin(),
+                                                   reorderedMatrix.reorderedRowIndices_.begin() + startIndexOfNonZeroRow);
     }
 }

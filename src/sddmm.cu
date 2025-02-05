@@ -102,5 +102,5 @@ void sddmm(const Matrix<float> &matrixA,
            const Matrix<float> &matrixB,
            const sparseDataType::CSR<float> &matrixS,
            sparseDataType::CSR<float> &matrixP) {
-    ReorderedMatrix reorderedMatrix = reordering(matrixS);
+    ReBELL<float> reBell(matrixS);
 }

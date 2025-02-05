@@ -6,6 +6,7 @@ const float row_similarity_threshold_alpha = 0.3f;
 
 const int row_panel_size = WMMA_M;
 const int col_tile_size = WMMA_N;
+const int tile_size = row_panel_size * col_tile_size;
 
 /**
  * @structName: ReorderedMatrix
@@ -16,10 +17,18 @@ const int col_tile_size = WMMA_N;
  * `colIndicesInEachRowPanel_`: Sorted col index array in each row panel.
  **/
 struct ReorderedMatrix {
-  std::vector<UIN> rowIndices_;
-  std::vector<UIN> colIndicesOffset_;
-  std::vector<UIN> colIndicesInEachRowPanel_;
+  std::vector<UIN> reorderedRowIndices_;
+  std::vector<UIN> reorderedColIndices_;
+  std::vector<UIN> reorderedColIndicesOffset_;
 };
+
+template<typename T>
+struct ReBELL: public ReorderedMatrix, public sparseDataType::BELL<T>{
+ public:
+  ReBELL() = default;
+  ReBELL(const sparseDataType::CSR<T> &csrMatrix);
+};
+
 
 /**
  * @funcitonName: reordering
