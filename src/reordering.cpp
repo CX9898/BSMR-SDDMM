@@ -42,7 +42,7 @@ ReBELL<T>::ReBELL(const sparseDataType::CSR<T> &csrMatrix) {
 #pragma omp parallel for
     for (int rowPanelIdx = 0; rowPanelIdx < numRowPanel; ++rowPanelIdx) {
         const UIN numColIndices = reorderedColIndicesOffset_[rowPanelIdx + 1] - reorderedColIndicesOffset_[rowPanelIdx];
-        numBlockInEachRowPanel[rowPanelIdx] = std::ceil(static_cast<float>(numColIndices) / col_tile_size);
+        numBlockInEachRowPanel[rowPanelIdx] = std::ceil(static_cast<float>(numColIndices) / col_block_size);
     }
     this->blockRowOffsets_.resize(numRowPanel + 1);
     this->blockRowOffsets_[0] = 0;
@@ -53,7 +53,7 @@ ReBELL<T>::ReBELL(const sparseDataType::CSR<T> &csrMatrix) {
     // initialize blockColIndices_
 
     // initialize blockValues_
-    this->blockValues_.resize(this->blockRowOffsets_.back() * tile_size);
+    this->blockValues_.resize(this->blockRowOffsets_.back() * block_size);
 #pragma omp parallel for
     for (int idxOfRowIndices = 0; idxOfRowIndices < reorderedRowIndices_.size(); ++idxOfRowIndices) {
         const UIN row = reorderedRowIndices_[idxOfRowIndices];
@@ -66,13 +66,13 @@ ReBELL<T>::ReBELL(const sparseDataType::CSR<T> &csrMatrix) {
 
         const UIN rowPanelIdx = idxOfRowIndices / row_panel_size;
         const UIN localRowIdx = idxOfRowIndices % row_panel_size;
-        const UIN startIndexOfBlockValuesInThisRowPanel = this->blockRowOffsets_[rowPanelIdx] * tile_size;
+        const UIN startIndexOfBlockValuesInThisRowPanel = this->blockRowOffsets_[rowPanelIdx] * block_size;
         for (int idxOfReorderedColIndices = reorderedColIndicesOffset_[rowPanelIdx];
              idxOfReorderedColIndices < reorderedColIndicesOffset_[rowPanelIdx + 1]; ++idxOfReorderedColIndices) {
-            const UIN localColIdx = idxOfReorderedColIndices % col_tile_size;
-            const UIN colBlockId = idxOfReorderedColIndices / col_tile_size;
-            const UIN idxOfBlockValues = startIndexOfBlockValuesInThisRowPanel + colBlockId * tile_size +
-                localRowIdx * col_tile_size + localColIdx;
+            const UIN localColIdx = idxOfReorderedColIndices % col_block_size;
+            const UIN colBlockId = idxOfReorderedColIndices / col_block_size;
+            const UIN idxOfBlockValues = startIndexOfBlockValuesInThisRowPanel + colBlockId * block_size +
+                localRowIdx * col_block_size + localColIdx;
 
             const UIN col = reorderedColIndices_[idxOfReorderedColIndices];
             const auto findIter = colAndValueMap.find(col);

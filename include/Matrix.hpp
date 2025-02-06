@@ -365,20 +365,17 @@ struct BELL : public DataBase {
   BELL(UIN row,
        UIN col,
        UIN nnz,
-       const std::vector<UIN> &blockValues,
+       const std::vector<T> &blockValues,
        const std::vector<UIN> &blockColIndices,
        const std::vector<T> &blockRowOffsets)
-      : blockValues_(blockValues_), blockColIndices_(blockColIndices), blockRowOffsets_(blockRowOffsets) {
+      : blockValues_(blockValues), blockColIndices_(blockColIndices), blockRowOffsets_(blockRowOffsets) {
       row_ = row;
       col_ = col;
       nnz_ = nnz;
   }
 
-  std::vector<UIN> blockValues_;
+  std::vector<T> blockValues_;
   std::vector<UIN> blockColIndices_;
   std::vector<UIN> blockRowOffsets_;
 };
 } // namespace sparseDataType
-
-template<typename T>
-void csr_to_bell(sparseDataType::CSR<T> &csr, sparseDataType::BELL<T> &bell);

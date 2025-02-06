@@ -55,358 +55,6 @@ __device__ float calculateMatrixTileSparsity(const int tileM,
     return static_cast<float>(numValues - nnzCount) / static_cast<float>(numValues);
 }
 
-__device__ void matrixTileMultiplicationUseCudaCode(int pRowId, int pColId,
-                                                    const UIN M, const UIN N, const UIN K,
-                                                    const half *matrixA,
-                                                    const half *matrixB,
-                                                    const float *matrixS,
-                                                    float *matrixP) {
-
-}
-
-__device__ void matrixTileMultiplicationUseTensorCore(int pRowId, int pColId,
-                                                      const UIN M, const UIN N, const UIN K,
-                                                      const half *matrixA,
-                                                      const half *matrixB,
-                                                      const float *matrixS,
-                                                      float *matrixP) {
-
-    // Leading dimensions. Packed with no transpositions.
-    const int lda = K;
-    const int ldb = N;
-    const int ldp = N;
-    const auto pOffsetPtr = matrixP + pRowId * ldp + pColId;
-
-    wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE, wmma::row_major> aFrag;
-    wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE, wmma::row_major> bFrag;
-
-    wmma::fragment<wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> cFrag;
-    fill_fragment(cFrag, 0.0f);
-
-    // Loop over k
-    for (int kIter = 0; kIter < K; kIter += WMMA_K) {
-        const int aRowId = pRowId;
-        const int aColId = kIter;
-
-        const int bRowId = kIter;
-        const int bColId = pColId;
-
-        // Bounds checking
-        if (aRowId < M && aColId < K && bRowId < K && bColId < N) {
-            const auto aOffsetPtr = matrixA + aRowId * lda + aColId;
-            const auto bOffsetPtr = matrixB + bRowId * ldb + bColId;
-
-            wmma::load_matrix_sync(aFrag, aOffsetPtr, lda);
-            wmma::load_matrix_sync(bFrag, bOffsetPtr, ldb);
-
-            wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
-        }
-    }
-
-//#pragma unroll
-//    for (int idx = 0; idx < cFrag.num_elements; ++idx) {
-//        const int sIdx = pRowId * ldc + pColId + idx;
-//
-//        cFrag.x[idx] *= matrixS[sIdx];
-//    }
-
-    wmma::store_matrix_sync(pOffsetPtr, cFrag, ldp, wmma::mem_row_major);
-}
-
-__device__ void matrixTileMultiplicationUseTensorCore_coo(TensorCoreConfig tensorCoreConfig,
-                                                          const UIN pRowId,
-                                                          const UIN pColId,
-                                                          const UIN M,
-                                                          const UIN N,
-                                                          const UIN K,
-                                                          const UIN nnz,
-                                                          const half *matrixA,
-                                                          const half *matrixB,
-                                                          const UIN *matrixSRowIndex,
-                                                          const UIN *matrixSColIndex,
-                                                          const UIN *matrixTileIndex,
-                                                          const float *matrixS,
-                                                          float *matrixP) {
-
-    // Leading dimensions. Packed with no transpositions.
-    const UIN lda = K;
-    const UIN ldb = N;
-
-    wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE, wmma::row_major> aFrag;
-    wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE, wmma::row_major> bFrag;
-
-    wmma::fragment<wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> cFrag;
-
-    fill_fragment(cFrag, 0.0f);
-
-    // Loop over k
-    for (int kIter = 0; kIter < K; kIter += WMMA_K) {
-        const int aRowId = pRowId;
-        const int aColId = kIter;
-
-        const int bRowId = kIter;
-        const int bColId = pColId;
-
-        // Bounds checking
-        if (aRowId < M && aColId < K && bRowId < K && bColId < N) {
-            const auto aOffsetPtr = matrixA + aRowId * lda + aColId;
-            const auto bOffsetPtr = matrixB + bRowId * ldb + bColId;
-
-            wmma::load_matrix_sync(aFrag, aOffsetPtr, lda);
-            wmma::load_matrix_sync(bFrag, bOffsetPtr, ldb);
-
-            wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
-        }
-    }
-
-    const int warpId = tensorCoreConfig.globalWarpId();
-    const int laneId = tensorCoreConfig.laneId();
-
-    for (int matrixPIdx = matrixTileIndex[warpId];
-         matrixPIdx < matrixTileIndex[warpId + 1]; ++matrixPIdx) {
-        const UIN curRow = matrixSRowIndex[matrixPIdx];
-        const UIN curCol = matrixSColIndex[matrixPIdx];
-
-        FragmentInformation fragmentInformation;
-        tensorCoreConfig.positionCalculator(pRowId, pColId, curRow, curCol, fragmentInformation);
-
-//        if (matrixPIdx == 8410 && warpId == 780 && laneId_ == 0) {
-//            printf(" warpId = %d\n"
-//                   " pRowId = %d, pColId = %d, curRow = %d, curCol = %d, curValue = %f"
-//                   " laneId_ = %d findLaneId = %d, findIdx = %d, cFrag.x[%d] = %f\n",
-//                   warpId,
-//                   static_cast<int>(pRowId),
-//                   static_cast<int>(pColId),
-//                   static_cast<int>(curRow),
-//                   static_cast<int>(curCol),
-//                   static_cast<float>(matrixS[matrixPIdx]),
-//                   laneId_,
-//                   findLaneId,
-//                   findIdx,
-//                   findIdx,
-//                   static_cast<float>(cFrag.x[findIdx]));
-//            printf("frag : ");
-//            for (int idx = 0; idx < 8; ++idx) {
-//                printf("%f ", static_cast<float>(cFrag.x[idx]));
-//            }
-//            printf("\n");
-//        }
-        if (laneId == fragmentInformation.laneId_) {
-            matrixP[matrixPIdx] = cFrag.x[fragmentInformation.index_];
-//            printf(
-//                " pRowId = %d, pColId = %d, curRow = %d, curCol = %d, findLaneId = %d, findIdx = %d, cFrag.x[%d] = %f\n",
-//                static_cast<int>(pRowId),
-//                static_cast<int>(pColId),
-//                static_cast<int>(curRow),
-//                static_cast<int>(curCol),
-//                findLaneId,
-//                findIdx,
-//                findIdx,
-//                static_cast<float>(cFrag.x[findIdx]));
-        }
-    }
-}
-
-__global__ void sddmm_gpu(const UIN M, const UIN N, const UIN K,
-                          const half *matrixA, const half *matrixB,
-                          const float *matrixS,
-                          float *matrixP) {
-    const UIN tidX = (blockDim.x * blockIdx.x + threadIdx.x);
-    const UIN tidY = (blockDim.y * blockIdx.y + threadIdx.y);
-
-    const UIN warpM = tidX / WARP_SIZE;
-    const UIN warpN = tidY;
-
-//    const int landIdM = tidX % WARP_SIZE;
-//    const int landIdN = tidY % WARP_SIZE;
-
-    // Compute dense matrix multiplication using Tensor core
-
-    const UIN pRowId = warpM * WMMA_M;
-    const UIN pColId = warpN * WMMA_N;
-//    const UIN pRowId = warpN * WMMA_N;
-//    const UIN pColId = warpM * WMMA_M;
-
-    if (pRowId >= M || pColId >= N) {
-        return;
-    }
-    matrixTileMultiplicationUseTensorCore(pRowId, pColId, M, N, K, matrixA, matrixB, matrixS, matrixP);
-//    const int ldp = N;
-//    const auto pOffsetPtr = matrixP + pRowId * ldp + pColId;
-//    const float sparsity = calculateMatrixTileSparsity(WMMA_M, WMMA_N, ldp, MatrixStorageOrder::row_major, pOffsetPtr);
-//    if (sparsity < 0) {
-//        matrixTileMultiplicationUseCudaCode(pRowId, pColId, M, N, K, matrixA, matrixB, matrixS, matrixP);
-//    } else {
-//        matrixTileMultiplicationUseTensorCore(pRowId, pColId, M, N, K, matrixA, matrixB, matrixS, matrixP);
-//    }
-
-}
-
-__global__ void sddmm_gpu_coo_1(TensorCoreConfig tensorCoreConfig,
-                                const UIN M, const UIN N, const UIN K, const UIN nnz,
-                                const half *matrixA, const half *matrixB,
-                                const UIN *matrixSRowIndex,
-                                const UIN *matrixSColIndex,
-                                const UIN *matrixTileIndex,
-                                const float *matrixS,
-                                float *matrixP) {
-    tensorCoreConfig.initByKernel(blockIdx, blockDim, threadIdx);
-
-    const UIN pRowId = tensorCoreConfig.warpStarRow();
-    const UIN pColId = tensorCoreConfig.warpStarCol();
-
-    if (pRowId >= M || pColId >= N) {
-        return;
-    }
-
-    const int warpId = tensorCoreConfig.globalWarpId();
-    const int numData = matrixTileIndex[warpId + 1] - matrixTileIndex[warpId];
-    if (numData <= 0) {
-        return;
-    }
-
-    // Compute dense matrix multiplication using Tensor core
-    matrixTileMultiplicationUseTensorCore_coo(tensorCoreConfig,
-                                              pRowId,
-                                              pColId,
-                                              M,
-                                              N,
-                                              K,
-                                              nnz,
-                                              matrixA,
-                                              matrixB,
-                                              matrixSRowIndex,
-                                              matrixSColIndex,
-                                              matrixTileIndex,
-                                              matrixS,
-                                              matrixP);
-//    const int ldp = N;
-//    const auto pOffsetPtr = matrixP + pRowId * ldp + pColId;
-//    const float sparsity = (WMMA_M * WMMA_N - numData) / WMMA_M * WMMA_N;
-//    if (sparsity < 0) {
-//        matrixTileMultiplicationUseCudaCode(pRowId, pColId, M, N, K, matrixA, matrixB, matrixS, matrixP);
-//    } else {
-//        matrixTileMultiplicationUseTensorCore_coo(tensorCoreConfig,
-//                                                  pRowId,
-//                                                  pColId,
-//                                                  M,
-//                                                  N,
-//                                                  K,
-//                                                  nnz,
-//                                                  matrixA,
-//                                                  matrixB,
-//                                                  matrixSRowIndex,
-//                                                  matrixSColIndex,
-//                                                  matrixTileMappedToWarpIndex,
-//                                                  matrixS,
-//                                                  matrixP);
-//    }
-
-}
-
-__global__ void sddmm_gpu_coo_2(TensorCoreConfig tensorCoreConfig,
-                                const UIN M, const UIN N, const UIN K, const UIN nnz,
-                                const half *matrixA, const half *matrixB,
-                                const UIN *matrixSRowIndex,
-                                const UIN *matrixSColIndex,
-                                const float *matrixS,
-                                const UIN *matrixSTileMappedToWarpIndex,
-                                const UIN *matrixSTileMappedToWarpIndexData,
-                                float *matrixP) {
-    tensorCoreConfig.initByKernel(blockIdx, blockDim, threadIdx);
-
-    const UIN pRowId = tensorCoreConfig.warpStarRow();
-    const UIN pColId = tensorCoreConfig.warpStarCol();
-
-    if (pRowId >= M || pColId >= N) {
-        return;
-    }
-
-    const int globalWarpId = tensorCoreConfig.globalWarpId();
-
-    const int tileIndexBegin = matrixSTileMappedToWarpIndex[globalWarpId];
-    const int tileIndexEnd = matrixSTileMappedToWarpIndex[globalWarpId + 1];
-    const int numData = tileIndexEnd - tileIndexBegin;
-    if (numData <= 0) {
-        return;
-    }
-
-    // Leading dimensions. Packed with no transpositions.
-    const UIN lda = K;
-    const UIN ldb = N;
-
-    wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE, wmma::row_major> aFrag;
-    wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE, wmma::row_major> bFrag;
-
-    wmma::fragment<wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> cFrag;
-
-    fill_fragment(cFrag, 0.0f);
-
-    // Loop over k
-    for (int kIter = 0; kIter < K; kIter += WMMA_K) {
-        const int aRowId = pRowId;
-        const int aColId = kIter;
-
-        const int bRowId = kIter;
-        const int bColId = pColId;
-
-        // Bounds checking
-        if (aRowId < M && aColId < K && bRowId < K && bColId < N) {
-            const auto aOffsetPtr = matrixA + aRowId * lda + aColId;
-            const auto bOffsetPtr = matrixB + bRowId * ldb + bColId;
-
-            wmma::load_matrix_sync(aFrag, aOffsetPtr, lda);
-            wmma::load_matrix_sync(bFrag, bOffsetPtr, ldb);
-
-            wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
-        }
-    }
-
-    const int laneId = tensorCoreConfig.laneId();
-
-    for (int tileIndexDataIdx = tileIndexBegin; tileIndexDataIdx < tileIndexEnd; ++tileIndexDataIdx) {
-        const UIN matrixPIdx = matrixSTileMappedToWarpIndexData[tileIndexDataIdx];
-        const UIN curRow = matrixSRowIndex[matrixPIdx];
-        const UIN curCol = matrixSColIndex[matrixPIdx];
-
-        FragmentInformation fragmentInformation;
-        tensorCoreConfig.positionCalculator(pRowId, pColId, curRow, curCol, fragmentInformation);
-
-//        if (matrixPIdx == 8820 && globalWarpId == 661 && laneId == 0) {
-//            printf("matrixPIdx == %d "
-//                   " globalWarpId = %d "
-//                   " pRowId = %d, pColId = %d, curRow = %d, curCol = %d, curValue = %f"
-//                   " laneId = %d findLaneId = %d, findIdx = %d, cFrag.x[%d] = %f\n",
-//                   matrixPIdx,
-//                   globalWarpId,
-//                   static_cast<int>(pRowId),
-//                   static_cast<int>(pColId),
-//                   static_cast<int>(curRow),
-//                   static_cast<int>(curCol),
-//                   static_cast<float>(matrixS[matrixPIdx]),
-//                   laneId,
-//                   fragmentInformation.laneId_,
-//                   fragmentInformation.index_,
-//                   fragmentInformation.index_,
-//                   static_cast<float>(cFrag.x[fragmentInformation.laneId_]));
-//        }
-        if (laneId == fragmentInformation.laneId_) {
-            matrixP[matrixPIdx] = cFrag.x[fragmentInformation.index_];
-//            printf(
-//                " pRowId = %d, pColId = %d, curRow = %d, curCol = %d, findLaneId = %d, findIdx = %d, cFrag.x[%d] = %f\n",
-//                static_cast<int>(pRowId),
-//                static_cast<int>(pColId),
-//                static_cast<int>(curRow),
-//                static_cast<int>(curCol),
-//                findLaneId,
-//                findIdx,
-//                findIdx,
-//                static_cast<float>(cFrag.x[findIdx]));
-        }
-    }
-
-}
-
 __global__ void bank_conflicts_test(UIN N, UIN K, const int *matrixB, const int *matrixA) {
 
     int pRowId = 0;
@@ -576,7 +224,7 @@ __global__ void sddmm_gpu_coo_4_matrixA_row_matrixB_row(TensorCoreConfig tensorC
         const UIN curCol = matrixSColIndex[matrixPIdx];
 
         FragmentInformation fragmentInformation;
-        tensorCoreConfig.positionCalculator(pRowId, pColId, curRow, curCol, fragmentInformation);
+        tensorCoreConfig.calculateFragmentLaneAndIndex(pRowId, pColId, curRow, curCol, fragmentInformation);
 
         if (laneId == fragmentInformation.laneId_) {
             matrixP[matrixPIdx] = cFrag.x[fragmentInformation.index_];
@@ -678,7 +326,7 @@ __global__ void sddmm_gpu_coo_5_matrixA_row_matrixB_row(TensorCoreConfig tensorC
         const UIN curCol = matrixSColIndex[matrixPIdx];
 
         FragmentInformation fragmentInformation;
-        tensorCoreConfig.positionCalculator(pRowId, pColId, curRow, curCol, fragmentInformation);
+        tensorCoreConfig.calculateFragmentLaneAndIndex(pRowId, pColId, curRow, curCol, fragmentInformation);
 
         if (laneId == fragmentInformation.laneId_) {
             matrixP[matrixPIdx] = cFrag.x[fragmentInformation.index_];
@@ -754,7 +402,7 @@ __global__ void sddmm_gpu_coo_3_matrixA_row_matrixB_row(TensorCoreConfig tensorC
         const UIN curCol = matrixSColIndex[matrixPIdx];
 
         FragmentInformation fragmentInformation;
-        tensorCoreConfig.positionCalculator(pRowId, pColId, curRow, curCol, fragmentInformation);
+        tensorCoreConfig.calculateFragmentLaneAndIndex(pRowId, pColId, curRow, curCol, fragmentInformation);
 
         if (laneId == fragmentInformation.laneId_) {
             matrixP[matrixPIdx] = cFrag.x[fragmentInformation.index_];
@@ -830,7 +478,7 @@ __global__ void sddmm_gpu_coo_3_matrixA_row_matrixB_col(TensorCoreConfig tensorC
         const UIN curCol = matrixSColIndex[matrixPIdx];
 
         FragmentInformation fragmentInformation;
-        tensorCoreConfig.positionCalculator(pRowId, pColId, curRow, curCol, fragmentInformation);
+        tensorCoreConfig.calculateFragmentLaneAndIndex(pRowId, pColId, curRow, curCol, fragmentInformation);
 
         if (laneId == fragmentInformation.laneId_) {
             matrixP[matrixPIdx] = cFrag.x[fragmentInformation.index_];
@@ -908,7 +556,7 @@ __global__ void sddmm_gpu_coo_3_matrixA_col_matrixB_row(TensorCoreConfig tensorC
         const UIN curCol = matrixSColIndex[matrixPIdx];
 
         FragmentInformation fragmentInformation;
-        tensorCoreConfig.positionCalculator(pRowId, pColId, curRow, curCol, fragmentInformation);
+        tensorCoreConfig.calculateFragmentLaneAndIndex(pRowId, pColId, curRow, curCol, fragmentInformation);
 
         if (laneId == fragmentInformation.laneId_) {
             matrixP[matrixPIdx] = cFrag.x[fragmentInformation.index_];
@@ -985,7 +633,7 @@ __global__ void sddmm_gpu_coo_3_matrixA_col_matrixB_col(TensorCoreConfig tensorC
         const UIN curCol = matrixSColIndex[matrixPIdx];
 
         FragmentInformation fragmentInformation;
-        tensorCoreConfig.positionCalculator(pRowId, pColId, curRow, curCol, fragmentInformation);
+        tensorCoreConfig.calculateFragmentLaneAndIndex(pRowId, pColId, curRow, curCol, fragmentInformation);
 
         if (laneId == fragmentInformation.laneId_) {
             matrixP[matrixPIdx] = cFrag.x[fragmentInformation.index_];
@@ -994,19 +642,21 @@ __global__ void sddmm_gpu_coo_3_matrixA_col_matrixB_col(TensorCoreConfig tensorC
 }
 
 // blockDim: [64, 1, 1]
-__global__ void sddmm_gpu_csr_matrix_row_matrix_row(const UIN M,
-                                                    const UIN N,
-                                                    const UIN K,
-                                                    const half *matrixA,
-                                                    const half *matrixB,
-                                                    const UIN numNonZeroRow,
-                                                    const UIN *reorderedMatrixRowIndices,
-                                                    const UIN *reorderedMatrixColIndicesOffset,
-                                                    const UIN *reorderedMatrixColIndicesInEachRowPanel,
-                                                    const UIN *reorderedMatrixPanelOffsets,
-                                                    float *matrixP) {
-    __shared__ half aTileSMEM[256];
-    __shared__ half bTileSMEM[256];
+constexpr int aTileSMEMSize = WMMA_M * WMMA_N;
+constexpr int bTileSMEMSize = WMMA_M * WMMA_N * 2;
+__global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
+                                                       const UIN N,
+                                                       const UIN K,
+                                                       const half *matrixA,
+                                                       const half *matrixB,
+                                                       const UIN numNonZeroRow,
+                                                       const UIN *reorderedMatrixRowIndices,
+                                                       const UIN *reorderedMatrixColIndices,
+                                                       const UIN *reorderedMatrixColIndicesOffset,
+                                                       const UIN *blockRowOffsets,
+                                                       float *matrixP) {
+    __shared__ half aTileSMEM[aTileSMEMSize];
+    __shared__ half bTileSMEM[bTileSMEMSize];
 
     wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE, wmma::row_major> aFrag;
     wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE, wmma::col_major> bFrag;
@@ -1023,10 +673,10 @@ __global__ void sddmm_gpu_csr_matrix_row_matrix_row(const UIN M,
     const UIN lda = K;
     const UIN ldb = N;
 
-    const UIN numPanels = reorderedMatrixPanelOffsets[rowPanelId + 1] - reorderedMatrixPanelOffsets[rowPanelId];
-    for (int colTileIdx = 0; colTileIdx < numPanels; colTileIdx += 2) {
+    const UIN numColTile = blockRowOffsets[rowPanelId + 1] - blockRowOffsets[rowPanelId];
+    for (int tileIdx = 0; tileIdx < numColTile; tileIdx += 2) {
         const UIN startIndexOfColTile =
-            reorderedMatrixColIndicesOffset[rowPanelId] + col_tile_size * colTileIdx;
+            reorderedMatrixColIndicesOffset[rowPanelId] + col_block_size * tileIdx;
         const UIN endIndexOfColTile = reorderedMatrixColIndicesOffset[rowPanelId + 1];
 
         // Loop over K
@@ -1050,7 +700,7 @@ __global__ void sddmm_gpu_csr_matrix_row_matrix_row(const UIN M,
                 const UIN bRowId = warpId * 8 + iter;
                 const UIN idxOfReorderedMatrixColIndicesInEachRowPanel = startIndexOfColTile + laneId;
                 const UIN bColId = idxOfReorderedMatrixColIndicesInEachRowPanel < endIndexOfColTile ?
-                    reorderedMatrixColIndicesInEachRowPanel[idxOfReorderedMatrixColIndicesInEachRowPanel] : N;
+                    reorderedMatrixColIndices[idxOfReorderedMatrixColIndicesInEachRowPanel] : N;
 
                 bTileSMEM[warpId * 256 + laneId * 32] =
                     (bRowId < K && bColId < N) ? matrixB[bRowId * ldb + bColId] : static_cast<half>(0);
@@ -1070,7 +720,12 @@ __global__ void sddmm_gpu_csr_matrix_row_matrix_row(const UIN M,
         }
 
         // Store the result
-
+#pragma unroll
+        for (int idxOfFragment = 0; idxOfFragment < 8; ++idxOfFragment) {
+            UIN localRow, localCol;
+            calculateFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
+            matrixP[startIndexOfColTile + warpId * block_size + localRow * WMMA_N + localCol] *= cFrag.x[idxOfFragment];
+        }
     }
 }
 
@@ -1143,4 +798,32 @@ void sddmm_gpu_coo_3(TensorCoreConfig tensorCoreConfig,
             matrixP);
     }
 
+}
+
+void sddmm_gpu_rebell(const UIN M,
+                      const UIN N,
+                      const UIN K,
+                      const half *matrixA,
+                      const half *matrixB,
+                      const UIN numNonZeroRow,
+                      const UIN *reorderedMatrixRowIndices,
+                      const UIN *reorderedMatrixColIndices,
+                      const UIN *reorderedMatrixColIndicesOffset,
+                      const UIN *reorderedMatrixPanelOffsets,
+                      float *matrixP) {
+
+    dim3 grid, block;
+    block.x = 64;
+    const UIN numRowPanels = std::ceil(static_cast<float>(numNonZeroRow) / row_panel_size);
+    grid.x = numRowPanels;
+
+    kernel::sddmm_gpu_rebell_matrix_row_matrix_row<<<grid, block>>>(M, N, K,
+        matrixA,
+        matrixB,
+        numNonZeroRow,
+        reorderedMatrixRowIndices,
+        reorderedMatrixColIndicesOffset,
+        reorderedMatrixColIndices,
+        reorderedMatrixPanelOffsets,
+        matrixP);
 }

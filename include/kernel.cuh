@@ -69,3 +69,15 @@ void sddmm_gpu_coo_3(TensorCoreConfig tensorCoreConfig,
                      const float *matrixS,
                      const UIN *matrixSTileMappedToWarpIndex,
                      float *matrixP);
+
+void sddmm_gpu_rebell(const UIN M,
+                      const UIN N,
+                      const UIN K,
+                      const half *matrixA,
+                      const half *matrixB,
+                      const UIN numNonZeroRow,
+                      const UIN *reorderedMatrixRowIndices,
+                      const UIN *reorderedMatrixColIndices,
+                      const UIN *reorderedMatrixColIndicesOffset,
+                      const UIN *reorderedMatrixPanelOffsets,
+                      float *matrixP);

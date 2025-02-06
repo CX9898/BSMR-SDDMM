@@ -7,7 +7,7 @@
 #include "checkData.hpp"
 #include "reordering.hpp"
 
-// 旧方法, 直接计算
+// The old method, directly uses TensorCore calculation
 void sddmm(Matrix<float> &matrixA, Matrix<float> &matrixB, SparseMatrix<float> &matrixS, SparseMatrix<float> &matrixP) {
 
     TensorCoreConfig tensorCoreConfig(matrixS.row(), matrixS.col());
@@ -97,10 +97,44 @@ void sddmm(Matrix<float> &matrixA, Matrix<float> &matrixB, SparseMatrix<float> &
     printf("[zcx : %.2f]\n", time_sddmm_zcx);
 }
 
-// 重排序方法
+// Reordering method
 void sddmm(const Matrix<float> &matrixA,
            const Matrix<float> &matrixB,
            const sparseDataType::CSR<float> &matrixS,
            sparseDataType::CSR<float> &matrixP) {
-    ReBELL<float> reBell(matrixS);
+    ReBELL<float> rebell(matrixS);
+
+    dev::vector<MATRIX_A_TYPE> matrixA_values_convertedType_dev(matrixA.size());
+    dev::vector<MATRIX_B_TYPE> matrixB_values_convertedType_dev(matrixB.size());
+    {
+        dev::vector<float> matrixA_values_dev(matrixA.values());
+        dev::vector<float> matrixB_values_dev(matrixB.values());
+
+        const int numThreadPerBlock = 1024;
+        kernel::convertDataType<<< (matrixA.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
+            matrixA.size(), matrixA_values_dev.data(), matrixA_values_convertedType_dev.data());
+        kernel::convertDataType<<< (matrixB.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
+            matrixB.size(), matrixB_values_dev.data(), matrixB_values_convertedType_dev.data());
+    }
+
+    dev::vector<UIN> reorderedMatrixRowIndices_dev(rebell.reorderedRowIndices_);
+    dev::vector<UIN> reorderedMatrixColIndices_dev(rebell.reorderedColIndices_);
+    dev::vector<UIN> reorderedMatrixColIndicesOffset_dev(rebell.reorderedColIndicesOffset_);
+    dev::vector<UIN> reorderedMatrixPanelOffsets_dev;
+    dev::vector<float> reorderedMatrixP_dev(rebell.blockValues_);
+
+    CudaTimeCalculator timeCalculator;
+    timeCalculator.startClock();
+    sddmm_gpu_rebell(rebell.row_, rebell.col_, matrixA.col(),
+                     matrixA_values_convertedType_dev.data(),
+                     matrixB_values_convertedType_dev.data(),
+                     rebell.reorderedRowIndices_.size(),
+                     reorderedMatrixRowIndices_dev.data(),
+                     reorderedMatrixColIndicesOffset_dev.data(),
+                     reorderedMatrixColIndices_dev.data(),
+                     reorderedMatrixPanelOffsets_dev.data(),
+                     reorderedMatrixP_dev.data());
+
+    timeCalculator.endClock();
+    printf("[sddmm_gpu_rebell : %.2f]\n", timeCalculator.getTime());
 }

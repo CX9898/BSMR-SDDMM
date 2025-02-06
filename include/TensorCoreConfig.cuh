@@ -13,61 +13,61 @@ using UIN = uint32_t;
 //#define WMMA_8_32_16
 
 #ifdef WMMA_16_16_16
-const int WMMA_M = 16;
-const int WMMA_N = 16;
-const int WMMA_K = 16;
+constexpr int  WMMA_M = 16;
+constexpr int  WMMA_N = 16;
+constexpr int  WMMA_K = 16;
 #endif // WMMA_16_16_16
 
 #ifdef WMMA_32_8_16
-const int WMMA_M = 32;
-const int WMMA_N = 8;
-const int WMMA_K = 16;
+constexpr int  WMMA_M = 32;
+constexpr int  WMMA_N = 8;
+constexpr int  WMMA_K = 16;
 #endif // WMMA_32_8_16
 
 #ifdef WMMA_8_32_16
-const int WMMA_M = 8;
-const int WMMA_N = 32;
-const int WMMA_K = 16;
+constexpr int  WMMA_M = 8;
+constexpr int  WMMA_N = 32;
+constexpr int  WMMA_K = 16;
 #endif // WMMA_8_32_16
 
 using MATRIX_A_TYPE = __half;
 using MATRIX_B_TYPE = __half;
 using MATRIX_C_TYPE = float;
 
-const int WARP_SIZE = 32;
+constexpr int WARP_SIZE = 32;
 
-const int NUM_OF_WARP_X_PER_BLOCK = 4;
-const int NUM_OF_Y_PER_BLOCK = 4;
+constexpr int NUM_OF_WARP_X_PER_BLOCK = 4;
+constexpr int NUM_OF_Y_PER_BLOCK = 4;
 
-const int ITERATION_STEP_OF_K = NUM_OF_WARP_X_PER_BLOCK * WMMA_K;
+constexpr int ITERATION_STEP_OF_K = NUM_OF_WARP_X_PER_BLOCK * WMMA_K;
 
-const int NUMBER_OF_MATRIX_TILE_K_IN_SHARED_MEMORY = NUM_OF_WARP_X_PER_BLOCK;
+constexpr int NUMBER_OF_MATRIX_TILE_K_IN_SHARED_MEMORY = NUM_OF_WARP_X_PER_BLOCK;
 
-const int MATRIX_TILE_A_SIZE = WMMA_M * WMMA_K;
-const int MATRIX_TILE_B_SIZE = WMMA_K * WMMA_N;
+constexpr int MATRIX_TILE_A_SIZE = WMMA_M * WMMA_K;
+constexpr int MATRIX_TILE_B_SIZE = WMMA_K * WMMA_N;
 
-const int BLOCK_COUNTS_NUMBER_OF_MATRIX_C_ROWS = WMMA_M * NUM_OF_Y_PER_BLOCK;
-const int BLOCK_COUNTS_NUMBER_OF_MATRIX_C_COLS = WMMA_N * NUM_OF_WARP_X_PER_BLOCK;
+constexpr int BLOCK_COUNTS_NUMBER_OF_MATRIX_C_ROWS = WMMA_M * NUM_OF_Y_PER_BLOCK;
+constexpr int BLOCK_COUNTS_NUMBER_OF_MATRIX_C_COLS = WMMA_N * NUM_OF_WARP_X_PER_BLOCK;
 
-const int MATRIX_TILE_A_SIZE_PER_BLOCK = WMMA_M * NUM_OF_Y_PER_BLOCK * WMMA_K * NUM_OF_WARP_X_PER_BLOCK;
-const int MATRIX_TILE_B_SIZE_PER_BLOCK = WMMA_K * NUM_OF_Y_PER_BLOCK * WMMA_N * NUM_OF_WARP_X_PER_BLOCK;
+constexpr int MATRIX_TILE_A_SIZE_PER_BLOCK = WMMA_M * NUM_OF_Y_PER_BLOCK * WMMA_K * NUM_OF_WARP_X_PER_BLOCK;
+constexpr int MATRIX_TILE_B_SIZE_PER_BLOCK = WMMA_K * NUM_OF_Y_PER_BLOCK * WMMA_N * NUM_OF_WARP_X_PER_BLOCK;
 
-const int MATRIX_TILE_A_LEADING_DIMENSION = WMMA_K * NUM_OF_WARP_X_PER_BLOCK;
-const int MATRIX_TILE_B_LEADING_DIMENSION = WMMA_N * NUM_OF_WARP_X_PER_BLOCK;
+constexpr int MATRIX_TILE_A_LEADING_DIMENSION = WMMA_K * NUM_OF_WARP_X_PER_BLOCK;
+constexpr int MATRIX_TILE_B_LEADING_DIMENSION = WMMA_N * NUM_OF_WARP_X_PER_BLOCK;
 
-const int MEMORY_ACCESS_PER_THREAD =
+constexpr int MEMORY_ACCESS_PER_THREAD =
     MATRIX_TILE_A_SIZE_PER_BLOCK / (NUM_OF_Y_PER_BLOCK * NUM_OF_WARP_X_PER_BLOCK * WARP_SIZE);
 
-const int NUMBER_OF_MEMORY_ACCESSES_MATRIX_TILE_A_PER_WARP =
+constexpr int NUMBER_OF_MEMORY_ACCESSES_MATRIX_TILE_A_PER_WARP =
     MATRIX_TILE_A_SIZE_PER_BLOCK / (NUM_OF_WARP_X_PER_BLOCK * NUM_OF_Y_PER_BLOCK);
 
-const int NUMBER_OF_MEMORY_ACCESSES_MATRIX_TILE_B_PER_WARP =
+constexpr int NUMBER_OF_MEMORY_ACCESSES_MATRIX_TILE_B_PER_WARP =
     MATRIX_TILE_B_SIZE_PER_BLOCK / (NUM_OF_WARP_X_PER_BLOCK * NUM_OF_Y_PER_BLOCK);
 
-const int NUMBER_OF_MATRIX_TILE_A_MEMORY_ACCESSES_ROWS_PER_WARP =
+constexpr int NUMBER_OF_MATRIX_TILE_A_MEMORY_ACCESSES_ROWS_PER_WARP =
     BLOCK_COUNTS_NUMBER_OF_MATRIX_C_ROWS / (NUM_OF_WARP_X_PER_BLOCK * NUM_OF_Y_PER_BLOCK);
 
-const int NUMBER_OF_MATRIX_TILE_B_MEMORY_ACCESSES_ROWS_PER_WARP =
+constexpr int NUMBER_OF_MATRIX_TILE_B_MEMORY_ACCESSES_ROWS_PER_WARP =
     BLOCK_COUNTS_NUMBER_OF_MATRIX_C_ROWS / (NUM_OF_WARP_X_PER_BLOCK * NUM_OF_Y_PER_BLOCK);
 
 enum WarpOrder {
@@ -206,9 +206,9 @@ class TensorCoreConfig {
   inline __device__ UIN aOffsetIndex() const {
       return localWarpId_ / NUM_OF_WARP_X_PER_BLOCK;
   }
-  inline __device__ void positionCalculator(const UIN tileRow, const UIN tileCol,
-                                            const UIN row, const UIN col,
-                                            FragmentInformation &fragmentInformation);
+  inline __device__ void calculateFragmentLaneAndIndex(const UIN tileRow, const UIN tileCol,
+                                                       const UIN row, const UIN col,
+                                                       FragmentInformation &fragmentInformation);
 
  private:
   WarpOrder warpOrder_;
@@ -307,9 +307,9 @@ inline __device__ void positionCalculator_m8n32k16(const UIN tileRow, const UIN 
     fragmentInformation.index_ = groupId * 2 + isColOdd;
 }
 
-inline __device__ void TensorCoreConfig::positionCalculator(const UIN tileRow, const UIN tileCol,
-                                                            const UIN row, const UIN col,
-                                                            FragmentInformation &fragmentInformation) {
+inline __device__ void TensorCoreConfig::calculateFragmentLaneAndIndex(const UIN tileRow, const UIN tileCol,
+                                                                       const UIN row, const UIN col,
+                                                                       FragmentInformation &fragmentInformation) {
 #ifdef WMMA_16_16_16
     positionCalculator_m16n16k16(tileRow, tileCol, row, col, fragmentInformation);
 #endif //WMMA_16_16_16
@@ -320,5 +320,38 @@ inline __device__ void TensorCoreConfig::positionCalculator(const UIN tileRow, c
 
 #ifdef WMMA_8_32_16
     positionCalculator_m8n32k16(tileRow, tileCol, row, col, fragmentInformation);
+#endif //WMMA_8_32_16
+}
+
+inline __host__ __device__ void calculateFragmentCoordinates_m16n16k16(const UIN laneId, const UIN index,
+                                                                       UIN &row, UIN &col) {
+    // Divide the lanes into groups of 4
+    const UIN laneGroupId = laneId / 4;
+    const UIN localIdInLaneGroup = laneId % 4;
+
+    // Divide the index into groups of 2
+    const UIN indexGroupId = index / 2;
+
+    const UIN isOddIndexGroupId = indexGroupId % 2;
+
+    const UIN isOddIndex = index % 2;
+    const UIN isBigLaneGroup = index / 4;
+
+    row = laneGroupId + 8 * isOddIndexGroupId;
+    col = localIdInLaneGroup * 2 + isOddIndex + 8 * isBigLaneGroup;
+}
+
+inline __host__ __device__ void calculateFragmentCoordinates(const UIN laneId, const UIN index,
+                                                             UIN &row, UIN &col) {
+#ifdef WMMA_16_16_16
+    calculateFragmentCoordinates_m16n16k16(laneId, index, row, col);
+#endif //WMMA_16_16_16
+
+#ifdef WMMA_32_16_16
+    calculateFragmentCoordinates_m32n8k16(laneId, index, row, col);
+#endif //WMMA_32_16_16
+
+#ifdef WMMA_8_32_16
+    calculateFragmentCoordinates_m8n32k16(laneId, index, row, col);
 #endif //WMMA_8_32_16
 }

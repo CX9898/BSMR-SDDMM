@@ -140,5 +140,8 @@ int main(int argc, char *argv[]) {
     SparseMatrix<float> matrixP;
     sddmm(matrixA, matrixB, matrixS, matrixP);
 
+    sparseDataType::CSR<float> matrixP_csr;
+    sddmm(matrixA, matrixB, matrixS.getCsrData(), matrixP_csr);
+
     return 0;
 }
