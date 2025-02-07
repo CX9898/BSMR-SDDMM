@@ -1,11 +1,13 @@
 #pragma once
 
 #include <cstdint>
+#include <limits>
 
 #include <cuda_runtime.h>
 #include <cuda_fp16.h>
 
 using UIN = uint32_t;
+constexpr UIN MAX_UIN = std::numeric_limits<UIN>::max();
 
 // The dimension supported by WMMA
 #define WMMA_16_16_16
@@ -323,28 +325,28 @@ inline __device__ void TensorCoreConfig::calculateFragmentLaneAndIndex(const UIN
 #endif //WMMA_8_32_16
 }
 
-inline __host__ __device__ void calculateFragmentCoordinates_m16n16k16(const UIN laneId, const UIN index,
+inline __host__ __device__ void calculateFragmentCoordinates_m16n16k16(const UIN laneId, const UIN indexOfFragment,
                                                                        UIN &row, UIN &col) {
     // Divide the lanes into groups of 4
     const UIN laneGroupId = laneId / 4;
     const UIN localIdInLaneGroup = laneId % 4;
 
     // Divide the index into groups of 2
-    const UIN indexGroupId = index / 2;
+    const UIN indexGroupId = indexOfFragment / 2;
 
     const UIN isOddIndexGroupId = indexGroupId % 2;
 
-    const UIN isOddIndex = index % 2;
-    const UIN isBigLaneGroup = index / 4;
+    const UIN isOddIndex = indexOfFragment % 2;
+    const UIN isBigLaneGroup = indexOfFragment / 4;
 
     row = laneGroupId + 8 * isOddIndexGroupId;
     col = localIdInLaneGroup * 2 + isOddIndex + 8 * isBigLaneGroup;
 }
 
-inline __host__ __device__ void calculateFragmentCoordinates(const UIN laneId, const UIN index,
+inline __host__ __device__ void calculateFragmentCoordinates(const UIN laneId, const UIN indexOfFragment,
                                                              UIN &row, UIN &col) {
 #ifdef WMMA_16_16_16
-    calculateFragmentCoordinates_m16n16k16(laneId, index, row, col);
+    calculateFragmentCoordinates_m16n16k16(laneId, indexOfFragment, row, col);
 #endif //WMMA_16_16_16
 
 #ifdef WMMA_32_16_16

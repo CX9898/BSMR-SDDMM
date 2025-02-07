@@ -21,3 +21,10 @@ void sddmm_cpu(
     const Matrix<T> &matrixB,
     const SparseMatrix<T> &matrixS,
     SparseMatrix<T> &matrixP);
+
+template<typename T>
+void sddmm_cpu(
+    const Matrix<T> &matrixA,
+    const Matrix<T> &matrixB,
+    const sparseDataType::CSR<T> &matrixS,
+    sparseDataType::CSR<T> &matrixP);

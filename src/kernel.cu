@@ -329,7 +329,7 @@ __global__ void sddmm_gpu_coo_5_matrixA_row_matrixB_row(TensorCoreConfig tensorC
         tensorCoreConfig.calculateFragmentLaneAndIndex(pRowId, pColId, curRow, curCol, fragmentInformation);
 
         if (laneId == fragmentInformation.laneId_) {
-            matrixP[matrixPIdx] = cFrag.x[fragmentInformation.index_];
+            matrixP[matrixPIdx] *= cFrag.x[fragmentInformation.index_];
         }
     }
 }
@@ -654,6 +654,7 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
                                                        const UIN *reorderedMatrixColIndices,
                                                        const UIN *reorderedMatrixColIndicesOffset,
                                                        const UIN *blockRowOffsets,
+                                                       const UIN *blockValues,
                                                        float *matrixP) {
     __shared__ half aTileSMEM[aTileSMEMSize];
     __shared__ half bTileSMEM[bTileSMEMSize];
@@ -674,9 +675,10 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
     const UIN ldb = N;
 
     const UIN numColTile = blockRowOffsets[rowPanelId + 1] - blockRowOffsets[rowPanelId];
-    for (int tileIdx = 0; tileIdx < numColTile; tileIdx += 2) {
+    for (int tileIter = 0; tileIter < numColTile; tileIter += 2) {
+        const UIN tileIdx = tileIter + warpId;
         const UIN startIndexOfColTile =
-            reorderedMatrixColIndicesOffset[rowPanelId] + col_block_size * tileIdx;
+            reorderedMatrixColIndicesOffset[rowPanelId] + tile_col_size * tileIter;
         const UIN endIndexOfColTile = reorderedMatrixColIndicesOffset[rowPanelId + 1];
 
         // Loop over K
@@ -709,7 +711,7 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
             __syncthreads();
 
             // Compute the matrix multiplication
-            {
+            if (tileIdx < numColTile) {
                 wmma::load_matrix_sync(aFrag, aTileSMEM, WMMA_N);
                 wmma::load_matrix_sync(bFrag, bTileSMEM + warpId * WMMA_N, WMMA_N * 2);
 
@@ -720,12 +722,39 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
         }
 
         // Store the result
+        if (tileIdx < numColTile) {
 #pragma unroll
-        for (int idxOfFragment = 0; idxOfFragment < 8; ++idxOfFragment) {
-            UIN localRow, localCol;
-            calculateFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
-            matrixP[startIndexOfColTile + warpId * block_size + localRow * WMMA_N + localCol] *= cFrag.x[idxOfFragment];
+            for (int idxOfFragment = 0; idxOfFragment < 8; ++idxOfFragment) {
+                UIN localRow, localCol;
+                calculateFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
+
+                const UIN idxOfMatrixP =
+                    blockValues[startIndexOfColTile + warpId * tile_size + localRow * WMMA_N + localCol];
+
+                if (idxOfMatrixP == 0) {
+                    printf("!!!!!idxOfMatrixP == 0, warpId = %d, laneId = %d\n"
+                           " localRow = %d, localCol = %d\n"
+                           " matrixP[idxOfMatrixP] = %f, cFrag.x[idxOfFragment] = %f\n",
+                           warpId, laneId,
+                           localRow, localCol,
+                           matrixP[idxOfMatrixP], cFrag.x[idxOfMatrixP]);
+                }
+
+                // Saved when the value is not 0
+                if (idxOfMatrixP != MAX_UIN) {
+                    matrixP[idxOfMatrixP] *= cFrag.x[idxOfFragment];
+                }
+                if (idxOfMatrixP == 0) {
+                    printf("!!!!!idxOfMatrixP == 0, warpId = %d, laneId = %d\n"
+                           " localRow = %d, localCol = %d\n"
+                           " matrixP[idxOfMatrixP] = %f, cFrag.x[idxOfFragment] = %f\n",
+                           warpId, laneId,
+                           localRow, localCol,
+                           matrixP[idxOfMatrixP], cFrag.x[idxOfMatrixP]);
+                }
+            }
         }
+        __syncthreads();
     }
 }
 
@@ -810,6 +839,7 @@ void sddmm_gpu_rebell(const UIN M,
                       const UIN *reorderedMatrixColIndices,
                       const UIN *reorderedMatrixColIndicesOffset,
                       const UIN *blockRowOffsets,
+                      const UIN *blockValues,
                       float *matrixP) {
 
     dim3 grid, block;
@@ -825,5 +855,6 @@ void sddmm_gpu_rebell(const UIN M,
         reorderedMatrixColIndices,
         reorderedMatrixColIndicesOffset,
         blockRowOffsets,
+        blockValues,
         matrixP);
 }

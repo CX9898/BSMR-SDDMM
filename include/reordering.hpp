@@ -5,8 +5,8 @@
 const float row_similarity_threshold_alpha = 0.3f;
 
 const int row_panel_size = WMMA_M;
-const int col_block_size = WMMA_N;
-const int block_size = row_panel_size * col_block_size;
+const int tile_col_size = WMMA_N;
+const int tile_size = row_panel_size * tile_col_size;
 
 /**
  * @structName: ReorderedMatrix
@@ -22,10 +22,12 @@ struct ReorderedMatrix {
   std::vector<UIN> reorderedColIndicesOffset_;
 };
 
-template<typename T>
-struct ReBELL: public ReorderedMatrix, public sparseDataType::BELL<T>{
+struct ReBELL: public ReorderedMatrix{
   ReBELL() = default;
-  ReBELL(const sparseDataType::CSR<T> &csrMatrix);
+  ReBELL(const sparseDataType::CSR<float> &csrMatrix);
+
+  std::vector<UIN> blockValues_;
+  std::vector<UIN> blockRowOffsets_;
 };
 
 

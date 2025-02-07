@@ -97,21 +97,72 @@ void sddmm_cpu(
             val += valA * valB;
         }
 
-//        val *= matrixS.values()[matrixSIdx];
+        val *= matrixS.values()[matrixSIdx];
         matrixP.setValues()[matrixSIdx] = val;
     }
 }
+
 template void sddmm_cpu<int>(const Matrix<int> &matrixA,
-                                 const Matrix<int> &matrixB,
-                                 const SparseMatrix<int> &matrixS,
-                                 SparseMatrix<int> &matrixP);
+                             const Matrix<int> &matrixB,
+                             const SparseMatrix<int> &matrixS,
+                             SparseMatrix<int> &matrixP);
 
 template void sddmm_cpu<float>(const Matrix<float> &matrixA,
-                                   const Matrix<float> &matrixB,
-                                   const SparseMatrix<float> &matrixS,
-                                   SparseMatrix<float> &matrixP);
+                               const Matrix<float> &matrixB,
+                               const SparseMatrix<float> &matrixS,
+                               SparseMatrix<float> &matrixP);
 
 template void sddmm_cpu<double>(const Matrix<double> &matrixA,
-                                    const Matrix<double> &matrixB,
-                                    const SparseMatrix<double> &matrixS,
-                                    SparseMatrix<double> &matrixP);
+                                const Matrix<double> &matrixB,
+                                const SparseMatrix<double> &matrixS,
+                                SparseMatrix<double> &matrixP);
+
+template<typename T>
+void sddmm_cpu(
+    const Matrix<T> &matrixA,
+    const Matrix<T> &matrixB,
+    const sparseDataType::CSR<T> &matrixS,
+    sparseDataType::CSR<T> &matrixP) {
+    if (matrixA.col() != matrixB.row() ||
+        matrixA.row() != matrixP.row_ ||
+        matrixB.col() != matrixP.col_) {
+        std::cerr << "The storage of the three matrices does not match" << std::endl;
+        return;
+    }
+    const int K = matrixA.col();
+#pragma omp parallel for
+    for (int row = 0; row < matrixS.row_; ++row) {
+        for (int matrixSIdx = matrixS.rowOffsets_[row]; matrixSIdx < matrixS.rowOffsets_[row + 1]; ++matrixSIdx) {
+            const size_t col = matrixS.colIndices_[matrixSIdx];
+
+            float val = 0.0f;
+            for (int kIter = 0; kIter < K; ++kIter) {
+                const auto valA = matrixA.getOneValueForMultiplication(
+                    MatrixMultiplicationOrder::left_multiplication,
+                    row, col, kIter);
+                const auto valB = matrixB.getOneValueForMultiplication(
+                    MatrixMultiplicationOrder::right_multiplication,
+                    row, col, kIter);
+                val += valA * valB;
+            }
+
+            val *= matrixS.values_[matrixSIdx];
+            matrixP.values_[matrixSIdx] = val;
+        }
+    }
+}
+
+template void sddmm_cpu<int>(const Matrix<int> &matrixA,
+                             const Matrix<int> &matrixB,
+                             const sparseDataType::CSR<int> &matrixS,
+                             sparseDataType::CSR<int> &matrixP);
+
+template void sddmm_cpu<float>(const Matrix<float> &matrixA,
+                               const Matrix<float> &matrixB,
+                               const sparseDataType::CSR<float> &matrixS,
+                               sparseDataType::CSR<float> &matrixP);
+
+template void sddmm_cpu<double>(const Matrix<double> &matrixA,
+                                const Matrix<double> &matrixB,
+                                const sparseDataType::CSR<double> &matrixS,
+                                sparseDataType::CSR<double> &matrixP);
