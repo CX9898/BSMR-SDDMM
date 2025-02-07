@@ -129,16 +129,16 @@ void Matrix<T>::makeData(UIN numRow, UIN numCol) {
     }
     values_.resize(numRow * numCol);
 
-    for (UIN idx = 0; idx < values_.size(); ++idx) {
-        values_[idx] = idx;
-    }
-//    std::mt19937 generator;
-//    auto distribution = util::createRandomUniformDistribution(static_cast<T>(0), static_cast<T>(2));
-//
-//#pragma omp parallel for
-//    for (int idx = 0; idx < values_.size(); ++idx) {
-//        values_[idx] = distribution(generator);
+//    for (UIN idx = 0; idx < values_.size(); ++idx) {
+//        values_[idx] = idx;
 //    }
+    std::mt19937 generator;
+    auto distribution = util::createRandomUniformDistribution(static_cast<T>(0), static_cast<T>(2));
+
+#pragma omp parallel for
+    for (int idx = 0; idx < values_.size(); ++idx) {
+        values_[idx] = distribution(generator);
+    }
 }
 
 template<typename T>
@@ -300,7 +300,7 @@ void getCsrRowOffsets(const UIN row, const std::vector<UIN> &rowIndices, std::ve
     rowOffsets[0] = 0;
     UIN rowPtrIdx = 0;
     for (int idx = 0; idx < rowIndices.size(); ++idx) {
-        while (rowPtrIdx < rowOffsets.size() && rowPtrIdx != rowIndices[idx]) {
+        while (rowPtrIdx < rowOffsets.size() - 1 && rowPtrIdx != rowIndices[idx]) {
             rowOffsets[rowPtrIdx + 1] = idx;
             ++rowPtrIdx;
         }

@@ -14,7 +14,7 @@ void encoding(const sparseDataType::CSR<float> &matrix, std::vector<std::vector<
 #pragma omp parallel for dynamic
     for (int row = 0; row < matrix.row_; ++row) {
         encodings[row].resize(colBlock);
-        for (int idx = matrix.rowOffsets_[row]; idx < matrix.rowOffsets_[idx + 1]; ++idx) {
+        for (int idx = matrix.rowOffsets_[row]; idx < matrix.rowOffsets_[row + 1]; ++idx) {
             const int col = matrix.colIndices_[idx];
             ++encodings[row][col / COL_BLOCK_SIZE];
         }

@@ -5,8 +5,8 @@
 const float row_similarity_threshold_alpha = 0.3f;
 
 const int row_panel_size = WMMA_M;
-const int tile_col_size = WMMA_N;
-const int tile_size = row_panel_size * tile_col_size;
+const int block_col_size = WMMA_N;
+const int block_size = row_panel_size * block_col_size;
 
 /**
  * @structName: ReorderedMatrix

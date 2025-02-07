@@ -674,12 +674,12 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
     const UIN lda = K;
     const UIN ldb = N;
 
-    const UIN numColTile = blockRowOffsets[rowPanelId + 1] - blockRowOffsets[rowPanelId];
-    for (int tileIter = 0; tileIter < numColTile; tileIter += 2) {
-        const UIN tileIdx = tileIter + warpId;
-        const UIN startIndexOfColTile =
-            reorderedMatrixColIndicesOffset[rowPanelId] + tile_col_size * tileIter;
-        const UIN endIndexOfColTile = reorderedMatrixColIndicesOffset[rowPanelId + 1];
+    const UIN numBlocks = blockRowOffsets[rowPanelId + 1] - blockRowOffsets[rowPanelId];
+    for (int blockIter = 0; blockIter < numBlocks; blockIter += 2) {
+        const UIN blockIdx = blockIter + warpId;
+        const UIN startIndexOfBlock =
+                reorderedMatrixColIndicesOffset[rowPanelId] + block_col_size * blockIter;
+        const UIN endIndexOfColBlock = reorderedMatrixColIndicesOffset[rowPanelId + 1];
 
         // Loop over K
         for (int kIter = 0; kIter < K; kIter += WMMA_K) {
@@ -700,8 +700,8 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
 #pragma unroll
             for (int iter = 0; iter < 8; ++iter) {
                 const UIN bRowId = kIter + warpId * 8 + iter;
-                const UIN idxOfReorderedMatrixColIndicesInEachRowPanel = startIndexOfColTile + laneId;
-                const UIN bColId = idxOfReorderedMatrixColIndicesInEachRowPanel < endIndexOfColTile ?
+                const UIN idxOfReorderedMatrixColIndicesInEachRowPanel = startIndexOfBlock + laneId;
+                const UIN bColId = idxOfReorderedMatrixColIndicesInEachRowPanel < endIndexOfColBlock ?
                     reorderedMatrixColIndices[idxOfReorderedMatrixColIndicesInEachRowPanel] : N;
 
                 bTileSMEM[warpId * 256 + iter * 32 + laneId] =
@@ -710,7 +710,7 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
             __syncthreads();
 
             // Compute the matrix multiplication
-            if (tileIdx < numColTile) {
+            if (blockIdx < numBlocks) {
                 wmma::load_matrix_sync(aFrag, aTileSMEM, WMMA_N);
                 wmma::load_matrix_sync(bFrag, bTileSMEM + warpId * WMMA_N, WMMA_N * 2);
 
@@ -721,14 +721,14 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
         }
 
         // Store the result
-        if (tileIdx < numColTile) {
+        if (blockIdx < numBlocks) {
 #pragma unroll
             for (int idxOfFragment = 0; idxOfFragment < 8; ++idxOfFragment) {
                 UIN localRow, localCol;
                 calculateFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
 
                 const UIN idxOfMatrixP =
-                    blockValues[startIndexOfColTile + warpId * tile_size + localRow * WMMA_N + localCol];
+                    blockValues[startIndexOfBlock + warpId * block_size + localRow * WMMA_N + localCol];
 
                 // Saved when the value is not 0
                 if (idxOfMatrixP != MAX_UIN) {
