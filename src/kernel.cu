@@ -690,19 +690,10 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
                     (rowPanelId * row_panel_size) + (warpId * 8) + (laneId / 16) + (iter * 2);
                 const UIN aRowId = idxOfReorderedMatrixRowIndices < numNonZeroRow ?
                     reorderedMatrixRowIndices[idxOfReorderedMatrixRowIndices] : M;
-                const UIN aColId = kIter + laneId;
+                const UIN aColId = kIter + laneId % 16;
 
                 aTileSMEM[warpId * 128 + iter * 32 + laneId] =
                     (aRowId < M && aColId < K) ? matrixA[aRowId * lda + aColId] : static_cast<half>(0);
-            }
-            __syncthreads();
-
-            if (warpId == 0 && laneId == 0) {
-                printf("kIter = %d, aTileSMEM:\n", kIter);
-                for (int i = 0; i < 16; ++i) {
-                    printf("%f ", static_cast<float>(aTileSMEM[i]));
-                }
-                printf("\n");
             }
 
             // Load matrix B data into shared memory, each thread loads 8 elements, conflict-free access
@@ -717,14 +708,6 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
                     (bRowId < K && bColId < N) ? matrixB[bRowId * ldb + bColId] : static_cast<half>(0);
             }
             __syncthreads();
-
-            if (warpId == 0 && laneId == 0) {
-                printf("kIter = %d, bTileSMEM:\n", kIter);
-                for (int i = 2; i < bTileSMEMSize; i += 32) {
-                    printf("%f ", static_cast<float>(bTileSMEM[i]));
-                }
-                printf("\n");
-            }
 
             // Compute the matrix multiplication
             if (tileIdx < numColTile) {
@@ -747,26 +730,9 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
                 const UIN idxOfMatrixP =
                     blockValues[startIndexOfColTile + warpId * tile_size + localRow * WMMA_N + localCol];
 
-                if (idxOfMatrixP == 0) {
-                    printf("!!!!!idxOfMatrixP == 0, warpId = %d, laneId = %d\n"
-                           " localRow = %d, localCol = %d, idxOfFragment = %d\n"
-                           " matrixP[idxOfMatrixP] = %f, cFrag.x[idxOfFragment] = %f\n",
-                           warpId, laneId,
-                           localRow, localCol, idxOfFragment,
-                           matrixP[idxOfMatrixP], cFrag.x[idxOfMatrixP]);
-                }
-
                 // Saved when the value is not 0
                 if (idxOfMatrixP != MAX_UIN) {
                     matrixP[idxOfMatrixP] *= cFrag.x[idxOfFragment];
-                }
-                if (idxOfMatrixP == 0) {
-                    printf("!!!!!idxOfMatrixP == 0, warpId = %d, laneId = %d\n"
-                           " localRow = %d, localCol = %d, idxOfFragment = %d\n"
-                           " matrixP[idxOfMatrixP] = %f, cFrag.x[idxOfFragment] = %f\n",
-                           warpId, laneId,
-                           localRow, localCol, idxOfFragment,
-                           matrixP[idxOfMatrixP], cFrag.x[idxOfMatrixP]);
                 }
             }
         }

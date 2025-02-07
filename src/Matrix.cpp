@@ -146,7 +146,7 @@ void Matrix<T>::print() const {
 //    for (size_t idx = 0; idx < size(); ++idx) {
 //        printf("matrix[%d] = %f\n", idx, static_cast<float>(values_[idx]));
 //    }
-    for (auto iter : values_) {
+    for (auto iter: values_) {
         std::cout << iter << " ";
     }
     std::cout << std::endl;
@@ -305,7 +305,7 @@ void getCsrRowOffsets(const UIN row, const std::vector<UIN> &rowIndices, std::ve
             ++rowPtrIdx;
         }
     }
-    while (rowPtrIdx < rowOffsets.size()) {
+    while (rowPtrIdx < rowOffsets.size() - 1) {
         rowOffsets[rowPtrIdx + 1] = rowIndices.size();
         ++rowPtrIdx;
     }
@@ -474,7 +474,7 @@ template<typename T>
 bool SparseMatrix<T>::outputToMarketMatrixFile() const {
     std::string first("matrix_");
     return outputToMarketMatrixFile(
-        first + std::to_string(row_) + "_" + std::to_string(col_) + "_" + std::to_string(nnz_));
+            first + std::to_string(row_) + "_" + std::to_string(col_) + "_" + std::to_string(nnz_));
 }
 
 template<typename T>
@@ -543,9 +543,9 @@ void SparseMatrix<T>::makeData(const UIN numRow, const UIN numCol, const UIN nnz
     // make data
     std::mt19937 generator;
     auto distributionRow =
-        util::createRandomUniformDistribution(static_cast<UIN>(0), static_cast<UIN>(numRow - 1));
+            util::createRandomUniformDistribution(static_cast<UIN>(0), static_cast<UIN>(numRow - 1));
     auto distributionCol =
-        util::createRandomUniformDistribution(static_cast<UIN>(0), static_cast<UIN>(numCol - 1));
+            util::createRandomUniformDistribution(static_cast<UIN>(0), static_cast<UIN>(numCol - 1));
     auto distributionValue = util::createRandomUniformDistribution(static_cast<T>(1), static_cast<T>(10));
     std::set<std::pair<UIN, UIN>> rowColSet;
     for (UIN idx = 0; idx < nnz; ++idx) {
@@ -882,13 +882,18 @@ void SparseMatrix<T>::closeTensorCoreMode() {
 
 template
 class Matrix<int>;
+
 template
 class Matrix<float>;
+
 template
 class Matrix<double>;
+
 template
 class SparseMatrix<int>;
+
 template
 class SparseMatrix<float>;
+
 template
 class SparseMatrix<double>;
