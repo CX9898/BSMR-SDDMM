@@ -660,7 +660,7 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
     __shared__ half bTileSMEM[bTileSMEMSize];
 
     wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE, wmma::row_major> aFrag;
-    wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE, wmma::col_major> bFrag;
+    wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE, wmma::row_major> bFrag;
 
     wmma::fragment<wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> cFrag;
 
@@ -695,6 +695,15 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
                 aTileSMEM[warpId * 128 + iter * 32 + laneId] =
                     (aRowId < M && aColId < K) ? matrixA[aRowId * lda + aColId] : static_cast<half>(0);
             }
+            __syncthreads();
+
+            if (warpId == 0 && laneId == 0) {
+                printf("kIter = %d, aTileSMEM:\n", kIter);
+                for (int i = 0; i < 16; ++i) {
+                    printf("%f ", static_cast<float>(aTileSMEM[i]));
+                }
+                printf("\n");
+            }
 
             // Load matrix B data into shared memory, each thread loads 8 elements, conflict-free access
 #pragma unroll
@@ -707,8 +716,15 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
                 bTileSMEM[warpId * 256 + iter * 32 + laneId] =
                     (bRowId < K && bColId < N) ? matrixB[bRowId * ldb + bColId] : static_cast<half>(0);
             }
-
             __syncthreads();
+
+            if (warpId == 0 && laneId == 0) {
+                printf("kIter = %d, bTileSMEM:\n", kIter);
+                for (int i = 2; i < bTileSMEMSize; i += 32) {
+                    printf("%f ", static_cast<float>(bTileSMEM[i]));
+                }
+                printf("\n");
+            }
 
             // Compute the matrix multiplication
             if (tileIdx < numColTile) {
@@ -733,10 +749,10 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
 
                 if (idxOfMatrixP == 0) {
                     printf("!!!!!idxOfMatrixP == 0, warpId = %d, laneId = %d\n"
-                           " localRow = %d, localCol = %d\n"
+                           " localRow = %d, localCol = %d, idxOfFragment = %d\n"
                            " matrixP[idxOfMatrixP] = %f, cFrag.x[idxOfFragment] = %f\n",
                            warpId, laneId,
-                           localRow, localCol,
+                           localRow, localCol, idxOfFragment,
                            matrixP[idxOfMatrixP], cFrag.x[idxOfMatrixP]);
                 }
 
@@ -746,10 +762,10 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
                 }
                 if (idxOfMatrixP == 0) {
                     printf("!!!!!idxOfMatrixP == 0, warpId = %d, laneId = %d\n"
-                           " localRow = %d, localCol = %d\n"
+                           " localRow = %d, localCol = %d, idxOfFragment = %d\n"
                            " matrixP[idxOfMatrixP] = %f, cFrag.x[idxOfFragment] = %f\n",
                            warpId, laneId,
-                           localRow, localCol,
+                           localRow, localCol, idxOfFragment,
                            matrixP[idxOfMatrixP], cFrag.x[idxOfMatrixP]);
                 }
             }

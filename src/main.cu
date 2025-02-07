@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
     }
 #endif // MAKE_MATRIX_DATA
 
-    size_t K = 256;
+    size_t K = 16;
     SparseMatrix<float> matrixS;
 
     if (argc > 2) {
