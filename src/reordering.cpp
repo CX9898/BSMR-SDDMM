@@ -63,10 +63,12 @@ ReBELL::ReBELL(const sparseDataType::CSR<float> &csrMatrix) {
         const UIN rowPanelIdx = idxOfRowIndices / row_panel_size;
         const UIN localRowIdx = idxOfRowIndices % row_panel_size;
         const UIN startIndexOfBlockValuesInThisRowPanel = blockRowOffsets_[rowPanelIdx] * block_size;
-        for (int idxOfReorderedColIndices = reorderedColIndicesOffset_[rowPanelIdx];
-             idxOfReorderedColIndices < reorderedColIndicesOffset_[rowPanelIdx + 1]; ++idxOfReorderedColIndices) {
-            const UIN localColIdx = idxOfReorderedColIndices % block_col_size;
-            const UIN colBlockId = idxOfReorderedColIndices / block_col_size;
+        // Iterate over the columns in the row panel
+        for (int iter = 0, idxOfReorderedColIndices = reorderedColIndicesOffset_[rowPanelIdx];
+             idxOfReorderedColIndices < reorderedColIndicesOffset_[rowPanelIdx + 1];
+             ++iter, ++idxOfReorderedColIndices) {
+            const UIN localColIdx = iter % block_col_size;
+            const UIN colBlockId = iter / block_col_size;
             const UIN idxOfBlockValues = startIndexOfBlockValuesInThisRowPanel + colBlockId * block_size +
                                          localRowIdx * block_col_size + localColIdx;
 
