@@ -79,5 +79,5 @@ void sddmm_gpu_rebell(const UIN M,
                       const UIN *reorderedMatrixRowIndices,
                       const UIN *reorderedMatrixColIndices,
                       const UIN *reorderedMatrixColIndicesOffset,
-                      const UIN *reorderedMatrixPanelOffsets,
+                      const UIN *blockRowOffsets,
                       float *matrixP);

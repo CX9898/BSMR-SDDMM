@@ -666,7 +666,7 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
     fill_fragment(cFrag, 0.0f);
 
     const UIN laneId = threadIdx.x % WARP_SIZE;
-    const UIN warpId = threadIdx.x % WARP_SIZE;
+    const UIN warpId = threadIdx.x / WARP_SIZE;
 
     const UIN rowPanelId = blockIdx.x;
 
@@ -697,12 +697,12 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
             // Load matrix B data into shared memory, each thread loads 8 elements, conflict-free access
 #pragma unroll
             for (int iter = 0; iter < 8; ++iter) {
-                const UIN bRowId = warpId * 8 + iter;
+                const UIN bRowId = kIter + warpId * 8 + iter;
                 const UIN idxOfReorderedMatrixColIndicesInEachRowPanel = startIndexOfColTile + laneId;
                 const UIN bColId = idxOfReorderedMatrixColIndicesInEachRowPanel < endIndexOfColTile ?
                     reorderedMatrixColIndices[idxOfReorderedMatrixColIndicesInEachRowPanel] : N;
 
-                bTileSMEM[warpId * 256 + laneId * 32] =
+                bTileSMEM[warpId * 256 + iter * 32 + laneId] =
                     (bRowId < K && bColId < N) ? matrixB[bRowId * ldb + bColId] : static_cast<half>(0);
             }
 
@@ -809,7 +809,7 @@ void sddmm_gpu_rebell(const UIN M,
                       const UIN *reorderedMatrixRowIndices,
                       const UIN *reorderedMatrixColIndices,
                       const UIN *reorderedMatrixColIndicesOffset,
-                      const UIN *reorderedMatrixPanelOffsets,
+                      const UIN *blockRowOffsets,
                       float *matrixP) {
 
     dim3 grid, block;
@@ -822,8 +822,8 @@ void sddmm_gpu_rebell(const UIN M,
         matrixB,
         numNonZeroRow,
         reorderedMatrixRowIndices,
-        reorderedMatrixColIndicesOffset,
         reorderedMatrixColIndices,
-        reorderedMatrixPanelOffsets,
+        reorderedMatrixColIndicesOffset,
+        blockRowOffsets,
         matrixP);
 }

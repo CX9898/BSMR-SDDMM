@@ -120,7 +120,7 @@ void sddmm(const Matrix<float> &matrixA,
     dev::vector<UIN> reorderedMatrixRowIndices_dev(rebell.reorderedRowIndices_);
     dev::vector<UIN> reorderedMatrixColIndices_dev(rebell.reorderedColIndices_);
     dev::vector<UIN> reorderedMatrixColIndicesOffset_dev(rebell.reorderedColIndicesOffset_);
-    dev::vector<UIN> reorderedMatrixPanelOffsets_dev;
+    dev::vector<UIN> blockRowOffsets_dev(rebell.blockRowOffsets_);
     dev::vector<float> reorderedMatrixP_dev(rebell.blockValues_);
 
     CudaTimeCalculator timeCalculator;
@@ -130,9 +130,9 @@ void sddmm(const Matrix<float> &matrixA,
                      matrixB_values_convertedType_dev.data(),
                      rebell.reorderedRowIndices_.size(),
                      reorderedMatrixRowIndices_dev.data(),
-                     reorderedMatrixColIndicesOffset_dev.data(),
                      reorderedMatrixColIndices_dev.data(),
-                     reorderedMatrixPanelOffsets_dev.data(),
+                     reorderedMatrixColIndicesOffset_dev.data(),
+                     blockRowOffsets_dev.data(),
                      reorderedMatrixP_dev.data());
 
     timeCalculator.endClock();
