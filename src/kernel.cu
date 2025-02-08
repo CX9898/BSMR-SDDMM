@@ -677,9 +677,9 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
     const UIN numBlocks = blockRowOffsets[rowPanelId + 1] - blockRowOffsets[rowPanelId];
     for (int blockIter = 0; blockIter < numBlocks; blockIter += 2) {
         const UIN blockIdx = blockIter + warpId;
-        const UIN startIndexOfBlock =
+        const UIN startIndexOfReorderedColIndicesInThisIter =
                 reorderedMatrixColIndicesOffset[rowPanelId] + block_col_size * blockIter;
-        const UIN endIndexOfColBlock = reorderedMatrixColIndicesOffset[rowPanelId + 1];
+        const UIN endIndexOfReorderedColIndicesInThisPanel = reorderedMatrixColIndicesOffset[rowPanelId + 1];
 
         // Loop over K
         for (int kIter = 0; kIter < K; kIter += WMMA_K) {
@@ -697,12 +697,12 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
             }
 
             // Load matrix B data into shared memory, each thread loads 8 elements, conflict-free access
+            const UIN idxOfReorderedMatrixColIndices = startIndexOfReorderedColIndicesInThisIter + laneId;
 #pragma unroll
             for (int iter = 0; iter < 8; ++iter) {
                 const UIN bRowId = kIter + warpId * 8 + iter;
-                const UIN idxOfReorderedMatrixColIndicesInEachRowPanel = startIndexOfBlock + laneId;
-                const UIN bColId = idxOfReorderedMatrixColIndicesInEachRowPanel < endIndexOfColBlock ?
-                    reorderedMatrixColIndices[idxOfReorderedMatrixColIndicesInEachRowPanel] : N;
+                const UIN bColId = idxOfReorderedMatrixColIndices < endIndexOfReorderedColIndicesInThisPanel ?
+                    reorderedMatrixColIndices[idxOfReorderedMatrixColIndices] : N;
 
                 bTileSMEM[warpId * 256 + iter * 32 + laneId] =
                     (bRowId < K && bColId < N) ? matrixB[bRowId * ldb + bColId] : static_cast<half>(0);
@@ -728,12 +728,22 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
                 calculateFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
 
                 const UIN idxOfMatrixP =
-                    blockValues[startIndexOfBlock + warpId * block_size + localRow * WMMA_N + localCol];
+                    blockValues[(blockRowOffsets[rowPanelId] + blockIter + warpId) * block_size + localRow * WMMA_N + localCol];
 
                 // Saved when the value is not 0
                 if (idxOfMatrixP != MAX_UIN) {
                     matrixP[idxOfMatrixP] *= cFrag.x[idxOfFragment];
                 }
+                if(idxOfMatrixP == 0){
+                    printf("!!idxOfMatrixP = %d, warpId = %d, laneId = %d "
+                           "idxOfFragment = %d, localRow = %d, localCol = %d "
+                           "startIndexOfReorderedColIndicesInThisIter = %u, idx = %u\n",
+                           idxOfMatrixP, warpId, laneId,
+                           idxOfFragment, localRow, localCol,
+                           startIndexOfReorderedColIndicesInThisIter, startIndexOfReorderedColIndicesInThisIter + warpId * block_size + localRow * WMMA_N + localCol);
+
+                }
+
             }
         }
         __syncthreads();

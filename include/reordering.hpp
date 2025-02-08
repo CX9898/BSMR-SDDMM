@@ -2,11 +2,11 @@
 
 #include "Matrix.hpp"
 
-const float row_similarity_threshold_alpha = 0.3f;
+constexpr float row_similarity_threshold_alpha = 0.3f;
 
-const int row_panel_size = WMMA_M;
-const int block_col_size = WMMA_N;
-const int block_size = row_panel_size * block_col_size;
+constexpr UIN row_panel_size = WMMA_M;
+constexpr UIN block_col_size = WMMA_N;
+constexpr UIN block_size = row_panel_size * block_col_size;
 
 /**
  * @structName: ReorderedMatrix

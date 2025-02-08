@@ -67,7 +67,7 @@ float clusterComparison(const std::vector<UIN> &encoding_rep, const std::vector<
 }
 
 void clustering(const UIN row, const std::vector<std::vector<UIN>> &encodings,
-                const std::vector<UIN> &ascending, const UIN startIndexOfNonZeroRow, std::vector<UIN> &clusterIds) {
+                const std::vector<UIN> &ascending, const UIN startIndexOfNonZeroRow, std::vector<int> &clusterIds) {
 
     for (int idx = startIndexOfNonZeroRow; idx < row - 1; ++idx) {
         if (idx > startIndexOfNonZeroRow && clusterIds[idx] != -1) {
@@ -101,7 +101,7 @@ void row_reordering(const sparseDataType::CSR<float> &matrix, struct ReorderedMa
                      ascending.end(),
                      [&dispersions](size_t i, size_t j) { return dispersions[i] < dispersions[j]; });
 
-    std::vector<UIN> clusterIds(matrix.row_, -1);
+    std::vector<int> clusterIds(matrix.row_, -1);
     UIN startIndexOfNonZeroRow = 0;
     while (startIndexOfNonZeroRow < matrix.row_ && dispersions[ascending[startIndexOfNonZeroRow]] == 0) {
         clusterIds[ascending[startIndexOfNonZeroRow]] = 0;
