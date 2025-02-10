@@ -69,3 +69,5 @@ void row_reordering(const sparseDataType::CSR<float> &matrix, struct ReorderedMa
  * @output: Update `colIndicesOffset_` and `colIndicesInEachRowPanel_` in the ReorderedMatrix structure.
  **/
 void col_reordering(const sparseDataType::CSR<float> &matrix, struct ReorderedMatrix &reorderedMatrix);
+
+bool check_colReordering(const sparseDataType::CSR<float> &matrix, const struct ReorderedMatrix &reorderedMatrix);

@@ -22,6 +22,12 @@ ReorderedMatrix reordering(const sparseDataType::CSR<float> &matrix) {
     timeCalculator.endClock();
     printf("col_reordering time : %f ms\n", timeCalculator.getTime());
 
+    // Error check
+    bool isCorrect = check_colReordering(matrix, reorderedMatrix);
+    if (!isCorrect) {
+        std::cerr << "Error! The col reordering is incorrect!" << std::endl;
+    }
+
     return reorderedMatrix;
 }
 

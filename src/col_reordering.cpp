@@ -126,10 +126,4 @@ void col_reordering(const sparseDataType::CSR<float> &matrix, struct ReorderedMa
                   reorderedMatrix.reorderedColIndices_.begin() +
                       reorderedMatrix.reorderedColIndicesOffset_[rowPanelIdx]);
     }
-
-    // Error check
-    bool isCorrect = check_colReordering(matrix, reorderedMatrix);
-    if (!isCorrect) {
-        std::cerr << "Error! The col reordering is incorrect!" << std::endl;
-    }
 }
