@@ -17,11 +17,22 @@ constexpr UIN block_size = row_panel_size * block_col_size;
  * `colIndicesInEachRowPanel_`: Sorted col index array in each row panel.
  **/
 struct ReorderedMatrix {
+  UIN numRowPanels_;
   std::vector<UIN> reorderedRowIndices_;
   std::vector<UIN> reorderedColIndices_;
   std::vector<UIN> reorderedColIndicesOffset_;
 };
 
+/**
+ * @structName: ReBELL
+ * @structInterpretation:
+ * @MemberVariables:
+ * `rowIndices_`: Sorted row index array.
+ * `colIndicesOffset_`: Offset array of col index array in each row panel.
+ * `colIndicesInEachRowPanel_`: Sorted col index array in each row panel.
+ * `blockValues_`:
+ * `blockRowOffsets_`:
+ **/
 struct ReBELL: public ReorderedMatrix{
   ReBELL() = default;
   ReBELL(const sparseDataType::CSR<float> &csrMatrix);
