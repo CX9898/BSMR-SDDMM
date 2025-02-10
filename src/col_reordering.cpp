@@ -42,12 +42,14 @@ bool check_colReordering(const sparseDataType::CSR<float> &matrix, const struct 
 
             // 1) Check if column indexes are duplicated
             if (colIndicesRecordSet.find(col) != colIndicesRecordSet.end()) {
+                std::cerr << "Error! Column indexes are duplicated\n" << std::endl;
                 return false;
             }
             colIndicesRecordSet.insert(col);
 
             // 2) Check if the column index in the row panel is correct
             if (numOfNonZeroInEachColSegmentMap.find(col) == numOfNonZeroInEachColSegmentMap.end()) {
+                std::cerr << "Error! Column indexes in the row panel is incorrect!" << std::endl;
                 return false;
             }
 
@@ -55,12 +57,14 @@ bool check_colReordering(const sparseDataType::CSR<float> &matrix, const struct 
             if (idxOfReorderedColIndices > reorderedMatrix.reorderedColIndicesOffset_[rowPanelIdx] &&
                 numOfNonZeroInEachColSegmentMap[idxOfReorderedColIndices]
                     > numOfNonZeroInEachColSegmentMap[idxOfReorderedColIndices - 1]) {
+                std::cerr << "Error! The order of column indexes in the row panel is incorrect!" << std::endl;
                 return false;
             }
         }
 
         // 4) Check if the number of column indexes in the row panel is correct
         if (colIndicesRecordSet.size() != numOfNonZeroInEachColSegmentMap.size()) {
+            std::cerr << "Error! The number of column indexes in the row panel is incorrect!" << std::endl;
             return false;
         }
     }
@@ -124,8 +128,8 @@ void col_reordering(const sparseDataType::CSR<float> &matrix, struct ReorderedMa
     }
 
     // Error check
-    bool isCorrect = check_colReordering(matrix,reorderedMatrix);
-    if(isCorrect){
+    bool isCorrect = check_colReordering(matrix, reorderedMatrix);
+    if (!isCorrect) {
         std::cerr << "Error! The col reordering is incorrect!" << std::endl;
     }
 }
