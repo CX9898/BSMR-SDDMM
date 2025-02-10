@@ -4,7 +4,7 @@
 
 #include "kernel.cuh"
 #include "TensorCoreConfig.cuh"
-#include "reordering.hpp"
+#include "ReBELL.hpp"
 
 namespace kernel {
 

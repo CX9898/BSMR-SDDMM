@@ -3,7 +3,7 @@
 #include <numeric>
 #include <algorithm>
 
-#include "reordering.hpp"
+#include "ReBELL.hpp"
 #include "parallelAlgorithm.cuh"
 
 #define COL_BLOCK_SIZE 32
@@ -90,7 +90,12 @@ void clustering(const std::vector<std::vector<UIN>> &encodings,
 //    printf("!!! num = %d\n", num);
 }
 
-void row_reordering(const sparseDataType::CSR<float> &matrix, struct ReorderedMatrix &reorderedMatrix) {
+bool check_rowReordering(const sparseDataType::CSR<float> &matrix, const struct ReBELL &rebell) {
+
+    return true;
+}
+
+void ReBELL::rowReordering(const sparseDataType::CSR<float> &matrix) {
     std::vector<std::vector<UIN>> encodings;
     encoding(matrix, encodings);
 
@@ -125,24 +130,22 @@ void row_reordering(const sparseDataType::CSR<float> &matrix, struct ReorderedMa
 
     clustering(encodings, ascendingRow, startIndexOfNonZeroRow, clusterIds);
 
-    reorderedMatrix.reorderedRowIndices_.resize(matrix.row_);
-    std::iota(reorderedMatrix.reorderedRowIndices_.begin(),
-              reorderedMatrix.reorderedRowIndices_.end(),
+    reorderedRowIndices_.resize(matrix.row_);
+    std::iota(reorderedRowIndices_.begin(),
+              reorderedRowIndices_.end(),
               0); // rowIndices = {0, 1, 2, 3, ... rows-1}
-    std::stable_sort(reorderedMatrix.reorderedRowIndices_.begin(),
-                     reorderedMatrix.reorderedRowIndices_.end(),
+    std::stable_sort(reorderedRowIndices_.begin(),
+                     reorderedRowIndices_.end(),
                      [&clusterIds](int i, int j) { return clusterIds[i] < clusterIds[j]; });
 
     // Remove zero rows
     {
         startIndexOfNonZeroRow = 0;
         while (startIndexOfNonZeroRow < matrix.row_
-            && matrix.rowOffsets_[reorderedMatrix.reorderedRowIndices_[startIndexOfNonZeroRow] + 1]
-                - matrix.rowOffsets_[reorderedMatrix.reorderedRowIndices_[startIndexOfNonZeroRow]] == 0) {
+            && matrix.rowOffsets_[reorderedRowIndices_[startIndexOfNonZeroRow] + 1]
+                - matrix.rowOffsets_[reorderedRowIndices_[startIndexOfNonZeroRow]] == 0) {
             ++startIndexOfNonZeroRow;
         }
-        reorderedMatrix.reorderedRowIndices_.erase(reorderedMatrix.reorderedRowIndices_.begin(),
-                                                   reorderedMatrix.reorderedRowIndices_.begin()
-                                                       + startIndexOfNonZeroRow);
+        reorderedRowIndices_.erase(reorderedRowIndices_.begin(), reorderedRowIndices_.begin() + startIndexOfNonZeroRow);
     }
 }

@@ -4,25 +4,25 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "reordering.hpp"
+#include "ReBELL.hpp"
 #include "TensorCoreConfig.cuh"
 #include "parallelAlgorithm.cuh"
 
-bool check_colReordering(const sparseDataType::CSR<float> &matrix, const struct ReorderedMatrix &reorderedMatrix) {
+bool check_colReordering(const sparseDataType::CSR<float> &matrix, const struct ReBELL &rebell) {
 
-    for (int rowPanelIdx = 0; rowPanelIdx < reorderedMatrix.numRowPanels_; ++rowPanelIdx) {
+    for (int rowPanelIdx = 0; rowPanelIdx < rebell.numRowPanels_; ++rowPanelIdx) {
 
         const UIN startIdxOfReorderedRowIndicesInThisRowPanel = rowPanelIdx * row_panel_size;
         const UIN endIdxOfReorderedRowIndicesInThisRowPanel = std::min(
             startIdxOfReorderedRowIndicesInThisRowPanel + row_panel_size,
-            static_cast<UIN>(reorderedMatrix.reorderedRowIndices_.size()));
+            static_cast<UIN>(rebell.reorderedRowIndices_.size()));
 
         // Count the number of non-zero elements for each column segment
         std::unordered_map<UIN, UIN> colAndNumOfNonZeroMap;
         for (int idxOfReorderedRowIndices = startIdxOfReorderedRowIndicesInThisRowPanel;
              idxOfReorderedRowIndices < endIdxOfReorderedRowIndicesInThisRowPanel;
              ++idxOfReorderedRowIndices) { // Loop through the rows in this row panel
-            const UIN row = reorderedMatrix.reorderedRowIndices_[idxOfReorderedRowIndices];
+            const UIN row = rebell.reorderedRowIndices_[idxOfReorderedRowIndices];
             for (UIN idx = matrix.rowOffsets_[row]; idx < matrix.rowOffsets_[row + 1];
                  ++idx) { // Loop through the columns in this row
                 const UIN col = matrix.colIndices_[idx];
@@ -35,10 +35,10 @@ bool check_colReordering(const sparseDataType::CSR<float> &matrix, const struct 
         }
 
         std::unordered_set<UIN> colIndicesRecordSet;
-        for (int idxOfReorderedColIndices = reorderedMatrix.reorderedColIndicesOffset_[rowPanelIdx];
-             idxOfReorderedColIndices < reorderedMatrix.reorderedColIndicesOffset_[rowPanelIdx + 1];
+        for (int idxOfReorderedColIndices = rebell.reorderedColIndicesOffset_[rowPanelIdx];
+             idxOfReorderedColIndices < rebell.reorderedColIndicesOffset_[rowPanelIdx + 1];
              ++idxOfReorderedColIndices) {
-            const UIN col = reorderedMatrix.reorderedColIndices_[idxOfReorderedColIndices];
+            const UIN col = rebell.reorderedColIndices_[idxOfReorderedColIndices];
 
             // 1) Check if column indexes are duplicated
             if (colIndicesRecordSet.find(col) != colIndicesRecordSet.end()) {
@@ -54,9 +54,9 @@ bool check_colReordering(const sparseDataType::CSR<float> &matrix, const struct 
             }
 
             // 3) Check if the order of column indexes in the row panel is correct
-            if (idxOfReorderedColIndices + 1 < reorderedMatrix.reorderedColIndicesOffset_[rowPanelIdx + 1] &&
+            if (idxOfReorderedColIndices + 1 < rebell.reorderedColIndicesOffset_[rowPanelIdx + 1] &&
                 colAndNumOfNonZeroMap[col]
-                    < colAndNumOfNonZeroMap[reorderedMatrix.reorderedColIndices_[idxOfReorderedColIndices + 1]]) {
+                    < colAndNumOfNonZeroMap[rebell.reorderedColIndices_[idxOfReorderedColIndices + 1]]) {
                 std::cerr << "Error! The order of column indexes in the row panel is incorrect!" << std::endl;
                 return false;
             }
@@ -72,9 +72,9 @@ bool check_colReordering(const sparseDataType::CSR<float> &matrix, const struct 
     return true;
 }
 
-void col_reordering(const sparseDataType::CSR<float> &matrix, struct ReorderedMatrix &reorderedMatrix) {
-    const UIN numRowPanel = std::ceil(static_cast<float>(reorderedMatrix.reorderedRowIndices_.size()) / row_panel_size);
-    reorderedMatrix.numRowPanels_ = numRowPanel;
+void ReBELL::colReordering(const sparseDataType::CSR<float> &matrix) {
+    const UIN numRowPanel = std::ceil(static_cast<float>(reorderedRowIndices_.size()) / row_panel_size);
+    numRowPanels_ = numRowPanel;
 
     std::vector<UIN> numOfNonZeroColSegmentInEachRowPanel(numRowPanel, 0);
     std::vector<std::vector<UIN>>
@@ -84,14 +84,14 @@ void col_reordering(const sparseDataType::CSR<float> &matrix, struct ReorderedMa
         const UIN startIdxOfReorderedRowIndicesInThisRowPanel = rowPanelIdx * row_panel_size;
         const UIN endIdxOfReorderedRowIndicesInThisRowPanel = std::min(
             startIdxOfReorderedRowIndicesInThisRowPanel + row_panel_size,
-            static_cast<UIN>(reorderedMatrix.reorderedRowIndices_.size()));
+            static_cast<UIN>(reorderedRowIndices_.size()));
 
         // Count the number of non-zero elements for each column segment
         std::vector<UIN> numOfNonZeroInEachColSegment(matrix.col_, 0);
         for (int idxOfReorderedRowIndices = startIdxOfReorderedRowIndicesInThisRowPanel;
              idxOfReorderedRowIndices < endIdxOfReorderedRowIndicesInThisRowPanel;
              ++idxOfReorderedRowIndices) { // Loop through the rows in this row panel
-            const UIN row = reorderedMatrix.reorderedRowIndices_[idxOfReorderedRowIndices];
+            const UIN row = reorderedRowIndices_[idxOfReorderedRowIndices];
             for (UIN idx = matrix.rowOffsets_[row]; idx < matrix.rowOffsets_[row + 1];
                  ++idx) { // Loop through the columns in this row
                 const UIN col = matrix.colIndices_[idx];
@@ -111,19 +111,18 @@ void col_reordering(const sparseDataType::CSR<float> &matrix, struct ReorderedMa
         numOfNonZeroColSegmentInEachRowPanel[rowPanelIdx] = numNonZeroColSegment;
     }
 
-    reorderedMatrix.reorderedColIndicesOffset_.resize(numRowPanel + 1);
-    reorderedMatrix.reorderedColIndicesOffset_[0] = 0;
+    reorderedColIndicesOffset_.resize(numRowPanel + 1);
+    reorderedColIndicesOffset_[0] = 0;
     host::inclusive_scan(numOfNonZeroColSegmentInEachRowPanel.data(),
                          numOfNonZeroColSegmentInEachRowPanel.data() + numOfNonZeroColSegmentInEachRowPanel.size(),
-                         reorderedMatrix.reorderedColIndicesOffset_.data() + 1);
+                         reorderedColIndicesOffset_.data() + 1);
 
-    reorderedMatrix.reorderedColIndices_.resize(reorderedMatrix.reorderedColIndicesOffset_[numRowPanel]);
+    reorderedColIndices_.resize(reorderedColIndicesOffset_[numRowPanel]);
 #pragma omp parallel for
     for (int rowPanelIdx = 0; rowPanelIdx < numRowPanel; ++rowPanelIdx) {
         std::copy(colIndicesInEachRowPanel_sparse[rowPanelIdx].begin(),
                   colIndicesInEachRowPanel_sparse[rowPanelIdx].begin()
                       + numOfNonZeroColSegmentInEachRowPanel[rowPanelIdx],
-                  reorderedMatrix.reorderedColIndices_.begin() +
-                      reorderedMatrix.reorderedColIndicesOffset_[rowPanelIdx]);
+                  reorderedColIndices_.begin() + reorderedColIndicesOffset_[rowPanelIdx]);
     }
 }

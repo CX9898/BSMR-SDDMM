@@ -4,43 +4,25 @@
 #include <unordered_map>
 #include <limits>
 
-#include "reordering.hpp"
+#include "ReBELL.hpp"
 #include "CudaTimeCalculator.cuh"
 #include "parallelAlgorithm.cuh"
 
-ReorderedMatrix reordering(const sparseDataType::CSR<float> &matrix) {
-    ReorderedMatrix reorderedMatrix;
+ReBELL::ReBELL(const sparseDataType::CSR<float> &matrix) {
 
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
-    row_reordering(matrix, reorderedMatrix);
+    rowReordering(matrix);
     timeCalculator.endClock();
     printf("row_reordering time : %f ms\n", timeCalculator.getTime());
 
     timeCalculator.startClock();
-    col_reordering(matrix, reorderedMatrix);
+    colReordering(matrix);
     timeCalculator.endClock();
     printf("col_reordering time : %f ms\n", timeCalculator.getTime());
 
-    // Error check
-    bool isCorrect = check_colReordering(matrix, reorderedMatrix);
-    if (!isCorrect) {
-        std::cerr << "Error! The col reordering is incorrect!" << std::endl;
-    }
-
-    return reorderedMatrix;
-}
-
-ReBELL::ReBELL(const sparseDataType::CSR<float> &csrMatrix) {
-
-    ReorderedMatrix reorderedMatrix = reordering(csrMatrix);
-
-    reorderedRowIndices_ = reorderedMatrix.reorderedRowIndices_;
-    reorderedColIndices_ = reorderedMatrix.reorderedColIndices_;
-    reorderedColIndicesOffset_ = reorderedMatrix.reorderedColIndicesOffset_;
-
     // initialize blockRowOffsets_
-    const UIN numRowPanel = std::ceil(static_cast<float>(reorderedMatrix.reorderedRowIndices_.size()) / row_panel_size);
+    const UIN numRowPanel = std::ceil(static_cast<float>(reorderedRowIndices_.size()) / row_panel_size);
     std::vector<UIN> numBlockInEachRowPanel(numRowPanel);
 #pragma omp parallel for
     for (int rowPanelIdx = 0; rowPanelIdx < numRowPanel; ++rowPanelIdx) {
@@ -61,9 +43,9 @@ ReBELL::ReBELL(const sparseDataType::CSR<float> &csrMatrix) {
         const UIN row = reorderedRowIndices_[idxOfRowIndices];
 
         std::unordered_map<UIN, UIN> colAndIndexMap;
-        for (int idxOfOriginalMatrix = csrMatrix.rowOffsets_[row]; idxOfOriginalMatrix < csrMatrix.rowOffsets_[row + 1];
+        for (int idxOfOriginalMatrix = matrix.rowOffsets_[row]; idxOfOriginalMatrix < matrix.rowOffsets_[row + 1];
              ++idxOfOriginalMatrix) {
-            colAndIndexMap[csrMatrix.colIndices_[idxOfOriginalMatrix]] = idxOfOriginalMatrix;
+            colAndIndexMap[matrix.colIndices_[idxOfOriginalMatrix]] = idxOfOriginalMatrix;
         }
 
         const UIN rowPanelIdx = idxOfRowIndices / row_panel_size;
@@ -85,20 +67,4 @@ ReBELL::ReBELL(const sparseDataType::CSR<float> &csrMatrix) {
             }
         }
     }
-}
-
-bool testReorderedMatrixCorrectness(const sparseDataType::CSR<float> &matrix, const ReorderedMatrix &reorderedMatrix) {
-    for (int reorderedRowIdx = 0; reorderedRowIdx < reorderedMatrix.reorderedRowIndices_.size(); ++reorderedRowIdx) {
-        const UIN row = reorderedMatrix.reorderedRowIndices_[reorderedRowIdx];
-
-        std::unordered_map<UIN, float> colAndValueMap;
-        for (int matrixColIdx = matrix.rowOffsets_[row]; matrixColIdx < matrix.rowOffsets_[row + 1]; ++matrixColIdx) {
-            const UIN col = matrix.colIndices_[matrixColIdx];
-            const float value = matrix.values_[matrixColIdx];
-            colAndValueMap[col] = value;
-        }
-
-    }
-
-    return true;
 }

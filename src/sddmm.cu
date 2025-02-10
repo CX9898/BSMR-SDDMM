@@ -5,7 +5,7 @@
 #include "CudaTimeCalculator.cuh"
 #include "host.hpp"
 #include "checkData.hpp"
-#include "reordering.hpp"
+#include "ReBELL.hpp"
 
 // The old method, directly uses TensorCore calculation
 void sddmm(Matrix<float> &matrixA, Matrix<float> &matrixB, SparseMatrix<float> &matrixS, SparseMatrix<float> &matrixP) {
@@ -109,6 +109,18 @@ void sddmm(const Matrix<float> &matrixA,
     timeCalculator.endClock();
     float rebell_time = timeCalculator.getTime();
     printf("rebell time : %.2f\n", rebell_time);
+
+    // Error check
+    bool rowReorderingIsCorrect = check_rowReordering(matrixS, rebell);
+    if (!rowReorderingIsCorrect) {
+        std::cerr << "Error! The row reordering is incorrect!" << std::endl;
+    }
+
+    // Error check
+    bool colReorderingIsCorrect = check_colReordering(matrixS, rebell);
+    if (!colReorderingIsCorrect) {
+        std::cerr << "Error! The col reordering is incorrect!" << std::endl;
+    }
 
     dev::vector<MATRIX_A_TYPE> matrixA_values_convertedType_dev(matrixA.size());
     dev::vector<MATRIX_B_TYPE> matrixB_values_convertedType_dev(matrixB.size());
