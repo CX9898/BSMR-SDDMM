@@ -843,32 +843,46 @@ void sddmm_gpu_coo_3(TensorCoreConfig tensorCoreConfig,
 
 }
 
-void sddmm_gpu_rebell(const UIN M,
-                      const UIN N,
-                      const UIN K,
-                      const half *matrixA,
-                      const half *matrixB,
-                      const UIN numNonZeroRow,
-                      const UIN *reorderedMatrixRowIndices,
-                      const UIN *reorderedMatrixColIndices,
-                      const UIN *reorderedMatrixColIndicesOffset,
-                      const UIN *blockRowOffsets,
-                      const UIN *blockValues,
-                      float *matrixP) {
+void sddmm_gpu_rebell(const Matrix<float> &matrixA,
+                      const Matrix<float> &matrixB,
+                      const sparseDataType::CSR<float> &matrixS,
+                      const ReBELL &rebell,
+                      sparseDataType::CSR<float> &matrixP) {
+
+    dev::vector<MATRIX_A_TYPE> matrixA_values_convertedType_dev(matrixA.size());
+    dev::vector<MATRIX_B_TYPE> matrixB_values_convertedType_dev(matrixB.size());
+    {
+        dev::vector<float> matrixA_values_dev(matrixA.values());
+        dev::vector<float> matrixB_values_dev(matrixB.values());
+
+        const int numThreadPerBlock = 1024;
+        kernel::convertDataType<<< (matrixA.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
+            matrixA.size(), matrixA_values_dev.data(), matrixA_values_convertedType_dev.data());
+        kernel::convertDataType<<< (matrixB.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
+            matrixB.size(), matrixB_values_dev.data(), matrixB_values_convertedType_dev.data());
+    }
+
+    dev::vector<UIN> reorderedRowIndices_dev(rebell.reorderedRowIndices_);
+    dev::vector<UIN> reorderedColIndices_dev(rebell.reorderedColIndices_);
+    dev::vector<UIN> reorderedColIndicesOffset_dev(rebell.reorderedColIndicesOffset_);
+    dev::vector<UIN> blockRowOffsets_dev(rebell.blockRowOffsets_);
+    dev::vector<UIN> blockValues_dev(rebell.blockValues_);
+    dev::vector<float> matrixP_dev(matrixS.values_);
 
     dim3 grid, block;
     block.x = 64;
-    const UIN numRowPanels = std::ceil(static_cast<float>(numNonZeroRow) / row_panel_size);
-    grid.x = numRowPanels;
+    grid.x = rebell.numRowPanels_;
 
-    kernel::sddmm_gpu_rebell_matrix_row_matrix_row<<<grid, block>>>(M, N, K,
-        matrixA,
-        matrixB,
-        numNonZeroRow,
-        reorderedMatrixRowIndices,
-        reorderedMatrixColIndices,
-        reorderedMatrixColIndicesOffset,
-        blockRowOffsets,
-        blockValues,
-        matrixP);
+    kernel::sddmm_gpu_rebell_matrix_row_matrix_row<<<grid, block>>>(matrixS.row_, matrixS.col_, matrixA.col(),
+        matrixA_values_convertedType_dev.data(),
+        matrixB_values_convertedType_dev.data(),
+        rebell.numRowPanels_,
+        reorderedRowIndices_dev.data(),
+        reorderedColIndices_dev.data(),
+        reorderedColIndicesOffset_dev.data(),
+        blockRowOffsets_dev.data(),
+        blockValues_dev.data(),
+        matrixP_dev.data());
+
+    matrixP.values_ = d2h(matrixP_dev);
 }

@@ -5,6 +5,7 @@
 #include "devVector.cuh"
 #include "Matrix.hpp"
 #include "TensorCoreConfig.cuh"
+#include "ReBELL.hpp"
 
 namespace kernel {
 
@@ -70,15 +71,8 @@ void sddmm_gpu_coo_3(TensorCoreConfig tensorCoreConfig,
                      const UIN *matrixSTileMappedToWarpIndex,
                      float *matrixP);
 
-void sddmm_gpu_rebell(const UIN M,
-                      const UIN N,
-                      const UIN K,
-                      const half *matrixA,
-                      const half *matrixB,
-                      const UIN numNonZeroRow,
-                      const UIN *reorderedMatrixRowIndices,
-                      const UIN *reorderedMatrixColIndices,
-                      const UIN *reorderedMatrixColIndicesOffset,
-                      const UIN *blockRowOffsets,
-                      const UIN *blockValues,
-                      float *matrixP);
+void sddmm_gpu_rebell(const Matrix<float> &matrixA,
+                      const Matrix<float> &matrixB,
+                      const sparseDataType::CSR<float> &matrixS,
+                      const ReBELL &rebell,
+                      sparseDataType::CSR<float> &matrixP);

@@ -105,7 +105,10 @@ void sddmm(const Matrix<float> &matrixA,
 
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
+
+    // Reordering
     ReBELL rebell(matrixS);
+
     timeCalculator.endClock();
     float rebell_time = timeCalculator.getTime();
     printf("rebell time : %.2f\n", rebell_time);
@@ -122,50 +125,14 @@ void sddmm(const Matrix<float> &matrixA,
         std::cerr << "Error! The col reordering is incorrect!" << std::endl;
     }
 
-    dev::vector<MATRIX_A_TYPE> matrixA_values_convertedType_dev(matrixA.size());
-    dev::vector<MATRIX_B_TYPE> matrixB_values_convertedType_dev(matrixB.size());
-    {
-        dev::vector<float> matrixA_values_dev(matrixA.values());
-        dev::vector<float> matrixB_values_dev(matrixB.values());
+    sddmm_gpu_rebell(matrixA, matrixB, matrixS, rebell, matrixP);
 
-        const int numThreadPerBlock = 1024;
-        kernel::convertDataType<<< (matrixA.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
-            matrixA.size(), matrixA_values_dev.data(), matrixA_values_convertedType_dev.data());
-        kernel::convertDataType<<< (matrixB.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
-            matrixB.size(), matrixB_values_dev.data(), matrixB_values_convertedType_dev.data());
-    }
-
-    dev::vector<UIN> reorderedMatrixRowIndices_dev(rebell.reorderedRowIndices_);
-    dev::vector<UIN> reorderedMatrixColIndices_dev(rebell.reorderedColIndices_);
-    dev::vector<UIN> reorderedMatrixColIndicesOffset_dev(rebell.reorderedColIndicesOffset_);
-    dev::vector<UIN> blockRowOffsets_dev(rebell.blockRowOffsets_);
-    dev::vector<UIN> blockValues_dev(rebell.blockValues_);
-    dev::vector<float> matrixP_dev(matrixS.values_);
-
-    timeCalculator.startClock();
-    sddmm_gpu_rebell(matrixS.row_, matrixS.col_, matrixA.col(),
-                     matrixA_values_convertedType_dev.data(),
-                     matrixB_values_convertedType_dev.data(),
-                     rebell.reorderedRowIndices_.size(),
-                     reorderedMatrixRowIndices_dev.data(),
-                     reorderedMatrixColIndices_dev.data(),
-                     reorderedMatrixColIndicesOffset_dev.data(),
-                     blockRowOffsets_dev.data(),
-                     blockValues_dev.data(),
-                     matrixP_dev.data());
-
-    timeCalculator.endClock();
-    float sddmm_gpu_rebell_time = timeCalculator.getTime();
-    printf("[sddmm_gpu_rebell : %.2f]\n", sddmm_gpu_rebell_time);
-
-    matrixP.values_ = d2h(matrixP_dev);
-
-    sparseDataType::CSR<float> matrixP_cpu_res
-        (matrixS.row_, matrixS.col_, matrixS.nnz_, matrixS.rowOffsets_, matrixS.colIndices_, matrixS.values_);
+    sparseDataType::CSR<float> matrixP_cpu_res(matrixS);
 
     // comp by cpu
     sddmm_cpu(matrixA, matrixB, matrixS, matrixP_cpu_res);
 
+    // Error check
     size_t numError = 0;
     if (!checkData(matrixP_cpu_res.values_, matrixP.values_, numError)) {
         printf("[checkData : NO PASS Error rate : %2.2f%%]\n",

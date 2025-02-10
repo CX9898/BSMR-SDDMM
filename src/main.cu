@@ -137,10 +137,10 @@ int main(int argc, char *argv[]) {
     cuSparseSDDMM(matrixA, matrixB, matrixS);
 
     // sddmm
-    SparseMatrix<float> matrixP;
+    SparseMatrix<float> matrixP(matrixS);
     sddmm(matrixA, matrixB, matrixS, matrixP);
 
-    sparseDataType::CSR<float> matrixP_csr;
+    sparseDataType::CSR<float> matrixP_csr(matrixS.getCsrData());
     sddmm(matrixA, matrixB, matrixS.getCsrData(), matrixP_csr);
 
     return 0;
