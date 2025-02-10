@@ -134,7 +134,10 @@ int main(int argc, char *argv[]) {
     else { printf("[matrixB storageOrder : col_major]\n"); }
 
     // cuSparse library
-    cuSparseSDDMM(matrixA, matrixB, matrixS);
+    sparseDataType::CSR<float> matrixP_cuSparse(matrixS.getCsrData());
+    const float alpha = 1.0f;
+    const float beta = 1.0f;
+    cuSparseSDDMM(matrixA, matrixB, matrixS.getCsrData(), alpha, beta, matrixP_cuSparse);
 
     // sddmm
     SparseMatrix<float> matrixP(matrixS);

@@ -128,9 +128,8 @@ void sddmm(const Matrix<float> &matrixA,
     // sddmm comp by cpu
     sddmm_gpu_rebell(matrixA, matrixB, matrixS, rebell, matrixP);
 
-    sparseDataType::CSR<float> matrixP_cpu_res(matrixS);
-
     // sddmm comp by cpu
+    sparseDataType::CSR<float> matrixP_cpu_res(matrixS);
     sddmm_cpu(matrixA, matrixB, matrixS, matrixP_cpu_res);
 
     // Error check
