@@ -18,18 +18,18 @@ bool check_colReordering(const sparseDataType::CSR<float> &matrix, const struct 
             static_cast<UIN>(reorderedMatrix.reorderedRowIndices_.size()));
 
         // Count the number of non-zero elements for each column segment
-        std::unordered_map<UIN, UIN> numOfNonZeroInEachColSegmentMap;
-        for (int idxOfSortedRowIndices = startIdxOfReorderedRowIndicesInThisRowPanel;
-             idxOfSortedRowIndices < endIdxOfReorderedRowIndicesInThisRowPanel;
-             ++idxOfSortedRowIndices) { // Loop through the rows in this row panel
-            const UIN row = reorderedMatrix.reorderedRowIndices_[idxOfSortedRowIndices];
+        std::unordered_map<UIN, UIN> colAndNumOfNonZeroMap;
+        for (int idxOfReorderedRowIndices = startIdxOfReorderedRowIndicesInThisRowPanel;
+             idxOfReorderedRowIndices < endIdxOfReorderedRowIndicesInThisRowPanel;
+             ++idxOfReorderedRowIndices) { // Loop through the rows in this row panel
+            const UIN row = reorderedMatrix.reorderedRowIndices_[idxOfReorderedRowIndices];
             for (UIN idx = matrix.rowOffsets_[row]; idx < matrix.rowOffsets_[row + 1];
                  ++idx) { // Loop through the columns in this row
                 const UIN col = matrix.colIndices_[idx];
-                if (numOfNonZeroInEachColSegmentMap.find(col) == numOfNonZeroInEachColSegmentMap.end()) {
-                    numOfNonZeroInEachColSegmentMap[col] = 1;
+                if (colAndNumOfNonZeroMap.find(col) == colAndNumOfNonZeroMap.end()) {
+                    colAndNumOfNonZeroMap[col] = 1;
                 } else {
-                    ++numOfNonZeroInEachColSegmentMap[col];
+                    ++colAndNumOfNonZeroMap[col];
                 }
             }
         }
@@ -48,22 +48,22 @@ bool check_colReordering(const sparseDataType::CSR<float> &matrix, const struct 
             colIndicesRecordSet.insert(col);
 
             // 2) Check if the column index in the row panel is correct
-            if (numOfNonZeroInEachColSegmentMap.find(col) == numOfNonZeroInEachColSegmentMap.end()) {
+            if (colAndNumOfNonZeroMap.find(col) == colAndNumOfNonZeroMap.end()) {
                 std::cerr << "Error! Column indexes in the row panel is incorrect!" << std::endl;
                 return false;
             }
 
             // 3) Check if the order of column indexes in the row panel is correct
-            if (idxOfReorderedColIndices > reorderedMatrix.reorderedColIndicesOffset_[rowPanelIdx] &&
-                numOfNonZeroInEachColSegmentMap[idxOfReorderedColIndices]
-                    > numOfNonZeroInEachColSegmentMap[idxOfReorderedColIndices - 1]) {
+            if (idxOfReorderedColIndices + 1 < reorderedMatrix.reorderedColIndicesOffset_[rowPanelIdx + 1] &&
+                colAndNumOfNonZeroMap[col]
+                    < colAndNumOfNonZeroMap[reorderedMatrix.reorderedColIndices_[idxOfReorderedColIndices + 1]]) {
                 std::cerr << "Error! The order of column indexes in the row panel is incorrect!" << std::endl;
                 return false;
             }
         }
 
         // 4) Check if the number of column indexes in the row panel is correct
-        if (colIndicesRecordSet.size() != numOfNonZeroInEachColSegmentMap.size()) {
+        if (colIndicesRecordSet.size() != colAndNumOfNonZeroMap.size()) {
             std::cerr << "Error! The number of column indexes in the row panel is incorrect!" << std::endl;
             return false;
         }
@@ -88,10 +88,10 @@ void col_reordering(const sparseDataType::CSR<float> &matrix, struct ReorderedMa
 
         // Count the number of non-zero elements for each column segment
         std::vector<UIN> numOfNonZeroInEachColSegment(matrix.col_, 0);
-        for (int idxOfSortedRowIndices = startIdxOfReorderedRowIndicesInThisRowPanel;
-             idxOfSortedRowIndices < endIdxOfReorderedRowIndicesInThisRowPanel;
-             ++idxOfSortedRowIndices) { // Loop through the rows in this row panel
-            const UIN row = reorderedMatrix.reorderedRowIndices_[idxOfSortedRowIndices];
+        for (int idxOfReorderedRowIndices = startIdxOfReorderedRowIndicesInThisRowPanel;
+             idxOfReorderedRowIndices < endIdxOfReorderedRowIndicesInThisRowPanel;
+             ++idxOfReorderedRowIndices) { // Loop through the rows in this row panel
+            const UIN row = reorderedMatrix.reorderedRowIndices_[idxOfReorderedRowIndices];
             for (UIN idx = matrix.rowOffsets_[row]; idx < matrix.rowOffsets_[row + 1];
                  ++idx) { // Loop through the columns in this row
                 const UIN col = matrix.colIndices_[idx];
