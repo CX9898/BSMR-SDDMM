@@ -22,18 +22,17 @@ void encoding(const sparseDataType::CSR<float> &matrix, std::vector<std::vector<
 }
 
 void calculateDispersion(const UIN col,
-                         const std::vector<std::vector<UIN>> &encodins,
+                         const std::vector<std::vector<UIN>> &encodings,
                          std::vector<UIN> &dispersions) {
 #pragma omp parallel for dynamic
-    for (int row = 0; row < encodins.size(); ++row) {
+    for (int row = 0; row < encodings.size(); ++row) {
         UIN numOfNonZeroColBlocks = 0;
         UIN zeroFillings = 0;
-        for (int colBlockIdx = 0; colBlockIdx < encodins[row].size(); ++colBlockIdx) {
-            const UIN numOfNonZeroCols = encodins[row][colBlockIdx];
-            if (numOfNonZeroCols == 0) {
+        for (int colBlockIdx = 0; colBlockIdx < encodings[row].size(); ++colBlockIdx) {
+            const UIN numOfNonZeroCols = encodings[row][colBlockIdx];
+            if (numOfNonZeroCols != 0) {
                 ++numOfNonZeroColBlocks;
-            } else {
-                zeroFillings += col - numOfNonZeroCols;
+                zeroFillings += block_col_size - numOfNonZeroCols;
             }
         }
         dispersions[row] = COL_BLOCK_SIZE * numOfNonZeroColBlocks + zeroFillings;
@@ -66,26 +65,29 @@ float clusterComparison(const std::vector<UIN> &encoding_rep, const std::vector<
     return min_sum / max_sum;
 }
 
-void clustering(const UIN row, const std::vector<std::vector<UIN>> &encodings,
-                const std::vector<UIN> &ascending, const UIN startIndexOfNonZeroRow, std::vector<int> &clusterIds) {
+void clustering(const std::vector<std::vector<UIN>> &encodings,
+                const std::vector<UIN> &rows, const UIN startIndexOfNonZeroRow, std::vector<int> &clusterIds) {
 
-    for (int idx = startIndexOfNonZeroRow; idx < row - 1; ++idx) {
-        if (idx > startIndexOfNonZeroRow && clusterIds[idx] != -1) {
+//    UIN num = 0;
+    for (int idxRow = startIndexOfNonZeroRow; idxRow < encodings.size() - 1; ++idxRow) {
+        if (idxRow > startIndexOfNonZeroRow && clusterIds[idxRow] != -1) {
             continue;
         }
-        clusterIds[idx] = idx;
-#pragma omp parallel for dynamic
-        for (int cmpIdx = idx + 1; cmpIdx < row; ++cmpIdx) {
+        clusterIds[idxRow] = idxRow;
+//#pragma omp parallel for dynamic
+        for (int cmpIdx = idxRow + 1; cmpIdx < encodings.size(); ++cmpIdx) {
             if (clusterIds[cmpIdx] != -1) {
                 continue;
             }
             const float similarity =
-                clusterComparison(encodings[ascending[startIndexOfNonZeroRow]], encodings[ascending[cmpIdx]]);
+                clusterComparison(encodings[rows[startIndexOfNonZeroRow]], encodings[rows[cmpIdx]]);
             if (similarity > row_similarity_threshold_alpha) {
-                clusterIds[ascending[cmpIdx]] = clusterIds[ascending[idx]];
+                clusterIds[rows[cmpIdx]] = clusterIds[rows[idxRow]];
+//                ++num;
             }
         }
     }
+//    printf("!!! num = %d\n", num);
 }
 
 void row_reordering(const sparseDataType::CSR<float> &matrix, struct ReorderedMatrix &reorderedMatrix) {
@@ -95,19 +97,33 @@ void row_reordering(const sparseDataType::CSR<float> &matrix, struct ReorderedMa
     std::vector<UIN> dispersions(matrix.row_);
     calculateDispersion(matrix.col_, encodings, dispersions);
 
-    std::vector<UIN> ascending(matrix.row_);
-    std::iota(ascending.begin(), ascending.end(), 0); // ascending = {0, 1, 2, 3, ... rows-1}
-    std::stable_sort(ascending.begin(),
-                     ascending.end(),
+    std::vector<UIN> ascendingRow(matrix.row_); // Store the original row id
+    std::iota(ascendingRow.begin(), ascendingRow.end(), 0); // ascending = {0, 1, 2, 3, ... rows-1}
+    std::stable_sort(ascendingRow.begin(),
+                     ascendingRow.end(),
                      [&dispersions](size_t i, size_t j) { return dispersions[i] < dispersions[j]; });
 
     std::vector<int> clusterIds(matrix.row_, -1);
     UIN startIndexOfNonZeroRow = 0;
-    while (startIndexOfNonZeroRow < matrix.row_ && dispersions[ascending[startIndexOfNonZeroRow]] == 0) {
-        clusterIds[ascending[startIndexOfNonZeroRow]] = 0;
+    while (startIndexOfNonZeroRow < matrix.row_ && dispersions[ascendingRow[startIndexOfNonZeroRow]] == 0) {
+        clusterIds[ascendingRow[startIndexOfNonZeroRow]] = 0;
         ++startIndexOfNonZeroRow;
     }
-    clustering(matrix.row_, encodings, ascending, startIndexOfNonZeroRow, clusterIds);
+
+//    printf("!!! 1103 numCols = %d\n", matrix.rowOffsets_[1104] - matrix.rowOffsets_[1103]);
+//    printf("!!! 1178 numCols = %d\n", matrix.rowOffsets_[1179] - matrix.rowOffsets_[1178]);
+//    for (int i = 0; i < encodings[1103].size(); ++i) {
+//        if (encodings[1103][i] != 0) {
+//            printf("!!! 1103 encodings[1103][%d] = %d\n", i, encodings[1103][i]);
+//        }
+//    }
+//    for (int i = 0; i < encodings[1178].size(); ++i) {
+//        if (encodings[1178][i] != 0) {
+//            printf("!!! 1103 encodings[1103][%d] = %d\n", i, encodings[1178][i]);
+//        }
+//    }
+
+    clustering(encodings, ascendingRow, startIndexOfNonZeroRow, clusterIds);
 
     reorderedMatrix.reorderedRowIndices_.resize(matrix.row_);
     std::iota(reorderedMatrix.reorderedRowIndices_.begin(),
@@ -119,13 +135,14 @@ void row_reordering(const sparseDataType::CSR<float> &matrix, struct ReorderedMa
 
     // Remove zero rows
     {
-        UIN startIndexOfNonZeroRow = 0;
+        startIndexOfNonZeroRow = 0;
         while (startIndexOfNonZeroRow < matrix.row_
             && matrix.rowOffsets_[reorderedMatrix.reorderedRowIndices_[startIndexOfNonZeroRow] + 1]
                 - matrix.rowOffsets_[reorderedMatrix.reorderedRowIndices_[startIndexOfNonZeroRow]] == 0) {
             ++startIndexOfNonZeroRow;
         }
         reorderedMatrix.reorderedRowIndices_.erase(reorderedMatrix.reorderedRowIndices_.begin(),
-                                                   reorderedMatrix.reorderedRowIndices_.begin() + startIndexOfNonZeroRow);
+                                                   reorderedMatrix.reorderedRowIndices_.begin()
+                                                       + startIndexOfNonZeroRow);
     }
 }

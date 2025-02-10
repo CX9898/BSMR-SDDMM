@@ -2,7 +2,7 @@
 
 #include "Matrix.hpp"
 
-constexpr float row_similarity_threshold_alpha = 0.3f;
+constexpr float row_similarity_threshold_alpha = 0.1f;
 
 constexpr UIN row_panel_size = WMMA_M;
 constexpr UIN block_col_size = WMMA_N;

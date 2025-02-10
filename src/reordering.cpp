@@ -50,7 +50,7 @@ ReBELL::ReBELL(const sparseDataType::CSR<float> &csrMatrix) {
     // initialize blockValues_
     blockValues_.resize(blockRowOffsets_.back() * block_size);
     host::fill_n(blockValues_.data(), blockValues_.size(), MAX_UIN);
-//#pragma omp parallel for
+#pragma omp parallel for
     for (int idxOfRowIndices = 0; idxOfRowIndices < reorderedRowIndices_.size(); ++idxOfRowIndices) {
         const UIN row = reorderedRowIndices_[idxOfRowIndices];
 
