@@ -12,8 +12,8 @@ void ReBELL::colReordering(const sparseDataType::CSR<float> &matrix) {
     std::vector<std::vector<UIN>>
         colsInEachRowPanel_sparse(numRowPanels_, std::vector<UIN>(matrix.col_)); // Containing empty columns
 #pragma omp parallel for
-    for (int rowPanelIdx = 0; rowPanelIdx < numRowPanels_; ++rowPanelIdx) {
-        const UIN startIdxOfReorderedRowsCurrentRowPanel = rowPanelIdx * row_panel_size;
+    for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
+        const UIN startIdxOfReorderedRowsCurrentRowPanel = rowPanelId * row_panel_size;
         const UIN endIdxOfReorderedRowsCurrentRowPanel = std::min(
             startIdxOfReorderedRowsCurrentRowPanel + row_panel_size,
             static_cast<UIN>(reorderedRows_.size()));
@@ -31,7 +31,7 @@ void ReBELL::colReordering(const sparseDataType::CSR<float> &matrix) {
             }
         }
 
-        auto &colIndicesCurrentRowPanel = colsInEachRowPanel_sparse[rowPanelIdx];
+        auto &colIndicesCurrentRowPanel = colsInEachRowPanel_sparse[rowPanelId];
         std::iota(colIndicesCurrentRowPanel.begin(), colIndicesCurrentRowPanel.end(), 0);
         host::sort_by_key_descending_order(numOfNonZeroInEachColSegment.data(),
                                            numOfNonZeroInEachColSegment.data() + numOfNonZeroInEachColSegment.size(),
@@ -40,7 +40,7 @@ void ReBELL::colReordering(const sparseDataType::CSR<float> &matrix) {
         while (numNonZeroColSegment < matrix.col_ && numOfNonZeroInEachColSegment[numNonZeroColSegment] != 0) {
             ++numNonZeroColSegment;
         }
-        numOfNonZeroColSegmentInEachRowPanel[rowPanelIdx] = numNonZeroColSegment;
+        numOfNonZeroColSegmentInEachRowPanel[rowPanelId] = numNonZeroColSegment;
     }
 
     reorderedColsOffset_.resize(numRowPanels_ + 1);
@@ -51,10 +51,10 @@ void ReBELL::colReordering(const sparseDataType::CSR<float> &matrix) {
 
     reorderedCols_.resize(reorderedColsOffset_[numRowPanels_]);
 #pragma omp parallel for
-    for (int rowPanelIdx = 0; rowPanelIdx < numRowPanels_; ++rowPanelIdx) {
-        std::copy(colsInEachRowPanel_sparse[rowPanelIdx].begin(),
-                  colsInEachRowPanel_sparse[rowPanelIdx].begin()
-                      + numOfNonZeroColSegmentInEachRowPanel[rowPanelIdx],
-                  reorderedCols_.begin() + reorderedColsOffset_[rowPanelIdx]);
+    for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
+        std::copy(colsInEachRowPanel_sparse[rowPanelId].begin(),
+                  colsInEachRowPanel_sparse[rowPanelId].begin()
+                      + numOfNonZeroColSegmentInEachRowPanel[rowPanelId],
+                  reorderedCols_.begin() + reorderedColsOffset_[rowPanelId]);
     }
 }
