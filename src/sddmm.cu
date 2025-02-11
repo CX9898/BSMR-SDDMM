@@ -113,16 +113,43 @@ void sddmm(const Matrix<float> &matrixA,
     float rebell_time = timeCalculator.getTime();
     printf("rebell time : %.2f\n", rebell_time);
 
-    // Error check
-    bool rowReorderingIsCorrect = check_rowReordering(matrixS, rebell);
-    if (!rowReorderingIsCorrect) {
-        std::cerr << "Error! The row reordering is incorrect!" << std::endl;
-    }
+    check_rebell(matrixS, rebell);
 
-    // Error check
-    bool colReorderingIsCorrect = check_colReordering(matrixS, rebell);
-    if (!colReorderingIsCorrect) {
-        std::cerr << "Error! The col reordering is incorrect!" << std::endl;
+    {
+        const UIN rowPanelId = 0;
+        const UIN row = 0;
+        const UIN col = 1;
+        for (int i = rowPanelId * row_panel_size; i < (rowPanelId + 1) * row_panel_size; ++i) {
+            if (rebell.reorderedRows()[i] == row) {
+                printf("find idxOfRowIndices : %d\n", i);
+            }
+        }
+        for (int i = rebell.reorderedColsOffset()[rowPanelId];
+             i < rebell.reorderedColsOffset()[rowPanelId + 1]; ++i) {
+            if (rebell.reorderedCols()[i] == col) {
+                printf("find idxOfColIndices: %d, colBlockId = %d, localColId = %d\n",
+                       i,
+                       i / block_col_size,
+                       i % block_col_size);
+            }
+        }
+
+        printf("rowPanelId = 0, row :");
+        for (int i = 0 * row_panel_size; i < 1 * row_panel_size; ++i) {
+            printf(" %d", rebell.reorderedRows()[i]);
+        }
+        printf("\n");
+
+        printf("matrixA : ");
+        for (int i = row * matrixA.col(); i < row * matrixA.col() + 16; ++i) {
+            printf(" %f", matrixA.values()[i]);
+        }
+        printf("\n");
+
+        printf("matrixB : ");
+        for (int i = col; i < matrixB.size(); i += matrixB.col()) {
+            printf("%f ", matrixB.values()[i]);
+        }
     }
 
     // sddmm comp by cpu

@@ -9,8 +9,8 @@
 
 const std::string folderPath("../dataset/");
 //const std::string folderPath("./");
-const std::string fileName = ("nips");
-//const std::string fileName = ("test2");
+//const std::string fileName = ("nips");
+const std::string fileName = ("test2");
 //const std::string fileName("matrix_20000_20000_4000000");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
     // cuSparse library
     sparseDataType::CSR<float> matrixP_cuSparse(matrixS.getCsrData());
     const float alpha = 1.0f;
-    const float beta = 1.0f;
+    const float beta = 0.0f;
     cuSparseSDDMM(matrixA, matrixB, matrixS.getCsrData(), alpha, beta, matrixP_cuSparse);
 
     // sddmm

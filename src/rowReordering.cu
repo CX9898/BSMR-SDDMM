@@ -69,30 +69,25 @@ void clustering(const std::vector<std::vector<UIN>> &encodings,
                 const std::vector<UIN> &rows, const UIN startIndexOfNonZeroRow, std::vector<int> &clusterIds) {
 
 //    UIN num = 0;
-    for (int idxRow = startIndexOfNonZeroRow; idxRow < encodings.size() - 1; ++idxRow) {
-        if (idxRow > startIndexOfNonZeroRow && clusterIds[idxRow] != -1) {
+    for (int idx = startIndexOfNonZeroRow; idx < encodings.size() - 1; ++idx) {
+        if (idx > startIndexOfNonZeroRow && clusterIds[rows[idx]] != -1) {
             continue;
         }
-        clusterIds[idxRow] = idxRow;
-//#pragma omp parallel for dynamic
-        for (int cmpIdx = idxRow + 1; cmpIdx < encodings.size(); ++cmpIdx) {
-            if (clusterIds[cmpIdx] != -1) {
+        clusterIds[rows[idx]] = idx;
+#pragma omp parallel for dynamic
+        for (int cmpIdx = idx + 1; cmpIdx < encodings.size(); ++cmpIdx) {
+            if (clusterIds[rows[cmpIdx]] != -1) {
                 continue;
             }
             const float similarity =
                 clusterComparison(encodings[rows[startIndexOfNonZeroRow]], encodings[rows[cmpIdx]]);
             if (similarity > row_similarity_threshold_alpha) {
-                clusterIds[rows[cmpIdx]] = clusterIds[rows[idxRow]];
+                clusterIds[rows[cmpIdx]] = clusterIds[rows[idx]];
 //                ++num;
             }
         }
     }
 //    printf("!!! num = %d\n", num);
-}
-
-bool check_rowReordering(const sparseDataType::CSR<float> &matrix, const struct ReBELL &rebell) {
-
-    return true;
 }
 
 void ReBELL::rowReordering(const sparseDataType::CSR<float> &matrix) {
@@ -115,37 +110,24 @@ void ReBELL::rowReordering(const sparseDataType::CSR<float> &matrix) {
         ++startIndexOfNonZeroRow;
     }
 
-//    printf("!!! 1103 numCols = %d\n", matrix.rowOffsets_[1104] - matrix.rowOffsets_[1103]);
-//    printf("!!! 1178 numCols = %d\n", matrix.rowOffsets_[1179] - matrix.rowOffsets_[1178]);
-//    for (int i = 0; i < encodings[1103].size(); ++i) {
-//        if (encodings[1103][i] != 0) {
-//            printf("!!! 1103 encodings[1103][%d] = %d\n", i, encodings[1103][i]);
-//        }
-//    }
-//    for (int i = 0; i < encodings[1178].size(); ++i) {
-//        if (encodings[1178][i] != 0) {
-//            printf("!!! 1103 encodings[1103][%d] = %d\n", i, encodings[1178][i]);
-//        }
-//    }
-
     clustering(encodings, ascendingRow, startIndexOfNonZeroRow, clusterIds);
 
-    reorderedRowIndices_.resize(matrix.row_);
-    std::iota(reorderedRowIndices_.begin(),
-              reorderedRowIndices_.end(),
+    reorderedRows_.resize(matrix.row_);
+    std::iota(reorderedRows_.begin(),
+              reorderedRows_.end(),
               0); // rowIndices = {0, 1, 2, 3, ... rows-1}
-    std::stable_sort(reorderedRowIndices_.begin(),
-                     reorderedRowIndices_.end(),
+    std::stable_sort(reorderedRows_.begin(),
+                     reorderedRows_.end(),
                      [&clusterIds](int i, int j) { return clusterIds[i] < clusterIds[j]; });
 
     // Remove zero rows
     {
         startIndexOfNonZeroRow = 0;
         while (startIndexOfNonZeroRow < matrix.row_
-            && matrix.rowOffsets_[reorderedRowIndices_[startIndexOfNonZeroRow] + 1]
-                - matrix.rowOffsets_[reorderedRowIndices_[startIndexOfNonZeroRow]] == 0) {
+            && matrix.rowOffsets_[reorderedRows_[startIndexOfNonZeroRow] + 1]
+                - matrix.rowOffsets_[reorderedRows_[startIndexOfNonZeroRow]] == 0) {
             ++startIndexOfNonZeroRow;
         }
-        reorderedRowIndices_.erase(reorderedRowIndices_.begin(), reorderedRowIndices_.begin() + startIndexOfNonZeroRow);
+        reorderedRows_.erase(reorderedRows_.begin(), reorderedRows_.begin() + startIndexOfNonZeroRow);
     }
 }

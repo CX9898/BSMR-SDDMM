@@ -12,32 +12,38 @@ constexpr UIN block_size = row_panel_size * block_col_size;
  * @structName: ReBELL
  * @structInterpretation:
  * @MemberVariables:
- * `reorderedRowIndices_`: Sorted row index array.
- * `reorderedColIndices_`: Offset array of col index array in each row panel.
- * `reorderedColIndicesOffset_`: Sorted col index array in each row panel.
+ * `reorderedRows_`: Sorted row index array.
+ * `reorderedCols_`: Offset array of col index array in each row panel.
+ * `reorderedColsOffset_`: Sorted col index array in each row panel.
  * `blockValues_`:
  * `blockRowOffsets_`:
  **/
-struct ReBELL {
+class ReBELL {
  public:
-  ReBELL() = default;
   ReBELL(const sparseDataType::CSR<float> &matrix);
 
+  UIN numRowPanels() const { return numRowPanels_; }
+  const std::vector<UIN> &reorderedRows() const { return reorderedRows_; }
+  const std::vector<UIN> &reorderedCols() const { return reorderedCols_; }
+  const std::vector<UIN> &reorderedColsOffset() const { return reorderedColsOffset_; }
+  const std::vector<UIN> &blockValues() const { return blockValues_; }
+  const std::vector<UIN> &blockRowOffsets() const { return blockRowOffsets_; }
+
+ private:
   UIN numRowPanels_;
-  std::vector<UIN> reorderedRowIndices_;
-  std::vector<UIN> reorderedColIndices_;
-  std::vector<UIN> reorderedColIndicesOffset_;
+  std::vector<UIN> reorderedRows_;
+  std::vector<UIN> reorderedCols_;
+  std::vector<UIN> reorderedColsOffset_;
 
   std::vector<UIN> blockValues_;
   std::vector<UIN> blockRowOffsets_;
 
- private:
   /**
    * @funcitonName: rowReordering
    * @functionInterpretation: Sort rows by row similarity
    * @input:
    * `matrix`: Sparse matrix data in CSR format.
-   * @output: Update `rowIndices_` in the ReorderedMatrix structure.
+   * @output: Update `reorderingRows_`.
    **/
   void rowReordering(const sparseDataType::CSR<float> &matrix);
 
@@ -46,11 +52,9 @@ struct ReBELL {
    * @functionInterpretation: Divide rows into row panels and sort the columns in each row panel.
    * @input:
    * `matrix`: Sparse matrix data in CSR format.
-   * And `rowIndices_` in the ReorderedMatrix struct.
-   * @output: Update `colIndicesOffset_` and `colIndicesInEachRowPanel_` in the ReorderedMatrix structure.
+   * @output: Update `reorderingColsOffset_` and `reorderingCols_`.
    **/
   void colReordering(const sparseDataType::CSR<float> &matrix);
 };
 
-bool check_rowReordering(const sparseDataType::CSR<float> &matrix, const struct ReBELL &rebell);
-bool check_colReordering(const sparseDataType::CSR<float> &matrix, const struct ReBELL &rebell);
+bool check_rebell(const sparseDataType::CSR<float> &matrix, const struct ReBELL &rebell);
