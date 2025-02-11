@@ -183,6 +183,16 @@ bool check_colReordering(const sparseDataType::CSR<float> &matrix, const struct 
 bool check_bell(const sparseDataType::CSR<float> &matrix, const struct ReBELL &rebell) {
     bool isCorrect = true;
 
+    std::unordered_set<UIN> blockValuesSet;
+    for(UIN iter : blockValuesSet){
+        // Check if the block value is duplicated
+        if(blockValuesSet.find(iter) != blockValuesSet.end() && iter != NULL_VALUE){
+            fprintf(stderr, "Error! The block value is duplicated! val: %d\n", iter);
+            isCorrect = false;
+        }
+        blockValuesSet.insert(iter);
+    }
+
     std::unordered_map<UIN, UIN> rowToIndexOfReorderedRowsMap;
     for (int indexOfReorderedRows = 0; indexOfReorderedRows < rebell.reorderedRows().size();
          ++indexOfReorderedRows) {
@@ -260,6 +270,19 @@ bool check_bell(const sparseDataType::CSR<float> &matrix, const struct ReBELL &r
         for (int idxOfOriginalMatrix = matrix.rowOffsets_[row]; idxOfOriginalMatrix < matrix.rowOffsets_[row + 1];
              ++idxOfOriginalMatrix) {
             if (matrix.colIndices_[idxOfOriginalMatrix] == col) {
+
+                // Check if the value is missing
+                if(rebell.blockValues()[idxOfBlockValues] == NULL_VALUE){
+                    fprintf(stderr,
+                            "Error! Missing value!(Check based on the blockValues) row: %d, col: %d, idxOfBlockValues: %d, idxOfOriginalMatrix: %d\n",
+                            row,
+                            col,
+                            idxOfBlockValues,
+                            idxOfOriginalMatrix);
+
+                    isCorrect = false;
+                    break;
+                }
 
                 // Check if the block value is correct
                 if (rebell.blockValues()[idxOfBlockValues] != idxOfOriginalMatrix) {
