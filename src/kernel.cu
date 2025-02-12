@@ -31,7 +31,7 @@ template __global__ void convertDataType<float>(const UIN n, const float *in, fl
 template __global__ void convertDataType<double>(const UIN n, const float *in, double *out);
 template __global__ void convertDataType<half>(const UIN n, const float *in, half *out);
 
-const float SPARSITY_BOUND = 1.0f;
+//const float SPARSITY_BOUND = 1.0f;
 
 template<typename T>
 __device__ float calculateMatrixTileSparsity(const int tileM,
@@ -55,36 +55,36 @@ __device__ float calculateMatrixTileSparsity(const int tileM,
     return static_cast<float>(numValues - nnzCount) / static_cast<float>(numValues);
 }
 
-__global__ void bank_conflicts_test(UIN N, UIN K, const int *matrixB, const int *matrixA) {
-
-    int pRowId = 0;
-    int pColId = 0;
-
-    int localWarpId = threadIdx.x / WARP_SIZE;
-    int laneId = threadIdx.x % WARP_SIZE;
-
-    __shared__ int aTile[MATRIX_TILE_A_SIZE_PER_BLOCK];
-
-    // Leading dimensions. Packed with no transpositions.
-    const UIN lda = K;
-    const UIN ldb = N;
-
-    // Loop over k
-    for (int kIter = 0; kIter < K; kIter += WMMA_K * NUM_OF_Y_PER_BLOCK) {
-        const int aRowId = pRowId;
-        const int aColId = kIter;
-
-        const int bRowId = kIter;
-        const int bColId = pColId;
-
-        for (int iter = 0; iter < 8; ++iter) {
-            int beginIdxOfSharedMemory = localWarpId * NUMBER_OF_MEMORY_ACCESSES_MATRIX_TILE_A_PER_WARP;
-            aTile[beginIdxOfSharedMemory + laneId + iter * WARP_SIZE] =
-                matrixA[beginIdxOfSharedMemory + laneId + iter * WARP_SIZE];
-        }
-    }
-
-}
+//__global__ void bank_conflicts_test(UIN N, UIN K, const int *matrixB, const int *matrixA) {
+//
+//    int pRowId = 0;
+//    int pColId = 0;
+//
+//    int localWarpId = threadIdx.x / WARP_SIZE;
+//    int laneId = threadIdx.x % WARP_SIZE;
+//
+//    __shared__ int aTile[MATRIX_TILE_A_SIZE_PER_BLOCK];
+//
+//    // Leading dimensions. Packed with no transpositions.
+//    const UIN lda = K;
+//    const UIN ldb = N;
+//
+//    // Loop over k
+//    for (int kIter = 0; kIter < K; kIter += WMMA_K * NUM_OF_Y_PER_BLOCK) {
+//        const int aRowId = pRowId;
+//        const int aColId = kIter;
+//
+//        const int bRowId = kIter;
+//        const int bColId = pColId;
+//
+//        for (int iter = 0; iter < 8; ++iter) {
+//            int beginIdxOfSharedMemory = localWarpId * NUMBER_OF_MEMORY_ACCESSES_MATRIX_TILE_A_PER_WARP;
+//            aTile[beginIdxOfSharedMemory + laneId + iter * WARP_SIZE] =
+//                matrixA[beginIdxOfSharedMemory + laneId + iter * WARP_SIZE];
+//        }
+//    }
+//
+//}
 
 //__device__ void loadMatrixAToSharedMemorySync(UIN laconst half *matrixA, half *sharedMemory) {
 //
@@ -103,131 +103,131 @@ __global__ void bank_conflicts_test(UIN N, UIN K, const int *matrixB, const int 
 // 未完全实现.
 // 问题: 共享内存中一次储存64×64个矩阵数据, 但是超过这个大小的矩阵无法载入, 会出现错误
 // 放弃原因: 在 `wmma::load_matrix_sync` 中, 出现了bank conflict, 无法解决
-__global__ void sddmm_gpu_coo_4_matrixA_row_matrixB_row(TensorCoreConfig tensorCoreConfig,
-                                                        const UIN M,
-                                                        const UIN N,
-                                                        const UIN K,
-                                                        const half *matrixA,
-                                                        const half *matrixB,
-                                                        const UIN *matrixSRowIndex,
-                                                        const UIN *matrixSColIndex,
-                                                        const float *matrixS,
-                                                        const UIN *matrixSTileMappedToWarpIndex,
-                                                        float *matrixP) {
-    tensorCoreConfig.initByKernel(blockIdx, blockDim, threadIdx);
-
-    const UIN globalWarpId = tensorCoreConfig.globalWarpId();
-
-    __shared__ half aTileSharedMem[MATRIX_TILE_A_SIZE_PER_BLOCK];
-    __shared__ half bTileSharedMem[MATRIX_TILE_B_SIZE_PER_BLOCK];
-
-    wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE, wmma::row_major> aFrag;
-    wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE, wmma::row_major> bFrag;
-
-    wmma::fragment<wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> cFrag;
-
-    fill_fragment(cFrag, 0.0f);
-
-    const UIN pRowId = tensorCoreConfig.warpStarRow();
-    const UIN pColId = tensorCoreConfig.warpStarCol();
-
-    const UIN pRowIdForBlock = tensorCoreConfig.blockStarRow();
-    const UIN pColIdForBlock = tensorCoreConfig.blockStarCol();
-
-    const UIN localWarpId = tensorCoreConfig.localWarpId();
-    const UIN laneId = tensorCoreConfig.laneId();
-
-    const UIN localWarpX = tensorCoreConfig.localWarpX();
-    const UIN localWarpY = tensorCoreConfig.localWarpY();
-
-    const int tileIndexBegin = matrixSTileMappedToWarpIndex[globalWarpId];
-    const int tileIndexEnd = matrixSTileMappedToWarpIndex[globalWarpId + 1];
-
-    const int numDataInThisWarp = tileIndexEnd - tileIndexBegin;
-
-    // Leading dimensions. Packed with no transpositions.
-    const UIN lda = K;
-    const UIN ldb = N;
-
-    // Loop over k
-    for (int kIter = 0; kIter < K; kIter += WMMA_K * NUM_OF_WARP_X_PER_BLOCK) {
-
-        // load matrix tile A to shared memory
-#pragma unroll
-        for (int iter = 0; iter < 8; ++iter) {
-
-//            const UIN localARowIdForThisIteration = ;
-//            const UIN localAColIdForThisIteration = ;
-//            const UIN localBRowIdForThisIteration = ;
-//            const UIN localBColIdForThisIteration = ;
+//__global__ void sddmm_gpu_coo_4_matrixA_row_matrixB_row(TensorCoreConfig tensorCoreConfig,
+//                                                        const UIN M,
+//                                                        const UIN N,
+//                                                        const UIN K,
+//                                                        const half *matrixA,
+//                                                        const half *matrixB,
+//                                                        const UIN *matrixSRowIndex,
+//                                                        const UIN *matrixSColIndex,
+//                                                        const float *matrixS,
+//                                                        const UIN *matrixSTileMappedToWarpIndex,
+//                                                        float *matrixP) {
+//    tensorCoreConfig.initByKernel(blockIdx, blockDim, threadIdx);
 //
-//            const UIN indexForThisIterationA = laneId + iter * WARP_SIZE;
-//            aTileSharedMem[startIdxOfSharedMemoryOfMtxA + indexForThisIterationA] =
-//                matrixA[startIdxOfGlobalMemoryOfMtxA + indexForThisIterationA];
+//    const UIN globalWarpId = tensorCoreConfig.globalWarpId();
 //
-//            const UIN indexForThisIterationB = laneId + iter * WARP_SIZE;
-//            bTileSharedMem[startIdxOfSharedMemoryOfMtxB + indexForThisIterationB] =
-//                matrixB[startIdxOfGlobalMemoryOfMtxB + indexForThisIterationB];
-
-//            if (globalWarpId == 0 && localWarpId == 5 && laneId == 0 && kIter == 0) {
-//                printf("startIdxOfSharedMemoryOfMtxA + indexForThisIterationA = %d",
-//                       startIdxOfSharedMemoryOfMtxA + indexForThisIterationA);
-//            }
-
-//            if (static_cast<int>( matrixA[startIdxOfGlobalMemoryOfMtxA + indexForThisIterationA]) == 1024
-//                && blockIdx.y == 0 && globalWarpId == 29) {
-//                printf(
-//                    "globalWarpId = %d, localWarpId = %d, laneId = %d, kIter = %d, startIdxOfSharedMemoryOfMtxA = %d, startIdxOfGlobalMemoryOfMtxA = %d, indexForThisIterationA = %d, matrixA = %d\n",
-//                    globalWarpId,
-//                    localWarpId,
-//                    laneId,
-//                    kIter,
-//                    startIdxOfSharedMemoryOfMtxA,
-//                    startIdxOfGlobalMemoryOfMtxA,
-//                    indexForThisIterationA,
-//                    static_cast<int>(matrixA[startIdxOfGlobalMemoryOfMtxA + indexForThisIterationA]));
-//            }
-        }
-        __syncthreads();
-
-//        if (blockIdx.x == 0 && blockIdx.y == 0 && localWarpId == 0 && laneId == 0 && kIter == 0) {
-//            for (int i = 0; i < MATRIX_TILE_A_SIZE_PER_BLOCK; ++i) {
-//                printf("[%d] = %d\n", i, static_cast<int>(aTileSharedMem[i]));
+//    __shared__ half aTileSharedMem[MATRIX_TILE_A_SIZE_PER_BLOCK];
+//    __shared__ half bTileSharedMem[MATRIX_TILE_B_SIZE_PER_BLOCK];
+//
+//    wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE, wmma::row_major> aFrag;
+//    wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE, wmma::row_major> bFrag;
+//
+//    wmma::fragment<wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> cFrag;
+//
+//    fill_fragment(cFrag, 0.0f);
+//
+//    const UIN pRowId = tensorCoreConfig.warpStarRow();
+//    const UIN pColId = tensorCoreConfig.warpStarCol();
+//
+//    const UIN pRowIdForBlock = tensorCoreConfig.blockStarRow();
+//    const UIN pColIdForBlock = tensorCoreConfig.blockStarCol();
+//
+//    const UIN localWarpId = tensorCoreConfig.localWarpId();
+//    const UIN laneId = tensorCoreConfig.laneId();
+//
+//    const UIN localWarpX = tensorCoreConfig.localWarpX();
+//    const UIN localWarpY = tensorCoreConfig.localWarpY();
+//
+//    const int tileIndexBegin = matrixSTileMappedToWarpIndex[globalWarpId];
+//    const int tileIndexEnd = matrixSTileMappedToWarpIndex[globalWarpId + 1];
+//
+//    const int numDataInThisWarp = tileIndexEnd - tileIndexBegin;
+//
+//    // Leading dimensions. Packed with no transpositions.
+//    const UIN lda = K;
+//    const UIN ldb = N;
+//
+//    // Loop over k
+//    for (int kIter = 0; kIter < K; kIter += WMMA_K * NUM_OF_WARP_X_PER_BLOCK) {
+//
+//        // load matrix tile A to shared memory
+//#pragma unroll
+//        for (int iter = 0; iter < 8; ++iter) {
+//
+////            const UIN localARowIdForThisIteration = ;
+////            const UIN localAColIdForThisIteration = ;
+////            const UIN localBRowIdForThisIteration = ;
+////            const UIN localBColIdForThisIteration = ;
+////
+////            const UIN indexForThisIterationA = laneId + iter * WARP_SIZE;
+////            aTileSharedMem[startIdxOfSharedMemoryOfMtxA + indexForThisIterationA] =
+////                matrixA[startIdxOfGlobalMemoryOfMtxA + indexForThisIterationA];
+////
+////            const UIN indexForThisIterationB = laneId + iter * WARP_SIZE;
+////            bTileSharedMem[startIdxOfSharedMemoryOfMtxB + indexForThisIterationB] =
+////                matrixB[startIdxOfGlobalMemoryOfMtxB + indexForThisIterationB];
+//
+////            if (globalWarpId == 0 && localWarpId == 5 && laneId == 0 && kIter == 0) {
+////                printf("startIdxOfSharedMemoryOfMtxA + indexForThisIterationA = %d",
+////                       startIdxOfSharedMemoryOfMtxA + indexForThisIterationA);
+////            }
+//
+////            if (static_cast<int>( matrixA[startIdxOfGlobalMemoryOfMtxA + indexForThisIterationA]) == 1024
+////                && blockIdx.y == 0 && globalWarpId == 29) {
+////                printf(
+////                    "globalWarpId = %d, localWarpId = %d, laneId = %d, kIter = %d, startIdxOfSharedMemoryOfMtxA = %d, startIdxOfGlobalMemoryOfMtxA = %d, indexForThisIterationA = %d, matrixA = %d\n",
+////                    globalWarpId,
+////                    localWarpId,
+////                    laneId,
+////                    kIter,
+////                    startIdxOfSharedMemoryOfMtxA,
+////                    startIdxOfGlobalMemoryOfMtxA,
+////                    indexForThisIterationA,
+////                    static_cast<int>(matrixA[startIdxOfGlobalMemoryOfMtxA + indexForThisIterationA]));
+////            }
+//        }
+//        __syncthreads();
+//
+////        if (blockIdx.x == 0 && blockIdx.y == 0 && localWarpId == 0 && laneId == 0 && kIter == 0) {
+////            for (int i = 0; i < MATRIX_TILE_A_SIZE_PER_BLOCK; ++i) {
+////                printf("[%d] = %d\n", i, static_cast<int>(aTileSharedMem[i]));
+////            }
+////        }
+//
+//        if (numDataInThisWarp > 0) {
+//            for (int sharedMemIter = 0; sharedMemIter < NUMBER_OF_MATRIX_TILE_K_IN_SHARED_MEMORY; ++sharedMemIter) {
+//                const UIN localKIterInSharedMem = sharedMemIter * WMMA_K;
+//                const auto aOffsetPtr = aTileSharedMem
+//                    + (localWarpY * WMMA_M * MATRIX_TILE_A_LEADING_DIMENSION)
+//                    + localKIterInSharedMem;
+//                const auto bOffsetPtr = bTileSharedMem
+//                    + (localKIterInSharedMem * MATRIX_TILE_B_LEADING_DIMENSION)
+//                    + localWarpX * WMMA_N;
+//
+//                wmma::load_matrix_sync(aFrag, aOffsetPtr, MATRIX_TILE_A_LEADING_DIMENSION);
+//                wmma::load_matrix_sync(bFrag, bOffsetPtr, MATRIX_TILE_B_LEADING_DIMENSION);
+//
+//                wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
 //            }
 //        }
-
-        if (numDataInThisWarp > 0) {
-            for (int sharedMemIter = 0; sharedMemIter < NUMBER_OF_MATRIX_TILE_K_IN_SHARED_MEMORY; ++sharedMemIter) {
-                const UIN localKIterInSharedMem = sharedMemIter * WMMA_K;
-                const auto aOffsetPtr = aTileSharedMem
-                    + (localWarpY * WMMA_M * MATRIX_TILE_A_LEADING_DIMENSION)
-                    + localKIterInSharedMem;
-                const auto bOffsetPtr = bTileSharedMem
-                    + (localKIterInSharedMem * MATRIX_TILE_B_LEADING_DIMENSION)
-                    + localWarpX * WMMA_N;
-
-                wmma::load_matrix_sync(aFrag, aOffsetPtr, MATRIX_TILE_A_LEADING_DIMENSION);
-                wmma::load_matrix_sync(bFrag, bOffsetPtr, MATRIX_TILE_B_LEADING_DIMENSION);
-
-                wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
-            }
-        }
-        __syncthreads();
-    }
-
-    for (int tileIndexDataIdx = tileIndexBegin; tileIndexDataIdx < tileIndexEnd; ++tileIndexDataIdx) {
-        const UIN matrixPIdx = tileIndexDataIdx;
-        const UIN curRow = matrixSRowIndex[matrixPIdx];
-        const UIN curCol = matrixSColIndex[matrixPIdx];
-
-        FragmentInformation fragmentInformation;
-        tensorCoreConfig.calculateFragmentLaneAndIndex(pRowId, pColId, curRow, curCol, fragmentInformation);
-
-        if (laneId == fragmentInformation.laneId_) {
-            matrixP[matrixPIdx] = cFrag.x[fragmentInformation.index_];
-        }
-    }
-}
+//        __syncthreads();
+//    }
+//
+//    for (int tileIndexDataIdx = tileIndexBegin; tileIndexDataIdx < tileIndexEnd; ++tileIndexDataIdx) {
+//        const UIN matrixPIdx = tileIndexDataIdx;
+//        const UIN curRow = matrixSRowIndex[matrixPIdx];
+//        const UIN curCol = matrixSColIndex[matrixPIdx];
+//
+//        FragmentInformation fragmentInformation;
+//        tensorCoreConfig.calculateFragmentLaneAndIndex(pRowId, pColId, curRow, curCol, fragmentInformation);
+//
+//        if (laneId == fragmentInformation.laneId_) {
+//            matrixP[matrixPIdx] = cFrag.x[fragmentInformation.index_];
+//        }
+//    }
+//}
 
 // 在核函数中加入共享内存: 整块64×64的矩阵块A和块B按照16×16的块的顺序载入共享内存
 __global__ void sddmm_gpu_coo_5_matrixA_row_matrixB_row(TensorCoreConfig tensorCoreConfig,
@@ -327,82 +327,6 @@ __global__ void sddmm_gpu_coo_5_matrixA_row_matrixB_row(TensorCoreConfig tensorC
 
         if (laneId == fragmentInformation.laneId_) {
             matrixP[matrixPIdx] *= cFrag.x[fragmentInformation.index_];
-        }
-    }
-}
-
-__global__ void sddmm_gpu_coo_3_matrixA_row_matrixB_row(TensorCoreConfig tensorCoreConfig,
-                                                        const UIN M,
-                                                        const UIN N,
-                                                        const UIN K,
-                                                        const half *matrixA,
-                                                        const half *matrixB,
-                                                        const UIN *matrixSRowIndex,
-                                                        const UIN *matrixSColIndex,
-                                                        const float *matrixS,
-                                                        const UIN *matrixSTileMappedToWarpIndex,
-                                                        float *matrixP) {
-    tensorCoreConfig.initByKernel(blockIdx, blockDim, threadIdx);
-
-    const UIN globalWarpId = tensorCoreConfig.globalWarpId();
-
-    const UIN pRowId = tensorCoreConfig.warpStarRow();
-    const UIN pColId = tensorCoreConfig.warpStarCol();
-
-    const int tileIndexBegin = matrixSTileMappedToWarpIndex[globalWarpId];
-    const int tileIndexEnd = matrixSTileMappedToWarpIndex[globalWarpId + 1];
-
-    __shared__ half aTile[WMMA_M * NUM_OF_Y_PER_BLOCK * WMMA_K * NUM_OF_WARP_X_PER_BLOCK];
-    __shared__ half bTile[WMMA_K * NUM_OF_Y_PER_BLOCK * WMMA_N * NUM_OF_WARP_X_PER_BLOCK];
-
-    const int numData = tileIndexEnd - tileIndexBegin;
-    if (numData <= 0) {
-        return;
-    }
-
-    // Leading dimensions. Packed with no transpositions.
-    const UIN lda = K;
-    const UIN ldb = N;
-
-    wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE, wmma::row_major> aFrag;
-    wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE, wmma::row_major> bFrag;
-
-    wmma::fragment<wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> cFrag;
-
-    fill_fragment(cFrag, 0.0f);
-
-    // Loop over k
-    for (int kIter = 0; kIter < K; kIter += WMMA_K) {
-        const int aRowId = pRowId;
-        const int aColId = kIter;
-
-        const int bRowId = kIter;
-        const int bColId = pColId;
-
-        // Bounds checking
-        if (aRowId < M && aColId < K && bRowId < K && bColId < N) {
-            const auto aOffsetPtr = matrixA + aRowId * lda + aColId;
-            const auto bOffsetPtr = matrixB + bRowId * ldb + bColId;
-
-            wmma::load_matrix_sync(aFrag, aOffsetPtr, lda);
-            wmma::load_matrix_sync(bFrag, bOffsetPtr, ldb);
-
-            wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
-        }
-    }
-
-    const int laneId = tensorCoreConfig.laneId();
-
-    for (int tileIndexDataIdx = tileIndexBegin; tileIndexDataIdx < tileIndexEnd; ++tileIndexDataIdx) {
-        const UIN matrixPIdx = tileIndexDataIdx;
-        const UIN curRow = matrixSRowIndex[matrixPIdx];
-        const UIN curCol = matrixSColIndex[matrixPIdx];
-
-        FragmentInformation fragmentInformation;
-        tensorCoreConfig.calculateFragmentLaneAndIndex(pRowId, pColId, curRow, curCol, fragmentInformation);
-
-        if (laneId == fragmentInformation.laneId_) {
-            matrixP[matrixPIdx] = cFrag.x[fragmentInformation.index_];
         }
     }
 }
@@ -696,11 +620,11 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
 
                 aTileSMEM[warpId * 128 + iter * 32 + laneId] =
                     (aRowId < M && aColId < K) ? matrixA[aRowId * lda + aColId] : static_cast<half>(0);
-//                if(rowPanelId == 0 && colBlockIdx == 58 && aRowId == 0){
-//                    printf("warpId * 128 + iter * 32 + laneId = %d\n", warpId * 128 + iter * 32 + laneId);
-////                    printf("rowPanelId = %d, colBlockIdx = %d, warpId = %d, laneId = %d, iter = %d, aRowId = %d\n",
-////                           rowPanelId,colBlockIdx,warpId,laneId,iter,aRowId);
-//                }
+                if(rowPanelId == 0 && colBlockIdx == 0 && aRowId == 3){
+                    printf("warpId * 128 + iter * 32 + laneId = %d\n", warpId * 128 + iter * 32 + laneId);
+//                    printf("rowPanelId = %d, colBlockIdx = %d, warpId = %d, laneId = %d, iter = %d, aRowId = %d\n",
+//                           rowPanelId,colBlockIdx,warpId,laneId,iter,aRowId);
+                }
             }
 
             // Load matrix B data into shared memory, each thread loads 8 elements, conflict-free access
@@ -716,7 +640,7 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
             }
             __syncthreads();
 
-            if (rowPanelId == 0 && colBlockIdx == 59 && warpId == 1 && laneId == 7) {
+            if (rowPanelId == 0 && colBlockIdx == 0 && warpId == 0 && laneId == 4) {
                 const UIN row = reorderedRows[(rowPanelId * row_panel_size) + 1];
                 const UIN col =
                     reorderedCols[startIndexOfReorderedColsCurrentIter + warpId * block_col_size + 15];
@@ -724,11 +648,11 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
                        row,
                        col,
                        startIndexOfReorderedColsCurrentIter);
-//                for (int i = 16; i < 32; ++i) {
-//                    printf("aTileSMEM[%d] = %f ", i, static_cast<float>(aTileSMEM[i]));
-//                }
+                for (int i = 16; i < 32; ++i) {
+                    printf("aTileSMEM[%d] = %f ", i, static_cast<float>(aTileSMEM[i]));
+                }
 
-                for (int i = 16 + 15; i < bTileSMEMSize; i += 32) {
+                for (int i = 0; i < bTileSMEMSize; i += 32) {
                     printf("bTileSMEM[%d] = %f ", i, static_cast<float>(bTileSMEM[i]));
                 }
                 printf("\n");
@@ -755,7 +679,7 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
                 const UIN idxOfMatrixP =
                     blockValues[startIndexOfBlockValuesCurrentBlock + localRow * WMMA_N + localCol];
 
-                if (idxOfMatrixP == 0) {
+                if (idxOfMatrixP == 2) {
                     printf("!!idxOfMatrixP = %d, rowPanelId = %d, colBlockIdx = %d, warpId = %d, laneId = %d "
                            "idxOfFragment = %d, localRow = %d, localCol = %d "
                            "startIndexOfReorderedColIndicesInThisIter = %u, idx = %u "
@@ -889,7 +813,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
     kernel::sddmm_gpu_rebell_matrix_row_matrix_row<<<grid, block>>>(matrixS.row_, matrixS.col_, matrixA.col(),
         matrixA_values_convertedType_dev.data(),
         matrixB_values_convertedType_dev.data(),
-        rebell.numRowPanels(),
+        rebell.reorderedRows().size(),
         reorderedRowIndices_dev.data(),
         reorderedColIndices_dev.data(),
         reorderedColIndicesOffset_dev.data(),

@@ -9,8 +9,8 @@
 
 const std::string folderPath("../dataset/");
 //const std::string folderPath("./");
-//const std::string fileName = ("nips");
-const std::string fileName = ("test2");
+const std::string fileName = ("nips");
+//const std::string fileName = ("test2");
 //const std::string fileName("matrix_20000_20000_4000000");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;

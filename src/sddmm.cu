@@ -117,8 +117,8 @@ void sddmm(const Matrix<float> &matrixA,
 
     {
         const UIN rowPanelId = 0;
-        const UIN row = 0;
-        const UIN col = 1;
+        const UIN row = 3;
+        const UIN col = 7;
         for (int i = rowPanelId * row_panel_size; i < (rowPanelId + 1) * row_panel_size; ++i) {
             if (rebell.reorderedRows()[i] == row) {
                 printf("find idxOfRowIndices : %d\n", i);
@@ -150,6 +150,7 @@ void sddmm(const Matrix<float> &matrixA,
         for (int i = col; i < matrixB.size(); i += matrixB.col()) {
             printf("%f ", matrixB.values()[i]);
         }
+        printf("\n");
     }
 
     // sddmm comp by cpu

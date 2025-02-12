@@ -62,4 +62,5 @@ class ReBELL {
   void colReordering(const sparseDataType::CSR<float> &matrix);
 };
 
+// Error checking
 bool check_rebell(const sparseDataType::CSR<float> &matrix, const struct ReBELL &rebell);
