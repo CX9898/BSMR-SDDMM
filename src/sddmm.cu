@@ -100,8 +100,8 @@ void sddmm(Matrix<float> &matrixA, Matrix<float> &matrixB, SparseMatrix<float> &
 // Reordering method
 void sddmm(const Matrix<float> &matrixA,
            const Matrix<float> &matrixB,
-           const sparseDataType::CSR<float> &matrixS,
-           sparseDataType::CSR<float> &matrixP) {
+           const sparseMatrix::CSR<float> &matrixS,
+           sparseMatrix::CSR<float> &matrixP) {
 
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
@@ -119,7 +119,7 @@ void sddmm(const Matrix<float> &matrixA,
         const UIN rowPanelId = 0;
         const UIN row = 3;
         const UIN col = 7;
-        for (int i = rowPanelId * row_panel_size; i < (rowPanelId + 1) * row_panel_size; ++i) {
+        for (int i = rowPanelId * ROW_PANEL_SIZE; i < (rowPanelId + 1) * ROW_PANEL_SIZE; ++i) {
             if (rebell.reorderedRows()[i] == row) {
                 printf("find idxOfRowIndices : %d\n", i);
             }
@@ -129,13 +129,13 @@ void sddmm(const Matrix<float> &matrixA,
             if (rebell.reorderedCols()[i] == col) {
                 printf("find idxOfColIndices: %d, colBlockId = %d, localColId = %d\n",
                        i,
-                       i / block_col_size,
-                       i % block_col_size);
+                       i / BLOCK_COL_SIZE,
+                       i % BLOCK_COL_SIZE);
             }
         }
 
         printf("rowPanelId = 0, row :");
-        for (int i = 0 * row_panel_size; i < 1 * row_panel_size; ++i) {
+        for (int i = 0 * ROW_PANEL_SIZE; i < 1 * ROW_PANEL_SIZE; ++i) {
             printf(" %d", rebell.reorderedRows()[i]);
         }
         printf("\n");
@@ -157,7 +157,7 @@ void sddmm(const Matrix<float> &matrixA,
     sddmm_gpu_rebell(matrixA, matrixB, matrixS, rebell, matrixP);
 
     // sddmm comp by cpu
-    sparseDataType::CSR<float> matrixP_cpu_res(matrixS);
+    sparseMatrix::CSR<float> matrixP_cpu_res(matrixS);
     sddmm_cpu(matrixA, matrixB, matrixS, matrixP_cpu_res);
 
     // Error check

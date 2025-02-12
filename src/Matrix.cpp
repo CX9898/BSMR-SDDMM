@@ -369,7 +369,7 @@ void SparseMatrix<T>::draw() const {
 }
 
 template<typename T>
-sparseDataType::CSR<T> SparseMatrix<T>::getCsrData() const {
+sparseMatrix::CSR<T> SparseMatrix<T>::getCsrData() const {
     std::vector<UIN> rowIndicesTmp = rowIndices_;
     std::vector<UIN> colIndicesTmp = colIndices_;
     std::vector<T> valuesTmp = values_;
@@ -379,7 +379,7 @@ sparseDataType::CSR<T> SparseMatrix<T>::getCsrData() const {
                                            colIndicesTmp.data(),
                                            valuesTmp.data());
 
-    sparseDataType::CSR<T> csrData;
+    sparseMatrix::CSR<T> csrData;
     csrData.row_ = row_;
     csrData.col_ = col_;
     csrData.nnz_ = nnz_;

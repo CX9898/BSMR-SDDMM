@@ -6,16 +6,16 @@
 #include "TensorCoreConfig.cuh"
 #include "parallelAlgorithm.cuh"
 
-void ReBELL::colReordering(const sparseDataType::CSR<float> &matrix) {
-    numRowPanels_ = std::ceil(static_cast<float>(reorderedRows_.size()) / row_panel_size);
+void ReBELL::colReordering(const sparseMatrix::CSR<float> &matrix) {
+    numRowPanels_ = std::ceil(static_cast<float>(reorderedRows_.size()) / ROW_PANEL_SIZE);
     std::vector<UIN> numOfNonZeroColSegmentInEachRowPanel(numRowPanels_, 0);
     std::vector<std::vector<UIN>>
         colsInEachRowPanel_sparse(numRowPanels_, std::vector<UIN>(matrix.col_)); // Containing empty columns
 #pragma omp parallel for
     for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
-        const UIN startIdxOfReorderedRowsCurrentRowPanel = rowPanelId * row_panel_size;
+        const UIN startIdxOfReorderedRowsCurrentRowPanel = rowPanelId * ROW_PANEL_SIZE;
         const UIN endIdxOfReorderedRowsCurrentRowPanel = std::min(
-            startIdxOfReorderedRowsCurrentRowPanel + row_panel_size,
+            startIdxOfReorderedRowsCurrentRowPanel + ROW_PANEL_SIZE,
             static_cast<UIN>(reorderedRows_.size()));
 
         // Count the number of non-zero elements for each column segment

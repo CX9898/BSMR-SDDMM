@@ -22,7 +22,7 @@ class Matrix;
 template<typename T>
 class SparseMatrix;
 
-namespace sparseDataType {
+namespace sparseMatrix {
 struct DataBase;
 
 template<typename T>
@@ -224,7 +224,7 @@ class SparseMatrix {
 
   void draw() const;
 
-  sparseDataType::CSR<T> getCsrData() const;
+  sparseMatrix::CSR<T> getCsrData() const;
 
   void print() const;
 
@@ -312,7 +312,7 @@ inline std::ostream &operator<<(std::ostream &os, const SparseMatrix<T> &mtxS) {
     return os;
 }
 
-namespace sparseDataType {
+namespace sparseMatrix {
 struct DataBase {
   DataBase() = default;
 

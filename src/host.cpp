@@ -121,8 +121,8 @@ template<typename T>
 void sddmm_cpu(
     const Matrix<T> &matrixA,
     const Matrix<T> &matrixB,
-    const sparseDataType::CSR<T> &matrixS,
-    sparseDataType::CSR<T> &matrixP) {
+    const sparseMatrix::CSR<T> &matrixS,
+    sparseMatrix::CSR<T> &matrixP) {
     if (matrixA.col() != matrixB.row() ||
         matrixA.row() != matrixP.row_ ||
         matrixB.col() != matrixP.col_) {
@@ -154,15 +154,15 @@ void sddmm_cpu(
 
 template void sddmm_cpu<int>(const Matrix<int> &matrixA,
                              const Matrix<int> &matrixB,
-                             const sparseDataType::CSR<int> &matrixS,
-                             sparseDataType::CSR<int> &matrixP);
+                             const sparseMatrix::CSR<int> &matrixS,
+                             sparseMatrix::CSR<int> &matrixP);
 
 template void sddmm_cpu<float>(const Matrix<float> &matrixA,
                                const Matrix<float> &matrixB,
-                               const sparseDataType::CSR<float> &matrixS,
-                               sparseDataType::CSR<float> &matrixP);
+                               const sparseMatrix::CSR<float> &matrixS,
+                               sparseMatrix::CSR<float> &matrixP);
 
 template void sddmm_cpu<double>(const Matrix<double> &matrixA,
                                 const Matrix<double> &matrixB,
-                                const sparseDataType::CSR<double> &matrixS,
-                                sparseDataType::CSR<double> &matrixP);
+                                const sparseMatrix::CSR<double> &matrixS,
+                                sparseMatrix::CSR<double> &matrixP);

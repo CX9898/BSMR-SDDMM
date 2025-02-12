@@ -26,5 +26,5 @@ template<typename T>
 void sddmm_cpu(
     const Matrix<T> &matrixA,
     const Matrix<T> &matrixB,
-    const sparseDataType::CSR<T> &matrixS,
-    sparseDataType::CSR<T> &matrixP);
+    const sparseMatrix::CSR<T> &matrixS,
+    sparseMatrix::CSR<T> &matrixP);

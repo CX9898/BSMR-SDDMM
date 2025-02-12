@@ -73,6 +73,6 @@ void sddmm_gpu_coo_3(TensorCoreConfig tensorCoreConfig,
 
 void sddmm_gpu_rebell(const Matrix<float> &matrixA,
                       const Matrix<float> &matrixB,
-                      const sparseDataType::CSR<float> &matrixS,
+                      const sparseMatrix::CSR<float> &matrixS,
                       const ReBELL &rebell,
-                      sparseDataType::CSR<float> &matrixP);
+                      sparseMatrix::CSR<float> &matrixP);

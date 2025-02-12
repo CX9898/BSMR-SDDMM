@@ -598,10 +598,10 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
     const UIN numColBlocks = blockRowOffsets[rowPanelId + 1] - blockRowOffsets[rowPanelId];
     for (int colBlockIter = 0; colBlockIter < numColBlocks; colBlockIter += 2) {
         const UIN colBlockIdx = colBlockIter + warpId;
-        const UIN startIndexOfBlockValuesCurrentBlock = (blockRowOffsets[rowPanelId] + colBlockIdx) * block_size;
+        const UIN startIndexOfBlockValuesCurrentBlock = (blockRowOffsets[rowPanelId] + colBlockIdx) * BLOCK_SIZE;
 
         const UIN startIndexOfReorderedColsCurrentIter =
-            reorderedColOffset[rowPanelId] + block_col_size * colBlockIter;
+            reorderedColOffset[rowPanelId] + BLOCK_COL_SIZE * colBlockIter;
         const UIN endIndexOfReorderedColsCurrentPanel = reorderedColOffset[rowPanelId + 1];
 
         // Loop over K
@@ -609,7 +609,7 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
             // Load matrix A into shared memory, each thread loads 4 elements, conflict-free access
 #pragma unroll
             for (int iter = 0; iter < 4; ++iter) {
-                const UIN reorderedRowIndex = (rowPanelId * row_panel_size) + (warpId * 8) + (laneId / 16) + (iter * 2);
+                const UIN reorderedRowIndex = (rowPanelId * ROW_PANEL_SIZE) + (warpId * 8) + (laneId / 16) + (iter * 2);
                 const UIN aRowId = reorderedRowIndex < numNonZeroRow ? reorderedRows[reorderedRowIndex] : M;
                 const UIN aColId = kIter + laneId % 16;
 
@@ -641,9 +641,9 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
             __syncthreads();
 
             if (rowPanelId == 0 && colBlockIdx == 0 && warpId == 0 && laneId == 4) {
-                const UIN row = reorderedRows[(rowPanelId * row_panel_size) + 1];
+                const UIN row = reorderedRows[(rowPanelId * ROW_PANEL_SIZE) + 1];
                 const UIN col =
-                    reorderedCols[startIndexOfReorderedColsCurrentIter + warpId * block_col_size + 15];
+                    reorderedCols[startIndexOfReorderedColsCurrentIter + warpId * BLOCK_COL_SIZE + 15];
                 printf("row = %d, col = %d, startIndexOfReorderedColIndicesInThisIter = %d\n",
                        row,
                        col,
@@ -693,7 +693,7 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
                            localRow,
                            localCol,
                            startIndexOfReorderedColsCurrentIter,
-                           startIndexOfReorderedColsCurrentIter + warpId * block_size + localRow * WMMA_N
+                           startIndexOfReorderedColsCurrentIter + warpId * BLOCK_SIZE + localRow * WMMA_N
                                + localCol,
                            matrixP[idxOfMatrixP],
                            cFrag.x[idxOfFragment]);
@@ -782,9 +782,9 @@ void sddmm_gpu_coo_3(TensorCoreConfig tensorCoreConfig,
 
 void sddmm_gpu_rebell(const Matrix<float> &matrixA,
                       const Matrix<float> &matrixB,
-                      const sparseDataType::CSR<float> &matrixS,
+                      const sparseMatrix::CSR<float> &matrixS,
                       const ReBELL &rebell,
-                      sparseDataType::CSR<float> &matrixP) {
+                      sparseMatrix::CSR<float> &matrixP) {
 
     dev::vector<MATRIX_A_TYPE> matrixA_values_convertedType_dev(matrixA.size());
     dev::vector<MATRIX_B_TYPE> matrixB_values_convertedType_dev(matrixB.size());

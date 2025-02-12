@@ -4,9 +4,9 @@
 
 constexpr float row_similarity_threshold_alpha = 0.1f;
 
-constexpr UIN row_panel_size = WMMA_M;
-constexpr UIN block_col_size = WMMA_N;
-constexpr UIN block_size = row_panel_size * block_col_size;
+constexpr UIN ROW_PANEL_SIZE = WMMA_M;
+constexpr UIN BLOCK_COL_SIZE = WMMA_N;
+constexpr UIN BLOCK_SIZE = ROW_PANEL_SIZE * BLOCK_COL_SIZE;
 
 constexpr UIN NULL_VALUE = MAX_UIN;
 
@@ -15,14 +15,14 @@ constexpr UIN NULL_VALUE = MAX_UIN;
  * @classInterpretation:
  * @MemberVariables:
  * `reorderedRows_`: Sorted row index array.
- * `reorderedCols_`: Offset array of col index array in each row panel.
- * `reorderedColsOffset_`: Sorted col index array in each row panel.
- * `blockValues_`:
- * `blockRowOffsets_`:
+ * `reorderedCols_`: Sorted col index array in each row panel.
+ * `reorderedColsOffset_`: Offset array of col array in each row panel.
+ * `blockValues_`: BELL format. Stores the index of the original matrix element.
+ * `blockRowOffsets_`: BELL format. Stores the number of column blocks in each row panel
  **/
 class ReBELL {
  public:
-  ReBELL(const sparseDataType::CSR<float> &matrix);
+  ReBELL(const sparseMatrix::CSR<float> &matrix);
 
   UIN numRowPanels() const { return numRowPanels_; }
   const std::vector<UIN> &reorderedRows() const { return reorderedRows_; }
@@ -50,7 +50,7 @@ class ReBELL {
    * `matrix`: Sparse matrix data in CSR format.
    * @output: Update `reorderingRows_`.
    **/
-  void rowReordering(const sparseDataType::CSR<float> &matrix);
+  void rowReordering(const sparseMatrix::CSR<float> &matrix);
 
   /**
    * @funcitonName: colReordering
@@ -59,8 +59,8 @@ class ReBELL {
    * `matrix`: Sparse matrix data in CSR format.
    * @output: Update `reorderingColsOffset_` and `reorderingCols_`.
    **/
-  void colReordering(const sparseDataType::CSR<float> &matrix);
+  void colReordering(const sparseMatrix::CSR<float> &matrix);
 };
 
 // Error checking
-bool check_rebell(const sparseDataType::CSR<float> &matrix, const struct ReBELL &rebell);
+bool check_rebell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &rebell);

@@ -8,7 +8,7 @@
 
 #define COL_BLOCK_SIZE 32
 
-void encoding(const sparseDataType::CSR<float> &matrix, std::vector<std::vector<UIN>> &encodings) {
+void encoding(const sparseMatrix::CSR<float> &matrix, std::vector<std::vector<UIN>> &encodings) {
     const int colBlock = std::ceil(static_cast<float>(matrix.col_) / COL_BLOCK_SIZE);
     encodings.resize(matrix.row_);
 #pragma omp parallel for dynamic
@@ -32,7 +32,7 @@ void calculateDispersion(const UIN col,
             const UIN numOfNonZeroCols = encodings[row][colBlockIdx];
             if (numOfNonZeroCols != 0) {
                 ++numOfNonZeroColBlocks;
-                zeroFillings += block_col_size - numOfNonZeroCols;
+                zeroFillings += BLOCK_COL_SIZE - numOfNonZeroCols;
             }
         }
         dispersions[row] = COL_BLOCK_SIZE * numOfNonZeroColBlocks + zeroFillings;
@@ -90,7 +90,7 @@ void clustering(const std::vector<std::vector<UIN>> &encodings,
 //    printf("!!! num = %d\n", num);
 }
 
-void ReBELL::rowReordering(const sparseDataType::CSR<float> &matrix) {
+void ReBELL::rowReordering(const sparseMatrix::CSR<float> &matrix) {
     std::vector<std::vector<UIN>> encodings;
     encoding(matrix, encodings);
 

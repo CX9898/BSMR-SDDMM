@@ -22,10 +22,10 @@
 
 void cuSparseSDDMM(const Matrix<float> &matrixA,
                    const Matrix<float> &matrixB,
-                   const sparseDataType::CSR<float> &matrixS,
+                   const sparseMatrix::CSR<float> &matrixS,
                    const float alpha,
                    const float beta,
-                   sparseDataType::CSR<float> &matrixP) {
+                   sparseMatrix::CSR<float> &matrixP) {
 
     cusparseHandle_t handle;
     cusparseDnMatDescr_t _mtxA;
@@ -88,7 +88,7 @@ void cuSparseSDDMM(const Matrix<float> &matrixA,
     matrixP.values_ = d2h(mtxS_values_dev);
 
     // sddmm comp by cpu
-    sparseDataType::CSR<float> matrixP_cpu_res(matrixS);
+    sparseMatrix::CSR<float> matrixP_cpu_res(matrixS);
     sddmm_cpu(matrixA, matrixB, matrixS, matrixP_cpu_res);
 
     // Error check

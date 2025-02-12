@@ -8,5 +8,5 @@ void sddmm(Matrix<float> &matrixA, Matrix<float> &matrixB, SparseMatrix<float> &
 // Reordering method
 void sddmm(const Matrix<float> &matrixA,
            const Matrix<float> &matrixB,
-           const sparseDataType::CSR<float> &matrixS,
-           sparseDataType::CSR<float> &matrixP);
+           const sparseMatrix::CSR<float> &matrixS,
+           sparseMatrix::CSR<float> &matrixP);
