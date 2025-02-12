@@ -70,6 +70,17 @@ ReBELL::ReBELL(const sparseDataType::CSR<float> &matrix) {
     }
 }
 
+UIN ReBELL::calculateRowPanelId(UIN blockValueIndex) const {
+    UIN rowPanelId = 0;
+    while (rowPanelId + 1 < blockRowOffsets().size()) {
+        if (blockValueIndex < blockRowOffsets()[rowPanelId + 1] * block_size) {
+            break;
+        }
+        ++rowPanelId;
+    }
+    return rowPanelId;
+}
+
 bool check_rowReordering(const sparseDataType::CSR<float> &matrix, const struct ReBELL &rebell) {
     bool isCorrect = true;
 
@@ -184,9 +195,9 @@ bool check_bell(const sparseDataType::CSR<float> &matrix, const struct ReBELL &r
     bool isCorrect = true;
 
     std::unordered_set<UIN> blockValuesSet;
-    for(UIN iter : blockValuesSet){
+    for (UIN iter : blockValuesSet) {
         // Check if the block value is duplicated
-        if(blockValuesSet.find(iter) != blockValuesSet.end() && iter != NULL_VALUE){
+        if (blockValuesSet.find(iter) != blockValuesSet.end() && iter != NULL_VALUE) {
             fprintf(stderr, "Error! The block value is duplicated! val: %d\n", iter);
             isCorrect = false;
         }
@@ -200,7 +211,7 @@ bool check_bell(const sparseDataType::CSR<float> &matrix, const struct ReBELL &r
         rowToIndexOfReorderedRowsMap[row] = indexOfReorderedRows;
     }
 
-    // Check based on the original matrix
+    // Check based on the original matrix, check if the index of the original matrix is correctly stored in blockValue
     for (int row = 0; row < matrix.row_; ++row) {
         if (row + 1 < matrix.row_ && matrix.rowOffsets_[row + 1] - matrix.rowOffsets_[row] == 0) {
             continue;
@@ -245,40 +256,52 @@ bool check_bell(const sparseDataType::CSR<float> &matrix, const struct ReBELL &r
         }
     }
 
-    // Check based on the blockValues
+    // Check based on the blockValues, check if the value of blockValue is stored correctly
     for (int idxOfBlockValues = 0; idxOfBlockValues < rebell.blockValues().size(); ++idxOfBlockValues) {
 
-        UIN rowPanelId = 0;
-        while (rowPanelId + 1 < rebell.numRowPanels()) {
-            if (idxOfBlockValues < rebell.blockRowOffsets()[rowPanelId + 1] * block_size) {
-                break;
-            }
-            ++rowPanelId;
-        }
+        const UIN rowPanelId = rebell.calculateRowPanelId(idxOfBlockValues);
 
         const UIN startIndexOfBlockValuesCurrentRowPanel = rebell.blockRowOffsets()[rowPanelId] * block_size;
         const UIN colBlockId = (idxOfBlockValues - startIndexOfBlockValuesCurrentRowPanel) / block_size;
 
-        const UIN
-            localRowId = (idxOfBlockValues - startIndexOfBlockValuesCurrentRowPanel) % block_size / block_col_size;
+        const UIN localRowId = (idxOfBlockValues - startIndexOfBlockValuesCurrentRowPanel) %
+            block_size / block_col_size;
         const UIN localColId = (idxOfBlockValues - startIndexOfBlockValuesCurrentRowPanel) % block_col_size;
 
-        const UIN row = rebell.reorderedRows()[rowPanelId * row_panel_size + localRowId];
-        const UIN col =
-            rebell.reorderedCols()[rebell.reorderedColsOffset()[rowPanelId] + colBlockId * block_col_size + localColId];
+        const UIN idxOfReorderedRows = rowPanelId * row_panel_size + localRowId;
+        const UIN row = idxOfReorderedRows < rebell.reorderedRows().size() ?
+            rebell.reorderedRows()[idxOfReorderedRows] : NULL_VALUE;
+
+        const UIN idxOfReorderedCols = rebell.reorderedColsOffset()[rowPanelId] +
+            colBlockId * block_col_size + localColId;
+        const UIN col = idxOfReorderedCols < rebell.reorderedCols().size() ?
+            rebell.reorderedCols()[idxOfReorderedCols] : NULL_VALUE;
+
+        if ((row > matrix.row_ || col > matrix.col_)) {
+
+            // Check if the value is incorrect
+            if (rebell.blockValues()[idxOfBlockValues] != NULL_VALUE) {
+                fprintf(stderr,
+                        "Error! The value is incorrect!(Check based on the blockValues) idxOfBlockValues: %d\n",
+                        idxOfBlockValues);
+                isCorrect = false;
+            }
+            continue;
+        }
 
         for (int idxOfOriginalMatrix = matrix.rowOffsets_[row]; idxOfOriginalMatrix < matrix.rowOffsets_[row + 1];
              ++idxOfOriginalMatrix) {
             if (matrix.colIndices_[idxOfOriginalMatrix] == col) {
 
                 // Check if the value is missing
-                if(rebell.blockValues()[idxOfBlockValues] == NULL_VALUE){
+                if (rebell.blockValues()[idxOfBlockValues] == NULL_VALUE) {
                     fprintf(stderr,
-                            "Error! Missing value!(Check based on the blockValues) row: %d, col: %d, idxOfBlockValues: %d, idxOfOriginalMatrix: %d\n",
+                            "Error! Missing value!(Check based on the blockValues) row: %d, col: %d, idxOfBlockValues: %d, idxOfOriginalMatrix: %d, localCalId = %d\n",
                             row,
                             col,
                             idxOfBlockValues,
-                            idxOfOriginalMatrix);
+                            idxOfOriginalMatrix,
+                            localColId);
 
                     isCorrect = false;
                     break;

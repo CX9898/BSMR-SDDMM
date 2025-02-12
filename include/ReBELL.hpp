@@ -31,6 +31,9 @@ class ReBELL {
   const std::vector<UIN> &blockValues() const { return blockValues_; }
   const std::vector<UIN> &blockRowOffsets() const { return blockRowOffsets_; }
 
+  // Calculate the rowPanelID by blockValueIndex
+  UIN calculateRowPanelId(UIN blockValueIndex) const;
+
  private:
   UIN numRowPanels_;
   std::vector<UIN> reorderedRows_;
