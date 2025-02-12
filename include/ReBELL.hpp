@@ -11,8 +11,8 @@ constexpr UIN block_size = row_panel_size * block_col_size;
 constexpr UIN NULL_VALUE = MAX_UIN;
 
 /**
- * @structName: ReBELL
- * @structInterpretation:
+ * @className: ReBELL
+ * @classInterpretation:
  * @MemberVariables:
  * `reorderedRows_`: Sorted row index array.
  * `reorderedCols_`: Offset array of col index array in each row panel.
