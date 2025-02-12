@@ -124,8 +124,8 @@ void sddmm(const Matrix<float> &matrixA,
                 printf("find idxOfRowIndices : %d\n", i);
             }
         }
-        for (int i = rebell.reorderedColsOffset()[rowPanelId];
-             i < rebell.reorderedColsOffset()[rowPanelId + 1]; ++i) {
+        for (int i = rebell.reorderedColOffsets()[rowPanelId];
+             i < rebell.reorderedColOffsets()[rowPanelId + 1]; ++i) {
             if (rebell.reorderedCols()[i] == col) {
                 printf("find idxOfColIndices: %d, colBlockId = %d, localColId = %d\n",
                        i,

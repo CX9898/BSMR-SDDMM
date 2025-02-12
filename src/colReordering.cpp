@@ -43,18 +43,18 @@ void ReBELL::colReordering(const sparseMatrix::CSR<float> &matrix) {
         numOfNonZeroColSegmentInEachRowPanel[rowPanelId] = numNonZeroColSegment;
     }
 
-    reorderedColsOffset_.resize(numRowPanels_ + 1);
-    reorderedColsOffset_[0] = 0;
+    reorderedColOffsets_.resize(numRowPanels_ + 1);
+    reorderedColOffsets_[0] = 0;
     host::inclusive_scan(numOfNonZeroColSegmentInEachRowPanel.data(),
                          numOfNonZeroColSegmentInEachRowPanel.data() + numOfNonZeroColSegmentInEachRowPanel.size(),
-                         reorderedColsOffset_.data() + 1);
+                         reorderedColOffsets_.data() + 1);
 
-    reorderedCols_.resize(reorderedColsOffset_[numRowPanels_]);
+    reorderedCols_.resize(reorderedColOffsets_[numRowPanels_]);
 #pragma omp parallel for
     for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
         std::copy(colsInEachRowPanel_sparse[rowPanelId].begin(),
                   colsInEachRowPanel_sparse[rowPanelId].begin()
                       + numOfNonZeroColSegmentInEachRowPanel[rowPanelId],
-                  reorderedCols_.begin() + reorderedColsOffset_[rowPanelId]);
+                  reorderedCols_.begin() + reorderedColOffsets_[rowPanelId]);
     }
 }

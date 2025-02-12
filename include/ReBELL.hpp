@@ -16,7 +16,7 @@ constexpr UIN NULL_VALUE = MAX_UIN;
  * @MemberVariables:
  * `reorderedRows_`: Sorted row index array.
  * `reorderedCols_`: Sorted col index array in each row panel.
- * `reorderedColsOffset_`: Offset array of col array in each row panel.
+ * `reorderedRowPanelOffset_`: Offset array of col array in each row panel.
  * `blockValues_`: BELL format. Stores the index of the original matrix element.
  * `blockRowOffsets_`: BELL format. Stores the number of column blocks in each row panel
  **/
@@ -27,18 +27,24 @@ class ReBELL {
   UIN numRowPanels() const { return numRowPanels_; }
   const std::vector<UIN> &reorderedRows() const { return reorderedRows_; }
   const std::vector<UIN> &reorderedCols() const { return reorderedCols_; }
-  const std::vector<UIN> &reorderedColsOffset() const { return reorderedColsOffset_; }
+  const std::vector<UIN> &reorderedColOffsets() const { return reorderedColOffsets_; }
   const std::vector<UIN> &blockValues() const { return blockValues_; }
   const std::vector<UIN> &blockRowOffsets() const { return blockRowOffsets_; }
 
   // Calculate the rowPanelID by blockValueIndex
-  UIN calculateRowPanelId(UIN blockValueIndex) const;
+  UIN calculateRowPanelIdByBlockValuesIndex(UIN blockValueIndex) const;
+
+  // Calculate the rowPanelID by reorderedColIndex
+  UIN calculateRowPanelIdByColIndex(UIN reorderedColIndex) const;
+
+  // Calculate the rowPanelID by blockValueIndex
+  std::pair<UIN, UIN> calculateLocalRowColByColIndex(UIN blockValueIndex) const;
 
  private:
   UIN numRowPanels_;
   std::vector<UIN> reorderedRows_;
   std::vector<UIN> reorderedCols_;
-  std::vector<UIN> reorderedColsOffset_;
+  std::vector<UIN> reorderedColOffsets_;
 
   std::vector<UIN> blockValues_;
   std::vector<UIN> blockRowOffsets_;

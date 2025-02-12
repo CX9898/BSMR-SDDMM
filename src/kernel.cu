@@ -801,7 +801,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
 
     dev::vector<UIN> reorderedRowIndices_dev(rebell.reorderedRows());
     dev::vector<UIN> reorderedColIndices_dev(rebell.reorderedCols());
-    dev::vector<UIN> reorderedColIndicesOffset_dev(rebell.reorderedColsOffset());
+    dev::vector<UIN> reorderedColIndicesOffset_dev(rebell.reorderedColOffsets());
     dev::vector<UIN> blockRowOffsets_dev(rebell.blockRowOffsets());
     dev::vector<UIN> blockValues_dev(rebell.blockValues());
     dev::vector<float> matrixP_dev(matrixS.values_);
