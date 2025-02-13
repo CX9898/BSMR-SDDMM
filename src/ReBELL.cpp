@@ -308,22 +308,6 @@ bool check_bell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &reb
         }
     }
 
-    for (int idx = 0; idx < rebell.reorderedCols().size(); ++idx) {
-        const UIN rowPanelId = rebell.calculateRowPanelIdByColIndex(idx);
-        const UIN
-            numBlockCurrentRowPanel = rebell.blockRowOffsets()[rowPanelId + 1] - rebell.blockRowOffsets()[rowPanelId];
-        const UIN startIndexOfColsCurrentRowPanel = rebell.reorderedColOffsets()[rowPanelId];
-        const UIN colBlockId = (idx - startIndexOfColsCurrentRowPanel) / BLOCK_COL_SIZE;
-        const UIN localColId = (idx - startIndexOfColsCurrentRowPanel) % BLOCK_COL_SIZE;
-
-        if (rebell.reorderedCols()[idx] == 11019 && rowPanelId == 92) {
-            const UIN localRowId = 15;
-            const UIN idxOfBlockValues = rebell.blockRowOffsets()[rowPanelId] * BLOCK_SIZE +
-                colBlockId * BLOCK_COL_SIZE + localRowId * BLOCK_COL_SIZE + localColId;
-            printf("!!!!!!!!!idx = %d\n", idx);
-        }
-    }
-
     // Check based on the blockValues, check if the value of blockValue is stored correctly
     for (int idxOfBlockValues = 0; idxOfBlockValues < rebell.blockValues().size(); ++idxOfBlockValues) {
 
@@ -344,7 +328,7 @@ bool check_bell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &reb
 
         const UIN idxOfReorderedCols = rebell.reorderedColOffsets()[rowPanelId] +
             colBlockId * BLOCK_COL_SIZE + localColId;
-        const UIN col = idxOfReorderedCols < rebell.reorderedCols().size() ?
+        const UIN col = idxOfReorderedCols < rebell.reorderedColOffsets()[rowPanelId + 1] ?
             rebell.reorderedCols()[idxOfReorderedCols] : NULL_VALUE;
 
         if ((row > matrix.row_ || col > matrix.col_)) {
@@ -372,11 +356,6 @@ bool check_bell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &reb
                             idxOfBlockValues,
                             idxOfOriginalMatrix,
                             localColId);
-
-                    if (idxOfOriginalMatrix == 228130) {
-
-                        printf("1252353463463463463456\n");
-                    }
 
                     isCorrect = false;
                     break;
