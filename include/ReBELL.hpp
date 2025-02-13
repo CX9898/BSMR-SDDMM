@@ -37,8 +37,11 @@ class ReBELL {
   // Calculate the rowPanelID by reorderedColIndex
   UIN calculateRowPanelIdByColIndex(UIN reorderedColIndex) const;
 
-  // Calculate the rowPanelID by blockValueIndex
+  // Calculate the localRow and localCol by blockValueIndex
   std::pair<UIN, UIN> calculateLocalRowColByColIndex(UIN blockValueIndex) const;
+
+  // Calculate the row and col by blockValueIndex
+  std::pair<UIN, UIN> calculateRowColByBlockValueIndex(UIN blockValueIndex) const;
 
  private:
   UIN numRowPanels_;

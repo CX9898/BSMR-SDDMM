@@ -39,7 +39,7 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix) {
     // initialize blockValues_
     blockValues_.resize(blockRowOffsets_.back() * BLOCK_SIZE);
     host::fill_n(blockValues_.data(), blockValues_.size(), NULL_VALUE);
-//#pragma omp parallel for
+#pragma omp parallel for
     for (int indexOfReorderedRows = 0; indexOfReorderedRows < reorderedRows_.size(); ++indexOfReorderedRows) {
         const UIN row = reorderedRows_[indexOfReorderedRows];
 
@@ -65,9 +65,6 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix) {
             const auto findIter = colToIndexOfOriginalMatrixMap.find(col);
             if (findIter != colToIndexOfOriginalMatrixMap.end()) {
                 blockValues_[idxOfBlockValues] = findIter->second;
-                if (findIter->second == 228130) {
-                    printf("1252353463463463463456\n");
-                }
             }
         }
     }
@@ -98,9 +95,32 @@ UIN ReBELL::calculateRowPanelIdByColIndex(UIN reorderedColIndex) const {
 std::pair<UIN, UIN> ReBELL::calculateLocalRowColByColIndex(UIN blockValueIndex) const {
     const UIN rowPanelId = calculateRowPanelIdByBlockValuesIndex(blockValueIndex);
     const UIN startIndexOfBlockValuesCurrentRowPanel = blockRowOffsets()[rowPanelId] * BLOCK_SIZE;
-    const UIN localRowId = ((blockValueIndex - startIndexOfBlockValuesCurrentRowPanel) % BLOCK_SIZE) / BLOCK_COL_SIZE;
-    const UIN localColId = 1;
+    const UIN localIndex = (blockValueIndex - startIndexOfBlockValuesCurrentRowPanel) % BLOCK_SIZE;
+    const UIN localRowId = localIndex / BLOCK_COL_SIZE;
+    const UIN localColId = localIndex % BLOCK_COL_SIZE;
     return std::make_pair(localRowId, localColId);
+}
+
+std::pair<UIN, UIN> ReBELL::calculateRowColByBlockValueIndex(UIN blockValueIndex) const {
+    const UIN rowPanelId = calculateRowPanelIdByBlockValuesIndex(blockValueIndex);
+
+    const UIN startIndexOfBlockValuesCurrentRowPanel = blockRowOffsets()[rowPanelId] * BLOCK_SIZE;
+    const UIN colBlockId = (blockValueIndex - startIndexOfBlockValuesCurrentRowPanel) / BLOCK_SIZE;
+
+    const UIN localIndex = (blockValueIndex - startIndexOfBlockValuesCurrentRowPanel) % BLOCK_SIZE;
+    const UIN localRowId = localIndex / BLOCK_COL_SIZE;
+    const UIN localColId = localIndex % BLOCK_COL_SIZE;
+
+    const UIN idxOfReorderedRows = rowPanelId * ROW_PANEL_SIZE + localRowId;
+    const UIN row = idxOfReorderedRows < reorderedRows().size() ?
+        reorderedRows()[idxOfReorderedRows] : NULL_VALUE;
+
+    const UIN idxOfReorderedCols = reorderedColOffsets()[rowPanelId] +
+        colBlockId * BLOCK_COL_SIZE + localColId;
+    const UIN col = idxOfReorderedCols < reorderedColOffsets()[rowPanelId + 1] ?
+        reorderedCols()[idxOfReorderedCols] : NULL_VALUE;
+
+    return std::make_pair(row, col);
 }
 
 bool check_rowReordering(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &rebell) {
@@ -258,7 +278,7 @@ bool check_bell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &reb
 
     // Check based on the original matrix, check if the index of the original matrix is correctly stored in blockValue
     for (int row = 0; row < matrix.row_; ++row) {
-        if (row + 1 < matrix.row_ && matrix.rowOffsets_[row + 1] - matrix.rowOffsets_[row] == 0) {
+        if (row + 1 < matrix.rowOffsets_.size() && matrix.rowOffsets_[row + 1] - matrix.rowOffsets_[row] == 0) {
             continue;
         }
 
@@ -311,25 +331,9 @@ bool check_bell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &reb
     // Check based on the blockValues, check if the value of blockValue is stored correctly
     for (int idxOfBlockValues = 0; idxOfBlockValues < rebell.blockValues().size(); ++idxOfBlockValues) {
 
-        const UIN rowPanelId = rebell.calculateRowPanelIdByBlockValuesIndex(idxOfBlockValues);
-
-        const UIN startIndexOfBlockValuesCurrentRowPanel = rebell.blockRowOffsets()[rowPanelId] * BLOCK_SIZE;
-        const UIN colBlockId = (idxOfBlockValues - startIndexOfBlockValuesCurrentRowPanel) / BLOCK_SIZE;
-
-        const UIN localRowId = ((idxOfBlockValues - startIndexOfBlockValuesCurrentRowPanel) % BLOCK_SIZE) /
-            BLOCK_COL_SIZE;
-        const UIN localColId =
-            ((idxOfBlockValues - startIndexOfBlockValuesCurrentRowPanel) - (localRowId * BLOCK_COL_SIZE))
-                % BLOCK_COL_SIZE;
-
-        const UIN idxOfReorderedRows = rowPanelId * ROW_PANEL_SIZE + localRowId;
-        const UIN row = idxOfReorderedRows < rebell.reorderedRows().size() ?
-            rebell.reorderedRows()[idxOfReorderedRows] : NULL_VALUE;
-
-        const UIN idxOfReorderedCols = rebell.reorderedColOffsets()[rowPanelId] +
-            colBlockId * BLOCK_COL_SIZE + localColId;
-        const UIN col = idxOfReorderedCols < rebell.reorderedColOffsets()[rowPanelId + 1] ?
-            rebell.reorderedCols()[idxOfReorderedCols] : NULL_VALUE;
+        std::pair<UIN, UIN> rowCol = rebell.calculateRowColByBlockValueIndex(idxOfBlockValues);
+        const UIN row = rowCol.first;
+        const UIN col = rowCol.second;
 
         if ((row > matrix.row_ || col > matrix.col_)) {
 
@@ -350,12 +354,11 @@ bool check_bell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &reb
                 // Check if the value is missing
                 if (rebell.blockValues()[idxOfBlockValues] == NULL_VALUE) {
                     fprintf(stderr,
-                            "Error! Missing value!(Check based on the blockValues) row: %d, col: %d, idxOfBlockValues: %d, idxOfOriginalMatrix: %d, localCalId = %d\n",
+                            "Error! Missing value!(Check based on the blockValues) row: %d, col: %d, idxOfBlockValues: %d, idxOfOriginalMatrix: %d\n",
                             row,
                             col,
                             idxOfBlockValues,
-                            idxOfOriginalMatrix,
-                            localColId);
+                            idxOfOriginalMatrix);
 
                     isCorrect = false;
                     break;

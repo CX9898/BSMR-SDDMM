@@ -113,48 +113,60 @@ void sddmm(const Matrix<float> &matrixA,
     float rebell_time = timeCalculator.getTime();
     printf("rebell time : %.2f\n", rebell_time);
 
-    check_rebell(matrixS, rebell);
+//    // Error check
+//    check_rebell(matrixS, rebell);
 
-    {
-        const UIN rowPanelId = 0;
-        const UIN row = 3;
-        const UIN col = 7;
-        for (int i = rowPanelId * ROW_PANEL_SIZE; i < (rowPanelId + 1) * ROW_PANEL_SIZE; ++i) {
-            if (rebell.reorderedRows()[i] == row) {
-                printf("find idxOfRowIndices : %d\n", i);
-            }
-        }
-        for (int i = rebell.reorderedColOffsets()[rowPanelId];
-             i < rebell.reorderedColOffsets()[rowPanelId + 1]; ++i) {
-            if (rebell.reorderedCols()[i] == col) {
-                printf("find idxOfColIndices: %d, colBlockId = %d, localColId = %d\n",
-                       i,
-                       i / BLOCK_COL_SIZE,
-                       i % BLOCK_COL_SIZE);
-            }
-        }
+//    {
+//        const UIN rowPanelId = 33;
+//        const UIN colBlockId = 56;
+//        const UIN row = 0;
+//        const UIN col = 1;
+//        for (int i = rowPanelId * ROW_PANEL_SIZE; i < (rowPanelId + 1) * ROW_PANEL_SIZE; ++i) {
+//            if (rebell.reorderedRows()[i] == row) {
+//                printf("find idxOfRowIndices : %d, localRowId = %d\n", i, i % ROW_PANEL_SIZE);
+//            }
+//        }
+//        for (int i = rebell.reorderedColOffsets()[rowPanelId];
+//             i < rebell.reorderedColOffsets()[rowPanelId + 1]; ++i) {
+//            const UIN startIdx = rebell.reorderedColOffsets()[rowPanelId];
+//            if (rebell.reorderedCols()[i] == col) {
+//                printf("find idxOfColIndices: %d, colBlockId = %d, localColId = %d\n",
+//                       i,
+//                       (i - startIdx) / BLOCK_COL_SIZE,
+//                       (i - startIdx) % BLOCK_COL_SIZE);
+//            }
+//        }
+//
+//        printf("rowPanelId = %d, row :", rowPanelId);
+//        for (int i = rowPanelId * ROW_PANEL_SIZE; i < (rowPanelId + 1) * ROW_PANEL_SIZE; ++i) {
+//            printf(" %d", rebell.reorderedRows()[i]);
+//        }
+//        printf("\n");
+//
+//        printf("matrixA : ");
+//        for (int i = row * matrixA.col(); i < (row + 1) * matrixA.col(); ++i) {
+//            printf(" %f", matrixA.values()[i]);
+//        }
+//        printf("\n");
+//
+//        printf("matrixB : ");
+//        for (int i = col; i < matrixB.size(); i += matrixB.col()) {
+//            printf("%f ", matrixB.values()[i]);
+//        }
+//        printf("\n");
+//    }
 
-        printf("rowPanelId = 0, row :");
-        for (int i = 0 * ROW_PANEL_SIZE; i < 1 * ROW_PANEL_SIZE; ++i) {
-            printf(" %d", rebell.reorderedRows()[i]);
-        }
-        printf("\n");
-
-        printf("matrixA : ");
-        for (int i = row * matrixA.col(); i < row * matrixA.col() + 16; ++i) {
-            printf(" %f", matrixA.values()[i]);
-        }
-        printf("\n");
-
-        printf("matrixB : ");
-        for (int i = col; i < matrixB.size(); i += matrixB.col()) {
-            printf("%f ", matrixB.values()[i]);
-        }
-        printf("\n");
-    }
-
-    // sddmm comp by cpu
+    // sddmm comp by gpu
     sddmm_gpu_rebell(matrixA, matrixB, matrixS, rebell, matrixP);
+
+    // Error check
+    check_sddmm(matrixA, matrixB, matrixS, matrixP);
+}
+
+bool check_sddmm(const Matrix<float> &matrixA,
+                 const Matrix<float> &matrixB,
+                 const sparseMatrix::CSR<float> &matrixS,
+                 const sparseMatrix::CSR<float> &matrixP) {
 
     // sddmm comp by cpu
     sparseMatrix::CSR<float> matrixP_cpu_res(matrixS);
@@ -165,5 +177,8 @@ void sddmm(const Matrix<float> &matrixA,
     if (!checkData(matrixP_cpu_res.values_, matrixP.values_, numError)) {
         printf("[checkData : NO PASS Error rate : %2.2f%%]\n",
                static_cast<float>(numError) / static_cast<float>(matrixP.values_.size()) * 100);
+        return false;
     }
+
+    return true;
 }
