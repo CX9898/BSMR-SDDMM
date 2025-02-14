@@ -93,13 +93,14 @@ int main(int argc, char *argv[]) {
         }
     }
 
-#ifdef _DEBUG
-    printf("[Build type : Debug]\n");
-#endif
-
 #ifdef NDEBUG
     printf("[Build type : Release]\n");
 #endif
+
+#ifndef NDEBUG
+    printf("[Build type : Debug]\n");
+#endif
+
 
     cudaDeviceProp deviceProp{};
     cudaGetDeviceProperties(&deviceProp, 0);

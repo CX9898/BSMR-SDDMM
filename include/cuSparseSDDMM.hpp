@@ -9,6 +9,7 @@
 #include "cudaUtil.cuh"
 #include "host.hpp"
 #include "checkData.hpp"
+#include "kernel.cuh"
 
 #define CHECK_CUSPARSE(func)                                                   \
 {                                                                              \
@@ -34,15 +35,36 @@ void cuSparseSDDMM(const Matrix<float> &matrixA,
 
     cusparseCreate(&handle);
 
+    dev::vector<MATRIX_A_TYPE> matrixA_values_convertedType_dev(matrixA.size());
+    dev::vector<MATRIX_B_TYPE> matrixB_values_convertedType_dev(matrixB.size());
+    {
+        dev::vector<float> matrixA_values_dev(matrixA.values());
+        dev::vector<float> matrixB_values_dev(matrixB.values());
+
+        const int numThreadPerBlock = 1024;
+        kernel::convertDataType<<< (matrixA.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
+            matrixA.size(), matrixA_values_dev.data(), matrixA_values_convertedType_dev.data());
+        kernel::convertDataType<<< (matrixB.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
+            matrixB.size(), matrixB_values_dev.data(), matrixB_values_convertedType_dev.data());
+    }
+
     // Create dense matrix A
-    dev::vector<float> dA_values(matrixA.values());
-    cusparseCreateDnMat(&_mtxA, matrixA.row(), matrixA.col(), matrixA.leadingDimension(), dA_values.data(),
-                        CUDA_R_32F, CUSPARSE_ORDER_ROW);
+    cusparseCreateDnMat(&_mtxA,
+                        matrixA.row(),
+                        matrixA.col(),
+                        matrixA.leadingDimension(),
+                        matrixA_values_convertedType_dev.data(),
+                        CUDA_R_16F,
+                        CUSPARSE_ORDER_ROW);
 
     // Create dense matrix B
-    dev::vector<float> dB_values(matrixB.values());
-    cusparseCreateDnMat(&_mtxB, matrixB.row(), matrixB.col(), matrixB.leadingDimension(), dB_values.data(),
-                        CUDA_R_32F, CUSPARSE_ORDER_ROW);
+    cusparseCreateDnMat(&_mtxB,
+                        matrixB.row(),
+                        matrixB.col(),
+                        matrixB.leadingDimension(),
+                        matrixB_values_convertedType_dev.data(),
+                        CUDA_R_16F,
+                        CUSPARSE_ORDER_ROW);
 
     // Create sparse matrix S in CSR format
     dev::vector<UIN> mtxS_offsets_dev(matrixS.rowOffsets());
