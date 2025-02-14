@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
 #endif // MAKE_MATRIX_DATA
 
     size_t K = 16;
-    SparseMatrix<float> matrixS;
+    sparseMatrix::COO<float> matrixS;
 
     if (argc > 2) {
         if (!matrixS.initializeFromMatrixMarketFile(argv[1])) {
@@ -129,15 +129,17 @@ int main(int argc, char *argv[]) {
     if (matrixB.storageOrder() == MatrixStorageOrder::row_major) { printf("[matrixB storageOrder : row_major]\n"); }
     else { printf("[matrixB storageOrder : col_major]\n"); }
 
+    const sparseMatrix::CSR<float> matrixS_csr(matrixS.getCsrData());
+
     // cuSparse library
-    sparseMatrix::CSR<float> matrixP_cuSparse(matrixS.getCsrData());
+    sparseMatrix::CSR<float> matrixP_cuSparse(matrixS_csr);
     const float alpha = 1.0f;
     const float beta = 0.0f;
-    cuSparseSDDMM(matrixA, matrixB, matrixS.getCsrData(), alpha, beta, matrixP_cuSparse);
+    cuSparseSDDMM(matrixA, matrixB, matrixS_csr, alpha, beta, matrixP_cuSparse);
 
     // sddmm
-    sparseMatrix::CSR<float> matrixP_csr(matrixS.getCsrData());
-    sddmm(matrixA, matrixB, matrixS.getCsrData(), matrixP_csr);
+    sparseMatrix::CSR<float> matrixP_csr(matrixS_csr);
+    sddmm(matrixA, matrixB, matrixS_csr, matrixP_csr);
 
     // Error check
     printf("check cuSparseSDDMM and sddmm : \n");

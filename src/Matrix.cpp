@@ -893,6 +893,15 @@ class SparseMatrix<float>;
 template
 class SparseMatrix<double>;
 
+template
+class sparseMatrix::COO<int>;
+
+template
+class sparseMatrix::COO<float>;
+
+template
+class sparseMatrix::COO<double>;
+
 template<typename T>
 bool sparseMatrix::COO<T>::initializeFromMatrixMarketFile(const std::string &filePath) {
     std::ifstream inFile;
@@ -1081,11 +1090,8 @@ void sparseMatrix::COO<T>::makeData(const UIN numRow, const UIN numCol, const UI
 }
 
 template<typename T>
-std::tuple<UIN, UIN, T> sparseMatrix::COO<T>::getSpareMatrixOneDataByCOO(const UIN idx) const {
-    const UIN row = rowIndices_[idx];
-    const UIN col = colIndices_[idx];
-    const UIN value = values_[idx];
-    return std::make_tuple(row, col, value);
+std::tuple<UIN, UIN, T> sparseMatrix::COO<T>::getSpareMatrixOneData(const UIN idx) const {
+    return std::make_tuple(rowIndices_[idx], colIndices_[idx], values_[idx]);
 }
 
 template<typename T>

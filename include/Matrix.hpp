@@ -400,7 +400,7 @@ class COO : public DataBase {
    * input : idx
    * output : row, col, value
    **/
-  std::tuple<UIN, UIN, T> getSpareMatrixOneDataByCOO(const UIN idx) const;
+  std::tuple<UIN, UIN, T> getSpareMatrixOneData(const UIN idx) const;
 
   inline float getSparsity() const {
       return static_cast<float>(row_ * col_ - nnz_) / (row_ * col_);
@@ -412,23 +412,11 @@ class COO : public DataBase {
 
   void print() const;
 
-  std::tuple<UIN, UIN, T> &operator[](UIN idx) const {
+  std::tuple<UIN, UIN, T> operator[](UIN idx) const {
       if (idx > nnz_) {
           std::cerr << "Error! Array access out of bounds" << std::endl;
       }
-      const UIN row = rowIndices_[idx];
-      const UIN col = colIndices_[idx];
-      const UIN value = values_[idx];
-      return std::make_tuple(row, col, value);
-  }
-  std::tuple<UIN, UIN, T> &operator[](UIN idx) {
-      if (idx > nnz_) {
-          std::cerr << "Error! Array access out of bounds" << std::endl;
-      }
-      const UIN row = rowIndices_[idx];
-      const UIN col = colIndices_[idx];
-      const UIN value = values_[idx];
-      return std::make_tuple(row, col, value);
+      return std::make_tuple(rowIndices_[idx], colIndices_[idx], values_[idx]);
   }
 
  private:
