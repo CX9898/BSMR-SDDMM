@@ -61,13 +61,6 @@ __global__ void checkFragmentData() {
     }
 }
 
-__global__ void convertFp32ToFp16(const UIN n, const float *in, half *out) {
-    UIN idx = static_cast<UIN> (blockDim.x * blockIdx.x + threadIdx.x);
-    if (idx < n) {
-        out[idx] = in[idx];
-    }
-}
-
 template<typename T>
 __global__ void convertDataType(const UIN n, const float *in, T *out) {
     const UIN idx = blockDim.x * blockIdx.x + threadIdx.x;
@@ -484,19 +477,19 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
 
 // blockDim: [64, 1, 1]
 // 在外部进行K迭代
-__global__ void sddmm_gpu_rebell_2_matrix_row_matrix_row(const UIN M,
-                                                       const UIN N,
-                                                       const UIN K,
-                                                       const UIN kIter,
-                                                       const half *matrixA,
-                                                       const half *matrixB,
-                                                       const UIN numNonZeroRow,
-                                                       const UIN *reorderedRows,
-                                                       const UIN *reorderedCols,
-                                                       const UIN *reorderedColOffset,
-                                                       const UIN *blockRowOffsets,
-                                                       const UIN *blockValues,
-                                                       float *matrixP) {
+__global__ void sddmm_gpu_rebell_out_kIter_matrix_row_matrix_row(const UIN M,
+                                                                 const UIN N,
+                                                                 const UIN K,
+                                                                 const UIN kIter,
+                                                                 const half *matrixA,
+                                                                 const half *matrixB,
+                                                                 const UIN numNonZeroRow,
+                                                                 const UIN *reorderedRows,
+                                                                 const UIN *reorderedCols,
+                                                                 const UIN *reorderedColOffset,
+                                                                 const UIN *blockRowOffsets,
+                                                                 const UIN *blockValues,
+                                                                 float *matrixP) {
     __shared__ half aTileSMEM[aTileSMEMSize];
     __shared__ half bTileSMEM[bTileSMEMSize];
 
@@ -582,12 +575,6 @@ __global__ void sddmm_gpu_rebell_2_matrix_row_matrix_row(const UIN M,
 
 } // namespace kernel
 
-void calculateKernelSettings(const UIN size, UIN &numBlocks, UIN &numThreads) {
-    const UIN maxThreadsPerBlock = 1024;
-    numThreads = size < maxThreadsPerBlock ? size : maxThreadsPerBlock;
-    numBlocks = (size + numThreads - 1) / numThreads;
-}
-
 void sddmm_gpu_coo_3(TensorCoreConfig tensorCoreConfig,
                      const UIN M, const UIN N, const UIN K,
                      const half *matrixA, const MatrixStorageOrder matrixAStorageOrder,
@@ -664,12 +651,12 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
 }
 
 // 在外部进行K迭代
-void sddmm_gpu_rebell2(const Matrix<float> &matrixA,
-                      const Matrix<float> &matrixB,
-                      const sparseMatrix::CSR<float> &matrixS,
-                      const ReBELL &rebell,
-                      sparseMatrix::CSR<float> &matrixP,
-                      float &time) {
+void sddmm_gpu_rebell_out_kIter(const Matrix<float> &matrixA,
+                                const Matrix<float> &matrixB,
+                                const sparseMatrix::CSR<float> &matrixS,
+                                const ReBELL &rebell,
+                                sparseMatrix::CSR<float> &matrixP,
+                                float &time) {
 
     dev::vector<MATRIX_A_TYPE> matrixA_values_convertedType_dev(matrixA.size());
     dev::vector<MATRIX_B_TYPE> matrixB_values_convertedType_dev(matrixB.size());
@@ -699,7 +686,7 @@ void sddmm_gpu_rebell2(const Matrix<float> &matrixA,
     timeCalculator.startClock();
     // Loop over K
     for (int kIter = 0; kIter < matrixA.col(); kIter += WMMA_K) {
-        kernel::sddmm_gpu_rebell_2_matrix_row_matrix_row<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(),kIter,
+        kernel::sddmm_gpu_rebell_out_kIter_matrix_row_matrix_row<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(),kIter,
             matrixA_values_convertedType_dev.data(),
             matrixB_values_convertedType_dev.data(),
             rebell.reorderedRows().size(),

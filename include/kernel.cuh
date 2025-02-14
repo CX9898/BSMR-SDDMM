@@ -9,8 +9,6 @@
 
 namespace kernel {
 
-__global__ void convertFp32ToFp16(const UIN n, const float *in, half *out);
-
 template<typename T>
 __global__ void convertDataType(const UIN n, const float *in, T *out);
 
@@ -79,9 +77,9 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
                       float &time);
 
 // 在外部进行K迭代
-void sddmm_gpu_rebell2(const Matrix<float> &matrixA,
-                      const Matrix<float> &matrixB,
-                      const sparseMatrix::CSR<float> &matrixS,
-                      const ReBELL &rebell,
-                      sparseMatrix::CSR<float> &matrixP,
-                      float &time);
+void sddmm_gpu_rebell_out_kIter(const Matrix<float> &matrixA,
+                                const Matrix<float> &matrixB,
+                                const sparseMatrix::CSR<float> &matrixS,
+                                const ReBELL &rebell,
+                                sparseMatrix::CSR<float> &matrixP,
+                                float &time);
