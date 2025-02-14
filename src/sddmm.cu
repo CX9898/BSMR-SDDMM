@@ -116,46 +116,6 @@ void sddmm(const Matrix<float> &matrixA,
 //    // Error check
 //    check_rebell(matrixS, rebell);
 
-//    {
-//        const UIN rowPanelId = 33;
-//        const UIN colBlockId = 56;
-//        const UIN row = 0;
-//        const UIN col = 1;
-//        for (int i = rowPanelId * ROW_PANEL_SIZE; i < (rowPanelId + 1) * ROW_PANEL_SIZE; ++i) {
-//            if (rebell.reorderedRows()[i] == row) {
-//                printf("find idxOfRowIndices : %d, localRowId = %d\n", i, i % ROW_PANEL_SIZE);
-//            }
-//        }
-//        for (int i = rebell.reorderedColOffsets()[rowPanelId];
-//             i < rebell.reorderedColOffsets()[rowPanelId + 1]; ++i) {
-//            const UIN startIdx = rebell.reorderedColOffsets()[rowPanelId];
-//            if (rebell.reorderedCols()[i] == col) {
-//                printf("find idxOfColIndices: %d, colBlockId = %d, localColId = %d\n",
-//                       i,
-//                       (i - startIdx) / BLOCK_COL_SIZE,
-//                       (i - startIdx) % BLOCK_COL_SIZE);
-//            }
-//        }
-//
-//        printf("rowPanelId = %d, row :", rowPanelId);
-//        for (int i = rowPanelId * ROW_PANEL_SIZE; i < (rowPanelId + 1) * ROW_PANEL_SIZE; ++i) {
-//            printf(" %d", rebell.reorderedRows()[i]);
-//        }
-//        printf("\n");
-//
-//        printf("matrixA : ");
-//        for (int i = row * matrixA.col(); i < (row + 1) * matrixA.col(); ++i) {
-//            printf(" %f", matrixA.values()[i]);
-//        }
-//        printf("\n");
-//
-//        printf("matrixB : ");
-//        for (int i = col; i < matrixB.size(); i += matrixB.col()) {
-//            printf("%f ", matrixB.values()[i]);
-//        }
-//        printf("\n");
-//    }
-
     // sddmm comp by gpu
     sddmm_gpu_rebell(matrixA, matrixB, matrixS, rebell, matrixP);
 
@@ -173,6 +133,7 @@ bool check_sddmm(const Matrix<float> &matrixA,
     sddmm_cpu(matrixA, matrixB, matrixS, matrixP_cpu_res);
 
     // Error check
+    printf("check rebell sddmm : \n");
     size_t numError = 0;
     if (!checkData(matrixP_cpu_res.values_, matrixP.values_, numError)) {
         printf("[checkData : NO PASS Error rate : %2.2f%%]\n",

@@ -636,8 +636,6 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
 
     wmma::fragment<wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> cFrag;
 
-    fill_fragment(cFrag, 0.0f);
-
     const UIN laneId = threadIdx.x % WARP_SIZE;
     const UIN warpId = threadIdx.x / WARP_SIZE;
 
@@ -648,6 +646,10 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
 
     const UIN numColBlocksCurrentRowPanel = blockRowOffsets[rowPanelId + 1] - blockRowOffsets[rowPanelId];
     for (int colBlockIter = 0; colBlockIter < numColBlocksCurrentRowPanel; colBlockIter += 2) {
+
+        // Data needs to be reset to zero before calculating the next column block
+        fill_fragment(cFrag, 0.0f);
+
         const UIN colBlockId = colBlockIter + warpId;
         const UIN startIndexOfBlockValuesCurrentBlock = (blockRowOffsets[rowPanelId] + colBlockId) * BLOCK_SIZE;
 
@@ -681,47 +683,15 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
             }
             __syncthreads();
 
-            if (rowPanelId == 33 && colBlockId == 56 && warpId == 0 && laneId == 27) {
-                const UIN localRow = 14;
-                const UIN localCol = 15;
-                const UIN row = reorderedRows[(rowPanelId * ROW_PANEL_SIZE) + localRow];
-                const UIN col =
-                    reorderedCols[startIndexOfReorderedColsCurrentIter + warpId * BLOCK_COL_SIZE + localCol];
-                printf("row = %d, col = %d, startIndexOfReorderedColIndicesInThisIter = %d\n",
-                       row,
-                       col,
-                       startIndexOfReorderedColsCurrentIter);
-                for (int i = localRow * 16; i < (localRow + 1) * 16; ++i) {
-                    printf("aTileSMEM[%d] = %f ", i, static_cast<float>(aTileSMEM[i]));
-                }
-                printf("\n");
-
-                for (int i = localCol + 16 * warpId; i < bTileSMEMSize; i += 32) {
-                    printf("bTileSMEM[%d] = %f ", i, static_cast<float>(bTileSMEM[i]));
-                }
-                printf("\n");
-            }
-
             // Compute the matrix multiplication
             if (colBlockId < numColBlocksCurrentRowPanel) {
                 wmma::load_matrix_sync(aFrag, aTileSMEM, WMMA_N);
-
                 wmma::load_matrix_sync(bFrag, bTileSMEM + warpId * WMMA_N, WMMA_N * 2);
-
                 wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
             }
 
             __syncthreads();
         }
-
-//        if (rowPanelId == 33 && colBlockId == 56 && warpId == 0) {
-//            for (int i = 0; i < cFrag.num_elements; ++i) {
-//                const UIN val = static_cast<UIN>(cFrag.x[i]);
-//                if (val == 20) {
-//                    printf("!!! laneId = %d, idx = %d, val = %f\n", laneId, i, cFrag.x[i]);
-//                }
-//            }
-//        }
 
         // Store the result
         if (colBlockId < numColBlocksCurrentRowPanel) {
@@ -732,26 +702,6 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
 
                 const UIN idxOfMatrixP =
                     blockValues[startIndexOfBlockValuesCurrentBlock + localRow * BLOCK_COL_SIZE + localCol];
-
-                if (idxOfMatrixP == 0) {
-                    printf("!!idxOfMatrixP = %d, rowPanelId = %d, colBlockIdx = %d, warpId = %d, laneId = %d "
-                           "idxOfFragment = %d, localRow = %d, localCol = %d "
-                           "startIndexOfReorderedColIndicesInThisIter = %u, idx = %u "
-                           "matrixP[idxOfMatrixP] = %f, cFrag.x[idxOfFragment] = %f\n",
-                           idxOfMatrixP,
-                           rowPanelId,
-                           colBlockId,
-                           warpId,
-                           laneId,
-                           idxOfFragment,
-                           localRow,
-                           localCol,
-                           startIndexOfReorderedColsCurrentIter,
-                           startIndexOfReorderedColsCurrentIter + warpId * BLOCK_SIZE + localRow * WMMA_N
-                               + localCol,
-                           matrixP[idxOfMatrixP],
-                           cFrag.x[idxOfFragment]);
-                }
 
                 // Saved when the value is not 0
                 if (idxOfMatrixP != NULL_VALUE) {
@@ -878,7 +828,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
         matrixP_dev.data());
     timeCalculator.endClock();
     float sddmm_time = timeCalculator.getTime();
-    printf("[sddmm : %f]\n", sddmm_time);
+    printf("[sddmm_rebell : %f]\n", sddmm_time);
 
     matrixP.values_ = d2h(matrixP_dev);
 }
