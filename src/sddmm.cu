@@ -134,9 +134,9 @@ bool check_sddmm(const Matrix<float> &matrixA,
     // Error check
     printf("check rebell sddmm : \n");
     size_t numError = 0;
-    if (!checkData(matrixP_cpu_res.values_, matrixP.values_, numError)) {
+    if (!checkData(matrixP_cpu_res.values(), matrixP.values(), numError)) {
         printf("[checkData : NO PASS Error rate : %2.2f%%]\n",
-               static_cast<float>(numError) / static_cast<float>(matrixP.values_.size()) * 100);
+               static_cast<float>(numError) / static_cast<float>(matrixP.values().size()) * 100);
         return false;
     }
 

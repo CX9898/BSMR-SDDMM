@@ -10,7 +10,7 @@ void ReBELL::colReordering(const sparseMatrix::CSR<float> &matrix) {
     numRowPanels_ = std::ceil(static_cast<float>(reorderedRows_.size()) / ROW_PANEL_SIZE);
     std::vector<UIN> numOfNonZeroColSegmentInEachRowPanel(numRowPanels_, 0);
     std::vector<std::vector<UIN>>
-        colsInEachRowPanel_sparse(numRowPanels_, std::vector<UIN>(matrix.col_)); // Containing empty columns
+        colsInEachRowPanel_sparse(numRowPanels_, std::vector<UIN>(matrix.col())); // Containing empty columns
 #pragma omp parallel for
     for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
         const UIN startIdxOfReorderedRowsCurrentRowPanel = rowPanelId * ROW_PANEL_SIZE;
@@ -19,14 +19,14 @@ void ReBELL::colReordering(const sparseMatrix::CSR<float> &matrix) {
             static_cast<UIN>(reorderedRows_.size()));
 
         // Count the number of non-zero elements for each column segment
-        std::vector<UIN> numOfNonZeroInEachColSegment(matrix.col_, 0);
+        std::vector<UIN> numOfNonZeroInEachColSegment(matrix.col(), 0);
         for (int reorderedRowIndex = startIdxOfReorderedRowsCurrentRowPanel;
              reorderedRowIndex < endIdxOfReorderedRowsCurrentRowPanel;
              ++reorderedRowIndex) { // Loop through the rows in this row panel
             const UIN row = reorderedRows_[reorderedRowIndex];
-            for (UIN idx = matrix.rowOffsets_[row]; idx < matrix.rowOffsets_[row + 1];
+            for (UIN idx = matrix.rowOffsets()[row]; idx < matrix.rowOffsets()[row + 1];
                  ++idx) { // Loop through the columns in this row
-                const UIN col = matrix.colIndices_[idx];
+                const UIN col = matrix.colIndices()[idx];
                 ++numOfNonZeroInEachColSegment[col];
             }
         }
@@ -37,7 +37,7 @@ void ReBELL::colReordering(const sparseMatrix::CSR<float> &matrix) {
                                            numOfNonZeroInEachColSegment.data() + numOfNonZeroInEachColSegment.size(),
                                            colIndicesCurrentRowPanel.data());
         UIN numNonZeroColSegment = 0;
-        while (numNonZeroColSegment < matrix.col_ && numOfNonZeroInEachColSegment[numNonZeroColSegment] != 0) {
+        while (numNonZeroColSegment < matrix.col() && numOfNonZeroInEachColSegment[numNonZeroColSegment] != 0) {
             ++numNonZeroColSegment;
         }
         numOfNonZeroColSegmentInEachRowPanel[rowPanelId] = numNonZeroColSegment;

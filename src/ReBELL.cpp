@@ -50,9 +50,9 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float& time) {
         const UIN row = reorderedRows_[indexOfReorderedRows];
 
         std::unordered_map<UIN, UIN> colToIndexOfOriginalMatrixMap;
-        for (int idxOfOriginalMatrix = matrix.rowOffsets_[row]; idxOfOriginalMatrix < matrix.rowOffsets_[row + 1];
+        for (int idxOfOriginalMatrix = matrix.rowOffsets()[row]; idxOfOriginalMatrix < matrix.rowOffsets()[row + 1];
              ++idxOfOriginalMatrix) {
-            colToIndexOfOriginalMatrixMap[matrix.colIndices_[idxOfOriginalMatrix]] = idxOfOriginalMatrix;
+            colToIndexOfOriginalMatrixMap[matrix.colIndices()[idxOfOriginalMatrix]] = idxOfOriginalMatrix;
         }
 
         const UIN rowPanelId = indexOfReorderedRows / ROW_PANEL_SIZE;
@@ -152,8 +152,8 @@ bool check_rowReordering(const sparseMatrix::CSR<float> &matrix, const struct Re
         rowToIndexOfReorderedRowsMap[row] = indexOfReorderedRows;
     }
 
-    for (int row = 0; row < matrix.row_; ++row) {
-        const UIN numColIndices = matrix.rowOffsets_[row + 1] - matrix.rowOffsets_[row];
+    for (int row = 0; row < matrix.row(); ++row) {
+        const UIN numColIndices = matrix.rowOffsets()[row + 1] - matrix.rowOffsets()[row];
 
         if (numColIndices == 0) {
 
@@ -196,9 +196,9 @@ bool check_colReordering(const sparseMatrix::CSR<float> &matrix, const struct Re
              reorderedRowIndex < endIdxOfReorderedRowIndicesCurrentRowPanel;
              ++reorderedRowIndex) { // Loop through the rows in this row panel
             const UIN row = rebell.reorderedRows()[reorderedRowIndex];
-            for (UIN idx = matrix.rowOffsets_[row]; idx < matrix.rowOffsets_[row + 1];
+            for (UIN idx = matrix.rowOffsets()[row]; idx < matrix.rowOffsets()[row + 1];
                  ++idx) { // Loop through the columns in this row
-                const UIN col = matrix.colIndices_[idx];
+                const UIN col = matrix.colIndices()[idx];
                 if (colToNumOfNonZeroMap.find(col) == colToNumOfNonZeroMap.end()) {
                     colToNumOfNonZeroMap[col] = 1;
                 } else {
@@ -289,8 +289,8 @@ bool check_bell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &reb
     }
 
     // Check based on the original matrix, check if the index of the original matrix is correctly stored in blockValue
-    for (int row = 0; row < matrix.row_; ++row) {
-        if (row + 1 < matrix.rowOffsets_.size() && matrix.rowOffsets_[row + 1] - matrix.rowOffsets_[row] == 0) {
+    for (int row = 0; row < matrix.row(); ++row) {
+        if (row + 1 < matrix.rowOffsets().size() && matrix.rowOffsets()[row + 1] - matrix.rowOffsets()[row] == 0) {
             continue;
         }
 
@@ -312,10 +312,10 @@ bool check_bell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &reb
             colToIndexOfReorderedColsMap_currentRow[col] = indexOfReorderedCols;
         }
 
-        for (int idxOfOriginalMatrix = matrix.rowOffsets_[row];
-             idxOfOriginalMatrix < matrix.rowOffsets_[row + 1];
+        for (int idxOfOriginalMatrix = matrix.rowOffsets()[row];
+             idxOfOriginalMatrix < matrix.rowOffsets()[row + 1];
              ++idxOfOriginalMatrix) {
-            const UIN col = matrix.colIndices_[idxOfOriginalMatrix];
+            const UIN col = matrix.colIndices()[idxOfOriginalMatrix];
             const UIN indexOfReorderedCols = colToIndexOfReorderedColsMap_currentRow[col];
             const UIN startIndexOfColsCurrentRowPanel = rebell.reorderedColOffsets()[rowPanelId];
             const UIN colBlockId = (indexOfReorderedCols - startIndexOfColsCurrentRowPanel) / BLOCK_COL_SIZE;
@@ -347,7 +347,7 @@ bool check_bell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &reb
         const UIN row = rowCol.first;
         const UIN col = rowCol.second;
 
-        if ((row > matrix.row_ || col > matrix.col_)) {
+        if ((row > matrix.row() || col > matrix.col())) {
 
             // Check if the value is incorrect
             if (rebell.blockValues()[idxOfBlockValues] != NULL_VALUE) {
@@ -359,9 +359,9 @@ bool check_bell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &reb
             continue;
         }
 
-        for (int idxOfOriginalMatrix = matrix.rowOffsets_[row]; idxOfOriginalMatrix < matrix.rowOffsets_[row + 1];
+        for (int idxOfOriginalMatrix = matrix.rowOffsets()[row]; idxOfOriginalMatrix < matrix.rowOffsets()[row + 1];
              ++idxOfOriginalMatrix) {
-            if (matrix.colIndices_[idxOfOriginalMatrix] == col) {
+            if (matrix.colIndices()[idxOfOriginalMatrix] == col) {
 
                 // Check if the value is missing
                 if (rebell.blockValues()[idxOfBlockValues] == NULL_VALUE) {
@@ -391,7 +391,7 @@ bool check_bell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &reb
             }
 
             // Check if a non-existent value appeared in blockValues
-            if (idxOfOriginalMatrix == matrix.rowOffsets_[row + 1]
+            if (idxOfOriginalMatrix == matrix.rowOffsets()[row + 1]
                 && rebell.blockValues()[idxOfBlockValues] != NULL_VALUE) {
                 std::cerr << "Error! A non-existent value appeared in blockValues! idxOfBlockValues: %d" <<
                           idxOfBlockValues << std::endl;

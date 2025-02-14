@@ -9,13 +9,13 @@
 #define COL_BLOCK_SIZE 32
 
 void encoding(const sparseMatrix::CSR<float> &matrix, std::vector<std::vector<UIN>> &encodings) {
-    const int colBlock = std::ceil(static_cast<float>(matrix.col_) / COL_BLOCK_SIZE);
-    encodings.resize(matrix.row_);
+    const int colBlock = std::ceil(static_cast<float>(matrix.col()) / COL_BLOCK_SIZE);
+    encodings.resize(matrix.row());
 #pragma omp parallel for dynamic
-    for (int row = 0; row < matrix.row_; ++row) {
+    for (int row = 0; row < matrix.row(); ++row) {
         encodings[row].resize(colBlock);
-        for (int idx = matrix.rowOffsets_[row]; idx < matrix.rowOffsets_[row + 1]; ++idx) {
-            const int col = matrix.colIndices_[idx];
+        for (int idx = matrix.rowOffsets()[row]; idx < matrix.rowOffsets()[row + 1]; ++idx) {
+            const int col = matrix.colIndices()[idx];
             ++encodings[row][col / COL_BLOCK_SIZE];
         }
     }
@@ -94,25 +94,25 @@ void ReBELL::rowReordering(const sparseMatrix::CSR<float> &matrix) {
     std::vector<std::vector<UIN>> encodings;
     encoding(matrix, encodings);
 
-    std::vector<UIN> dispersions(matrix.row_);
-    calculateDispersion(matrix.col_, encodings, dispersions);
+    std::vector<UIN> dispersions(matrix.row());
+    calculateDispersion(matrix.col(), encodings, dispersions);
 
-    std::vector<UIN> ascendingRow(matrix.row_); // Store the original row id
+    std::vector<UIN> ascendingRow(matrix.row()); // Store the original row id
     std::iota(ascendingRow.begin(), ascendingRow.end(), 0); // ascending = {0, 1, 2, 3, ... rows-1}
     std::stable_sort(ascendingRow.begin(),
                      ascendingRow.end(),
                      [&dispersions](size_t i, size_t j) { return dispersions[i] < dispersions[j]; });
 
-    std::vector<int> clusterIds(matrix.row_, -1);
+    std::vector<int> clusterIds(matrix.row(), -1);
     UIN startIndexOfNonZeroRow = 0;
-    while (startIndexOfNonZeroRow < matrix.row_ && dispersions[ascendingRow[startIndexOfNonZeroRow]] == 0) {
+    while (startIndexOfNonZeroRow < matrix.row() && dispersions[ascendingRow[startIndexOfNonZeroRow]] == 0) {
         clusterIds[ascendingRow[startIndexOfNonZeroRow]] = 0;
         ++startIndexOfNonZeroRow;
     }
 
     clustering(encodings, ascendingRow, startIndexOfNonZeroRow, clusterIds);
 
-    reorderedRows_.resize(matrix.row_);
+    reorderedRows_.resize(matrix.row());
     std::iota(reorderedRows_.begin(),
               reorderedRows_.end(),
               0); // rowIndices = {0, 1, 2, 3, ... rows-1}
@@ -123,9 +123,9 @@ void ReBELL::rowReordering(const sparseMatrix::CSR<float> &matrix) {
     // Remove zero rows
     {
         startIndexOfNonZeroRow = 0;
-        while (startIndexOfNonZeroRow < matrix.row_
-            && matrix.rowOffsets_[reorderedRows_[startIndexOfNonZeroRow] + 1]
-                - matrix.rowOffsets_[reorderedRows_[startIndexOfNonZeroRow]] == 0) {
+        while (startIndexOfNonZeroRow < matrix.row()
+            && matrix.rowOffsets()[reorderedRows_[startIndexOfNonZeroRow] + 1]
+                - matrix.rowOffsets()[reorderedRows_[startIndexOfNonZeroRow]] == 0) {
             ++startIndexOfNonZeroRow;
         }
         reorderedRows_.erase(reorderedRows_.begin(), reorderedRows_.begin() + startIndexOfNonZeroRow);

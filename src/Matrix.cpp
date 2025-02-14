@@ -146,7 +146,7 @@ void Matrix<T>::print() const {
 //    for (size_t idx = 0; idx < size(); ++idx) {
 //        printf("matrix[%d] = %f\n", idx, static_cast<float>(values_[idx]));
 //    }
-    for (auto iter: values_) {
+    for (auto iter : values_) {
         std::cout << iter << " ";
     }
     std::cout << std::endl;
@@ -379,14 +379,9 @@ sparseMatrix::CSR<T> SparseMatrix<T>::getCsrData() const {
                                            colIndicesTmp.data(),
                                            valuesTmp.data());
 
-    sparseMatrix::CSR<T> csrData;
-    csrData.row_ = row_;
-    csrData.col_ = col_;
-    csrData.nnz_ = nnz_;
-    getCsrRowOffsets(row_, rowIndicesTmp, csrData.rowOffsets_);
-    csrData.colIndices_ = colIndicesTmp;
-    csrData.values_ = valuesTmp;
-
+    std::vector<UIN> rowOffsets;
+    getCsrRowOffsets(row_, rowIndicesTmp, rowOffsets);
+    sparseMatrix::CSR<T> csrData(row_, col_, nnz_, rowOffsets, colIndicesTmp, valuesTmp);
     return csrData;
 }
 
@@ -474,7 +469,7 @@ template<typename T>
 bool SparseMatrix<T>::outputToMarketMatrixFile() const {
     std::string first("matrix_");
     return outputToMarketMatrixFile(
-            first + std::to_string(row_) + "_" + std::to_string(col_) + "_" + std::to_string(nnz_));
+        first + std::to_string(row_) + "_" + std::to_string(col_) + "_" + std::to_string(nnz_));
 }
 
 template<typename T>
@@ -543,9 +538,9 @@ void SparseMatrix<T>::makeData(const UIN numRow, const UIN numCol, const UIN nnz
     // make data
     std::mt19937 generator;
     auto distributionRow =
-            util::createRandomUniformDistribution(static_cast<UIN>(0), static_cast<UIN>(numRow - 1));
+        util::createRandomUniformDistribution(static_cast<UIN>(0), static_cast<UIN>(numRow - 1));
     auto distributionCol =
-            util::createRandomUniformDistribution(static_cast<UIN>(0), static_cast<UIN>(numCol - 1));
+        util::createRandomUniformDistribution(static_cast<UIN>(0), static_cast<UIN>(numCol - 1));
     auto distributionValue = util::createRandomUniformDistribution(static_cast<T>(1), static_cast<T>(10));
     std::set<std::pair<UIN, UIN>> rowColSet;
     for (UIN idx = 0; idx < nnz; ++idx) {

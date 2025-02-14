@@ -124,16 +124,16 @@ void sddmm_cpu(
     const sparseMatrix::CSR<T> &matrixS,
     sparseMatrix::CSR<T> &matrixP) {
     if (matrixA.col() != matrixB.row() ||
-        matrixA.row() != matrixP.row_ ||
-        matrixB.col() != matrixP.col_) {
+        matrixA.row() != matrixP.row() ||
+        matrixB.col() != matrixP.col()) {
         std::cerr << "The storage of the three matrices does not match" << std::endl;
         return;
     }
     const int K = matrixA.col();
 #pragma omp parallel for
-    for (int row = 0; row < matrixS.row_; ++row) {
-        for (int matrixSIdx = matrixS.rowOffsets_[row]; matrixSIdx < matrixS.rowOffsets_[row + 1]; ++matrixSIdx) {
-            const size_t col = matrixS.colIndices_[matrixSIdx];
+    for (int row = 0; row < matrixS.row(); ++row) {
+        for (int matrixSIdx = matrixS.rowOffsets()[row]; matrixSIdx < matrixS.rowOffsets()[row + 1]; ++matrixSIdx) {
+            const size_t col = matrixS.colIndices()[matrixSIdx];
 
             float val = 0.0f;
             for (int kIter = 0; kIter < K; ++kIter) {
@@ -147,7 +147,7 @@ void sddmm_cpu(
             }
 
 //            val *= matrixS.values_[matrixSIdx];
-            matrixP.values_[matrixSIdx] = val;
+            matrixP.setValues()[matrixSIdx] = val;
         }
     }
 }

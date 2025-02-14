@@ -809,7 +809,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
     dev::vector<UIN> reorderedColIndicesOffset_dev(rebell.reorderedColOffsets());
     dev::vector<UIN> blockRowOffsets_dev(rebell.blockRowOffsets());
     dev::vector<UIN> blockValues_dev(rebell.blockValues());
-    dev::vector<float> matrixP_dev(matrixS.values_);
+    dev::vector<float> matrixP_dev(matrixS.values());
 
     dim3 grid, block;
     block.x = 64;
@@ -817,7 +817,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
 
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
-    kernel::sddmm_gpu_rebell_matrix_row_matrix_row<<<grid, block>>>(matrixS.row_, matrixS.col_, matrixA.col(),
+    kernel::sddmm_gpu_rebell_matrix_row_matrix_row<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(),
         matrixA_values_convertedType_dev.data(),
         matrixB_values_convertedType_dev.data(),
         rebell.reorderedRows().size(),
@@ -831,5 +831,5 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
 
     time = timeCalculator.getTime();
 
-    matrixP.values_ = d2h(matrixP_dev);
+    matrixP.setValues() = d2h(matrixP_dev);
 }

@@ -313,16 +313,23 @@ inline std::ostream &operator<<(std::ostream &os, const SparseMatrix<T> &mtxS) {
 }
 
 namespace sparseMatrix {
-struct DataBase {
+class DataBase {
+ public:
   DataBase() = default;
 
+  UIN row() const { return row_; }
+  UIN col() const { return col_; }
+  UIN nnz() const { return nnz_; }
+
+ protected:
   UIN row_;
   UIN col_;
   UIN nnz_;
 };
 
 template<typename T>
-struct CSR : public DataBase {
+class CSR : public DataBase {
+ public:
   CSR() = default;
   CSR(UIN row,
       UIN col,
@@ -335,13 +342,21 @@ struct CSR : public DataBase {
       nnz_ = nnz;
   }
 
+  const std::vector<UIN> &rowOffsets() const { return rowOffsets_; }
+  const std::vector<UIN> &colIndices() const { return colIndices_; }
+  const std::vector<T> &values() const { return values_; }
+
+  std::vector<T> &setValues() { return values_; }
+
+ private:
   std::vector<UIN> rowOffsets_;
   std::vector<UIN> colIndices_;
   std::vector<T> values_;
 };
 
 template<typename T>
-struct COO : public DataBase {
+class COO : public DataBase {
+ public:
   COO() = default;
   COO(UIN row,
       UIN col,
@@ -354,28 +369,77 @@ struct COO : public DataBase {
       nnz_ = nnz;
   }
 
+  const std::vector<UIN> &rowIndices() const { return rowIndices_; }
+  const std::vector<UIN> &colIndices() const { return colIndices_; }
+  const std::vector<T> &values() const { return values_; }
+
+  std::vector<T> &setValues() { return values_; }
+
+  /**
+   * Initialize from MatrixMarket file.
+   *
+   * MatrixMarket file format:
+   *    1) The first line describes the file format.
+   *    2) The second line has three numbers separated by a space: number of rows, number of columns, and number of non-zeros.
+   *    3) Each after line has three numbers separated by a space: current row, current column, and value.
+   **/
+  bool initializeFromMatrixMarketFile(const std::string &filePath);
+
+  /**
+    * Used as a test comparison result
+    **/
+  bool outputToMarketMatrixFile(const std::string &fileName) const;
+  bool outputToMarketMatrixFile() const;
+
+  bool setValuesFromMatrix(const Matrix<T> &inputMatrix);
+
+  void makeData(const UIN row, const UIN col, const UIN nnz);
+
+  /**
+   * input : idx
+   * output : row, col, value
+   **/
+  void getSpareMatrixOneDataByCOO(const UIN idx, UIN &row, UIN &col, T &value) const;
+
+  inline float getSparsity() const {
+      return static_cast<float>(row_ * col_ - nnz_) / (row_ * col_);
+  }
+
+  void draw() const;
+
+  sparseMatrix::CSR<T> getCsrData() const;
+
+  void print() const;
+
+ private:
   std::vector<UIN> rowIndices_;
   std::vector<UIN> colIndices_;
   std::vector<T> values_;
 };
 
 template<typename T>
-struct BELL : public DataBase {
+class BELL : public DataBase {
+ public:
   BELL() = default;
   BELL(UIN row,
        UIN col,
        UIN nnz,
-       const std::vector<T> &blockValues,
+       const std::vector<T> &blockRowOffsets,
        const std::vector<UIN> &blockColIndices,
-       const std::vector<T> &blockRowOffsets)
-      : blockValues_(blockValues), blockColIndices_(blockColIndices), blockRowOffsets_(blockRowOffsets) {
+       const std::vector<T> &blockValues)
+      : blockRowOffsets_(blockRowOffsets), blockColIndices_(blockColIndices), blockValues_(blockValues) {
       row_ = row;
       col_ = col;
       nnz_ = nnz;
   }
 
-  std::vector<T> blockValues_;
-  std::vector<UIN> blockColIndices_;
+  const std::vector<UIN> &blockRowOffsets() const { return blockRowOffsets_; }
+  const std::vector<UIN> &blockColIndices() const { return blockColIndices_; }
+  const std::vector<T> &blockValues() const { return blockValues_; }
+
+ private:
   std::vector<UIN> blockRowOffsets_;
+  std::vector<UIN> blockColIndices_;
+  std::vector<T> blockValues_;
 };
 } // namespace sparseDataType
