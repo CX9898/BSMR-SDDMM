@@ -55,6 +55,8 @@ inline bool checkOneData<double>(const double data1, const double data2) {
 
 template<typename T>
 inline bool checkDataFunction(const size_t num, const T *data1, const T *data2, size_t &numError) {
+    bool isCorrect = true;
+
     printf("|---------------------------check data---------------------------|\n");
     printf("| Data size : %ld\n", num);
     printf("| Checking results...\n");
@@ -75,13 +77,14 @@ inline bool checkDataFunction(const size_t num, const T *data1, const T *data2, 
     if (errors > 0) {
         printf("| No Pass! Inconsistent data! %zu errors! Error rate : %2.2f%%\n",
                errors, static_cast<float>(errors) / static_cast<float>(num) * 100);
-        printf("|----------------------------------------------------------------|\n");
-        return false;
+        isCorrect = false;
+    } else {
+        printf("| Pass! Result validates successfully.\n");
     }
 
-    printf("| Pass! Result validates successfully.\n");
     printf("|----------------------------------------------------------------|\n");
-    return true;
+
+    return isCorrect;
 }
 
 template<typename T>
