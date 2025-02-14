@@ -145,7 +145,7 @@ int main(int argc, char *argv[]) {
     if (!checkData(matrixP_cuSparse.values(), matrixP_csr.values(), numError)) {
         printf("[checkData : NO PASS Error rate : %2.2f%%]\n",
                static_cast<float>(numError) / static_cast<float>(matrixP_csr.values().size()) * 100);
-        return false;
+        return -1;
     }
 
     return 0;
