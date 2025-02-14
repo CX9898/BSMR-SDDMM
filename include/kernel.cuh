@@ -77,3 +77,11 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
                       const ReBELL &rebell,
                       sparseMatrix::CSR<float> &matrixP,
                       float &time);
+
+// 在外部进行K迭代
+void sddmm_gpu_rebell2(const Matrix<float> &matrixA,
+                      const Matrix<float> &matrixB,
+                      const sparseMatrix::CSR<float> &matrixS,
+                      const ReBELL &rebell,
+                      sparseMatrix::CSR<float> &matrixP,
+                      float &time);
