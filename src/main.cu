@@ -133,8 +133,7 @@ int main(int argc, char *argv[]) {
 
     // cuSparse library
     sparseMatrix::CSR<float> matrixP_cuSparse(matrixS_csr);
-    const float alpha = 1.0f;
-    const float beta = 0.0f;
+    const float alpha = 1.0f, beta = 0.0f;
     cuSparseSDDMM(matrixA, matrixB, matrixS_csr, alpha, beta, matrixP_cuSparse);
 
     // sddmm
