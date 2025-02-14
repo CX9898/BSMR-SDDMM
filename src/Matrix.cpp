@@ -892,3 +892,283 @@ class SparseMatrix<float>;
 
 template
 class SparseMatrix<double>;
+
+template<typename T>
+bool sparseMatrix::COO<T>::initializeFromMatrixMarketFile(const std::string &filePath) {
+    std::ifstream inFile;
+    inFile.open(filePath, std::ios::in); // open file
+    if (!inFile.is_open()) {
+        std::cerr << "Error, MatrixMarket file cannot be opened : " << filePath << std::endl;
+        return false;
+    }
+
+    std::cout << "SparseMatrix initialize From MatrixMarket file : " << filePath << std::endl;
+
+    std::string line; // Store the data for each line
+    getline(inFile, line); // First line does not operate
+
+    getline(inFile, line);
+    int wordIter = 0;
+    row_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
+    col_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
+    nnz_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
+
+    if (wordIter < line.size()) {
+        std::cerr << "Error, Matrix Market file " << line << " line format is incorrect!" << std::endl;
+    }
+
+    rowIndices_.resize(nnz_);
+    colIndices_.resize(nnz_);
+    values_.resize(nnz_);
+
+    UIN idx = 0;
+    while (getline(inFile, line)) {
+        wordIter = 0;
+        const UIN row = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
+        const UIN col = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
+        const T val = static_cast<T>(std::stod(util::iterateOneWordFromLine(line, wordIter)));
+
+        if (wordIter < line.size()) {
+            std::cerr << "Error, Matrix Market file " << line << " line format is incorrect!" << std::endl;
+        }
+
+        rowIndices_[idx] = row;
+        colIndices_[idx] = col;
+        values_[idx] = val;
+
+        ++idx;
+    }
+
+    inFile.close();
+
+    return true;
+}
+
+template<typename T>
+bool sparseMatrix::COO<T>::outputToMarketMatrixFile() const {
+    std::string first("matrix_");
+    return outputToMarketMatrixFile(
+        first + std::to_string(row_) + "_" + std::to_string(col_) + "_" + std::to_string(nnz_));
+}
+
+template<typename T>
+bool sparseMatrix::COO<T>::outputToMarketMatrixFile(const std::string &fileName) const {
+    const std::string fileFormat(".mtx");
+
+    std::string fileString(fileName + fileFormat);
+
+    // check fileExists
+    if (util::fileExists(fileString)) {
+        std::cout << fileName + fileFormat << " file already exists" << std::endl;
+        int fileId = 1;
+        while (util::fileExists(fileName + "_" + std::to_string(fileId) + fileFormat)) {
+            ++fileId;
+        }
+        fileString = fileName + "_" + std::to_string(fileId) + fileFormat;
+
+        std::cout << "Change file name form \"" << fileName + fileFormat
+                  << "\" to \""
+                  << fileString << "\"" << std::endl;
+    }
+
+    // creat file
+    std::ofstream outfile(fileString);
+    if (outfile.is_open()) {
+        std::cout << "File created successfully: " << fileString << std::endl;
+    } else {
+        std::cerr << "Unable to create file: " << fileString << std::endl;
+        return false;
+    }
+
+    std::string firstLine("%%MatrixMarket matrix coordinate real general\n");
+    outfile << firstLine;
+
+    std::string secondLine(std::to_string(row_) + " " + std::to_string(col_) + " " + std::to_string(nnz_) + "\n");
+    outfile << secondLine;
+
+    for (UIN idx = 0; idx < nnz_; ++idx) {
+        outfile << std::to_string(rowIndices_[idx] + 1) << " ";
+        outfile << std::to_string(colIndices_[idx] + 1) << " ";
+        outfile << std::to_string(values_[idx]);
+
+        if (idx < nnz_ - 1) {
+            outfile << "\n";
+        }
+    }
+
+    outfile.close();
+    return true;
+}
+
+template<typename T>
+bool sparseMatrix::COO<T>::setValuesFromMatrix(const Matrix<T> &inputMatrix) {
+    if (inputMatrix.row() < row_ || inputMatrix.col() < col_) {
+        std::cout << "Warning! The input matrix size is too small." << std::endl;
+    }
+    values_.clear();
+    values_.resize(nnz_);
+
+#pragma omp parallel for
+    for (int idx = 0; idx < nnz_; ++idx) {
+        const UIN row = rowIndices_[idx];
+        const UIN col = colIndices_[idx];
+
+        values_[idx] = inputMatrix.getOneValue(row, col);
+    }
+
+    return true;
+}
+
+template<typename T>
+void sparseMatrix::COO<T>::makeData(const UIN numRow, const UIN numCol, const UIN nnz) {
+    if (numRow * numCol < nnz) {
+        std::cerr << "nnz is too big" << std::endl;
+        return;
+    }
+    row_ = numRow;
+    col_ = numCol;
+    nnz_ = nnz;
+
+    rowIndices_.resize(nnz);
+    colIndices_.resize(nnz);
+    values_.resize(nnz);
+
+    // make data
+    std::mt19937 generator;
+    auto distributionRow =
+        util::createRandomUniformDistribution(static_cast<UIN>(0), static_cast<UIN>(numRow - 1));
+    auto distributionCol =
+        util::createRandomUniformDistribution(static_cast<UIN>(0), static_cast<UIN>(numCol - 1));
+    auto distributionValue = util::createRandomUniformDistribution(static_cast<T>(1), static_cast<T>(10));
+    std::set<std::pair<UIN, UIN>> rowColSet;
+    for (UIN idx = 0; idx < nnz; ++idx) {
+        UIN row = distributionRow(generator);
+        UIN col = distributionCol(generator);
+        std::pair<UIN, UIN> rowColPair(row, col);
+        auto findSet = rowColSet.find(rowColPair);
+        while (findSet != rowColSet.end()) {
+            row = distributionRow(generator);
+            col = distributionCol(generator);
+            rowColPair.first = row;
+            rowColPair.second = col;
+            findSet = rowColSet.find(rowColPair);
+        }
+
+        rowColSet.insert(rowColPair);
+
+        rowIndices_[idx] = row;
+        colIndices_[idx] = col;
+        values_[idx] = distributionValue(generator);
+    }
+
+    // sort rowIndices and colIndices
+    host::sort_by_key(rowIndices_.data(), rowIndices_.data() + rowIndices_.size(), colIndices_.data());
+    UIN lastRowNumber = rowIndices_[0];
+    UIN lastBegin = 0;
+    for (UIN idx = 0; idx < nnz_; ++idx) {
+        const UIN curRowNumber = rowIndices_[idx];
+        if (curRowNumber != lastRowNumber) { // new row
+            host::sort(colIndices_.data() + lastBegin, colIndices_.data() + idx);
+
+            lastBegin = idx + 1;
+            lastRowNumber = curRowNumber;
+        }
+
+        if (idx == nnz_ - 1) {
+            host::sort(colIndices_.data() + lastBegin, colIndices_.data() + colIndices_.size());
+        }
+    }
+}
+
+template<typename T>
+std::tuple<UIN, UIN, T> sparseMatrix::COO<T>::getSpareMatrixOneDataByCOO(const UIN idx) const {
+    const UIN row = rowIndices_[idx];
+    const UIN col = colIndices_[idx];
+    const UIN value = values_[idx];
+    return std::make_tuple(row, col, value);
+}
+
+template<typename T>
+void sparseMatrix::COO<T>::draw() const {
+    std::vector<UIN> rowIndicesTmp = rowIndices_;
+    std::vector<UIN> colIndicesTmp = colIndices_;
+
+    {
+        host::sort_by_key(rowIndicesTmp.data(),
+                          rowIndicesTmp.data() + rowIndicesTmp.size(),
+                          colIndicesTmp.data());
+
+        UIN lastRowNumber = rowIndices_[0];
+        UIN lastBegin = 0;
+        for (UIN idx = 0; idx < nnz_; ++idx) {
+            const UIN curRowNumber = rowIndices_[idx];
+            if (curRowNumber != lastRowNumber) { // new row
+                host::sort(colIndicesTmp.data() + lastBegin, colIndicesTmp.data() + idx);
+
+                lastBegin = idx + 1;
+                lastRowNumber = curRowNumber;
+            }
+
+            if (idx == nnz_ - 1) {
+                host::sort(colIndicesTmp.data() + lastBegin, colIndicesTmp.data() + colIndicesTmp.size());
+            }
+        }
+    }
+
+    std::vector<UIN> rowOffsets(row_ + 1);
+    getCsrRowOffsets(row_, rowIndicesTmp, rowOffsets);
+
+    printf("SparseMatrix : [%d,%d,%d]\n", row_, col_, nnz_);
+    for (int colIdx = 0; colIdx < col_ + 2; ++colIdx) {
+        std::cout << "-";
+    }
+    std::cout << std::endl;
+    for (UIN row = 0; row < row_; ++row) {
+        std::cout << "|";
+        std::unordered_set<UIN> colSet;
+        for (UIN idx = rowOffsets[row]; idx < rowOffsets[row + 1]; ++idx) {
+            colSet.insert(colIndicesTmp[idx]);
+        }
+        for (UIN colIdx = 0; colIdx < col_; ++colIdx) {
+            if (colSet.find(colIdx) != colSet.end()) {
+                std::cout << "X";
+            } else {
+                std::cout << " ";
+            }
+        }
+        std::cout << "|";
+        std::cout << std::endl;
+    }
+    for (int colIdx = 0; colIdx < col_ + 2; ++colIdx) {
+        std::cout << "-";
+    }
+    std::cout << std::endl;
+}
+
+template<typename T>
+sparseMatrix::CSR<T> sparseMatrix::COO<T>::getCsrData() const {
+    std::vector<UIN> rowIndicesTmp = rowIndices_;
+    std::vector<UIN> colIndicesTmp = colIndices_;
+    std::vector<T> valuesTmp = values_;
+
+    host::sort_by_key_for_multiple_vectors(rowIndicesTmp.data(),
+                                           rowIndicesTmp.data() + rowIndicesTmp.size(),
+                                           colIndicesTmp.data(),
+                                           valuesTmp.data());
+
+    std::vector<UIN> rowOffsets;
+    getCsrRowOffsets(row_, rowIndicesTmp, rowOffsets);
+    sparseMatrix::CSR<T> csrData(row_, col_, nnz_, rowOffsets, colIndicesTmp, valuesTmp);
+    return csrData;
+}
+
+template<typename T>
+void sparseMatrix::COO<T>::print() const {
+    std::cout << "SparseMatrix : [row,col,value]" << std::endl;
+    for (UIN idx = 0; idx < nnz_; ++idx) {
+        std::cout << "[" << rowIndices_[idx] << ","
+                  << colIndices_[idx] << ","
+                  << values_[idx] << "] ";
+    }
+    std::cout << std::endl;
+}
