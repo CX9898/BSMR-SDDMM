@@ -97,7 +97,7 @@ void sddmm_cpu(
             val += valA * valB;
         }
 
-        val *= matrixS.values()[matrixSIdx];
+//        val *= matrixS.values()[matrixSIdx];
         matrixP.setValues()[matrixSIdx] = val;
     }
 }
@@ -146,7 +146,7 @@ void sddmm_cpu(
                 val += valA * valB;
             }
 
-            val *= matrixS.values_[matrixSIdx];
+//            val *= matrixS.values_[matrixSIdx];
             matrixP.values_[matrixSIdx] = val;
         }
     }

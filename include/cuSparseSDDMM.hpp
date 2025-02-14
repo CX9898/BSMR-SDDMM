@@ -92,6 +92,7 @@ void cuSparseSDDMM(const Matrix<float> &matrixA,
     sddmm_cpu(matrixA, matrixB, matrixS, matrixP_cpu_res);
 
     // Error check
+    printf("check cusparseSDDMM");
     size_t numError = 0;
     if (!checkData(matrixP_cpu_res.values_, matrixP.values_, numError)) {
         printf("[checkData : NO PASS Error rate : %2.2f%%]\n",

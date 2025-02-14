@@ -377,7 +377,7 @@ __global__ void sddmm_gpu_coo_5_matrixA_row_matrixB_row(TensorCoreConfig tensorC
         tensorCoreConfig.calculateFragmentLaneAndIndex(pRowId, pColId, curRow, curCol, fragmentInformation);
 
         if (laneId == fragmentInformation.laneId_) {
-            matrixP[matrixPIdx] *= cFrag.x[fragmentInformation.index_];
+            matrixP[matrixPIdx] = cFrag.x[fragmentInformation.index_];
         }
     }
 }
@@ -705,7 +705,7 @@ __global__ void sddmm_gpu_rebell_matrix_row_matrix_row(const UIN M,
 
                 // Saved when the value is not 0
                 if (idxOfMatrixP != NULL_VALUE) {
-                    matrixP[idxOfMatrixP] *= cFrag.x[idxOfFragment];
+                    matrixP[idxOfMatrixP] = cFrag.x[idxOfFragment];
                 }
             }
         }
