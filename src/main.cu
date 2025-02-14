@@ -101,7 +101,6 @@ int main(int argc, char *argv[]) {
     printf("[Build type : Debug]\n");
 #endif
 
-
     cudaDeviceProp deviceProp{};
     cudaGetDeviceProperties(&deviceProp, 0);
     printf("[Device : %s]\n", deviceProp.name);
@@ -118,13 +117,9 @@ int main(int argc, char *argv[]) {
 
     Matrix<float> matrixA(matrixS.row(), K, MatrixStorageOrder::row_major);
     matrixA.makeData(matrixA.row(), K);
-//    std::cout << "matrixA.size() : " << matrixA.values().size() << " matrixA : ";
-//    matrixA.print();
 
     Matrix<float> matrixB(K, matrixS.col(), MatrixStorageOrder::row_major);
     matrixB.makeData(K, matrixS.col());
-//    std::cout << "matrixB.size() : " << matrixB.values().size() << " matrixB : ";
-//    matrixB.print();
 
 //    matrixA.changeStorageOrder();
 //    matrixB.changeStorageOrder();
@@ -141,11 +136,17 @@ int main(int argc, char *argv[]) {
     cuSparseSDDMM(matrixA, matrixB, matrixS.getCsrData(), alpha, beta, matrixP_cuSparse);
 
     // sddmm
-    SparseMatrix<float> matrixP(matrixS);
-    sddmm(matrixA, matrixB, matrixS, matrixP);
-
     sparseMatrix::CSR<float> matrixP_csr(matrixS.getCsrData());
     sddmm(matrixA, matrixB, matrixS.getCsrData(), matrixP_csr);
+
+    // Error check
+    printf("check cuSparseSDDMM and sddmm : \n");
+    size_t numError = 0;
+    if (!checkData(matrixP_cuSparse.values(), matrixP_csr.values(), numError)) {
+        printf("[checkData : NO PASS Error rate : %2.2f%%]\n",
+               static_cast<float>(numError) / static_cast<float>(matrixP_csr.values().size()) * 100);
+        return false;
+    }
 
     return 0;
 }

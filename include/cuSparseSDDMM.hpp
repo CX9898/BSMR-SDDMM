@@ -109,15 +109,13 @@ void cuSparseSDDMM(const Matrix<float> &matrixA,
 
     matrixP.setValues() = d2h(mtxS_values_dev);
 
-    // sddmm comp by cpu
-    sparseMatrix::CSR<float> matrixP_cpu_res(matrixS);
-    sddmm_cpu(matrixA, matrixB, matrixS, matrixP_cpu_res);
-
-    // Error check
-    printf("check cusparseSDDMM");
-    size_t numError = 0;
-    if (!checkData(matrixP_cpu_res.values(), matrixP.values(), numError)) {
-        printf("[checkData : NO PASS Error rate : %2.2f%%]\n",
-               static_cast<float>(numError) / static_cast<float>(matrixP.values().size()) * 100);
-    }
+//    // Error check
+//    sparseMatrix::CSR<float> matrixP_cpu_res(matrixS);
+//    sddmm_cpu(matrixA, matrixB, matrixS, matrixP_cpu_res);
+//    printf("check cusparseSDDMM");
+//    size_t numError = 0;
+//    if (!checkData(matrixP_cpu_res.values(), matrixP.values(), numError)) {
+//        printf("[checkData : NO PASS Error rate : %2.2f%%]\n",
+//               static_cast<float>(numError) / static_cast<float>(matrixP.values().size()) * 100);
+//    }
 }

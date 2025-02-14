@@ -118,8 +118,8 @@ void sddmm(const Matrix<float> &matrixA,
 
     printf("[zcx_sddmm : %.2f]\n", sddmm_time);
 
-    // Error check
-    check_sddmm(matrixA, matrixB, matrixS, matrixP);
+//    // Error check
+//    check_sddmm(matrixA, matrixB, matrixS, matrixP);
 }
 
 bool check_sddmm(const Matrix<float> &matrixA,
