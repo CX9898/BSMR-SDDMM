@@ -11,7 +11,7 @@
 #include "checkData.hpp"
 #include "cudaErrorCheck.cuh"
 
-const float epsilon = 1e-4;
+const float ERROR_THRESHOLD_EPSILON = 1e-6;
 
 /**
  * error checking
@@ -46,11 +46,11 @@ inline bool checkOneData(const T data1, const T data2) {
 }
 template<>
 inline bool checkOneData<float>(const float data1, const float data2) {
-    return abs(data1 - data2) / data1 < epsilon;
+    return abs(data1 - data2) / data1 < ERROR_THRESHOLD_EPSILON;
 }
 template<>
 inline bool checkOneData<double>(const double data1, const double data2) {
-    return abs(data1 - data2) / data1 < epsilon;
+    return abs(data1 - data2) / data1 < ERROR_THRESHOLD_EPSILON;
 }
 
 template<typename T>
