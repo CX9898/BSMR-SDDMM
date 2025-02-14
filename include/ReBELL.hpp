@@ -22,7 +22,7 @@ constexpr UIN NULL_VALUE = MAX_UIN;
  **/
 class ReBELL {
  public:
-  ReBELL(const sparseMatrix::CSR<float> &matrix);
+  ReBELL(const sparseMatrix::CSR<float> &matrix, float& time);
 
   UIN numRowPanels() const { return numRowPanels_; }
   const std::vector<UIN> &reorderedRows() const { return reorderedRows_; }

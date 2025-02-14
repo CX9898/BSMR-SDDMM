@@ -75,4 +75,5 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
                       const Matrix<float> &matrixB,
                       const sparseMatrix::CSR<float> &matrixS,
                       const ReBELL &rebell,
-                      sparseMatrix::CSR<float> &matrixP);
+                      sparseMatrix::CSR<float> &matrixP,
+                      float &time);

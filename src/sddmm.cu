@@ -103,21 +103,20 @@ void sddmm(const Matrix<float> &matrixA,
            const sparseMatrix::CSR<float> &matrixS,
            sparseMatrix::CSR<float> &matrixP) {
 
-    CudaTimeCalculator timeCalculator;
-    timeCalculator.startClock();
-
     // Reordering
-    ReBELL rebell(matrixS);
+    float rebell_time;
+    ReBELL rebell(matrixS,rebell_time);
 
-    timeCalculator.endClock();
-    float rebell_time = timeCalculator.getTime();
-    printf("rebell time : %.2f\n", rebell_time);
+    printf("[zcx_other : %.2f]\n", rebell_time);
 
 //    // Error check
 //    check_rebell(matrixS, rebell);
 
     // sddmm comp by gpu
-    sddmm_gpu_rebell(matrixA, matrixB, matrixS, rebell, matrixP);
+    float sddmm_time;
+    sddmm_gpu_rebell(matrixA, matrixB, matrixS, rebell, matrixP, sddmm_time);
+
+    printf("[zcx_sddmm : %.2f]\n", sddmm_time);
 
     // Error check
     check_sddmm(matrixA, matrixB, matrixS, matrixP);

@@ -9,18 +9,24 @@
 #include "CudaTimeCalculator.cuh"
 #include "parallelAlgorithm.cuh"
 
-ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix) {
+ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float& time) {
 
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
+    // Row reordering
     rowReordering(matrix);
     timeCalculator.endClock();
-    printf("rowReordering time : %f ms\n", timeCalculator.getTime());
+    float rowReordering_time = timeCalculator.getTime();
+    printf("rowReordering time : %f ms\n", rowReordering_time);
 
     timeCalculator.startClock();
+    // column reordering
     colReordering(matrix);
     timeCalculator.endClock();
-    printf("colReordering time : %f ms\n", timeCalculator.getTime());
+    float colReordering_time = timeCalculator.getTime();
+    printf("colReordering time : %f ms\n", colReordering_time);
+
+    timeCalculator.startClock();
 
     // initialize blockRowOffsets_
     const UIN numRowPanel = std::ceil(static_cast<float>(reorderedRows_.size()) / ROW_PANEL_SIZE);
@@ -68,6 +74,12 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix) {
             }
         }
     }
+
+    timeCalculator.endClock();
+    float bell_time = timeCalculator.getTime();
+    printf("bell time : %f ms\n", bell_time);
+
+    time = rowReordering_time + colReordering_time + bell_time;
 }
 
 UIN ReBELL::calculateRowPanelIdByBlockValuesIndex(UIN blockValueIndex) const {

@@ -788,7 +788,8 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
                       const Matrix<float> &matrixB,
                       const sparseMatrix::CSR<float> &matrixS,
                       const ReBELL &rebell,
-                      sparseMatrix::CSR<float> &matrixP) {
+                      sparseMatrix::CSR<float> &matrixP,
+                      float &time) {
 
     dev::vector<MATRIX_A_TYPE> matrixA_values_convertedType_dev(matrixA.size());
     dev::vector<MATRIX_B_TYPE> matrixB_values_convertedType_dev(matrixB.size());
@@ -827,8 +828,8 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
         blockValues_dev.data(),
         matrixP_dev.data());
     timeCalculator.endClock();
-    float sddmm_time = timeCalculator.getTime();
-    printf("[sddmm_rebell : %f]\n", sddmm_time);
+
+    time = timeCalculator.getTime();
 
     matrixP.values_ = d2h(matrixP_dev);
 }
