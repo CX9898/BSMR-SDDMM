@@ -343,6 +343,36 @@ inline __host__ __device__ void calculateFragmentCoordinates_m16n16k16(const UIN
     col = localIdInLaneGroup * 2 + isOddIndex + 8 * isBigLaneGroup;
 }
 
+inline __host__ __device__ void calculateFragmentCoordinates_m32n8k16(const UIN laneId, const UIN indexOfFragment,
+                                                                      UIN &row, UIN &col) {
+    // Divide the lanes into groups of 4
+    const UIN laneGroupId = laneId / 4;
+    const UIN localIdInLaneGroup = laneId % 4;
+
+    // Divide the index into groups of 2
+    const UIN indexGroupId = indexOfFragment / 2;
+
+    const UIN isOddIndex = indexOfFragment % 2;
+
+    row = indexGroupId * 8 + laneGroupId;
+    col = localIdInLaneGroup * 2 + isOddIndex;
+}
+
+inline __host__ __device__ void calculateFragmentCoordinates_m8n32k16(const UIN laneId, const UIN indexOfFragment,
+                                                                      UIN &row, UIN &col) {
+    // Divide the lanes into groups of 4
+    const UIN laneGroupId = laneId / 4;
+    const UIN localIdInLaneGroup = laneId % 4;
+
+    // Divide the index into groups of 2
+    const UIN indexGroupId = indexOfFragment / 2;
+
+    const UIN isOddIndex = indexOfFragment % 2;
+
+    row = localIdInLaneGroup * 2 + isOddIndex;
+    col = indexGroupId * 8 + laneGroupId;
+}
+
 inline __host__ __device__ void calculateFragmentCoordinates(const UIN laneId, const UIN indexOfFragment,
                                                              UIN &row, UIN &col) {
 #ifdef WMMA_16_16_16
