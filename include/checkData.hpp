@@ -7,7 +7,6 @@
 #include <cuda_runtime.h>
 
 #include "Matrix.hpp"
-#include "devMatrix.cuh"
 #include "checkData.hpp"
 #include "cudaErrorCheck.cuh"
 
