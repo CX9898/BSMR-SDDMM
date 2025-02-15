@@ -134,15 +134,15 @@ int main(int argc, char *argv[]) {
     cuSparseSDDMM(matrixA, matrixB, matrixS_csr, alpha, beta, matrixP_cuSparse);
 
     // sddmm
-    sparseMatrix::CSR<float> matrixP_csr(matrixS_csr);
-    sddmm(matrixA, matrixB, matrixS_csr, matrixP_csr);
+    sparseMatrix::CSR<float> matrixP(matrixS_csr);
+    sddmm(matrixA, matrixB, matrixS_csr, matrixP);
 
     // Error check
     printf("check cuSparseSDDMM and sddmm : \n");
     size_t numError = 0;
-    if (!checkData(matrixP_cuSparse.values(), matrixP_csr.values(), numError)) {
+    if (!checkData(matrixP_cuSparse.values(), matrixP.values(), numError)) {
         printf("[checkData : NO PASS Error rate : %2.2f%%]\n",
-               static_cast<float>(numError) / static_cast<float>(matrixP_csr.values().size()) * 100);
+               static_cast<float>(numError) / static_cast<float>(matrixP.values().size()) * 100);
         return -1;
     }
 

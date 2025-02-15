@@ -25,9 +25,6 @@ void sddmm(const Matrix<float> &matrixA,
     sddmm_gpu_rebell(matrixA, matrixB, matrixS, rebell, matrixP, sddmm_time);
 
     printf("[zcx_sddmm : %.2f]\n", sddmm_time);
-
-//    // Error check
-//    check_sddmm(matrixA, matrixB, matrixS, matrixP);
 }
 
 bool check_sddmm(const Matrix<float> &matrixA,
