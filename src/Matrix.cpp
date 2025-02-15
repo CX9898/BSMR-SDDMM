@@ -15,7 +15,7 @@
 #include "checkData.hpp"
 
 template<typename T>
-Matrix<T>::Matrix(const SparseMatrix<T> &matrixS) {
+Matrix<T>::Matrix(const sparseMatrix::COO<T> &matrixS) {
     row_ = matrixS.row();
     col_ = matrixS.col();
     const UIN size = matrixS.row() * matrixS.col();

@@ -20,9 +20,6 @@ enum MatrixMultiplicationOrder {
 template<typename T>
 class Matrix;
 
-template<typename T>
-class SparseMatrix;
-
 namespace sparseMatrix {
 struct DataBase;
 
@@ -70,7 +67,7 @@ class Matrix {
       colBeforeChange_ = col;
   }
 
-  Matrix(const SparseMatrix<T> &matrixS);
+  Matrix(const sparseMatrix::COO<T> &matrixS);
 
   bool initializeValue(const std::vector<T> &src);
   void changeStorageOrder();
@@ -147,6 +144,13 @@ class Matrix {
   UIN rowBeforeChange_;
   UIN colBeforeChange_;
 };
+
+template<typename T>
+inline std::ostream &operator<<(std::ostream &os, const Matrix<T> &mtx) {
+    os << " [row : " << mtx.row() << ", col : " << mtx.col() << "]";
+    return os;
+}
+
 
 /**
  * SparseMatrix class
@@ -300,12 +304,6 @@ class SparseMatrix {
   std::vector<UIN> colIndexBeforeChange_;
   std::vector<T> valuesBeforeChange_;
 };
-
-template<typename T>
-inline std::ostream &operator<<(std::ostream &os, const Matrix<T> &mtx) {
-    os << " [row : " << mtx.row() << ", col : " << mtx.col() << "]";
-    return os;
-}
 
 template<typename T>
 inline std::ostream &operator<<(std::ostream &os, const SparseMatrix<T> &mtxS) {

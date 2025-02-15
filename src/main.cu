@@ -118,11 +118,8 @@ int main(int argc, char *argv[]) {
     Matrix<float> matrixA(matrixS.row(), K, MatrixStorageOrder::row_major);
     matrixA.makeData(matrixA.row(), K);
 
-    Matrix<float> matrixB(K, matrixS.col(), MatrixStorageOrder::row_major);
+    Matrix<float> matrixB(K, matrixS.col(), MatrixStorageOrder::col_major);
     matrixB.makeData(K, matrixS.col());
-
-//    matrixA.changeStorageOrder();
-//    matrixB.changeStorageOrder();
 
     if (matrixA.storageOrder() == MatrixStorageOrder::row_major) { printf("[matrixA storageOrder : row_major]\n"); }
     else { printf("[matrixA storageOrder : col_major]\n"); }

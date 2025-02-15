@@ -43,28 +43,33 @@ void cuSparseSDDMM(const Matrix<float> &matrixA,
 
         const int numThreadPerBlock = 1024;
         kernel::convertDataType<<< (matrixA.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
-            matrixA.size(), matrixA_values_dev.data(), matrixA_values_convertedType_dev.data());
+                matrixA.size(), matrixA_values_dev.data(), matrixA_values_convertedType_dev.data());
         kernel::convertDataType<<< (matrixB.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
-            matrixB.size(), matrixB_values_dev.data(), matrixB_values_convertedType_dev.data());
+                matrixB.size(), matrixB_values_dev.data(), matrixB_values_convertedType_dev.data());
     }
 
     // Create dense matrix A
+    const auto CUSPARSE_ORDER_A = matrixA.storageOrder() == row_major ?
+                                  CUSPARSE_ORDER_ROW : CUSPARSE_ORDER_COL;
     cusparseCreateDnMat(&_mtxA,
                         matrixA.row(),
                         matrixA.col(),
                         matrixA.leadingDimension(),
                         matrixA_values_convertedType_dev.data(),
                         CUDA_R_16F,
-                        CUSPARSE_ORDER_ROW);
+                        CUSPARSE_ORDER_A);
 
     // Create dense matrix B
+    const auto CUSPARSE_ORDER_B = matrixB.storageOrder() == row_major ?
+                                  CUSPARSE_ORDER_ROW : CUSPARSE_ORDER_COL;
     cusparseCreateDnMat(&_mtxB,
                         matrixB.row(),
                         matrixB.col(),
                         matrixB.leadingDimension(),
                         matrixB_values_convertedType_dev.data(),
                         CUDA_R_16F,
-                        CUSPARSE_ORDER_ROW);
+                        CUSPARSE_ORDER_B);
+
 
     // Create sparse matrix S in CSR format
     dev::vector<UIN> mtxS_offsets_dev(matrixS.rowOffsets());
@@ -81,21 +86,21 @@ void cuSparseSDDMM(const Matrix<float> &matrixA,
     void *dBuffer = NULL;
     size_t bufferSize = 0;
     cusparseSDDMM_bufferSize(
-        handle,
-        CUSPARSE_OPERATION_NON_TRANSPOSE,
-        CUSPARSE_OPERATION_NON_TRANSPOSE,
-        &alpha, _mtxA, _mtxB, &beta, _mtxS, CUDA_R_32F,
-        CUSPARSE_SDDMM_ALG_DEFAULT, &bufferSize);
+            handle,
+            CUSPARSE_OPERATION_NON_TRANSPOSE,
+            CUSPARSE_OPERATION_NON_TRANSPOSE,
+            &alpha, _mtxA, _mtxB, &beta, _mtxS, CUDA_R_32F,
+            CUSPARSE_SDDMM_ALG_DEFAULT, &bufferSize);
 
     cudaMalloc(&dBuffer, bufferSize);
 
     // execute preprocess (optional)
     cusparseSDDMM_preprocess(
-        handle,
-        CUSPARSE_OPERATION_NON_TRANSPOSE,
-        CUSPARSE_OPERATION_NON_TRANSPOSE,
-        &alpha, _mtxA, _mtxB, &beta, _mtxS, CUDA_R_32F,
-        CUSPARSE_SDDMM_ALG_DEFAULT, dBuffer);
+            handle,
+            CUSPARSE_OPERATION_NON_TRANSPOSE,
+            CUSPARSE_OPERATION_NON_TRANSPOSE,
+            &alpha, _mtxA, _mtxB, &beta, _mtxS, CUDA_R_32F,
+            CUSPARSE_SDDMM_ALG_DEFAULT, dBuffer);
 
     // execute SDDMM
     cusparseSDDMM(handle,
