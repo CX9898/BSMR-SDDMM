@@ -90,7 +90,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_matrixA_row_matrixB_row(const UIN M,
                                                                    const UIN *blockValues,
                                                                    float *matrixP) {
     constexpr int aTileSMEMSize = WMMA_M * WMMA_N;
-    constexpr int bTileSMEMSize = WMMA_M * WMMA_N * 2;
+    constexpr int bTileSMEMSize = WMMA_K * WMMA_N * 2;
 
     __shared__ half aTileSMEM[aTileSMEMSize];
     __shared__ half bTileSMEM[bTileSMEMSize];
@@ -192,7 +192,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_matrixA_row_matrixB_col(const UIN M,
                                                                    const UIN *blockValues,
                                                                    float *matrixP) {
     constexpr int aTileSMEMSize = WMMA_M * WMMA_N;
-    constexpr int bTileSMEMSize = WMMA_M * WMMA_N * 2;
+    constexpr int bTileSMEMSize = WMMA_K * WMMA_N * 2;
 
     __shared__ half aTileSMEM[aTileSMEMSize];
     __shared__ half bTileSMEM[bTileSMEMSize];
@@ -223,6 +223,8 @@ __global__ void sddmm_gpu_rebell_m16n16k16_matrixA_row_matrixB_col(const UIN M,
             reorderedColOffset[rowPanelId] + BLOCK_COL_SIZE * colBlockIter;
         const UIN endIndexOfReorderedColsCurrentPanel = reorderedColOffset[rowPanelId + 1];
 
+        const UIN reorderedColIndex = startIndexOfReorderedColsCurrentIter + laneId;
+
         // Loop over K
         for (int kIter = 0; kIter < K; kIter += WMMA_K) {
             // Load matrix A into shared memory, each thread loads 4 elements, conflict-free access
@@ -237,7 +239,6 @@ __global__ void sddmm_gpu_rebell_m16n16k16_matrixA_row_matrixB_col(const UIN M,
             }
 
             // Load matrix B data into shared memory, each thread loads 8 elements, conflict-free access
-            const UIN reorderedColIndex = startIndexOfReorderedColsCurrentIter + laneId;
 #pragma unroll
             for (int iter = 0; iter < 8; ++iter) {
                 const UIN bRowId = kIter + warpId * 8 + iter;
@@ -296,7 +297,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_out_kIter_matrixA_row_matrixB_row(con
                                                                              const UIN *blockValues,
                                                                              float *matrixP) {
     constexpr int aTileSMEMSize = WMMA_M * WMMA_N;
-    constexpr int bTileSMEMSize = WMMA_M * WMMA_N * 2;
+    constexpr int bTileSMEMSize = WMMA_K * WMMA_N * 2;
 
     __shared__ half aTileSMEM[aTileSMEMSize];
     __shared__ half bTileSMEM[bTileSMEMSize];
@@ -398,7 +399,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_out_kIter_matrixA_row_matrixB_col(con
                                                                              const UIN *blockValues,
                                                                              float *matrixP) {
     constexpr int aTileSMEMSize = WMMA_M * WMMA_N;
-    constexpr int bTileSMEMSize = WMMA_M * WMMA_N * 2;
+    constexpr int bTileSMEMSize = WMMA_K * WMMA_N * 2;
 
     __shared__ half aTileSMEM[aTileSMEMSize];
     __shared__ half bTileSMEM[bTileSMEMSize];
