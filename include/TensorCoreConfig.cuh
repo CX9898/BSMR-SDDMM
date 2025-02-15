@@ -78,16 +78,6 @@ enum WarpOrder {
 };
 
 /**
- * Used to record where elements in a matrix tile are stored in the cuda::wmma::fragment class
- **/
-struct FragmentInformation {
-  int laneId_ = -1;
-  int index_ = -1;
-};
-
-
-
-/**
  * Configuration class for matrix multiplication using Tensor core
  **/
 // TODO: Adjust according to WarpOrder
@@ -208,9 +198,6 @@ class TensorCoreConfig {
   inline __device__ UIN aOffsetIndex() const {
       return localWarpId_ / NUM_OF_WARP_X_PER_BLOCK;
   }
-  inline __device__ void calculateFragmentLaneAndIndex(const UIN tileRow, const UIN tileCol,
-                                                       const UIN row, const UIN col,
-                                                       FragmentInformation &fragmentInformation);
 
  private:
   WarpOrder warpOrder_;
@@ -231,7 +218,7 @@ class TensorCoreConfig {
   UIN blockStarCol_;
 };
 
-//__device__ void positionCalculator_m16n16k16(const UIN tileRow, const UIN tileCol,
+//__device__ void calculateFragmentLaneAndIndex_m16n16k16(const UIN tileRow, const UIN tileCol,
 //                                   const UIN row, const UIN col,
 //                                   int &laneId_, int &idx) {
 //    if (tileRow > row || tileCol > col || tileRow + WMMA_M <= row || tileCol + WMMA_N <= col) {
@@ -263,9 +250,9 @@ class TensorCoreConfig {
 //    }
 //}
 
-inline __device__ void positionCalculator_m16n16k16(const UIN tileRow, const UIN tileCol,
+inline __host__ __device__ void calculateFragmentLaneAndIndex_m16n16k16(const UIN tileRow, const UIN tileCol,
                                                     const UIN row, const UIN col,
-                                                    FragmentInformation &fragmentInformation) {
+                                                    UIN &laneId, UIN &indexOfFragment) {
     if (tileRow > row || tileCol > col || tileRow + WMMA_M <= row || tileCol + WMMA_N <= col) {
         return;
     }
@@ -275,12 +262,12 @@ inline __device__ void positionCalculator_m16n16k16(const UIN tileRow, const UIN
     const int beginLane = localRow % 8 * 4;
     const int isBigRow = localRow / 8;
     const int isBigCol = localCol / 8;
-    fragmentInformation.laneId_ = beginLane + localCol % 8 / 2;
-    fragmentInformation.index_ = isBigRow * 2 + isBigCol * 4 + localCol % 2;
+    laneId = beginLane + localCol % 8 / 2;
+    indexOfFragment = isBigRow * 2 + isBigCol * 4 + localCol % 2;
 }
-inline __device__ void positionCalculator_m32n8k16(const UIN tileRow, const UIN tileCol,
+inline __host__ __device__ void calculateFragmentLaneAndIndex_m32n8k16(const UIN tileRow, const UIN tileCol,
                                                    const UIN row, const UIN col,
-                                                   FragmentInformation &fragmentInformation) {
+                                                   UIN &laneId, UIN &indexOfFragment) {
     if (tileRow > row || tileCol > col || tileRow + WMMA_M <= row || tileCol + WMMA_N <= col) {
         return;
     }
@@ -290,12 +277,12 @@ inline __device__ void positionCalculator_m32n8k16(const UIN tileRow, const UIN 
     const int beginLane = localRow % 8 * 4;
     const int groupId = localRow / 8;
     const int isColOdd = localCol % 2;
-    fragmentInformation.laneId_ = beginLane + localCol / 2;
-    fragmentInformation.index_ = groupId * 2 + isColOdd;
+    laneId = beginLane + localCol / 2;
+    indexOfFragment = groupId * 2 + isColOdd;
 }
-inline __device__ void positionCalculator_m8n32k16(const UIN tileRow, const UIN tileCol,
+inline __host__ __device__ void calculateFragmentLaneAndIndex_m8n32k16(const UIN tileRow, const UIN tileCol,
                                                    const UIN row, const UIN col,
-                                                   FragmentInformation &fragmentInformation) {
+                                                   UIN &laneId, UIN &indexOfFragment) {
     if (tileRow > row || tileCol > col || tileRow + WMMA_M <= row || tileCol + WMMA_N <= col) {
         return;
     }
@@ -305,23 +292,23 @@ inline __device__ void positionCalculator_m8n32k16(const UIN tileRow, const UIN 
     const int beginLane = localCol % 8 * 4;
     const int groupId = localCol / 8;
     const int isColOdd = localRow % 2;
-    fragmentInformation.laneId_ = beginLane + localRow / 2;
-    fragmentInformation.index_ = groupId * 2 + isColOdd;
+    laneId = beginLane + localRow / 2;
+    indexOfFragment = groupId * 2 + isColOdd;
 }
 
-inline __device__ void TensorCoreConfig::calculateFragmentLaneAndIndex(const UIN tileRow, const UIN tileCol,
+inline __host__ __device__ void calculateFragmentLaneAndIndex(const UIN tileRow, const UIN tileCol,
                                                                        const UIN row, const UIN col,
-                                                                       FragmentInformation &fragmentInformation) {
+                                                                       UIN &laneId, UIN &indexOfFragment) {
 #ifdef WMMA_16_16_16
-    positionCalculator_m16n16k16(tileRow, tileCol, row, col, fragmentInformation);
+    calculateFragmentLaneAndIndex_m16n16k16(tileRow, tileCol, row, col, laneId, indexOfFragment);
 #endif //WMMA_16_16_16
 
 #ifdef WMMA_32_16_16
-    positionCalculator_m32n8k16(tileRow, tileCol, row, col, fragmentInformation);
+    calculateFragmentLaneAndIndex_m32n8k16(tileRow, tileCol, row, col, laneId, indexOfFragment);
 #endif //WMMA_32_16_16
 
 #ifdef WMMA_8_32_16
-    positionCalculator_m8n32k16(tileRow, tileCol, row, col, fragmentInformation);
+    calculateFragmentLaneAndIndex_m8n32k16(tileRow, tileCol, row, col, laneId, indexOfFragment);
 #endif //WMMA_8_32_16
 }
 
