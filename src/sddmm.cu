@@ -9,7 +9,8 @@
 void sddmm(const Matrix<float> &matrixA,
            const Matrix<float> &matrixB,
            const sparseMatrix::CSR<float> &matrixS,
-           sparseMatrix::CSR<float> &matrixP) {
+           sparseMatrix::CSR<float> &matrixP,
+           Logger &logger) {
 
     // Reordering
     float rebell_time;
@@ -17,7 +18,7 @@ void sddmm(const Matrix<float> &matrixA,
 
     printf("numBlock = %d , average density : %f\n", rebell.getNumBlocks(), rebell.calculateAverageDensity());
 
-    printf("[zcx_other : %.2f]\n", rebell_time);
+    logger.zcx_other() = rebell_time;
 
 //    // Error check
 //    check_rebell(matrixS, rebell);
@@ -26,7 +27,7 @@ void sddmm(const Matrix<float> &matrixA,
     float sddmm_time;
     sddmm_gpu_rebell(matrixA, matrixB, matrixS, rebell, matrixP, sddmm_time);
 
-    printf("[zcx_sddmm : %.2f]\n", sddmm_time);
+    logger.zcx_sddmm() = sddmm_time;
 }
 
 bool check_sddmm(const Matrix<float> &matrixA,

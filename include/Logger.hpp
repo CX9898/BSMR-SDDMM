@@ -4,45 +4,92 @@
 #include <iostream>
 #include <string>
 
+#include "Matrix.hpp"
+
 class Logger {
- public:
+public:
+    Logger() {
+#ifdef NDEBUG
+        buildType_ = "Release";
+#endif
 
-  void printLogInformation();
+#ifndef NDEBUG
+        buildType_ = "Debug";
+#endif
 
-  std::string checkData_;
-  size_t numError;
+        cudaDeviceProp deviceProp{};
+        cudaGetDeviceProperties(&deviceProp, 0);
+        gpu_ =  deviceProp.name;
 
-  std::string gpu_;
-  std::string buildType_;
+        matrixA_type_ = typeid(MATRIX_A_TYPE).name();
+        matrixB_type_ = typeid(MATRIX_B_TYPE).name();
+        matrixC_type_ = typeid(MATRIX_C_TYPE).name();
 
-  size_t wmma_m_;
-  size_t wmma_n_;
-  size_t wmma_k_;
+        wmma_m_ = WMMA_M;
+        wmma_n_ = WMMA_N;
+        wmma_k_ = WMMA_K;
+    };
 
-  std::string matrixA_type_;
-  std::string matrixB_type_;
-  std::string matrixC_type_;
+    template<typename T>
+    inline void getInformation(const sparseMatrix::COO<T> &matrix);
 
-  std::string matrixA_storageOrder_;
-  std::string matrixB_storageOrder_;
-  std::string matrixC_storageOrder_;
+    template<typename T>
+    inline void getInformation(const Matrix<T> &matrixA, const Matrix<T> &matrixB){
+        K_ = matrixA.col();
+        matrixA_storageOrder_ = matrixA.storageOrder() == MatrixStorageOrder::row_major ? "row_major" : "col_major";
+        matrixB_storageOrder_ = matrixB.storageOrder() == MatrixStorageOrder::row_major ? "row_major" : "col_major";
 
-  size_t M_;
-  size_t N_;
-  size_t K_;
-  size_t NNZ_;
-  float sparsity_;
+    }
 
-  float isratnisa_sddmm_;
-  float zcx_sddmm_;
+    inline float &zcx_sddmm(){ return zcx_sddmm_;}
+    inline float &zcx_other(){ return zcx_other_;}
+    inline float &cuSparse(){ return cuSparse_;}
 
-  float isratnisa_other_;
-  float zcx_other_;
+    inline void printLogInformation();
 
-  float isratnisa_;
-  float zcx_;
-  float cuSparse_;
+private:
+    std::string checkData_;
+    size_t numError;
+
+    std::string gpu_;
+    std::string buildType_;
+
+    size_t wmma_m_;
+    size_t wmma_n_;
+    size_t wmma_k_;
+
+    std::string matrixA_type_;
+    std::string matrixB_type_;
+    std::string matrixC_type_;
+
+    std::string matrixA_storageOrder_;
+    std::string matrixB_storageOrder_;
+
+    size_t M_;
+    size_t N_;
+    size_t K_;
+    size_t NNZ_;
+    float sparsity_;
+
+    float isratnisa_sddmm_;
+    float zcx_sddmm_;
+
+    float isratnisa_other_;
+    float zcx_other_;
+
+    float isratnisa_;
+    float zcx_;
+    float cuSparse_;
 };
+
+template<typename T>
+void Logger::getInformation(const sparseMatrix::COO<T> &matrix) {
+    M_ = matrix.row();
+    N_ = matrix.col();
+    NNZ_ = matrix.nnz();
+    sparsity_ = matrix.getSparsity();
+
+}
 
 void Logger::printLogInformation() {
     printf("[Build type : %s]\n", buildType_.c_str());
@@ -54,9 +101,9 @@ void Logger::printLogInformation() {
     printf("[NNZ : %ld], ", NNZ_);
     printf("[sparsity : %.2f%%]\n", sparsity_ * 100);
 
-    printf("[matrixA type : %s]\n", typeid(MATRIX_A_TYPE).name());
-    printf("[matrixB type : %s]\n", typeid(MATRIX_B_TYPE).name());
-    printf("[matrixC type : %s]\n", typeid(MATRIX_C_TYPE).name());
+    printf("[matrixA type : %s]\n", matrixA_type_.c_str());
+    printf("[matrixB type : %s]\n", matrixB_type_.c_str());
+    printf("[matrixC type : %s]\n", matrixC_type_.c_str());
 
     printf("[cuSparse : %.2f]\n", cuSparse_);
 
@@ -64,8 +111,6 @@ void Logger::printLogInformation() {
 
     printf("[zcx_sddmm : %.2f]\n", zcx_sddmm_);
     printf("[zcx_other : %.2f]\n", zcx_other_);
+    zcx_ = zcx_other_ + zcx_sddmm_;
     printf("[zcx : %.2f]\n", zcx_);
-
-    printf("[checkData : NO PASS Error rate : %2.2f%%]\n",
-           static_cast<float>(numError) / static_cast<float>(NNZ_) * 100);
 }

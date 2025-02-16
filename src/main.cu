@@ -6,6 +6,7 @@
 #include "util.hpp"
 #include "cuSparseSDDMM.hpp"
 #include "sddmm.hpp"
+#include "Logger.hpp"
 
 const std::string folderPath("../dataset/");
 //const std::string folderPath("./");
@@ -93,27 +94,8 @@ int main(int argc, char *argv[]) {
         }
     }
 
-#ifdef NDEBUG
-    printf("[Build type : Release]\n");
-#endif
-
-#ifndef NDEBUG
-    printf("[Build type : Debug]\n");
-#endif
-
-    cudaDeviceProp deviceProp{};
-    cudaGetDeviceProperties(&deviceProp, 0);
-    printf("[Device : %s]\n", deviceProp.name);
-
-    printf("[M : %d], ", matrixS.row());
-    printf("[N : %d], ", matrixS.col());
-    printf("[K : %ld], ", K);
-    printf("[NNZ : %d], ", matrixS.nnz());
-    printf("[sparsity : %.2f%%]\n", matrixS.getSparsity() * 100);
-
-    printf("[matrixA type : %s]\n", typeid(MATRIX_A_TYPE).name());
-    printf("[matrixB type : %s]\n", typeid(MATRIX_B_TYPE).name());
-    printf("[matrixC type : %s]\n", typeid(MATRIX_C_TYPE).name());
+    Logger logger;
+    logger.getInformation(matrixS);
 
     Matrix<float> matrixA(matrixS.row(), K, MatrixStorageOrder::row_major);
     matrixA.makeData(matrixA.row(), K);
@@ -121,21 +103,20 @@ int main(int argc, char *argv[]) {
     Matrix<float> matrixB(K, matrixS.col(), MatrixStorageOrder::col_major);
     matrixB.makeData(K, matrixS.col());
 
-    if (matrixA.storageOrder() == MatrixStorageOrder::row_major) { printf("[matrixA storageOrder : row_major]\n"); }
-    else { printf("[matrixA storageOrder : col_major]\n"); }
-    if (matrixB.storageOrder() == MatrixStorageOrder::row_major) { printf("[matrixB storageOrder : row_major]\n"); }
-    else { printf("[matrixB storageOrder : col_major]\n"); }
+    logger.getInformation(matrixA, matrixB);
 
     const sparseMatrix::CSR<float> matrixS_csr(matrixS.getCsrData());
 
     // cuSparse library
     sparseMatrix::CSR<float> matrixP_cuSparse(matrixS_csr);
     const float alpha = 1.0f, beta = 0.0f;
-    cuSparseSDDMM(matrixA, matrixB, matrixS_csr, alpha, beta, matrixP_cuSparse);
+    cuSparseSDDMM(matrixA, matrixB, matrixS_csr, alpha, beta, matrixP_cuSparse, logger);
 
     // sddmm
     sparseMatrix::CSR<float> matrixP(matrixS_csr);
-    sddmm(matrixA, matrixB, matrixS_csr, matrixP);
+    sddmm(matrixA, matrixB, matrixS_csr, matrixP, logger);
+
+    logger.printLogInformation();
 
     // Error check
     printf("check cuSparseSDDMM and sddmm : \n");

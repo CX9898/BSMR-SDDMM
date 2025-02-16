@@ -47,8 +47,6 @@ class Matrix {
         storageOrder_(matrixOrder) {
       leadingDimension_ = matrixOrder == MatrixStorageOrder::row_major ? col : row;
       values_.resize(row * col);
-      rowBeforeChange_ = row;
-      colBeforeChange_ = col;
   }
 
   Matrix(UIN row,
@@ -63,8 +61,6 @@ class Matrix {
       if (row * col != values.size()) {
           std::cout << "Warning! Matrix initialization mismatch" << std::endl;
       }
-      rowBeforeChange_ = row;
-      colBeforeChange_ = col;
   }
 
   Matrix(const sparseMatrix::COO<T> &matrixS);
@@ -126,12 +122,6 @@ class Matrix {
       return values_[idx];
   }
 
-  /**
-   * tensor core mode
-   **/
-  void openTensorCoreMode(const TensorCoreConfig tensorCoreConfig, MatrixMultiplicationOrder multiplicationOrder);
-  void closeTensorCoreMode();
-
  private:
   UIN row_;
   UIN col_;
@@ -139,10 +129,6 @@ class Matrix {
   UIN leadingDimension_;
 
   std::vector<T> values_;
-
-  bool tensorCoreMode_ = false;
-  UIN rowBeforeChange_;
-  UIN colBeforeChange_;
 };
 
 template<typename T>

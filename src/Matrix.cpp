@@ -33,9 +33,6 @@ Matrix<T>::Matrix(const sparseMatrix::COO<T> &matrixS) {
 
         values_[curRow * ld + curCol] = curVal;
     }
-
-    rowBeforeChange_ = row_;
-    colBeforeChange_ = col_;
 }
 
 template<typename T>
@@ -74,15 +71,9 @@ bool Matrix<T>::initializeValue(const std::vector<T> &src) {
 
 template<typename T>
 void Matrix<T>::changeStorageOrder() {
-    const auto oldTensorCoreMode = tensorCoreMode_;
     const auto oldMajorOrder = storageOrder_;
     const auto oldLd = leadingDimension_;
     const auto &oldValues = values_;
-
-    if (oldTensorCoreMode) {
-        // TODO
-        std::cout << "Warning! Try changeStorageOrder bug the tensor core mode is not supported" << std::endl;
-    }
 
     MatrixStorageOrder newMatrixOrder;
     UIN newLd;
@@ -211,77 +202,6 @@ T Matrix<T>::getOneValue(UIN row, UIN col) const {
     } else {
         return values_[col * leadingDimension_ + row];
     }
-}
-
-template<typename T>
-void Matrix<T>::openTensorCoreMode(const TensorCoreConfig tensorCoreConfig,
-                                   MatrixMultiplicationOrder multiplicationOrder) {
-    if (tensorCoreMode_) {
-        return;
-    }
-    tensorCoreMode_ = true;
-    rowBeforeChange_ = row_;
-    colBeforeChange_ = col_;
-
-    if (multiplicationOrder == MatrixMultiplicationOrder::left_multiplication) {
-        row_ = tensorCoreConfig.MForTensorCore(rowBeforeChange_);
-        col_ = tensorCoreConfig.KForTensorCore(colBeforeChange_);
-    } else {
-        row_ = tensorCoreConfig.KForTensorCore(rowBeforeChange_);
-        col_ = tensorCoreConfig.NForTensorCore(colBeforeChange_);
-    }
-
-    if (storageOrder_ == MatrixStorageOrder::row_major) {
-        leadingDimension_ = col_;
-    } else {
-        leadingDimension_ = row_;
-    }
-
-    const UIN rowComplement = row_ - rowBeforeChange_;
-    const UIN colComplement = col_ - colBeforeChange_;
-
-    if (storageOrder_ == MatrixStorageOrder::row_major) {
-        for (UIN rowIter = 0; rowIter < rowBeforeChange_; ++rowIter) {
-            values_.insert(values_.begin() + rowIter * leadingDimension_ + colBeforeChange_, colComplement, 0);
-        }
-        values_.insert(values_.end(), rowComplement * col_, 0);
-    } else {
-        for (UIN colIter = 0; colIter < colBeforeChange_; ++colIter) {
-            values_.insert(values_.begin() + colIter * leadingDimension_ + rowBeforeChange_, rowComplement, 0);
-        }
-        values_.insert(values_.end(), colComplement * row_, 0);
-    }
-}
-
-template<typename T>
-void Matrix<T>::closeTensorCoreMode() {
-    if (!tensorCoreMode_) {
-        return;
-    }
-    tensorCoreMode_ = false;
-
-    const UIN rowComplement = row_ < rowBeforeChange_ ? rowBeforeChange_ - row_ : row_ - rowBeforeChange_;
-    const UIN colComplement = col_ < colBeforeChange_ ? colBeforeChange_ - col_ : col_ - colBeforeChange_;
-
-    row_ = rowBeforeChange_;
-    col_ = colBeforeChange_;
-    if (storageOrder_ == MatrixStorageOrder::row_major) {
-        leadingDimension_ = col_;
-    } else {
-        leadingDimension_ = row_;
-    }
-    if (storageOrder_ == MatrixStorageOrder::row_major) {
-        for (UIN rowIter = 0; rowIter < rowBeforeChange_; ++rowIter) {
-            const auto curRowBeginIter = values_.begin() + rowIter * leadingDimension_ + colBeforeChange_;
-            values_.erase(curRowBeginIter, curRowBeginIter + colComplement);
-        }
-    } else {
-        for (UIN colIter = 0; colIter < colBeforeChange_; ++colIter) {
-            const auto curColBeginIter = values_.begin() + colIter * leadingDimension_ + rowBeforeChange_;
-            values_.erase(curColBeginIter, curColBeginIter + rowComplement);
-        }
-    }
-    values_.resize(row_ * col_);
 }
 
 void getCsrRowOffsets(const UIN row, const std::vector<UIN> &rowIndices, std::vector<UIN> &rowOffsets) {

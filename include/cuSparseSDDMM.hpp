@@ -10,6 +10,7 @@
 #include "host.hpp"
 #include "checkData.hpp"
 #include "kernel.cuh"
+#include "Logger.hpp"
 
 #define CHECK_CUSPARSE(func)                                                   \
 {                                                                              \
@@ -26,7 +27,8 @@ void cuSparseSDDMM(const Matrix<float> &matrixA,
                    const sparseMatrix::CSR<float> &matrixS,
                    const float alpha,
                    const float beta,
-                   sparseMatrix::CSR<float> &matrixP) {
+                   sparseMatrix::CSR<float> &matrixP,
+                   Logger &logger) {
 
     cusparseHandle_t handle;
     cusparseDnMatDescr_t _mtxA;
@@ -110,7 +112,8 @@ void cuSparseSDDMM(const Matrix<float> &matrixA,
                   CUSPARSE_SDDMM_ALG_DEFAULT, dBuffer);
 
     timer.endClock();
-    printf("[cuSparse : %.2f]\n", timer.getTime());
+
+    logger.cuSparse() = timer.getTime();
 
     matrixP.setValues() = d2h(mtxS_values_dev);
 
