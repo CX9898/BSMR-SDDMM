@@ -13,7 +13,9 @@ void sddmm(const Matrix<float> &matrixA,
 
     // Reordering
     float rebell_time;
-    ReBELL rebell(matrixS,rebell_time);
+    ReBELL rebell(matrixS, rebell_time);
+
+    printf("numBlock = %d , average density : %f\n", rebell.getNumBlocks(), rebell.calculateAverageDensity());
 
     printf("[zcx_other : %.2f]\n", rebell_time);
 

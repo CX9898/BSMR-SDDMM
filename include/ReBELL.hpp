@@ -38,10 +38,15 @@ class ReBELL {
   UIN calculateRowPanelIdByColIndex(UIN reorderedColIndex) const;
 
   // Calculate the localRow and localCol by blockValueIndex
-  std::pair<UIN, UIN> calculateLocalRowColByColIndex(UIN blockValueIndex) const;
+  std::pair<UIN, UIN> calculateLocalRowColByBlockValueIndex(UIN blockValueIndex) const;
 
   // Calculate the row and col by blockValueIndex
   std::pair<UIN, UIN> calculateRowColByBlockValueIndex(UIN blockValueIndex) const;
+
+  UIN getNumBlocks() const { return blockRowOffsets().back(); }
+
+  // Calculate the average density of all blocks
+  float calculateAverageDensity();
 
  private:
   UIN numRowPanels_;
@@ -73,3 +78,5 @@ class ReBELL {
 
 // Error checking
 bool check_rebell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &rebell);
+
+UIN calculateNumDenseBlock(const ReBELL& rebell);
