@@ -7,7 +7,6 @@
 #include "parallelAlgorithm.cuh"
 
 void ReBELL::colReordering(const sparseMatrix::CSR<float> &matrix) {
-    numRowPanels_ = std::ceil(static_cast<float>(reorderedRows_.size()) / ROW_PANEL_SIZE);
     std::vector<UIN> numOfNonZeroColSegmentInEachRowPanel(numRowPanels_, 0);
     std::vector<std::vector<UIN>>
         colsInEachRowPanel_sparse(numRowPanels_, std::vector<UIN>(matrix.col())); // Containing empty columns

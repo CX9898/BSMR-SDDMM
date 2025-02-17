@@ -106,7 +106,7 @@ void Logger::printLogInformation() {
     printf("[matrixC type : %s]\n", matrixC_type_.c_str());
 
     printf("[matrixA storageOrder : %s]\n", matrixA_storageOrder_.c_str());
-    printf("[matrixB storageOrder : %s]\n]", matrixB_storageOrder_.c_str());
+    printf("[matrixB storageOrder : %s]\n", matrixB_storageOrder_.c_str());
 
     printf("[cuSparse : %.2f]\n", cuSparse_);
 

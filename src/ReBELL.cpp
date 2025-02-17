@@ -25,6 +25,8 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
     }
     printf("rowReordering time : %f ms\n", rowReordering_time);
 
+    numRowPanels_ = std::ceil(static_cast<float>(reorderedRows_.size()) / ROW_PANEL_SIZE);
+
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
     // column reordering
@@ -32,6 +34,15 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
     timeCalculator.endClock();
     float colReordering_time = timeCalculator.getTime();
     printf("colReordering time : %f ms\n", colReordering_time);
+
+    // Calculate the maximum number of column blocks in a row panel
+    maxNumColBlocks_ = 0;
+    for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
+        const UIN numBlocksCurrentRowPanel = std::ceil(
+            static_cast<float>(reorderedColOffsets_[rowPanelId + 1] - reorderedColOffsets()[rowPanelId])
+                / BLOCK_COL_SIZE);
+        maxNumColBlocks_ = std::max(maxNumColBlocks_, numBlocksCurrentRowPanel);
+    }
 
     timeCalculator.startClock();
 

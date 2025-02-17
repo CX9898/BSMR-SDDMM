@@ -25,6 +25,7 @@ class ReBELL {
   ReBELL(const sparseMatrix::CSR<float> &matrix, float &time);
 
   UIN numRowPanels() const { return numRowPanels_; }
+  UIN maxNumColBlocks() const { return maxNumColBlocks_; }
   const std::vector<UIN> &reorderedRows() const { return reorderedRows_; }
   const std::vector<UIN> &reorderedCols() const { return reorderedCols_; }
   const std::vector<UIN> &reorderedColOffsets() const { return reorderedColOffsets_; }
@@ -50,6 +51,7 @@ class ReBELL {
 
  private:
   UIN numRowPanels_;
+  UIN maxNumColBlocks_;
   std::vector<UIN> reorderedRows_;
   std::vector<UIN> reorderedCols_;
   std::vector<UIN> reorderedColOffsets_;
@@ -67,11 +69,6 @@ class ReBELL {
   void colReordering(const sparseMatrix::CSR<float> &matrix);
 };
 
-// Error checking
-bool check_rebell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &rebell);
-
-UIN calculateNumDenseBlock(const ReBELL &rebell);
-
 /**
  * @funcitonName: rowReordering
  * @functionInterpretation: Sort rows by row similarity
@@ -80,6 +77,11 @@ UIN calculateNumDenseBlock(const ReBELL &rebell);
  * @output: Update `reorderingRows_`.
  **/
 void rowReordering(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &rows, float &time);
+
+// Error checking
+bool check_rebell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &rebell);
+
+UIN calculateNumDenseBlock(const ReBELL &rebell);
 
 std::vector<int> bsa_rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
                                        float alpha,
