@@ -30,6 +30,9 @@ message(STATUS "Src files: ${SRC_FILES}")
 # Add generate target
 add_executable(${PROJECT_NAME})
 
+# Set the CUDA separable compilation property
+set_target_properties(${PROJECT_NAME} PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
 # Link the source file to the build target
 target_sources(${PROJECT_NAME} PRIVATE ${SRC_FILES})
 

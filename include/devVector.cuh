@@ -11,6 +11,7 @@ class vector {
  public:
   vector() : size_(0), data_(nullptr) {};
   vector(size_t size);
+  vector(size_t size, T value);
   vector(const vector<T> &src);
   vector(const std::vector<T> &src);
 
@@ -58,6 +59,17 @@ inline vector<T>::vector(const size_t size) : vector() {
         fprintf(stderr, "Device out of memory, memory allocation failed\n");
     }
 }
+
+template<typename T>
+inline vector<T>::vector(size_t size, T value) {
+    size_ = size;
+    cudaMalloc(reinterpret_cast<void **> (&data_), size * sizeof(T));
+    if (!data_) {
+        fprintf(stderr, "Device out of memory, memory allocation failed\n");
+    }
+    cudaMemset(data_, value, sizeof(T) * size_);
+}
+
 template<typename T>
 inline vector<T>::vector(const vector<T> &src) {
     size_ = src.size_;
