@@ -12,7 +12,7 @@
 void encoding(const sparseMatrix::CSR<float> &matrix, std::vector<std::vector<UIN>> &encodings) {
     const int colBlock = std::ceil(static_cast<float>(matrix.col()) / COL_BLOCK_SIZE);
     encodings.resize(matrix.row());
-#pragma omp parallel for dynamic
+#pragma omp parallel for schedule(dynamic)
     for (int row = 0; row < matrix.row(); ++row) {
         encodings[row].resize(colBlock);
         for (int idx = matrix.rowOffsets()[row]; idx < matrix.rowOffsets()[row + 1]; ++idx) {
@@ -25,7 +25,7 @@ void encoding(const sparseMatrix::CSR<float> &matrix, std::vector<std::vector<UI
 void calculateDispersion(const UIN col,
                          const std::vector<std::vector<UIN>> &encodings,
                          std::vector<UIN> &dispersions) {
-#pragma omp parallel for dynamic
+#pragma omp parallel for schedule(dynamic)
     for (int row = 0; row < encodings.size(); ++row) {
         UIN numOfNonZeroColBlocks = 0;
         UIN zeroFillings = 0;
@@ -75,7 +75,7 @@ void clustering(const std::vector<std::vector<UIN>> &encodings,
             continue;
         }
         clusterIds[rows[idx]] = idx;
-#pragma omp parallel for dynamic
+#pragma omp parallel for schedule(dynamic)
         for (int cmpIdx = idx + 1; cmpIdx < encodings.size(); ++cmpIdx) {
             if (clusterIds[rows[cmpIdx]] != -1) {
                 continue;

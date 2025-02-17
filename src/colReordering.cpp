@@ -1,6 +1,7 @@
 #include <numeric>
 #include <cmath>
 #include <unordered_map>
+#include <omp.h>
 
 #include "ReBELL.hpp"
 #include "TensorCoreConfig.cuh"
@@ -10,7 +11,7 @@ void ReBELL::colReordering(const sparseMatrix::CSR<float> &matrix) {
     std::vector<UIN> numOfNonZeroColSegmentInEachRowPanel(numRowPanels_, 0);
     std::vector<std::vector<UIN>>
         colsInEachRowPanel_sparse(numRowPanels_, std::vector<UIN>(matrix.col())); // Containing empty columns
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic)
     for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
         const UIN startIdxOfReorderedRowsCurrentRowPanel = rowPanelId * ROW_PANEL_SIZE;
         const UIN endIdxOfReorderedRowsCurrentRowPanel = std::min(
