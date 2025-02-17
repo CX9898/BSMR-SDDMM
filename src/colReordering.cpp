@@ -31,7 +31,7 @@ void ReBELL::colReordering(const sparseMatrix::CSR<float> &matrix) {
             }
         }
 
-        auto &colIndicesCurrentRowPanel = colsInEachRowPanel_sparse[rowPanelId];
+        std::vector<UIN> &colIndicesCurrentRowPanel = colsInEachRowPanel_sparse[rowPanelId];
         std::iota(colIndicesCurrentRowPanel.begin(), colIndicesCurrentRowPanel.end(), 0);
         host::sort_by_key_descending_order(numOfNonZeroInEachColSegment.data(),
                                            numOfNonZeroInEachColSegment.data() + numOfNonZeroInEachColSegment.size(),

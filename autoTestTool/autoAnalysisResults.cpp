@@ -153,7 +153,7 @@ void ResultsInformation::initInformation(const std::string &line) {
               const size_t beginIdx = line.find(find) + find.size();
               size_t endIdx = beginIdx;
               while (line[endIdx++] != ']') {}
-              output = line.substr(beginIdx, endIdx - beginIdx - 2);
+              output = line.substr(beginIdx, endIdx - beginIdx - 1);
               is_initialized = true;
           }
       }
@@ -166,7 +166,7 @@ void ResultsInformation::initInformation(const std::string &line) {
               const size_t beginIdx = line.find(find) + 1;
               size_t endIdx = beginIdx + 1;
               while (line[endIdx++] != ']') {}
-              output = line.substr(beginIdx, endIdx - beginIdx - 2);
+              output = line.substr(beginIdx, endIdx - beginIdx - 1);
               is_initialized = true;
           }
       }
