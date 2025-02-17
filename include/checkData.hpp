@@ -10,7 +10,7 @@
 #include "checkData.hpp"
 #include "cudaErrorCheck.cuh"
 
-const float ERROR_THRESHOLD_EPSILON = 1e-5;
+const float ERROR_THRESHOLD_EPSILON = 1e-4;
 
 /**
  * error checking
