@@ -20,8 +20,8 @@ void sddmm(const Matrix<float> &matrixA,
 
     logger.zcx_other() = rebell_time;
 
-//    // Error check
-//    check_rebell(matrixS, rebell);
+    // Error check
+    check_rebell(matrixS, rebell);
 
     // sddmm comp by gpu
     float sddmm_time;

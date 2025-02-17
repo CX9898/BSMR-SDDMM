@@ -2,7 +2,7 @@
 
 #include "Matrix.hpp"
 
-constexpr float row_similarity_threshold_alpha = 0.1f;
+constexpr float row_similarity_threshold_alpha = 0.3f;
 
 constexpr UIN ROW_PANEL_SIZE = WMMA_M;
 constexpr UIN BLOCK_COL_SIZE = WMMA_N;
@@ -22,7 +22,7 @@ constexpr UIN NULL_VALUE = MAX_UIN;
  **/
 class ReBELL {
  public:
-  ReBELL(const sparseMatrix::CSR<float> &matrix, float& time);
+  ReBELL(const sparseMatrix::CSR<float> &matrix, float &time);
 
   UIN numRowPanels() const { return numRowPanels_; }
   const std::vector<UIN> &reorderedRows() const { return reorderedRows_; }
@@ -58,15 +58,6 @@ class ReBELL {
   std::vector<UIN> blockRowOffsets_;
 
   /**
-   * @funcitonName: rowReordering
-   * @functionInterpretation: Sort rows by row similarity
-   * @input:
-   * `matrix`: Sparse matrix data in CSR format.
-   * @output: Update `reorderingRows_`.
-   **/
-  void rowReordering(const sparseMatrix::CSR<float> &matrix);
-
-  /**
    * @funcitonName: colReordering
    * @functionInterpretation: Divide rows into row panels and sort the columns in each row panel.
    * @input:
@@ -79,4 +70,19 @@ class ReBELL {
 // Error checking
 bool check_rebell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &rebell);
 
-UIN calculateNumDenseBlock(const ReBELL& rebell);
+UIN calculateNumDenseBlock(const ReBELL &rebell);
+
+/**
+ * @funcitonName: rowReordering
+ * @functionInterpretation: Sort rows by row similarity
+ * @input:
+ * `matrix`: Sparse matrix data in CSR format.
+ * @output: Update `reorderingRows_`.
+ **/
+void rowReordering(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &rows, float &time);
+
+std::vector<int> bsa_rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
+                                       float alpha,
+                                       UIN block_size,
+                                       float &reordering_time,
+                                       int &cluster_cnt);
