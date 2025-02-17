@@ -107,7 +107,7 @@ void Logger::printLogInformation() {
 
     printf("[cuSparse : %.2f]\n", cuSparse_);
 
-    printf("[WMMA_M : %d], [WMMA_N : %d], [WMMA_K : %d]\n", wmma_m_, wmma_n_, wmma_k_);
+    printf("[WMMA_M : %zu], [WMMA_N : %zu], [WMMA_K : %zu]\n", wmma_m_, wmma_n_, wmma_k_);
 
     printf("[zcx_sddmm : %.2f]\n", zcx_sddmm_);
     printf("[zcx_other : %.2f]\n", zcx_other_);
