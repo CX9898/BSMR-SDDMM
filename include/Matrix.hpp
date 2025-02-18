@@ -28,6 +28,9 @@ struct CSR;
 
 template<typename T>
 struct COO;
+
+template<typename T>
+struct BELL;
 }
 
 /**
