@@ -61,13 +61,18 @@ class ReBELL {
 };
 
 /**
- * @funcitonName: bsa_rowReordering_cpu
+ * @funcitonName: rowReordering_cpu
  * @functionInterpretation: Sort rows by row similarity
  * @input:
  * `matrix`: Sparse matrix data in CSR format.
  * @output: Update `reorderingRows_`.
  **/
-void bsa_rowReordering_cpu(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &rows, float &time);
+void rowReordering_cpu(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &rows, float &time);
+
+std::vector<int> bsa_rowReordering_cpu(const sparseMatrix::CSR<float> &lhs,
+                                       const float similarity_threshold_alpha,
+                                       const int block_size,
+                                       float &reordering_time);
 
 std::vector<int> bsa_rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
                                        float alpha,

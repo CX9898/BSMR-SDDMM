@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
     }
 #endif // MAKE_MATRIX_DATA
 
-    size_t K = 512;
+    size_t K = 4096;
     sparseMatrix::COO<float> matrixS;
 
     if (argc > 2) {

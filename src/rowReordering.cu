@@ -2,6 +2,8 @@
 #include <omp.h>
 #include <numeric>
 #include <algorithm>
+#include <set>
+#include <queue>
 
 #include "ReBELL.hpp"
 #include "parallelAlgorithm.cuh"
@@ -91,7 +93,7 @@ void clustering(const std::vector<std::vector<UIN>> &encodings,
 //    printf("!!! num = %d\n", num);
 }
 
-void bsa_rowReordering_cpu(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &rows, float &time) {
+void rowReordering_cpu(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &rows, float &time) {
 
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
@@ -138,6 +140,135 @@ void bsa_rowReordering_cpu(const sparseMatrix::CSR<float> &matrix, std::vector<U
 
     timeCalculator.endClock();
     time = timeCalculator.getTime();
+}
+
+float normalized_weighted_jaccard_sim(std::vector<int> A_pattern,
+                                      std::vector<int> B_pattern,
+                                      int current_group_size,
+                                      int block_size) {
+    float score_A = 0.0;
+    float score_B = 0.0;
+
+    float sim_A = 0.0;
+    float sim_B = 0.0;
+
+    float min_sum = 0.0;
+    float max_sum = 0.0;
+
+    for (int i = 0; i < B_pattern.size(); i++) {
+        score_A += A_pattern[i] * A_pattern[i];
+        score_B += B_pattern[i] * B_pattern[i];
+    }
+
+    score_A = sqrt(score_A);
+    score_B = sqrt(score_B);
+
+    if (score_A == 0 && score_B == 0)
+        return 1.0;
+    if (score_A == 0 || score_B == 0)
+        return 0.0;
+
+    for (int i = 0; i < B_pattern.size(); i++) {
+        if (A_pattern[i] == 0 && B_pattern[i] == 0) {
+            continue;
+        }
+
+        sim_A = A_pattern[i] / score_A;
+        sim_B = B_pattern[i] / score_B;
+
+        min_sum += std::min(sim_A, sim_B);
+        max_sum += std::max(sim_A, sim_B);
+    }
+
+    return (min_sum / max_sum);
+}
+
+std::vector<int> merge_rows(std::vector<int> A, std::vector<int> B) {
+    std::vector<int> result(A.size());
+
+    for (int i = 0; i < A.size(); i++) {
+        result[i] = A[i] + B[i];
+    }
+    return result;
+}
+
+std::vector<int> bsa_rowReordering_cpu(const sparseMatrix::CSR<float> &lhs,
+                                       const float similarity_threshold_alpha,
+                                       const int block_size,
+                                       float &reordering_time) {
+    int rows = lhs.row();
+    std::vector<int> row_permutation;
+    std::priority_queue<std::pair<float, int>> row_queue;
+    std::priority_queue<std::pair<float, int>> inner_queue;
+    std::vector<std::vector<int>> patterns(rows, std::vector<int>((rows + block_size - 1) / block_size));
+
+    CudaTimeCalculator timeCalculator;
+    timeCalculator.startClock();
+    for (int r = 0; r < rows; r++) {
+        std::set<int> dense_partition;
+        int score = 0;
+        int start_pos = lhs.rowOffsets()[r];
+        int end_pos = lhs.rowOffsets()[r + 1];
+        int nnz = end_pos - start_pos;
+        if (nnz == 0) {
+            row_permutation.push_back(r);
+            continue;
+        }
+
+        for (int nz = start_pos; nz < end_pos; nz++) {
+            int col = lhs.colIndices()[nz];
+            patterns[r][col / block_size]++;
+            dense_partition.insert(col / block_size);
+        }
+
+        for (int t = 0; t < patterns[r].size(); t++) {
+            if (patterns[r][t]) {
+                score += block_size - patterns[r][t];
+            }
+        }
+
+        row_queue.push(std::make_pair(-1 * (score + (float) dense_partition.size() * nnz), -1 * r));
+    }
+
+    // usleep(100000);
+    int cluster_cnt = 0;
+    while (!row_queue.empty()) {
+        int current_group_size = 1;
+        int i = -1 * row_queue.top().second;
+        row_queue.pop();
+        cluster_cnt++;
+
+        row_permutation.push_back(i);
+
+        std::vector<int> pattern = patterns[i];
+        int j;
+        while (!row_queue.empty()) {
+            auto j_pair = row_queue.top();
+            j = -1 * j_pair.second;
+
+            row_queue.pop();
+
+            std::vector<int> B_pattern = patterns[j];
+
+            float sim = normalized_weighted_jaccard_sim(pattern, B_pattern, current_group_size, block_size);
+
+            if (sim <= similarity_threshold_alpha) {
+                inner_queue.push(j_pair);
+            } else {
+                row_permutation.push_back(j);
+                pattern = merge_rows(pattern, B_pattern);
+                current_group_size++;
+            }
+        }
+
+        inner_queue.swap(row_queue);
+    }
+
+    timeCalculator.endClock();
+    reordering_time = timeCalculator.getTime();
+    std::cout << reordering_time << "ms" << std::endl;
+
+    return row_permutation;
 }
 
 namespace kernel {
