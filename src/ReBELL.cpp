@@ -172,20 +172,35 @@ float ReBELL::calculateAverageDensity() {
                 numNonZero = 0;
             }
         }
-
-//        for (int iter = 0, idxOfBlockValues = startIndexOfBlockValuesCurrentRowPanel;
-//             idxOfBlockValues < endIndexOfBlockValuesCurrentRowPanel; ++iter, ++idxOfBlockValues) {
-//            printf("%d\t", blockValues_[idxOfBlockValues]);
-//            if (iter % BLOCK_COL_SIZE == BLOCK_COL_SIZE - 1) {
-//                printf("\n");
-//            }
-//            if (idxOfBlockValues % BLOCK_SIZE == BLOCK_SIZE - 1) {
-//                printf("\n");
-//            }
-//        }
     }
 
     return density / getNumBlocks();
+}
+
+std::pair<float, float> ReBELL::calculateMaxMinDensity() {
+    float maxDensity = 0.0f;
+    float minDensity = std::numeric_limits<float>::max();
+
+    for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
+        const UIN startIndexOfBlockValuesCurrentRowPanel = blockRowOffsets_[rowPanelId] * BLOCK_SIZE;
+        const UIN endIndexOfBlockValuesCurrentRowPanel = blockRowOffsets_[rowPanelId + 1] * BLOCK_SIZE;
+        UIN numNonZero = 0;
+        for (int idxOfBlockValues = startIndexOfBlockValuesCurrentRowPanel;
+             idxOfBlockValues < endIndexOfBlockValuesCurrentRowPanel; ++idxOfBlockValues) {
+            if (blockValues_[idxOfBlockValues] != NULL_VALUE) {
+                ++numNonZero;
+            }
+            if (idxOfBlockValues % BLOCK_SIZE == BLOCK_SIZE - 1) {
+                float curDensity = static_cast<float>(numNonZero) / BLOCK_SIZE;
+                maxDensity = std::max(maxDensity, curDensity);
+                minDensity = std::min(minDensity, curDensity);
+
+                numNonZero = 0;
+            }
+        }
+    }
+
+    return std::make_pair(maxDensity, minDensity);
 }
 
 bool check_rowReordering(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &rebell) {

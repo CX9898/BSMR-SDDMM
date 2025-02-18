@@ -49,6 +49,9 @@ class ReBELL {
   // Calculate the average density of all blocks
   float calculateAverageDensity();
 
+  // Calculate the maximum and minimum density of all blocks
+  std::pair<float, float> calculateMaxMinDensity();
+
  private:
   UIN numRowPanels_;
   UIN maxNumColBlocks_;

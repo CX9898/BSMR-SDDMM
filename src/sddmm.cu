@@ -16,7 +16,11 @@ void sddmm(const Matrix<float> &matrixA,
     float rebell_time;
     ReBELL rebell(matrixS, rebell_time);
 
-    printf("numBlock = %d , average density : %f\n", rebell.getNumBlocks(), rebell.calculateAverageDensity());
+    printf("rebell : numBlock = %d, average density = %f, max average = %f, min average = %f\n",
+           rebell.getNumBlocks(),
+           rebell.calculateAverageDensity(),
+           rebell.calculateMaxMinDensity().first,
+           rebell.calculateMaxMinDensity().second);
 
     logger.zcx_other() = rebell_time;
 
