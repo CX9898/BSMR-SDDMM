@@ -12,10 +12,10 @@ constexpr UIN NULL_VALUE = MAX_UIN;
 
 /**
  * @className: ReBELL
- * @classInterpretation:
+ * @classInterpretation: Reorder the rows and columns of a sparse matrix and store it in BELL format
  * @MemberVariables:
- * `reorderedRows_`: Sorted row index array.
- * `reorderedCols_`: Sorted col index array in each row panel.
+ * `reorderedRows_`: Reordered row index array.
+ * `reorderedCols_`: Reordered col index array in each row panel.
  * `reorderedRowPanelOffset_`: Offset array of col array in each row panel.
  * `blockValues_`: BELL format. Stores the index of the original matrix element.
  * `blockRowOffsets_`: BELL format. Stores the number of column blocks in each row panel
@@ -55,6 +55,7 @@ class ReBELL {
  private:
   UIN numRowPanels_;
   UIN maxNumColBlocks_;
+
   std::vector<UIN> reorderedRows_;
   std::vector<UIN> reorderedCols_;
   std::vector<UIN> reorderedColOffsets_;
