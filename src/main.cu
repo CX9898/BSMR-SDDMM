@@ -7,6 +7,7 @@
 #include "cuSparseSDDMM.hpp"
 #include "sddmm.hpp"
 #include "Logger.hpp"
+#include "Options.hpp"
 
 const std::string folderPath("../dataset/test/matrix_20000_20000_/");
 //const std::string folderPath("./");
@@ -82,6 +83,8 @@ int main(int argc, char *argv[]) {
 
     size_t K = 4096;
     sparseMatrix::COO<float> matrixS;
+
+    Options options(argc, argv);
 
     if (argc > 2) {
         if (!matrixS.initializeFromMatrixMarketFile(argv[1])) {
