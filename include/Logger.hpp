@@ -9,6 +9,7 @@
 class Logger {
  public:
   Logger() {
+
 #ifdef NDEBUG
       buildType_ = "Release";
 #endif
@@ -41,9 +42,9 @@ class Logger {
 
   }
 
-  inline float &zcx_sddmm() { return zcx_sddmm_; }
-  inline float &zcx_other() { return zcx_other_; }
-  inline float &cuSparse() { return cuSparse_; }
+  inline float &zcx_sddmm() { return zcx_sddmm_time_; }
+  inline float &zcx_other() { return zcx_other_time_; }
+  inline float &cuSparse() { return cuSparse_time_; }
 
   inline void printLogInformation();
 
@@ -71,15 +72,11 @@ class Logger {
   size_t NNZ_;
   float sparsity_;
 
-  float isratnisa_sddmm_;
-  float zcx_sddmm_;
+  float zcx_sddmm_time_;
+  float zcx_other_time_;
+  float zcx_time_;
 
-  float isratnisa_other_;
-  float zcx_other_;
-
-  float isratnisa_;
-  float zcx_;
-  float cuSparse_;
+  float cuSparse_time_;
 };
 
 template<typename T>
@@ -110,10 +107,10 @@ void Logger::printLogInformation() {
     printf("[matrixA storageOrder : %s]\n", matrixA_storageOrder_.c_str());
     printf("[matrixB storageOrder : %s]\n", matrixB_storageOrder_.c_str());
 
-    printf("[cuSparse : %.2f]\n", cuSparse_);
+    printf("[cuSparse : %.2f]\n", cuSparse_time_);
 
-    printf("[zcx_sddmm : %.2f]\n", zcx_sddmm_);
-    printf("[zcx_other : %.2f]\n", zcx_other_);
-    zcx_ = zcx_other_ + zcx_sddmm_;
-    printf("[zcx : %.2f]\n", zcx_);
+    printf("[zcx_sddmm : %.2f]\n", zcx_sddmm_time_);
+    printf("[zcx_other : %.2f]\n", zcx_other_time_);
+    zcx_time_ = zcx_other_time_ + zcx_sddmm_time_;
+    printf("[zcx : %.2f]\n", zcx_time_);
 }
