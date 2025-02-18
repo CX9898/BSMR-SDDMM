@@ -491,23 +491,37 @@ bool check_rebell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &r
     return isCorrect;
 }
 
-UIN calculateNumDenseBlock(const ReBELL &rebell) {
-    UIN numDenseBlock = 0;
+UIN calculateNumTilesInOriginalMatrix(const sparseMatrix::CSR<float> &matrix) {
+    UIN numTiles = 0;
 
-    return numDenseBlock;
+    const UIN numRowTiles = std::ceil(static_cast<float>(matrix.row()) / WMMA_M);
+    const UIN numColTiles = std::ceil(static_cast<float>(matrix.col()) / WMMA_N);
+    printf("Total tiles: %d\n", numRowTiles * numColTiles);
+#pragma omp parallel for reduction(+ : numTiles)
+    for (int rowTileId = 0; rowTileId < numRowTiles; ++rowTileId) {
+        for (int colTileId = 0; colTileId < numColTiles; ++colTileId) {
+            const UIN startRow = rowTileId * WMMA_M;
+            const UIN endRow = std::min(static_cast<UIN>(colTileId * WMMA_N), matrix.row());
+
+            const UIN startCol = colTileId * WMMA_N;
+            const UIN endCol = std::min(static_cast<UIN>(colTileId * WMMA_N), matrix.col());
+
+            UIN numNonZero = 0;
+            for (int row = startRow; row < endRow; ++row) {
+                for (int idx = matrix.rowOffsets()[row]; idx < matrix.rowOffsets()[row + 1]; ++idx) {
+                    const UIN col = matrix.colIndices()[idx];
+
+                    if (col >= startCol && col <= endCol) {
+                        ++numNonZero;
+                    }
+                }
+            }
+
+            if (numNonZero > 0) {
+                ++numTiles;
+            }
+        }
+    }
+
+    return numTiles;
 }
-//
-//UIN calculateNumTiles(const sparseMatrix::CSR<float> &matrix){
-//    UIN numTiles = 0;
-//
-//    std::unordered_set<UIN> matrixIdxSet;
-//    UIN
-//    for(int row = 0; row < matrix.row(); ++row){
-//
-//        for(int idxOfMatrix = matrix.rowOffsets()[row]; idxOfMatrix < matrix.rowOffsets()[row+1]; ++idxOfMatrix){
-//            const UIN col = matrix.colIndices()[idxOfMatrix];
-//        }
-//    }
-//
-//    return numTiles;
-//}

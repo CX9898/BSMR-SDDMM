@@ -22,6 +22,8 @@ void sddmm(const Matrix<float> &matrixA,
            rebell.calculateMaxMinDensity().first,
            rebell.calculateMaxMinDensity().second);
 
+    printf("Number of tiles before reordering: %d\n", calculateNumTilesInOriginalMatrix(matrixS));
+
 //    printf("rebell.reorderedRows():");
 //    for (int i = 0; i < rebell.reorderedRows().size(); ++i) {
 //        printf("%d ", rebell.reorderedRows()[i]);
