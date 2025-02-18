@@ -95,6 +95,8 @@ void Logger::printLogInformation() {
     printf("[Build type : %s]\n", buildType_.c_str());
     printf("[Device : %s]\n", gpu_.c_str());
 
+    printf("[WMMA_M : %zu], [WMMA_N : %zu], [WMMA_K : %zu]\n", wmma_m_, wmma_n_, wmma_k_);
+
     printf("[M : %ld], ", M_);
     printf("[N : %ld], ", N_);
     printf("[K : %ld], ", K_);
@@ -109,8 +111,6 @@ void Logger::printLogInformation() {
     printf("[matrixB storageOrder : %s]\n", matrixB_storageOrder_.c_str());
 
     printf("[cuSparse : %.2f]\n", cuSparse_);
-
-    printf("[WMMA_M : %zu], [WMMA_N : %zu], [WMMA_K : %zu]\n", wmma_m_, wmma_n_, wmma_k_);
 
     printf("[zcx_sddmm : %.2f]\n", zcx_sddmm_);
     printf("[zcx_other : %.2f]\n", zcx_other_);

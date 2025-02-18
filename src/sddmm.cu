@@ -22,10 +22,15 @@ void sddmm(const Matrix<float> &matrixA,
            rebell.calculateMaxMinDensity().first,
            rebell.calculateMaxMinDensity().second);
 
+    printf("rebell.reorderedRows():");
+    for (int i = 0; i < rebell.reorderedRows().size(); ++i) {
+        printf("%d ", rebell.reorderedRows()[i]);
+    }
+
     logger.zcx_other() = rebell_time;
 
     // Error check
-//    check_rebell(matrixS, rebell);
+    check_rebell(matrixS, rebell);
 
     // sddmm comp by gpu
     float sddmm_time;

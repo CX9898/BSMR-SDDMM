@@ -192,11 +192,11 @@ std::vector<int> merge_rows(std::vector<int> A, std::vector<int> B) {
     return result;
 }
 
-std::vector<int> bsa_rowReordering_cpu(const sparseMatrix::CSR<float> &lhs,
+std::vector<int> bsa_rowReordering_cpu(const sparseMatrix::CSR<float> &matrix,
                                        const float similarity_threshold_alpha,
                                        const int block_size,
                                        float &reordering_time) {
-    int rows = lhs.row();
+    int rows = matrix.row();
     std::vector<int> row_permutation;
     std::priority_queue<std::pair<float, int>> row_queue;
     std::priority_queue<std::pair<float, int>> inner_queue;
@@ -207,8 +207,8 @@ std::vector<int> bsa_rowReordering_cpu(const sparseMatrix::CSR<float> &lhs,
     for (int r = 0; r < rows; r++) {
         std::set<int> dense_partition;
         int score = 0;
-        int start_pos = lhs.rowOffsets()[r];
-        int end_pos = lhs.rowOffsets()[r + 1];
+        int start_pos = matrix.rowOffsets()[r];
+        int end_pos = matrix.rowOffsets()[r + 1];
         int nnz = end_pos - start_pos;
         if (nnz == 0) {
             row_permutation.push_back(r);
@@ -216,7 +216,7 @@ std::vector<int> bsa_rowReordering_cpu(const sparseMatrix::CSR<float> &lhs,
         }
 
         for (int nz = start_pos; nz < end_pos; nz++) {
-            int col = lhs.colIndices()[nz];
+            int col = matrix.colIndices()[nz];
             patterns[r][col / block_size]++;
             dense_partition.insert(col / block_size);
         }
@@ -262,6 +262,17 @@ std::vector<int> bsa_rowReordering_cpu(const sparseMatrix::CSR<float> &lhs,
         }
 
         inner_queue.swap(row_queue);
+    }
+
+    // Remove zero rows
+    {
+        UIN startIndexOfNonZeroRow = 0;
+        while (startIndexOfNonZeroRow < row_permutation.size()
+            && matrix.rowOffsets()[row_permutation[startIndexOfNonZeroRow] + 1]
+                - matrix.rowOffsets()[row_permutation[startIndexOfNonZeroRow]] == 0) {
+            ++startIndexOfNonZeroRow;
+        }
+        row_permutation.erase(row_permutation.begin(), row_permutation.begin() + startIndexOfNonZeroRow);
     }
 
     timeCalculator.endClock();
@@ -717,6 +728,17 @@ std::vector<int> bsa_rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
     row_permutation =
         get_permutation_gpu(matrix, ascending, Encodings_gpu, Dispersions, num_blocks_per_row, alpha, cluster_cnt);
     /*Perform BSA-reordering via gpu -done*/
+
+    // Remove zero rows
+    {
+        UIN startIndexOfNonZeroRow = 0;
+        while (startIndexOfNonZeroRow < row_permutation.size()
+            && matrix.rowOffsets()[row_permutation[startIndexOfNonZeroRow] + 1]
+                - matrix.rowOffsets()[row_permutation[startIndexOfNonZeroRow]] == 0) {
+            ++startIndexOfNonZeroRow;
+        }
+        row_permutation.erase(row_permutation.begin(), row_permutation.begin() + startIndexOfNonZeroRow);
+    }
 
     timeCalculator.endClock();
     reordering_time = timeCalculator.getTime();

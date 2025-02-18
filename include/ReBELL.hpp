@@ -72,7 +72,7 @@ class ReBELL {
  **/
 void rowReordering_cpu(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &rows, float &time);
 
-std::vector<int> bsa_rowReordering_cpu(const sparseMatrix::CSR<float> &lhs,
+std::vector<int> bsa_rowReordering_cpu(const sparseMatrix::CSR<float> &matrix,
                                        const float similarity_threshold_alpha,
                                        const int block_size,
                                        float &reordering_time);
