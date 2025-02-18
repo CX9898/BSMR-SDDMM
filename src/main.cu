@@ -84,8 +84,6 @@ int main(int argc, char *argv[]) {
     size_t K = 4096;
     sparseMatrix::COO<float> matrixS;
 
-    Options options(argc, argv);
-
     if (argc > 2) {
         if (!matrixS.initializeFromMatrixMarketFile(argv[1])) {
             exit(1);
