@@ -91,7 +91,7 @@ void clustering(const std::vector<std::vector<UIN>> &encodings,
 //    printf("!!! num = %d\n", num);
 }
 
-void rowReordering(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &rows, float &time) {
+void bsa_rowReordering_cpu(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &rows, float &time) {
 
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();

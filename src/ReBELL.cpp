@@ -14,7 +14,7 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
     // Row reordering
     float rowReordering_time;
     {
-//        rowReordering(matrix, reorderedRows_, rowReordering_time);
+//        bsa_rowReordering_cpu(matrix, reorderedRows_, rowReordering_time);
         int clu_cnt;
         std::vector<int> reorderedRows =
             bsa_rowReordering_gpu(matrix, row_similarity_threshold_alpha, BLOCK_COL_SIZE, rowReordering_time, clu_cnt);
@@ -30,7 +30,7 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
     // column reordering
-    colReordering(matrix);
+    colReordering(matrix, numRowPanels_, reorderedRows(), reorderedColOffsets_, reorderedCols_);
     timeCalculator.endClock();
     float colReordering_time = timeCalculator.getTime();
     printf("colReordering time : %f ms\n", colReordering_time);

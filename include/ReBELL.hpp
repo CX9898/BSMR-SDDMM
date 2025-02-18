@@ -58,33 +58,37 @@ class ReBELL {
 
   std::vector<UIN> blockValues_;
   std::vector<UIN> blockRowOffsets_;
-
-  /**
-   * @funcitonName: colReordering
-   * @functionInterpretation: Divide rows into row panels and sort the columns in each row panel.
-   * @input:
-   * `matrix`: Sparse matrix data in CSR format.
-   * @output: Update `reorderingColsOffset_` and `reorderingCols_`.
-   **/
-  void colReordering(const sparseMatrix::CSR<float> &matrix);
 };
 
 /**
- * @funcitonName: rowReordering
+ * @funcitonName: bsa_rowReordering_cpu
  * @functionInterpretation: Sort rows by row similarity
  * @input:
  * `matrix`: Sparse matrix data in CSR format.
  * @output: Update `reorderingRows_`.
  **/
-void rowReordering(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &rows, float &time);
-
-// Error checking
-bool check_rebell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &rebell);
-
-UIN calculateNumDenseBlock(const ReBELL &rebell);
+void bsa_rowReordering_cpu(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &rows, float &time);
 
 std::vector<int> bsa_rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
                                        float alpha,
                                        UIN block_size,
                                        float &reordering_time,
                                        int &cluster_cnt);
+
+/**
+ * @funcitonName: colReordering
+ * @functionInterpretation: Divide rows into row panels and sort the columns in each row panel.
+ * @input:
+ * `matrix`: Sparse matrix data in CSR format.
+ * @output: Update `reorderingColsOffset_` and `reorderingCols_`.
+ **/
+void colReordering(const sparseMatrix::CSR<float> &matrix,
+                   const UIN numRowPanels,
+                   const std::vector<UIN> &reorderedRows,
+                   std::vector<UIN> &reorderedColOffsets,
+                   std::vector<UIN> &reorderedCols);
+
+// Error checking
+bool check_rebell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &rebell);
+
+UIN calculateNumDenseBlock(const ReBELL &rebell);
