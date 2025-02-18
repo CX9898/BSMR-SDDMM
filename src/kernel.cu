@@ -1045,6 +1045,8 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
     grid.x = rebell.numRowPanels();
     grid.y = rebell.maxNumColBlocks();
 
+    printf("grid.x = %d, grid.y = %d\n", grid.x, grid.y);
+
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
 

@@ -8,11 +8,11 @@
 #include "sddmm.hpp"
 #include "Logger.hpp"
 
-const std::string folderPath("../dataset/");
+const std::string folderPath("../dataset/test/matrix_20000_20000_/");
 //const std::string folderPath("./");
-const std::string fileName = ("nips");
+//const std::string fileName = ("nips");
 //const std::string fileName = ("test2");
-//const std::string fileName("matrix_20000_20000_20000000");
+const std::string fileName("matrix_20000_20000_20000000");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 
@@ -42,6 +42,10 @@ const std::string filePath = folderPath + fileName + fileFormat;
 //                   2) 测试
 //                   3) 比较数据
 //      12: 核函数中, 将K迭代放在调用核函数的外部. 增加矩阵A的数据重用性. 但是写回全局内存的次数将会增加. 具体效果还需要测试
+//      13: 1) 增加线程块大小
+//          2) 测试更小稀疏度的矩阵
+//          3) 测试论文中的数据集, 因为随机的数据集会让数据均匀分布, 重排序的作用不明显
+//          4) 测试一个warp计算两个block的数据, 创建两个cFragment
 
 //#define MAKE_MATRIX_DATA
 
