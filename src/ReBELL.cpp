@@ -496,3 +496,18 @@ UIN calculateNumDenseBlock(const ReBELL &rebell) {
 
     return numDenseBlock;
 }
+//
+//UIN calculateNumTiles(const sparseMatrix::CSR<float> &matrix){
+//    UIN numTiles = 0;
+//
+//    std::unordered_set<UIN> matrixIdxSet;
+//    UIN
+//    for(int row = 0; row < matrix.row(); ++row){
+//
+//        for(int idxOfMatrix = matrix.rowOffsets()[row]; idxOfMatrix < matrix.rowOffsets()[row+1]; ++idxOfMatrix){
+//            const UIN col = matrix.colIndices()[idxOfMatrix];
+//        }
+//    }
+//
+//    return numTiles;
+//}
