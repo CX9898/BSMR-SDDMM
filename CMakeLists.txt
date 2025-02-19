@@ -30,7 +30,7 @@ message(STATUS "Src files: ${SRC_FILES}")
 # Add generate target
 add_executable(${PROJECT_NAME})
 
-## Add nvcc compilation options
+## Print kernel function register information
 #set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --resource-usage")
 
 # Set the CUDA separable compilation property
