@@ -487,7 +487,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block64_rowPanel_matrixA_rowMaj_matri
 
 // m16n16k16
 // blockDim: [64, 1, 1]
-// 一个thread block负责两个col block
+// 一个thread block负责一个row panel中的2个col block
 __global__ void sddmm_gpu_rebell_m16n16k16_block64_matrixA_rowMaj_matrixB_rowMaj(const UIN M,
                                                                                  const UIN N,
                                                                                  const UIN K,
@@ -590,7 +590,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block64_matrixA_rowMaj_matrixB_rowMaj
 
 // m16n16k16
 // blockDim: [64, 1, 1]
-// 一个thread block负责两个col block
+// 一个thread block负责一个row panel中的2个col block
 __global__ void sddmm_gpu_rebell_m16n16k16_block64_matrixA_rowMaj_matrixB_colMaj(const UIN M,
                                                                                  const UIN N,
                                                                                  const UIN K,
@@ -622,7 +622,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block64_matrixA_rowMaj_matrixB_colMaj
     const UIN rowPanelId = blockIdx.x;
     const UIN numColBlocksCurrentRowPanel = blockRowOffsets[rowPanelId + 1] - blockRowOffsets[rowPanelId];
 
-    const UIN colBlockIter = blockIdx.y;
+    const UIN colBlockIter = blockIdx.y * 2;
     if (colBlockIter >= numColBlocksCurrentRowPanel) {
         return;
     }
@@ -693,7 +693,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block64_matrixA_rowMaj_matrixB_colMaj
 
 // m16n16k16
 // blockDim: [128, 1, 1]
-// 一个thread block负责两个col block
+// 一个thread block负责一个row panel中的4个col block
 __global__ void sddmm_gpu_rebell_m16n16k16_block128_matrixA_rowMaj_matrixB_colMaj(const UIN M,
                                                                                   const UIN N,
                                                                                   const UIN K,
@@ -725,7 +725,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block128_matrixA_rowMaj_matrixB_colMa
     const UIN rowPanelId = blockIdx.x;
     const UIN numColBlocksCurrentRowPanel = blockRowOffsets[rowPanelId + 1] - blockRowOffsets[rowPanelId];
 
-    const UIN colBlockIter = blockIdx.y;
+    const UIN colBlockIter = blockIdx.y * 4;
     if (colBlockIter >= numColBlocksCurrentRowPanel) {
         return;
     }
@@ -1245,7 +1245,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
     dev::vector<UIN> blockValues_dev(rebell.blockValues());
     dev::vector<float> matrixP_dev(matrixS.nnz());
 
-    const UIN calculateNumOfColBlocksPerOneThreadBlock = 2;
+    const UIN calculateNumOfColBlocksPerOneThreadBlock = 4;
     dim3 grid, block;
     block.x = WARP_SIZE * calculateNumOfColBlocksPerOneThreadBlock;
     grid.x = rebell.numRowPanels();
@@ -1270,7 +1270,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
 //            matrixP_dev.data());
     } else if (matrixA.storageOrder() == MatrixStorageOrder::row_major
         && matrixB.storageOrder() == MatrixStorageOrder::col_major) {
-        kernel::sddmm_gpu_rebell_m16n16k16_block64_matrixA_rowMaj_matrixB_colMaj<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(),
+        kernel::sddmm_gpu_rebell_m16n16k16_block128_matrixA_rowMaj_matrixB_colMaj<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(),
             matrixA_values_convertedType_dev.data(),
             matrixB_values_convertedType_dev.data(),
             rebell.reorderedRows().size(),

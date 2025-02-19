@@ -155,6 +155,13 @@ std::pair<UIN, UIN> ReBELL::calculateRowColByBlockValueIndex(UIN blockValueIndex
     return std::make_pair(row, col);
 }
 
+UIN ReBELL::calculateColBlockIdByBlockValueIndex(UIN blockValueIndex) const {
+    const UIN rowPanel = calculateRowPanelIdByBlockValuesIndex(blockValueIndex);
+    const UIN startIndexOfBlockValueCurrentRowPanel = blockRowOffsets()[rowPanel] * BLOCK_SIZE;
+
+    return std::ceil((static_cast<float>(blockValueIndex - startIndexOfBlockValueCurrentRowPanel)) / BLOCK_SIZE);
+}
+
 float ReBELL::calculateAverageDensity() {
     float density = 0.0f;
 #pragma omp parallel for reduction(+ : density)

@@ -44,6 +44,9 @@ class ReBELL {
   // Calculate the row and col by blockValueIndex
   std::pair<UIN, UIN> calculateRowColByBlockValueIndex(UIN blockValueIndex) const;
 
+  // Calculate the colBlockId in row panel by blockValueIndex
+  UIN calculateColBlockIdByBlockValueIndex(UIN blockValueIndex) const;
+
   UIN getNumBlocks() const { return blockRowOffsets().back(); }
 
   // Calculate the average density of all blocks

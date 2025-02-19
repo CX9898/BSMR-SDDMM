@@ -6,7 +6,10 @@
 #include "ReBELL.hpp"
 
 // The old method, directly uses TensorCore calculation
-void sddmm(Matrix<float> &matrixA, Matrix<float> &matrixB, sparseMatrix::COO<float> &matrixS, sparseMatrix::COO<float> &matrixP) {
+void sddmm(Matrix<float> &matrixA,
+           Matrix<float> &matrixB,
+           sparseMatrix::COO<float> &matrixS,
+           sparseMatrix::COO<float> &matrixP) {
 
     TensorCoreConfig tensorCoreConfig(matrixS.row(), matrixS.col());
 
