@@ -406,7 +406,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block128_matrixA_rowMaj_matrixB_colMa
     __shared__ half bTileSMEM[bTileSMEMSize];
 
     wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE, wmma::row_major> aFrag;
-    wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE, wmma::row_major> bFrag;
+    wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE, wmma::col_major> bFrag;
 
     wmma::fragment<wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> cFrag;
 
@@ -1042,27 +1042,27 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
     dev::vector<float> matrixP_dev(matrixS.nnz());
 
     dim3 grid, block;
-    block.x = 64;
+    block.x = 128;
     grid.x = rebell.numRowPanels();
     grid.y = rebell.maxNumColBlocks();
 
-    printf("grid.x = %d, grid.y = %d\n", grid.x, grid.y);
+    printf("grid: [%d,%d,%d], block: [%d,%d,%d]\n", grid.x, grid.y, grid.z, block.x, block.y, block.z);
 
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
 
     if (matrixA.storageOrder() == MatrixStorageOrder::row_major
         && matrixB.storageOrder() == MatrixStorageOrder::row_major) {
-        kernel::sddmm_gpu_rebell_m16n16k16_block64_matrixA_rowMaj_matrixB_rowMaj<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(),
-            matrixA_values_convertedType_dev.data(),
-            matrixB_values_convertedType_dev.data(),
-            rebell.reorderedRows().size(),
-            reorderedRowIndices_dev.data(),
-            reorderedColIndices_dev.data(),
-            reorderedColIndicesOffset_dev.data(),
-            blockRowOffsets_dev.data(),
-            blockValues_dev.data(),
-            matrixP_dev.data());
+//        kernel::sddmm_gpu_rebell_m16n16k16_block128_matrixA_rowMaj_matrixB_rowMaj<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(),
+//            matrixA_values_convertedType_dev.data(),
+//            matrixB_values_convertedType_dev.data(),
+//            rebell.reorderedRows().size(),
+//            reorderedRowIndices_dev.data(),
+//            reorderedColIndices_dev.data(),
+//            reorderedColIndicesOffset_dev.data(),
+//            blockRowOffsets_dev.data(),
+//            blockValues_dev.data(),
+//            matrixP_dev.data());
     } else if (matrixA.storageOrder() == MatrixStorageOrder::row_major
         && matrixB.storageOrder() == MatrixStorageOrder::col_major) {
         kernel::sddmm_gpu_rebell_m16n16k16_block128_matrixA_rowMaj_matrixB_colMaj<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(),
