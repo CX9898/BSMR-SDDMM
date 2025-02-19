@@ -28,3 +28,14 @@ void sddmm_gpu_rebell_out_kIter(const Matrix<float> &matrixA,
                                 const ReBELL &rebell,
                                 sparseMatrix::CSR<float> &matrixP,
                                 float &time);
+
+// old method
+void sddmm_gpu_coo_3(TensorCoreConfig tensorCoreConfig,
+                     const UIN M, const UIN N, const UIN K,
+                     const half *matrixA, const MatrixStorageOrder matrixAStorageOrder,
+                     const half *matrixB, const MatrixStorageOrder matrixBStorageOrder,
+                     const UIN *matrixSRowIndex,
+                     const UIN *matrixSColIndex,
+                     const float *matrixS,
+                     const UIN *matrixSTileMappedToWarpIndex,
+                     float *matrixP);

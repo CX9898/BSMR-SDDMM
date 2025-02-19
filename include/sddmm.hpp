@@ -3,6 +3,9 @@
 #include "Matrix.hpp"
 #include "Logger.hpp"
 
+// The old method, directly uses TensorCore calculation
+void sddmm(Matrix<float> &matrixA, Matrix<float> &matrixB, sparseMatrix::COO<float> &matrixS, sparseMatrix::COO<float> &matrixP);
+
 // Reordering method
 void sddmm(const Matrix<float> &matrixA,
            const Matrix<float> &matrixB,

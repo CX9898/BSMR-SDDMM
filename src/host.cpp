@@ -90,3 +90,52 @@ template void sddmm_cpu<double>(const Matrix<double> &matrixA,
                                 const Matrix<double> &matrixB,
                                 const sparseMatrix::CSR<double> &matrixS,
                                 sparseMatrix::CSR<double> &matrixP);
+
+template<typename T>
+void sddmm_cpu(
+    const Matrix<T> &matrixA,
+    const Matrix<T> &matrixB,
+    const sparseMatrix::COO<T> &matrixS,
+    sparseMatrix::COO<T> &matrixP) {
+    if (matrixA.col() != matrixB.row() ||
+        matrixA.row() != matrixP.row() ||
+        matrixB.col() != matrixP.col()) {
+        std::cerr << "The storage of the three matrices does not match" << std::endl;
+        return;
+    }
+    const int K = matrixA.col();
+#pragma omp parallel for
+    for (int matrixSIdx = 0; matrixSIdx < matrixS.nnz(); ++matrixSIdx) {
+        const size_t row = matrixS.rowIndices()[matrixSIdx];
+        const size_t col = matrixS.colIndices()[matrixSIdx];
+
+        float val = 0.0f;
+        for (int kIter = 0; kIter < K; ++kIter) {
+            const auto valA = matrixA.getOneValueForMultiplication(
+                MatrixMultiplicationOrder::left_multiplication,
+                row, col, kIter);
+            const auto valB = matrixB.getOneValueForMultiplication(
+                MatrixMultiplicationOrder::right_multiplication,
+                row, col, kIter);
+            val += valA * valB;
+        }
+
+//        val *= matrixS.values()[matrixSIdx];
+        matrixP.setValues()[matrixSIdx] = val;
+    }
+}
+
+template void sddmm_cpu<int>(const Matrix<int> &matrixA,
+                             const Matrix<int> &matrixB,
+                             const sparseMatrix::COO<int> &matrixS,
+                             sparseMatrix::COO<int> &matrixP);
+
+template void sddmm_cpu<float>(const Matrix<float> &matrixA,
+                               const Matrix<float> &matrixB,
+                               const sparseMatrix::COO<float> &matrixS,
+                               sparseMatrix::COO<float> &matrixP);
+
+template void sddmm_cpu<double>(const Matrix<double> &matrixA,
+                                const Matrix<double> &matrixB,
+                                const sparseMatrix::COO<double> &matrixS,
+                                sparseMatrix::COO<double> &matrixP);
