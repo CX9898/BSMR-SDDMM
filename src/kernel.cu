@@ -12,11 +12,11 @@ namespace kernel {
 using namespace nvcuda;
 
 __global__ void checkFragmentData() {
-    const UIN wmmaM = 16;
-    const UIN wmmaN = 16;
-    const UIN wmmaK = 16;
-    const UIN aTileSize = wmmaM * wmmaK;
-    const UIN bTileSize = wmmaK * wmmaN;
+    constexpr UIN wmmaM = 16;
+    constexpr UIN wmmaN = 16;
+    constexpr UIN wmmaK = 16;
+    constexpr UIN aTileSize = wmmaM * wmmaK;
+    constexpr UIN bTileSize = wmmaK * wmmaN;
     __shared__ half aTileSMEM[aTileSize];
     __shared__ half bTileSMEM[bTileSize];
 
@@ -77,18 +77,18 @@ template __global__ void convertDataType<half>(const UIN n, const float *in, hal
 
 // m16n16k16
 // blockDim: [64, 1, 1]
-__global__ void sddmm_gpu_rebell_m16n16k16_matrixA_row_matrixB_row(const UIN M,
-                                                                   const UIN N,
-                                                                   const UIN K,
-                                                                   const half *matrixA,
-                                                                   const half *matrixB,
-                                                                   const UIN numNonZeroRow,
-                                                                   const UIN *reorderedRows,
-                                                                   const UIN *reorderedCols,
-                                                                   const UIN *reorderedColOffset,
-                                                                   const UIN *blockRowOffsets,
-                                                                   const UIN *blockValues,
-                                                                   float *matrixP) {
+__global__ void sddmm_gpu_rebell_m16n16k16_block64_rowPanel_matrixA_rowMaj_matrixB_rowMaj(const UIN M,
+                                                                                          const UIN N,
+                                                                                          const UIN K,
+                                                                                          const half *matrixA,
+                                                                                          const half *matrixB,
+                                                                                          const UIN numNonZeroRow,
+                                                                                          const UIN *reorderedRows,
+                                                                                          const UIN *reorderedCols,
+                                                                                          const UIN *reorderedColOffset,
+                                                                                          const UIN *blockRowOffsets,
+                                                                                          const UIN *blockValues,
+                                                                                          float *matrixP) {
     constexpr int aTileSMEMSize = WMMA_M * WMMA_N;
     constexpr int bTileSMEMSize = WMMA_K * WMMA_N * 2;
 
@@ -180,18 +180,18 @@ __global__ void sddmm_gpu_rebell_m16n16k16_matrixA_row_matrixB_row(const UIN M,
 // m16n16k16
 // blockDim: [64, 1, 1]
 // 一个thread block负责一个row panel
-__global__ void sddmm_gpu_rebell_m16n16k16_matrixA_row_matrixB_col(const UIN M,
-                                                                   const UIN N,
-                                                                   const UIN K,
-                                                                   const half *matrixA,
-                                                                   const half *matrixB,
-                                                                   const UIN numNonZeroRow,
-                                                                   const UIN *reorderedRows,
-                                                                   const UIN *reorderedCols,
-                                                                   const UIN *reorderedColOffset,
-                                                                   const UIN *blockRowOffsets,
-                                                                   const UIN *blockValues,
-                                                                   float *matrixP) {
+__global__ void sddmm_gpu_rebell_m16n16k16_block64_rowPanel_matrixA_rowMaj_matrixB_colMaj(const UIN M,
+                                                                                          const UIN N,
+                                                                                          const UIN K,
+                                                                                          const half *matrixA,
+                                                                                          const half *matrixB,
+                                                                                          const UIN numNonZeroRow,
+                                                                                          const UIN *reorderedRows,
+                                                                                          const UIN *reorderedCols,
+                                                                                          const UIN *reorderedColOffset,
+                                                                                          const UIN *blockRowOffsets,
+                                                                                          const UIN *blockValues,
+                                                                                          float *matrixP) {
     constexpr int aTileSMEMSize = WMMA_M * WMMA_N;
     constexpr int bTileSMEMSize = WMMA_K * WMMA_N * 2;
 
@@ -284,18 +284,18 @@ __global__ void sddmm_gpu_rebell_m16n16k16_matrixA_row_matrixB_col(const UIN M,
 // m16n16k16
 // blockDim: [64, 1, 1]
 // 一个thread block负责两个col block
-__global__ void sddmm_gpu_rebell_m16n16k16_2_matrixA_row_matrixB_row(const UIN M,
-                                                                     const UIN N,
-                                                                     const UIN K,
-                                                                     const half *matrixA,
-                                                                     const half *matrixB,
-                                                                     const UIN numNonZeroRow,
-                                                                     const UIN *reorderedRows,
-                                                                     const UIN *reorderedCols,
-                                                                     const UIN *reorderedColOffset,
-                                                                     const UIN *blockRowOffsets,
-                                                                     const UIN *blockValues,
-                                                                     float *matrixP) {
+__global__ void sddmm_gpu_rebell_m16n16k16_block64_matrixA_rowMaj_matrixB_rowMaj(const UIN M,
+                                                                                 const UIN N,
+                                                                                 const UIN K,
+                                                                                 const half *matrixA,
+                                                                                 const half *matrixB,
+                                                                                 const UIN numNonZeroRow,
+                                                                                 const UIN *reorderedRows,
+                                                                                 const UIN *reorderedCols,
+                                                                                 const UIN *reorderedColOffset,
+                                                                                 const UIN *blockRowOffsets,
+                                                                                 const UIN *blockValues,
+                                                                                 float *matrixP) {
     constexpr int aTileSMEMSize = WMMA_M * WMMA_N;
     constexpr int bTileSMEMSize = WMMA_K * WMMA_N * 2;
 
@@ -387,18 +387,18 @@ __global__ void sddmm_gpu_rebell_m16n16k16_2_matrixA_row_matrixB_row(const UIN M
 // m16n16k16
 // blockDim: [128, 1, 1]
 // 一个thread block负责两个col block
-__global__ void sddmm_gpu_rebell_m16n16k16_block128_matrixA_row_matrixB_col(const UIN M,
-                                                                            const UIN N,
-                                                                            const UIN K,
-                                                                            const half *matrixA,
-                                                                            const half *matrixB,
-                                                                            const UIN numNonZeroRow,
-                                                                            const UIN *reorderedRows,
-                                                                            const UIN *reorderedCols,
-                                                                            const UIN *reorderedColOffset,
-                                                                            const UIN *blockRowOffsets,
-                                                                            const UIN *blockValues,
-                                                                            float *matrixP) {
+__global__ void sddmm_gpu_rebell_m16n16k16_block128_matrixA_rowMaj_matrixB_colMaj(const UIN M,
+                                                                                  const UIN N,
+                                                                                  const UIN K,
+                                                                                  const half *matrixA,
+                                                                                  const half *matrixB,
+                                                                                  const UIN numNonZeroRow,
+                                                                                  const UIN *reorderedRows,
+                                                                                  const UIN *reorderedCols,
+                                                                                  const UIN *reorderedColOffset,
+                                                                                  const UIN *blockRowOffsets,
+                                                                                  const UIN *blockValues,
+                                                                                  float *matrixP) {
     constexpr int aTileSMEMSize = (WMMA_M * WMMA_N) * 2;
     constexpr int bTileSMEMSize = (WMMA_K * WMMA_N * 4) * 2;
 
@@ -461,8 +461,8 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block128_matrixA_row_matrixB_col(cons
         // Compute the matrix multiplication
         for (int iter = 0; iter < 2; ++iter) {
             if (colBlockId < numColBlocksCurrentRowPanel) {
-                wmma::load_matrix_sync(aFrag, aTileSMEM + iter * WMMA_K, WMMA_K);
-//                wmma::load_matrix_sync(bFrag, bTileSMEM + warpId * WMMA_N, WMMA_N * 2);
+                wmma::load_matrix_sync(aFrag, aTileSMEM + iter * WMMA_K, WMMA_K * 2);
+                wmma::load_matrix_sync(bFrag, bTileSMEM + warpId * 512 + iter * WMMA_K, WMMA_K * 2);
                 wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
             }
         }
@@ -491,18 +491,18 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block128_matrixA_row_matrixB_col(cons
 // m16n16k16
 // blockDim: [64, 1, 1]
 // 一个thread block负责两个col block
-__global__ void sddmm_gpu_rebell_m16n16k16_2_matrixA_row_matrixB_col(const UIN M,
-                                                                     const UIN N,
-                                                                     const UIN K,
-                                                                     const half *matrixA,
-                                                                     const half *matrixB,
-                                                                     const UIN numNonZeroRow,
-                                                                     const UIN *reorderedRows,
-                                                                     const UIN *reorderedCols,
-                                                                     const UIN *reorderedColOffset,
-                                                                     const UIN *blockRowOffsets,
-                                                                     const UIN *blockValues,
-                                                                     float *matrixP) {
+__global__ void sddmm_gpu_rebell_m16n16k16_block64_matrixA_row_matrixB_col(const UIN M,
+                                                                           const UIN N,
+                                                                           const UIN K,
+                                                                           const half *matrixA,
+                                                                           const half *matrixB,
+                                                                           const UIN numNonZeroRow,
+                                                                           const UIN *reorderedRows,
+                                                                           const UIN *reorderedCols,
+                                                                           const UIN *reorderedColOffset,
+                                                                           const UIN *blockRowOffsets,
+                                                                           const UIN *blockValues,
+                                                                           float *matrixP) {
     constexpr int aTileSMEMSize = WMMA_M * WMMA_N;
     constexpr int bTileSMEMSize = WMMA_K * WMMA_N * 2;
 
@@ -594,19 +594,19 @@ __global__ void sddmm_gpu_rebell_m16n16k16_2_matrixA_row_matrixB_col(const UIN M
 // m16n16k16
 // blockDim: [64, 1, 1]
 // 在外部进行K迭代
-__global__ void sddmm_gpu_rebell_m16n16k16_out_kIter_matrixA_row_matrixB_row(const UIN M,
-                                                                             const UIN N,
-                                                                             const UIN K,
-                                                                             const UIN kIter,
-                                                                             const half *matrixA,
-                                                                             const half *matrixB,
-                                                                             const UIN numNonZeroRow,
-                                                                             const UIN *reorderedRows,
-                                                                             const UIN *reorderedCols,
-                                                                             const UIN *reorderedColOffset,
-                                                                             const UIN *blockRowOffsets,
-                                                                             const UIN *blockValues,
-                                                                             float *matrixP) {
+__global__ void sddmm_gpu_rebell_m16n16k16_outkIter_matrixA_rowMaj_matrixB_rowMaj(const UIN M,
+                                                                                  const UIN N,
+                                                                                  const UIN K,
+                                                                                  const UIN kIter,
+                                                                                  const half *matrixA,
+                                                                                  const half *matrixB,
+                                                                                  const UIN numNonZeroRow,
+                                                                                  const UIN *reorderedRows,
+                                                                                  const UIN *reorderedCols,
+                                                                                  const UIN *reorderedColOffset,
+                                                                                  const UIN *blockRowOffsets,
+                                                                                  const UIN *blockValues,
+                                                                                  float *matrixP) {
     constexpr int aTileSMEMSize = WMMA_M * WMMA_N;
     constexpr int bTileSMEMSize = WMMA_K * WMMA_N * 2;
 
@@ -696,19 +696,19 @@ __global__ void sddmm_gpu_rebell_m16n16k16_out_kIter_matrixA_row_matrixB_row(con
 // m16n16k16
 // blockDim: [64, 1, 1]
 // 在外部进行K迭代
-__global__ void sddmm_gpu_rebell_m16n16k16_out_kIter_matrixA_row_matrixB_col(const UIN M,
-                                                                             const UIN N,
-                                                                             const UIN K,
-                                                                             const UIN kIter,
-                                                                             const half *matrixA,
-                                                                             const half *matrixB,
-                                                                             const UIN numNonZeroRow,
-                                                                             const UIN *reorderedRows,
-                                                                             const UIN *reorderedCols,
-                                                                             const UIN *reorderedColOffset,
-                                                                             const UIN *blockRowOffsets,
-                                                                             const UIN *blockValues,
-                                                                             float *matrixP) {
+__global__ void sddmm_gpu_rebell_m16n16k16_outkIter_matrixA_rowMaj_matrixB_colMaj(const UIN M,
+                                                                                  const UIN N,
+                                                                                  const UIN K,
+                                                                                  const UIN kIter,
+                                                                                  const half *matrixA,
+                                                                                  const half *matrixB,
+                                                                                  const UIN numNonZeroRow,
+                                                                                  const UIN *reorderedRows,
+                                                                                  const UIN *reorderedCols,
+                                                                                  const UIN *reorderedColOffset,
+                                                                                  const UIN *blockRowOffsets,
+                                                                                  const UIN *blockValues,
+                                                                                  float *matrixP) {
     constexpr int aTileSMEMSize = WMMA_M * WMMA_N;
     constexpr int bTileSMEMSize = WMMA_K * WMMA_N * 2;
 
@@ -798,18 +798,18 @@ __global__ void sddmm_gpu_rebell_m16n16k16_out_kIter_matrixA_row_matrixB_col(con
 // m16n16k16
 // blockDim: [64, 1, 1]
 // 一次加载4*WMMA_K个元素
-__global__ void sddmm_gpu_rebell_2_m16n16k16_matrixA_row_matrixB_row(const UIN M,
-                                                                     const UIN N,
-                                                                     const UIN K,
-                                                                     const half *matrixA,
-                                                                     const half *matrixB,
-                                                                     const UIN numNonZeroRow,
-                                                                     const UIN *reorderedRows,
-                                                                     const UIN *reorderedCols,
-                                                                     const UIN *reorderedColOffset,
-                                                                     const UIN *blockRowOffsets,
-                                                                     const UIN *blockValues,
-                                                                     float *matrixP) {
+__global__ void sddmm_gpu_rebell_4WMMA_K_m16n16k16_matrixA_rowMaj_matrixB_rowMaj(const UIN M,
+                                                                                 const UIN N,
+                                                                                 const UIN K,
+                                                                                 const half *matrixA,
+                                                                                 const half *matrixB,
+                                                                                 const UIN numNonZeroRow,
+                                                                                 const UIN *reorderedRows,
+                                                                                 const UIN *reorderedCols,
+                                                                                 const UIN *reorderedColOffset,
+                                                                                 const UIN *blockRowOffsets,
+                                                                                 const UIN *blockValues,
+                                                                                 float *matrixP) {
     __shared__ half aTileSMEM[(16 * 16) * 4];
     __shared__ half bTileSMEM[(16 * 32) * 4];
 
@@ -902,18 +902,18 @@ __global__ void sddmm_gpu_rebell_2_m16n16k16_matrixA_row_matrixB_row(const UIN M
 // m16n16k16
 // blockDim: [64, 1, 1]
 // 一次加载4*WMMA_K个元素
-__global__ void sddmm_gpu_rebell_2_m16n16k16_matrixA_row_matrixB_col(const UIN M,
-                                                                     const UIN N,
-                                                                     const UIN K,
-                                                                     const half *matrixA,
-                                                                     const half *matrixB,
-                                                                     const UIN numNonZeroRow,
-                                                                     const UIN *reorderedRows,
-                                                                     const UIN *reorderedCols,
-                                                                     const UIN *reorderedColOffset,
-                                                                     const UIN *blockRowOffsets,
-                                                                     const UIN *blockValues,
-                                                                     float *matrixP) {
+__global__ void sddmm_gpu_rebell_4WMMA_K_m16n16k16_matrixA_rowMaj_matrixB_colMaj(const UIN M,
+                                                                                 const UIN N,
+                                                                                 const UIN K,
+                                                                                 const half *matrixA,
+                                                                                 const half *matrixB,
+                                                                                 const UIN numNonZeroRow,
+                                                                                 const UIN *reorderedRows,
+                                                                                 const UIN *reorderedCols,
+                                                                                 const UIN *reorderedColOffset,
+                                                                                 const UIN *blockRowOffsets,
+                                                                                 const UIN *blockValues,
+                                                                                 float *matrixP) {
     __shared__ half aTileSMEM[(16 * 16) * 4];
     __shared__ half bTileSMEM[(16 * 32) * 4];
 
@@ -1053,7 +1053,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
 
     if (matrixA.storageOrder() == MatrixStorageOrder::row_major
         && matrixB.storageOrder() == MatrixStorageOrder::row_major) {
-        kernel::sddmm_gpu_rebell_m16n16k16_2_matrixA_row_matrixB_row<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(),
+        kernel::sddmm_gpu_rebell_m16n16k16_block64_matrixA_rowMaj_matrixB_rowMaj<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(),
             matrixA_values_convertedType_dev.data(),
             matrixB_values_convertedType_dev.data(),
             rebell.reorderedRows().size(),
@@ -1065,7 +1065,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
             matrixP_dev.data());
     } else if (matrixA.storageOrder() == MatrixStorageOrder::row_major
         && matrixB.storageOrder() == MatrixStorageOrder::col_major) {
-        kernel::sddmm_gpu_rebell_m16n16k16_2_matrixA_row_matrixB_col<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(),
+        kernel::sddmm_gpu_rebell_m16n16k16_block128_matrixA_rowMaj_matrixB_colMaj<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(),
             matrixA_values_convertedType_dev.data(),
             matrixB_values_convertedType_dev.data(),
             rebell.reorderedRows().size(),
@@ -1120,7 +1120,7 @@ void sddmm_gpu_rebell_out_kIter(const Matrix<float> &matrixA,
     timeCalculator.startClock();
     // Loop over K
     for (int kIter = 0; kIter < matrixA.col(); kIter += WMMA_K) {
-        kernel::sddmm_gpu_rebell_m16n16k16_out_kIter_matrixA_row_matrixB_row<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(), kIter,
+        kernel::sddmm_gpu_rebell_m16n16k16_outkIter_matrixA_rowMaj_matrixB_rowMaj<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(), kIter,
             matrixA_values_convertedType_dev.data(),
             matrixB_values_convertedType_dev.data(),
             rebell.reorderedRows().size(),
