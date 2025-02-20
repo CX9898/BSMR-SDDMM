@@ -184,7 +184,7 @@ std::vector<T> Matrix<T>::getColVector(UIN col) const {
 
 #pragma omp parallel for
     for (int row = 0; row < row_; ++row) {
-        colVector[col] = getOneValue(row, col);
+        colVector[row] = getOneValue(row, col);
     }
 
     return colVector;
