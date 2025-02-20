@@ -164,8 +164,8 @@ UIN ReBELL::calculateColBlockIdByBlockValueIndex(UIN blockValueIndex) const {
 }
 
 float ReBELL::calculateAverageDensity() {
-    float density = 0.0f;
-#pragma omp parallel for reduction(+ : density)
+    float totalDensity = 0.0f;
+#pragma omp parallel for reduction(+ : totalDensity)
     for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
         const UIN startIndexOfBlockValuesCurrentRowPanel = blockRowOffsets_[rowPanelId] * BLOCK_SIZE;
         const UIN endIndexOfBlockValuesCurrentRowPanel = blockRowOffsets_[rowPanelId + 1] * BLOCK_SIZE;
@@ -176,13 +176,13 @@ float ReBELL::calculateAverageDensity() {
                 ++numNonZero;
             }
             if (idxOfBlockValues % BLOCK_SIZE == BLOCK_SIZE - 1) {
-                density += static_cast<float>(numNonZero) / BLOCK_SIZE;
+                totalDensity += static_cast<float>(numNonZero) / BLOCK_SIZE;
                 numNonZero = 0;
             }
         }
     }
 
-    return density / getNumBlocks();
+    return totalDensity / getNumBlocks();
 }
 
 std::pair<float, float> ReBELL::calculateMaxMinDensity() {
