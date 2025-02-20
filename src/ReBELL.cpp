@@ -4,6 +4,7 @@
 #include <unordered_set>
 #include <limits>
 #include <numeric>
+#include <omp.h>
 
 #include "ReBELL.hpp"
 #include "CudaTimeCalculator.cuh"
@@ -185,9 +186,10 @@ float ReBELL::calculateAverageDensity() {
 }
 
 std::pair<float, float> ReBELL::calculateMaxMinDensity() {
-    float maxDensity = 0.0f;
+    float maxDensity = std::numeric_limits<float>::min();
     float minDensity = std::numeric_limits<float>::max();
 
+#pragma omp parallel for reduction(max : maxDensity) reduction(min : minDensity)
     for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
         const UIN startIndexOfBlockValuesCurrentRowPanel = blockRowOffsets_[rowPanelId] * BLOCK_SIZE;
         const UIN endIndexOfBlockValuesCurrentRowPanel = blockRowOffsets_[rowPanelId + 1] * BLOCK_SIZE;
@@ -500,26 +502,27 @@ bool check_rebell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &r
 
 std::pair<UIN, float> calculateNumTilesAndAverageDensityInOriginalMatrix(const sparseMatrix::CSR<float> &matrix) {
     UIN numTiles = 0;
-    float density = 0.0f;
+    float totalDensity = 0.0f;
 
     const UIN numRowTiles = std::ceil(static_cast<float>(matrix.row()) / WMMA_M);
     const UIN numColTiles = std::ceil(static_cast<float>(matrix.col()) / WMMA_N);
     printf("Total tiles: %d\n", numRowTiles * numColTiles);
-#pragma omp parallel for reduction(+ : numTiles, density)
+
+#pragma omp parallel for reduction(+ : numTiles, totalDensity) schedule(dynamic)
     for (int rowTileId = 0; rowTileId < numRowTiles; ++rowTileId) {
         for (int colTileId = 0; colTileId < numColTiles; ++colTileId) {
             const UIN startRow = rowTileId * WMMA_M;
-            const UIN endRow = std::min(static_cast<UIN>(colTileId * WMMA_N), matrix.row());
+            const UIN endRow = std::min(static_cast<UIN>(startRow + WMMA_M), matrix.row());
 
             const UIN startCol = colTileId * WMMA_N;
-            const UIN endCol = std::min(static_cast<UIN>(colTileId * WMMA_N), matrix.col());
+            const UIN endCol = std::min(static_cast<UIN>(startCol + WMMA_N), matrix.col());
 
             UIN numNonZero = 0;
             for (int row = startRow; row < endRow; ++row) {
                 for (int idx = matrix.rowOffsets()[row]; idx < matrix.rowOffsets()[row + 1]; ++idx) {
                     const UIN col = matrix.colIndices()[idx];
 
-                    if (col >= startCol && col <= endCol) {
+                    if (col >= startCol && col < endCol) {
                         ++numNonZero;
                     }
                 }
@@ -527,10 +530,12 @@ std::pair<UIN, float> calculateNumTilesAndAverageDensityInOriginalMatrix(const s
 
             if (numNonZero > 0) {
                 ++numTiles;
-                density += static_cast<float>(numNonZero) / (WMMA_M * WMMA_N);
+                totalDensity += static_cast<float>(numNonZero) / (WMMA_M * WMMA_N);
             }
         }
     }
 
-    return std::make_pair(numTiles, density / numTiles);
+    float averageDensity = (numTiles > 0) ? totalDensity / numTiles : 0.0f;
+
+    return std::make_pair(numTiles, averageDensity);
 }

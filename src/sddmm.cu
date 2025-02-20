@@ -110,16 +110,16 @@ void sddmm(const Matrix<float> &matrixA,
     float rebell_time;
     ReBELL rebell(matrixS, rebell_time);
 
+    auto [maxDensity, minDensity] = rebell.calculateMaxMinDensity();
     printf("rebell : numBlock = %d, average density = %f, max average = %f, min average = %f\n",
            rebell.getNumBlocks(),
            rebell.calculateAverageDensity(),
-           rebell.calculateMaxMinDensity().first,
-           rebell.calculateMaxMinDensity().second);
+           maxDensity,
+           minDensity);
 
-    std::pair<UIN, float> numTilesAverageDensity = calculateNumTilesAndAverageDensityInOriginalMatrix(matrixS);
+    auto [numTiles, averageDensity] = calculateNumTilesAndAverageDensityInOriginalMatrix(matrixS);
     printf("Number of tiles before reordering: %d, average density : %f\n",
-           numTilesAverageDensity.first,
-           numTilesAverageDensity.second);
+           numTiles, averageDensity);
 
 //    printf("rebell.reorderedRows():");
 //    for (int i = 0; i < rebell.reorderedRows().size(); ++i) {
