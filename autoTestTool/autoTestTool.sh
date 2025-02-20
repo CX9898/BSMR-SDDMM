@@ -147,7 +147,7 @@ autoTest(){
         echo -e "${print_tag}\t\tK = ${k} start testing... [Remaining: $((${num_k} - ${k_id}))]"
         echo -e ${data_split_symbol} >> ${autoTest_autoTestlog_file}
         local start_time=$(date +%s.%N)
-        ${autoTest_program} ${test_file_folder_path}${file} ${k} 192 50000 >> ${autoTest_autoTestlog_file}
+        ${autoTest_program} -f ${test_file_folder_path}${file} -k ${k} -Y 192 -X 50000 >> ${autoTest_autoTestlog_file}
         local end_time=$(date +%s.%N)
         echo -e "${print_tag}\t\tExecution time: $(echo "$end_time - $start_time" | bc) seconds"
         ((k_id++))

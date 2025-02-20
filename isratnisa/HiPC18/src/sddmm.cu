@@ -11,6 +11,7 @@
 #include "util.h"
 #include "kernel.h"
 #include <bits/stdc++.h>
+#include "Options.hpp"
 using namespace std;
 
 // long n_rows, n_cols, nnz;
@@ -328,9 +329,10 @@ void preprocessing(const Matrix S) {
 
 int main(int argc, char *argv[]) {
 
+    Options options(argc, argv);
     Matrix S;
 
-    ifstream fp(argv[1]);
+    ifstream fp(options.inputFile());
 //    char *filePath = nullptr;
 //    const char *folderPath = "../dataset/test/";
 //    const char *fileName = "matrix_5000_5000_125000";
@@ -347,9 +349,9 @@ int main(int argc, char *argv[]) {
 //    } else{
 //        fp.open(filePath);
 //    }
-    k = atoi(argv[2]);
-    tile_sizeY = atoi(argv[3]);
-    tile_sizeX = atoi(argv[4]);
+    k = options.k();
+    tile_sizeY = options.tile_sizeY();
+    tile_sizeX = options.tile_sizeX();
     actv_row_size = tile_sizeY;
 
     string str;
