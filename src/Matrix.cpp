@@ -108,6 +108,10 @@ void Matrix<T>::changeStorageOrder() {
     leadingDimension_ = newLd;
     values_ = newValues;
 }
+template<typename T>
+void Matrix<T>::makeData() {
+    makeData(row_, col_);
+}
 
 template<typename T>
 void Matrix<T>::makeData(UIN numRow, UIN numCol) {

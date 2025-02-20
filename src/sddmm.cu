@@ -121,7 +121,7 @@ void sddmm(const Matrix<float> &matrixA,
     printf("Number of tiles before reordering: %d, average density : %f\n",
            numTiles, averageDensity);
 
-    logger.zcx_other() = rebell_time;
+    logger.zcx_other_time_ = rebell_time;
 
     // Error check
 //    check_rebell(matrixS, rebell);
@@ -130,7 +130,7 @@ void sddmm(const Matrix<float> &matrixA,
     float sddmm_time;
     sddmm_gpu_rebell(matrixA, matrixB, matrixS, rebell, matrixP, sddmm_time);
 
-    logger.zcx_sddmm() = sddmm_time;
+    logger.zcx_sddmm_time_ = sddmm_time;
 
     // Error check
 //    check_sddmm(matrixA, matrixB, matrixS, matrixP);

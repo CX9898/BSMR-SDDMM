@@ -85,6 +85,7 @@ class Matrix {
                                  UIN colMtxC,
                                  UIN positionOfKIter) const;
 
+  void makeData();
   void makeData(UIN numRow, UIN numCol);
 
   void print() const;
@@ -265,9 +266,7 @@ class COO : public DataBase {
   void openTensorCoreMode(const TensorCoreConfig tensorCoreConfig, MatrixMultiplicationOrder multiplicationOrder);
   void openTensorCoreModeForSampled(TensorCoreConfig tensorCoreConfig);
   void closeTensorCoreMode();
-  const std::vector<UIN> &matrixTileMappedToWarpIndex() {
-      return matrixTileMappedToWarpIndex_;
-  }
+  const std::vector<UIN> &matrixTileMappedToWarpIndex() { return matrixTileMappedToWarpIndex_; }
 
  private:
   std::vector<UIN> rowIndices_;

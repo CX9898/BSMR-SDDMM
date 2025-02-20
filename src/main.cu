@@ -9,14 +9,6 @@
 #include "Logger.hpp"
 #include "Options.hpp"
 
-const std::string folderPath("../dataset/test/matrix_20000_20000_/");
-//const std::string folderPath("./");
-//const std::string fileName = ("nips");
-//const std::string fileName = ("test2");
-const std::string fileName("matrix_20000_20000_20000000");
-const std::string fileFormat(".mtx");
-const std::string filePath = folderPath + fileName + fileFormat;
-
 // TODO :
 //      测试矩阵的尺寸按照论文中的尺寸
 //      1: 将 comp_sddmm_gpu 全部使用 Tensor core 执行          OK
@@ -38,75 +30,32 @@ const std::string filePath = folderPath + fileName + fileFormat;
 //                    matrixA: col_major matrixB: col_major
 //      9: TensorCoreConfig 支持 WarpOrder
 //      10: 在sddmm函数中使用共享内存                             OK
-//      11: 试验新方法(行列重排序)
-//                   1) 代码实现
-//                   2) 测试
-//                   3) 比较数据
-//      12: 核函数中, 将K迭代放在调用核函数的外部. 增加矩阵A的数据重用性. 但是写回全局内存的次数将会增加. 具体效果还需要测试
+//      11: 试验新方法(行列重排序)                                OK
+//                   1) 代码实现                                OK
+//                   2) 测试                                   OK
+//                   3) 比较数据                                OK
+//      12: 核函数中, 将K迭代放在调用核函数的外部. 增加矩阵A的数据重用性. 但是写回全局内存的次数将会增加. 具体效果还需要测试  OK
 //      13: 1) 增加线程块大小
 //          2) 测试更小稀疏度的矩阵
 //          3) 测试论文中的数据集, 因为随机的数据集会让数据均匀分布, 重排序的作用不明显
 //          4) 测试一个warp计算两个block的数据, 创建两个cFragment
 
-//#define MAKE_MATRIX_DATA
-
 int main(int argc, char *argv[]) {
 
-#ifdef MAKE_MATRIX_DATA
-    // make sparse matrix data
-    {
-        SparseMatrix<int> matrixTmp;
-        const size_t thousand = 1000;
-        const size_t million = 1000000;
-//    const size_t makeDataRow = 3 * thousand;
-//    const size_t makeDataCol = 7 * thousand;
-        const size_t makeDataRow = 10000;
-        const size_t makeDataCol = 15000;
-//    const float density = 4.006f;
-//    const size_t makeDataNNZ = static_cast<int> (makeDataRow * makeDataCol * density / 100);
-//    const float sparsity = 0.80;
-//    const size_t makeDataNNZ = makeDataRow * makeDataCol * (1 - sparsity);
-//    const size_t makeDataNNZ = 1 * million;
-        const size_t makeDataNNZ = 7500000;
-        matrixTmp.makeData(makeDataRow, makeDataCol, makeDataNNZ);
-        matrixTmp.outputToMarketMatrixFile();
-        std::cout << "makeData : M : " << makeDataRow
-                  << ", N : " << makeDataCol
-                  << ", K : " << 256
-                  << ", nnz : " << makeDataNNZ
-                  << ", sparsity : "
-                  << (float) (makeDataRow * makeDataCol - makeDataNNZ) / (makeDataRow * makeDataCol) * 100 << "%"
-                  << std::endl;
-        exit(0);
-    }
-#endif // MAKE_MATRIX_DATA
+    Options options(argc, argv);
 
-    size_t K = 256;
+    size_t K = options.K();
     sparseMatrix::COO<float> matrixS;
-
-    if (argc > 2) {
-        if (!matrixS.initializeFromMatrixMarketFile(argv[1])) {
-            exit(1);
-        }
-        K = std::stol(argv[2]);
-    } else if (argc == 2) {
-        if (!matrixS.initializeFromMatrixMarketFile(argv[1])) {
-            exit(1);
-        }
-    } else {
-        if (!matrixS.initializeFromMatrixMarketFile(util::getParentFolderPath(argv[0]) + filePath)) {
-            exit(1);
-        }
-    }
+    matrixS.initializeFromMatrixMarketFile(options.inputFile());
 
     Logger logger;
     logger.getInformation(matrixS);
 
     Matrix<float> matrixA(matrixS.row(), K, MatrixStorageOrder::row_major);
-    matrixA.makeData(matrixA.row(), K);
+    matrixA.makeData();
 
     Matrix<float> matrixB(K, matrixS.col(), MatrixStorageOrder::col_major);
-    matrixB.makeData(K, matrixS.col());
+    matrixB.makeData();
 
     logger.getInformation(matrixA, matrixB);
 
@@ -131,6 +80,7 @@ int main(int argc, char *argv[]) {
     // sddmm
     sparseMatrix::CSR<float> matrixP(matrixS_csr);
     sddmm(matrixA, matrixB, matrixS_csr, matrixP, logger);
+
     // Error check
     printf("check cuSparseSDDMM and sddmm : \n");
     size_t numError = 0;
@@ -138,6 +88,7 @@ int main(int argc, char *argv[]) {
         printf("[checkData : NO PASS Error rate : %2.2f%%]\n",
                static_cast<float>(numError) / static_cast<float>(matrixP.values().size()) * 100);
     }
+    logger.numError_ = numError;
 
     logger.printLogInformation();
 

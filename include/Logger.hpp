@@ -6,8 +6,7 @@
 
 #include "Matrix.hpp"
 
-class Logger {
- public:
+struct Logger {
   Logger() {
 
 #ifdef NDEBUG
@@ -39,18 +38,12 @@ class Logger {
       K_ = matrixA.col();
       matrixA_storageOrder_ = matrixA.storageOrder() == MatrixStorageOrder::row_major ? "row_major" : "col_major";
       matrixB_storageOrder_ = matrixB.storageOrder() == MatrixStorageOrder::row_major ? "row_major" : "col_major";
-
   }
-
-  inline float &zcx_sddmm() { return zcx_sddmm_time_; }
-  inline float &zcx_other() { return zcx_other_time_; }
-  inline float &cuSparse() { return cuSparse_time_; }
 
   inline void printLogInformation();
 
- private:
   std::string checkData_;
-  size_t numError;
+  size_t numError_;
 
   std::string gpu_;
   std::string buildType_;
@@ -85,7 +78,6 @@ void Logger::getInformation(const sparseMatrix::COO<T> &matrix) {
     N_ = matrix.col();
     NNZ_ = matrix.nnz();
     sparsity_ = matrix.getSparsity();
-
 }
 
 void Logger::printLogInformation() {
