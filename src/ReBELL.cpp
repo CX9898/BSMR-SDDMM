@@ -505,7 +505,7 @@ std::pair<UIN, float> calculateNumTilesAndAverageDensityInOriginalMatrix(const s
     const UIN numRowTiles = std::ceil(static_cast<float>(matrix.row()) / WMMA_M);
     const UIN numColTiles = std::ceil(static_cast<float>(matrix.col()) / WMMA_N);
     printf("Total tiles: %d\n", numRowTiles * numColTiles);
-#pragma omp parallel for reduction(+ : numTiles)
+#pragma omp parallel for reduction(+ : numTiles, density)
     for (int rowTileId = 0; rowTileId < numRowTiles; ++rowTileId) {
         for (int colTileId = 0; colTileId < numColTiles; ++colTileId) {
             const UIN startRow = rowTileId * WMMA_M;
