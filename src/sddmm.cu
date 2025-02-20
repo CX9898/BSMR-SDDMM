@@ -116,7 +116,10 @@ void sddmm(const Matrix<float> &matrixA,
            rebell.calculateMaxMinDensity().first,
            rebell.calculateMaxMinDensity().second);
 
-//    printf("Number of tiles before reordering: %d\n", calculateNumTilesInOriginalMatrix(matrixS));
+    std::pair<UIN, float> numTilesAverageDensity = calculateNumTilesAndAverageDensityInOriginalMatrix(matrixS);
+    printf("Number of tiles before reordering: %d, average density : %f\n",
+           numTilesAverageDensity.first,
+           numTilesAverageDensity.second);
 
 //    printf("rebell.reorderedRows():");
 //    for (int i = 0; i < rebell.reorderedRows().size(); ++i) {

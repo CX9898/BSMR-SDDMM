@@ -498,8 +498,9 @@ bool check_rebell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &r
     return isCorrect;
 }
 
-UIN calculateNumTilesInOriginalMatrix(const sparseMatrix::CSR<float> &matrix) {
+std::pair<UIN, float> calculateNumTilesAndAverageDensityInOriginalMatrix(const sparseMatrix::CSR<float> &matrix) {
     UIN numTiles = 0;
+    float density = 0.0f;
 
     const UIN numRowTiles = std::ceil(static_cast<float>(matrix.row()) / WMMA_M);
     const UIN numColTiles = std::ceil(static_cast<float>(matrix.col()) / WMMA_N);
@@ -526,9 +527,10 @@ UIN calculateNumTilesInOriginalMatrix(const sparseMatrix::CSR<float> &matrix) {
 
             if (numNonZero > 0) {
                 ++numTiles;
+                density += static_cast<float>(numNonZero) / (WMMA_M * WMMA_N);
             }
         }
     }
 
-    return numTiles;
+    return std::make_pair(numTiles, density / numTiles);
 }

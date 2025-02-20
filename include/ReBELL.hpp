@@ -103,5 +103,5 @@ void colReordering(const sparseMatrix::CSR<float> &matrix,
 // Error checking
 bool check_rebell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &rebell);
 
-// Calculate the number of tiles in the original matrix
-UIN calculateNumTilesInOriginalMatrix(const sparseMatrix::CSR<float> &matrix);
+// Calculate the number of tiles and average density in the original matrix
+std::pair<UIN, float> calculateNumTilesAndAverageDensityInOriginalMatrix(const sparseMatrix::CSR<float> &matrix);
