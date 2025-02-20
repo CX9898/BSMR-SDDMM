@@ -1229,6 +1229,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
                       sparseMatrix::CSR<float> &matrixP,
                       float &time) {
 
+    // Convert the data type of matrix A and matrix B for use tensor core
     dev::vector<MATRIX_A_TYPE> matrixA_values_convertedType_dev(matrixA.size());
     dev::vector<MATRIX_B_TYPE> matrixB_values_convertedType_dev(matrixB.size());
     {
@@ -1242,19 +1243,23 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
             matrixB.size(), matrixB_values_dev.data(), matrixB_values_convertedType_dev.data());
     }
 
+    // Copy the data from the host to the device
     dev::vector<UIN> reorderedRowIndices_dev(rebell.reorderedRows());
     dev::vector<UIN> reorderedColIndices_dev(rebell.reorderedCols());
     dev::vector<UIN> reorderedColIndicesOffset_dev(rebell.reorderedColOffsets());
     dev::vector<UIN> blockRowOffsets_dev(rebell.blockRowOffsets());
     dev::vector<UIN> blockValues_dev(rebell.blockValues());
+
     dev::vector<float> matrixP_dev(matrixS.nnz());
 
-    const UIN eachThreadBlockCountsTheNumberOfColBlocks = 4;
     dim3 grid, block;
+
+    const UIN eachThreadBlockCountsTheNumberOfColBlocks = 4;
     block.x = WARP_SIZE * eachThreadBlockCountsTheNumberOfColBlocks;
+
+    // Assign row panel to x-axis of grid, and assign col block to y-axis of grid
     grid.x = rebell.numRowPanels();
     grid.y = std::ceil(static_cast<float>(rebell.maxNumColBlocks()) / eachThreadBlockCountsTheNumberOfColBlocks);
-//    grid.y = rebell.maxNumColBlocks();
 
     printf("grid: [%d,%d,%d], block: [%d,%d,%d]\n", grid.x, grid.y, grid.z, block.x, block.y, block.z);
 
@@ -1286,13 +1291,14 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
             blockValues_dev.data(),
             matrixP_dev.data());
     } else {
-        fprintf(stderr, "sddmm_gpu_rebell not support this matrix strorage order\n");
+        fprintf(stderr, "sddmm_gpu_rebell not support this matrix storage order\n");
     }
 
     timeCalculator.endClock();
 
     time = timeCalculator.getTime();
 
+    // Copy the results from the device to the host
     matrixP.setValues() = d2h(matrixP_dev);
 }
 

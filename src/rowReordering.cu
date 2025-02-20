@@ -572,7 +572,7 @@ void calculateDispersion(const sparseMatrix::CSR<float> &matrix,
     Dispersions = d2h(Dispersions_gpu);
 }
 
-std::vector<int> get_permutation_gpu(const sparseMatrix::CSR<float> &mat,
+std::vector<UIN> get_permutation_gpu(const sparseMatrix::CSR<float> &mat,
                                      std::vector<int> ascending_idx,
                                      const dev::vector<int> &Encodings,
                                      const std::vector<int> &Dispersions,
@@ -667,7 +667,7 @@ std::vector<int> get_permutation_gpu(const sparseMatrix::CSR<float> &mat,
     std::vector<int> indices(mat.row());
     std::iota(indices.begin(), indices.end(), 0);
     std::stable_sort(indices.begin(), indices.end(), compare_by_cluster_id);
-    std::vector<int> permutation(mat.row());
+    std::vector<UIN> permutation(mat.row());
     for (int i = 0; i < mat.row(); i++) {
         permutation[i] = ascending_idx_head[indices[i]];
     }
@@ -684,13 +684,13 @@ std::vector<int> get_permutation_gpu(const sparseMatrix::CSR<float> &mat,
     return permutation;
 }
 
-std::vector<int> bsa_rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
+std::vector<UIN> bsa_rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
                                        float alpha,
                                        UIN block_size,
                                        float &reordering_time,
                                        int &cluster_cnt) {
 
-    std::vector<int> row_permutation;
+    std::vector<UIN> row_permutation;
     // int num_blocks_per_row = (lhs.cols + block_size - 1) / block_size;
     int num_blocks_per_row = ceil((float) matrix.col() / (float) block_size);
 

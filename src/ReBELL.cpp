@@ -19,12 +19,8 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
 //        std::vector<int> reorderedRows =
 //            bsa_rowReordering_cpu(matrix, row_similarity_threshold_alpha, BLOCK_SIZE, rowReordering_time);
         int clu_cnt;
-        std::vector<int> reorderedRows =
+        reorderedRows_ =
             bsa_rowReordering_gpu(matrix, row_similarity_threshold_alpha, BLOCK_COL_SIZE, rowReordering_time, clu_cnt);
-        reorderedRows_.resize(reorderedRows.size());
-        for (int i = 0; i < reorderedRows.size(); ++i) {
-            reorderedRows_[i] = static_cast<UIN>(reorderedRows[i]);
-        }
     }
     printf("rowReordering time : %f ms\n", rowReordering_time);
 
