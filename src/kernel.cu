@@ -603,8 +603,10 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block64_matrixA_rowMaj_matrixB_colMaj
                                                                                  const UIN *blockRowOffsets,
                                                                                  const UIN *blockValues,
                                                                                  float *matrixP) {
+    constexpr int eachThreadBlockCountsTheNumberOfColBlocks = 2;
+
     constexpr int aTileSMEMSize = WMMA_M * WMMA_N;
-    constexpr int bTileSMEMSize = WMMA_K * WMMA_N * 2;
+    constexpr int bTileSMEMSize = WMMA_K * WMMA_N * eachThreadBlockCountsTheNumberOfColBlocks;
 
     __shared__ half aTileSMEM[aTileSMEMSize];
     __shared__ half bTileSMEM[bTileSMEMSize];
@@ -622,7 +624,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block64_matrixA_rowMaj_matrixB_colMaj
     const UIN rowPanelId = blockIdx.x;
     const UIN numColBlocksCurrentRowPanel = blockRowOffsets[rowPanelId + 1] - blockRowOffsets[rowPanelId];
 
-    const UIN colBlockIter = blockIdx.y * 2;
+    const UIN colBlockIter = blockIdx.y * eachThreadBlockCountsTheNumberOfColBlocks;
     if (colBlockIter >= numColBlocksCurrentRowPanel) {
         return;
     }
@@ -706,8 +708,10 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block128_matrixA_rowMaj_matrixB_colMa
                                                                                   const UIN *blockRowOffsets,
                                                                                   const UIN *blockValues,
                                                                                   float *matrixP) {
+    constexpr int eachThreadBlockCountsTheNumberOfColBlocks = 4;
+
     constexpr int aTileSMEMSize = (WMMA_M * WMMA_N) * 2;
-    constexpr int bTileSMEMSize = (WMMA_K * WMMA_N * 4) * 2;
+    constexpr int bTileSMEMSize = (WMMA_K * WMMA_N * eachThreadBlockCountsTheNumberOfColBlocks) * 2;
 
     __shared__ half aTileSMEM[aTileSMEMSize];
     __shared__ half bTileSMEM[bTileSMEMSize];
@@ -725,7 +729,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block128_matrixA_rowMaj_matrixB_colMa
     const UIN rowPanelId = blockIdx.x;
     const UIN numColBlocksCurrentRowPanel = blockRowOffsets[rowPanelId + 1] - blockRowOffsets[rowPanelId];
 
-    const UIN colBlockIter = blockIdx.y * 4;
+    const UIN colBlockIter = blockIdx.y * eachThreadBlockCountsTheNumberOfColBlocks;
     if (colBlockIter >= numColBlocksCurrentRowPanel) {
         return;
     }
@@ -733,7 +737,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block128_matrixA_rowMaj_matrixB_colMa
     const UIN colBlockId = colBlockIter + warpId;
     const UIN startIndexOfBlockValuesCurrentBlock = (blockRowOffsets[rowPanelId] + colBlockId) * BLOCK_SIZE;
 
-    const UIN startIndexOfReorderedColsCurrentIter = reorderedColOffset[rowPanelId] + BLOCK_COL_SIZE * colBlockIter;
+    const UIN startIndexOfReorderedColsCurrentColBlock = reorderedColOffset[rowPanelId] + BLOCK_COL_SIZE * colBlockId;
     const UIN endIndexOfReorderedColsCurrentPanel = reorderedColOffset[rowPanelId + 1];
 
     const UIN lda = K;
@@ -756,7 +760,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block128_matrixA_rowMaj_matrixB_colMa
 #pragma unroll
         for (int iter = 0; iter < 16; ++iter) {
             const UIN bRowId = kIter + laneId;
-            const UIN reorderedColIndex = startIndexOfReorderedColsCurrentIter + iter;
+            const UIN reorderedColIndex = startIndexOfReorderedColsCurrentColBlock + iter;
             const UIN bColId = reorderedColIndex < endIndexOfReorderedColsCurrentPanel ?
                 reorderedCols[reorderedColIndex] : N;
 
@@ -1245,11 +1249,12 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
     dev::vector<UIN> blockValues_dev(rebell.blockValues());
     dev::vector<float> matrixP_dev(matrixS.nnz());
 
-    const UIN calculateNumOfColBlocksPerOneThreadBlock = 4;
+    const UIN eachThreadBlockCountsTheNumberOfColBlocks = 4;
     dim3 grid, block;
-    block.x = WARP_SIZE * calculateNumOfColBlocksPerOneThreadBlock;
+    block.x = WARP_SIZE * eachThreadBlockCountsTheNumberOfColBlocks;
     grid.x = rebell.numRowPanels();
-    grid.y = std::ceil(static_cast<float>(rebell.maxNumColBlocks()) / calculateNumOfColBlocksPerOneThreadBlock);
+    grid.y = std::ceil(static_cast<float>(rebell.maxNumColBlocks()) / eachThreadBlockCountsTheNumberOfColBlocks);
+//    grid.y = rebell.maxNumColBlocks();
 
     printf("grid: [%d,%d,%d], block: [%d,%d,%d]\n", grid.x, grid.y, grid.z, block.x, block.y, block.z);
 

@@ -110,22 +110,16 @@ void sddmm(const Matrix<float> &matrixA,
     float rebell_time;
     ReBELL rebell(matrixS, rebell_time);
 
-    auto [maxDensity, minDensity] = rebell.calculateMaxMinDensity();
+    const auto [maxDensity, minDensity] = rebell.calculateMaxMinDensity();
     printf("rebell : numBlock = %d, average density = %f, max average = %f, min average = %f\n",
            rebell.getNumBlocks(),
            rebell.calculateAverageDensity(),
            maxDensity,
            minDensity);
 
-    auto [numTiles, averageDensity] = calculateNumTilesAndAverageDensityInOriginalMatrix(matrixS);
+    const auto [numTiles, averageDensity] = calculateNumTilesAndAverageDensityInOriginalMatrix(matrixS);
     printf("Number of tiles before reordering: %d, average density : %f\n",
            numTiles, averageDensity);
-
-//    printf("rebell.reorderedRows():");
-//    for (int i = 0; i < rebell.reorderedRows().size(); ++i) {
-//        printf("%d ", rebell.reorderedRows()[i]);
-//    }
-//    printf("\n");
 
     logger.zcx_other() = rebell_time;
 
@@ -137,6 +131,9 @@ void sddmm(const Matrix<float> &matrixA,
     sddmm_gpu_rebell(matrixA, matrixB, matrixS, rebell, matrixP, sddmm_time);
 
     logger.zcx_sddmm() = sddmm_time;
+
+    // Error check
+//    check_sddmm(matrixA, matrixB, matrixS, matrixP);
 }
 
 bool check_sddmm(const Matrix<float> &matrixA,
