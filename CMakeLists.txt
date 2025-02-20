@@ -11,8 +11,8 @@ enable_language(CUDA)
 find_package(CUDAToolkit REQUIRED)
 
 # Sets the C++ standard used by the project
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CUDA_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CUDA_STANDARD 17)
 
 # Specifies which GPU architectures are supported when compiling CUDA code (optional)
 set(CMAKE_CUDA_ARCHITECTURES 86)
