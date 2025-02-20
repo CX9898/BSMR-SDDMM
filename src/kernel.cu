@@ -699,14 +699,14 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block64_matrixA_rowMaj_matrixB_colMaj
 __global__ void sddmm_gpu_rebell_m16n16k16_block128_matrixA_rowMaj_matrixB_colMaj(const UIN M,
                                                                                   const UIN N,
                                                                                   const UIN K,
-                                                                                  const half *matrixA,
-                                                                                  const half *matrixB,
+                                                                                  const half *__restrict__ matrixA,
+                                                                                  const half *__restrict__ matrixB,
                                                                                   const UIN numNonZeroRow,
-                                                                                  const UIN *reorderedRows,
-                                                                                  const UIN *reorderedCols,
-                                                                                  const UIN *reorderedColOffset,
-                                                                                  const UIN *blockRowOffsets,
-                                                                                  const UIN *blockValues,
+                                                                                  const UIN *__restrict__ reorderedRows,
+                                                                                  const UIN *__restrict__ reorderedCols,
+                                                                                  const UIN *__restrict__ reorderedColOffset,
+                                                                                  const UIN *__restrict__ blockRowOffsets,
+                                                                                  const UIN *__restrict__ blockValues,
                                                                                   float *matrixP) {
     constexpr int eachThreadBlockCountsTheNumberOfColBlocks = 4;
 
