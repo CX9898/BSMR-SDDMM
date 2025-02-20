@@ -90,6 +90,9 @@ class Matrix {
   void print() const;
   void printToMarkdownTable() const;
 
+  std::vector<T> getRowVector(UIN row) const;
+  std::vector<T> getColVector(UIN col) const;
+
   /**
    * tensor core mode
    **/

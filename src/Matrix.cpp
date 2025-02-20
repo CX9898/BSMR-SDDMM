@@ -167,6 +167,30 @@ void Matrix<T>::printToMarkdownTable() const {
 }
 
 template<typename T>
+std::vector<T> Matrix<T>::getRowVector(UIN row) const {
+    std::vector<T> rowVector(col());
+
+#pragma omp parallel for
+    for (int col = 0; col < col_; ++col) {
+        rowVector[col] = getOneValue(row, col);
+    }
+
+    return rowVector;
+}
+
+template<typename T>
+std::vector<T> Matrix<T>::getColVector(UIN col) const {
+    std::vector<T> colVector(row());
+
+#pragma omp parallel for
+    for (int row = 0; row < row_; ++row) {
+        colVector[col] = getOneValue(row, col);
+    }
+
+    return colVector;
+}
+
+template<typename T>
 T Matrix<T>::getOneValueForMultiplication(MatrixMultiplicationOrder multiplicationOrder,
                                           UIN rowMtxC,
                                           UIN colMtxC,
