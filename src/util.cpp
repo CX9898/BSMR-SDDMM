@@ -78,4 +78,9 @@ bool getDenseMatrixFromFile(const std::string &filePath1, const std::string &fil
     return true;
 }
 
+double truncateFloat(double value, int decimalPlaces = 3) {
+    double factor = std::pow(10, decimalPlaces);
+    return std::floor(value * factor) / factor;
+}
+
 } // namespace util

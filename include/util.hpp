@@ -94,4 +94,15 @@ std::string iterateOneWordFromLine(const std::string &line, int &wordIter);
 template<typename T>
 bool getDenseMatrixFromFile(const std::string &filePath1, const std::string &filePath2,
                             std::vector<T> &data1, std::vector<T> &data2);
+
+/**
+ * @funcitonName: truncateFloat
+ * @functionInterpretation: Floating point numbers are truncated to n decimal places
+ * @input:
+ * `value`: Floating point number to truncate
+ * `decimalPlaces`: Number of decimal places to truncate
+ * @output:
+ * Returns the truncated floating point number
+**/
+double truncateFloat(double value, int decimalPlaces);
 }// namespace util
