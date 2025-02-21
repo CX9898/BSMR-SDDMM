@@ -23,6 +23,9 @@ struct ResultsInformation {
   std::string wmma_n_;
   std::string wmma_k_;
 
+  std::string gridDim_;
+  std::string blockDim_;
+
   std::string matrixA_type_;
   std::string matrixB_type_;
   std::string matrixC_type_;
@@ -56,6 +59,9 @@ struct ResultsInformation {
   bool is_initialized_wmma_m_ = false;
   bool is_initialized_wmma_n_ = false;
   bool is_initialized_wmma_k_ = false;
+
+  bool is_initialized_gridDim_ = false;
+  bool is_initialized_blockDim_ = false;
 
   bool is_initialized_matrixA_type_ = false;
   bool is_initialized_matrixB_type_ = false;
@@ -178,6 +184,9 @@ void ResultsInformation::initInformation(const std::string &line) {
     initSettingOperation(line, "[WMMA_N : ", is_initialized_wmma_n_, wmma_n_);
     initSettingOperation(line, "[WMMA_K : ", is_initialized_wmma_k_, wmma_k_);
 
+    initSettingOperation(line, "[gridDim : ", is_initialized_gridDim_, gridDim_);
+    initSettingOperation(line, "[blockDim : ", is_initialized_blockDim_, blockDim_);
+
     initSettingOperation(line, "[matrixA type : ", is_initialized_matrixA_type_, matrixA_type_);
     initSettingOperation(line, "[matrixB type : ", is_initialized_matrixB_type_, matrixB_type_);
     initSettingOperation(line, "[matrixC type : ", is_initialized_matrixC_type_, matrixC_type_);
@@ -217,6 +226,9 @@ void printSettingInformation(const ResultsInformation &resultsInformation) {
     printf("- %s\n", resultsInformation.wmma_m_.c_str());
     printf("- %s\n", resultsInformation.wmma_n_.c_str());
     printf("- %s\n", resultsInformation.wmma_k_.c_str());
+
+    printf("- %s\n", resultsInformation.gridDim_.c_str());
+    printf("- %s\n", resultsInformation.blockDim_.c_str());
 
     printf("\n");
 }
