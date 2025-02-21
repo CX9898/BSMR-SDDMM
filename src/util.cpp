@@ -7,13 +7,25 @@
 namespace util {
 
 std::string getParentFolderPath(const std::string &path) {
-    for (int idx = path.size() - 2; idx >= 0; --idx) {
-        if (path[idx] == '/' || path[idx] == '\\') {
-            return path.substr(0, idx + 1);
-        }
+    if (path.empty()) return "";
+
+    const size_t pos = path.find_last_of("/\\");
+    if (pos == std::string::npos) {
+        std::cerr << "Warning. The input path has no parent folder" << std::endl;
     }
-    std::cerr << "Warning. The input path has no parent folder" << std::endl;
-    return path;
+    const std::string directory = (pos == std::string::npos) ? "" : path.substr(0, pos + 1);
+    return directory;
+}
+
+std::string getFileName(const std::string &path) {
+    if (path.empty()) return "";
+
+    const size_t pos = path.find_last_of("/\\");
+    if (pos == std::string::npos) {
+        std::cerr << "Warning. The input path has no parent folder" << std::endl;
+    }
+    const std::string filename = (pos == std::string::npos) ? path : path.substr(pos + 1);
+    return filename;
 }
 
 std::string iterateOneWordFromLine(const std::string &line, int &wordIter) {

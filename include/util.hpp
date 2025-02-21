@@ -33,6 +33,17 @@ inline bool fileExists(const std::string &filename) {
 std::string getParentFolderPath(const std::string &path);
 
 /**
+ * @funcitonName: getFileName
+ * @functionInterpretation:
+ *  Enter the file path or folder path, and return the parent folder path.
+ * @input:
+ *  `path` : File path.
+ * @output:
+ *  Returns the file name of the input path.
+ **/
+std::string getFileName(const std::string &path);
+
+/**
  * @funcitonName: createRandomUniformDistribution
  * @functionInterpretation: Depending on the type passed to the template,
  * create a uniform distribution that is suitable for float-type or int-type.
