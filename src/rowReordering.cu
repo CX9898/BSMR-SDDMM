@@ -687,8 +687,7 @@ std::vector<UIN> get_permutation_gpu(const sparseMatrix::CSR<float> &mat,
 std::vector<UIN> bsa_rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
                                        float alpha,
                                        UIN block_size,
-                                       float &reordering_time,
-                                       int &cluster_cnt) {
+                                       float &reordering_time) {
 
     std::vector<UIN> row_permutation;
     // int num_blocks_per_row = (lhs.cols + block_size - 1) / block_size;
@@ -725,8 +724,14 @@ std::vector<UIN> bsa_rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
     /*Prepare Clustering -done*/
 
     /*Perform BSA-reordering via gpu -start*/
-    row_permutation =
-        get_permutation_gpu(matrix, ascending, Encodings_gpu, Dispersions, num_blocks_per_row, alpha, cluster_cnt);
+    int cluster_cnt = 0;
+    row_permutation = get_permutation_gpu(matrix,
+                                          ascending,
+                                          Encodings_gpu,
+                                          Dispersions,
+                                          num_blocks_per_row,
+                                          alpha,
+                                          cluster_cnt);
     /*Perform BSA-reordering via gpu -done*/
 
     // Remove zero rows

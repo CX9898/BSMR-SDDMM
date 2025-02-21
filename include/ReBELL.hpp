@@ -87,8 +87,7 @@ std::vector<int> bsa_rowReordering_cpu(const sparseMatrix::CSR<float> &matrix,
 std::vector<UIN> bsa_rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
                                        float alpha,
                                        UIN block_size,
-                                       float &reordering_time,
-                                       int &cluster_cnt);
+                                       float &reordering_time);
 
 /**
  * @funcitonName: colReordering

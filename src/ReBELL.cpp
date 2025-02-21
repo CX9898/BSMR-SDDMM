@@ -14,14 +14,11 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
 
     // Row reordering
     float rowReordering_time;
-    {
-//        bsa_rowReordering_cpu(matrix, reorderedRows_, rowReordering_time);
-//        std::vector<int> reorderedRows =
-//            bsa_rowReordering_cpu(matrix, row_similarity_threshold_alpha, BLOCK_SIZE, rowReordering_time);
-        int clu_cnt;
-        reorderedRows_ =
-            bsa_rowReordering_gpu(matrix, row_similarity_threshold_alpha, BLOCK_COL_SIZE, rowReordering_time, clu_cnt);
-    }
+    reorderedRows_ = bsa_rowReordering_gpu(matrix,
+                                           row_similarity_threshold_alpha,
+                                           BLOCK_COL_SIZE,
+                                           rowReordering_time);
+
     printf("rowReordering time : %f ms\n", rowReordering_time);
 
     numRowPanels_ = std::ceil(static_cast<float>(reorderedRows_.size()) / ROW_PANEL_SIZE);
