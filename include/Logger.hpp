@@ -52,8 +52,8 @@ struct Logger {
   size_t wmma_n_;
   size_t wmma_k_;
 
-  dim3 grid_;
-  dim3 block_;
+  dim3 gridDim_;
+  dim3 blockDim_;
 
   std::string matrixA_type_;
   std::string matrixB_type_;
@@ -102,8 +102,8 @@ void Logger::printLogInformation() {
     printf("[matrixA storageOrder : %s]\n", matrixA_storageOrder_.c_str());
     printf("[matrixB storageOrder : %s]\n", matrixB_storageOrder_.c_str());
 
-    printf("[grid : %d, %d, %d]\n", grid_.x, grid_.y, grid_.z);
-    printf("[block : %d, %d, %d]\n", block_.x, block_.y, block_.z);
+    printf("[gridDim : %d, %d, %d]\n", gridDim_.x, gridDim_.y, gridDim_.z);
+    printf("[blockDim : %d, %d, %d]\n", blockDim_.x, blockDim_.y, blockDim_.z);
 
     printf("[cuSparse : %.2f]\n", cuSparse_time_);
 

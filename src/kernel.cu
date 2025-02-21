@@ -1472,8 +1472,8 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
     grid.x = rebell.numRowPanels();
     grid.y = std::ceil(static_cast<float>(rebell.maxNumColBlocks()) / eachThreadBlockCountsTheNumberOfColBlocks);
 
-    logger.grid_ = grid;
-    logger.block_ = block;
+    logger.gridDim_ = grid;
+    logger.blockDim_ = block;
 
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
