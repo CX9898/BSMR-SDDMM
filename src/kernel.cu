@@ -701,6 +701,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block128_matrixA_rowMaj_matrixB_colMa
                                                                                   const UIN K,
                                                                                   const half *__restrict__ matrixA,
                                                                                   const half *__restrict__ matrixB,
+                                                                                  const float alpha, const float beta,
                                                                                   const UIN numNonZeroRow,
                                                                                   const UIN *__restrict__ reorderedRows,
                                                                                   const UIN *__restrict__ reorderedCols,
@@ -785,6 +786,8 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block128_matrixA_rowMaj_matrixB_colMa
     if (colBlockId < numColBlocksCurrentRowPanel) {
 #pragma unroll
         for (int idxOfFragment = 0; idxOfFragment < cFrag.num_elements; ++idxOfFragment) {
+            const float c = alpha * cFrag.x[idxOfFragment];
+
             UIN localRow, localCol;
             calculateFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
 
@@ -793,7 +796,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block128_matrixA_rowMaj_matrixB_colMa
 
             // Saved when the value is not 0
             if (idxOfMatrixP != NULL_VALUE) {
-                matrixP[idxOfMatrixP] = cFrag.x[idxOfFragment];
+                matrixP[idxOfMatrixP] = c + beta * matrixP[idxOfFragment];
             }
         }
     }
@@ -1213,17 +1216,9 @@ __global__ void sddmm_gpu_rebell_4WMMA_K_m16n16k16_matrixA_rowMaj_matrixB_colMaj
 
 } // namespace kernel
 
-void cudaOccupancyMaxPotentialBlockSize(void *func, int &blockSize, int &minGridSize) {
-    cudaOccupancyMaxPotentialBlockSize(&minGridSize,
-                                       &blockSize,
-                                       func,
-                                       0,
-                                       0);
-    printf("minGridSize: %d, blockSize: %d\n", minGridSize, blockSize);
-}
-
 void sddmm_gpu_rebell(const Matrix<float> &matrixA,
                       const Matrix<float> &matrixB,
+                      const float alpha, const float beta,
                       const sparseMatrix::CSR<float> &matrixS,
                       const ReBELL &rebell,
                       sparseMatrix::CSR<float> &matrixP,
@@ -1250,7 +1245,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
     dev::vector<UIN> blockRowOffsets_dev(rebell.blockRowOffsets());
     dev::vector<UIN> blockValues_dev(rebell.blockValues());
 
-    dev::vector<float> matrixP_dev(matrixS.nnz());
+    dev::vector<float> matrixP_dev(matrixS.values());
 
     dim3 grid, block;
 
@@ -1283,6 +1278,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
         kernel::sddmm_gpu_rebell_m16n16k16_block128_matrixA_rowMaj_matrixB_colMaj<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(),
             matrixA_values_convertedType_dev.data(),
             matrixB_values_convertedType_dev.data(),
+            alpha, beta,
             rebell.reorderedRows().size(),
             reorderedRowIndices_dev.data(),
             reorderedColIndices_dev.data(),
@@ -1305,6 +1301,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
 // 在外部进行K迭代
 void sddmm_gpu_rebell_out_kIter(const Matrix<float> &matrixA,
                                 const Matrix<float> &matrixB,
+                                const float alpha, const float beta,
                                 const sparseMatrix::CSR<float> &matrixS,
                                 const ReBELL &rebell,
                                 sparseMatrix::CSR<float> &matrixP,

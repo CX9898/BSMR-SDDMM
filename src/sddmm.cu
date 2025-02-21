@@ -102,6 +102,7 @@ void sddmm(Matrix<float> &matrixA,
 // Reordering method
 void sddmm(const Matrix<float> &matrixA,
            const Matrix<float> &matrixB,
+           const float alpha, const float beta,
            const sparseMatrix::CSR<float> &matrixS,
            sparseMatrix::CSR<float> &matrixP,
            Logger &logger) {
@@ -131,7 +132,7 @@ void sddmm(const Matrix<float> &matrixA,
 
     // sddmm comp by gpu
     float sddmm_time;
-    sddmm_gpu_rebell(matrixA, matrixB, matrixS, rebell, matrixP, sddmm_time);
+    sddmm_gpu_rebell(matrixA, matrixB, alpha, beta, matrixS, rebell, matrixP, sddmm_time);
 
     logger.zcx_sddmm_time_ = sddmm_time;
 

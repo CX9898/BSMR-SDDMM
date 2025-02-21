@@ -9,6 +9,7 @@ void sddmm(Matrix<float> &matrixA, Matrix<float> &matrixB, sparseMatrix::COO<flo
 // Reordering method
 void sddmm(const Matrix<float> &matrixA,
            const Matrix<float> &matrixB,
+           const float alpha, const float beta,
            const sparseMatrix::CSR<float> &matrixS,
            sparseMatrix::CSR<float> &matrixP,
            Logger &logger);

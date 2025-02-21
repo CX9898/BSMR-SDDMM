@@ -44,7 +44,9 @@ int main(int argc, char *argv[]) {
 
     Options options(argc, argv);
 
-    size_t K = options.K();
+    const size_t K = options.K();
+    const float alpha = options.alpha(), beta = options.beta();
+
     sparseMatrix::COO<float> matrixS;
     matrixS.initializeFromMatrixMarketFile(options.inputFile());
 
@@ -63,7 +65,6 @@ int main(int argc, char *argv[]) {
 
     // cuSparse library
     sparseMatrix::CSR<float> matrixP_cuSparse(matrixS_csr);
-    const float alpha = 1.0f, beta = 0.0f;
     cuSparseSDDMM(matrixA, matrixB, matrixS_csr, alpha, beta, matrixP_cuSparse, logger);
 
 //    // old method
@@ -79,7 +80,7 @@ int main(int argc, char *argv[]) {
 
     // sddmm
     sparseMatrix::CSR<float> matrixP(matrixS_csr);
-    sddmm(matrixA, matrixB, matrixS_csr, matrixP, logger);
+    sddmm(matrixA, matrixB, alpha, beta, matrixS_csr, matrixP, logger);
 
     // Error check
     printf("check cuSparseSDDMM and sddmm : \n");
