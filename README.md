@@ -2,7 +2,7 @@
 
 ---
 
-Sampled Dense-Dense Matrix Multiplication(SDDNN) on GPU
+Sampled Dense-Dense Matrix Multiplication(SDDMM) on GPU
 
 $\mathbf{C}=\alpha(op(\mathbf{A})\cdot op(\mathbf{B}))\circ spy(\mathbf{C})+\beta\mathbf{C}$
 
