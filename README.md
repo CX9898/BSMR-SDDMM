@@ -30,6 +30,7 @@ Conversion code from col sorted to row sorted can be found inside sddmm.cu
 Linux:
 
 ```shell
+cd <sddmm-gpu>
 mkdir build
 cd build
 cmake ..
