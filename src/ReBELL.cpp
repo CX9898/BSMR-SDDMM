@@ -208,6 +208,52 @@ std::pair<float, float> ReBELL::calculateMaxMinDensity() {
     return std::make_pair(maxDensity, minDensity);
 }
 
+std::pair<float, UIN> ReBELL::calculateDensityMode() {
+
+    constexpr UIN numberOfDecimalPlacesToRetain = 3;
+    const UIN divisor = static_cast<UIN>(std::pow(10, numberOfDecimalPlacesToRetain));
+
+    std::unordered_map<UIN, UIN> densityToNumMap;
+#pragma omp parallel for
+    for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
+        const UIN startIndexOfBlockValuesCurrentRowPanel = blockRowOffsets_[rowPanelId] * BLOCK_SIZE;
+        const UIN endIndexOfBlockValuesCurrentRowPanel = blockRowOffsets_[rowPanelId + 1] * BLOCK_SIZE;
+        UIN numNonZero = 0;
+        for (int idxOfBlockValues = startIndexOfBlockValuesCurrentRowPanel;
+             idxOfBlockValues < endIndexOfBlockValuesCurrentRowPanel; ++idxOfBlockValues) {
+            if (blockValues_[idxOfBlockValues] != NULL_VALUE) {
+                ++numNonZero;
+            }
+            if (idxOfBlockValues % BLOCK_SIZE == BLOCK_SIZE - 1) {
+                float curDensity = static_cast<float>(numNonZero) / BLOCK_SIZE;
+                UIN density = static_cast<UIN>(curDensity * divisor);
+
+#pragma omp critical
+                {
+                    if (densityToNumMap.find(density) == densityToNumMap.end()) {
+                        densityToNumMap[density] = 1;
+                    } else {
+                        ++densityToNumMap[density];
+                    }
+                }
+
+                numNonZero = 0;
+            }
+        }
+    }
+
+    UIN maxNum = std::numeric_limits<UIN>::min();
+    float modeDensity = 0.0f;
+    for (const auto &densityAndNum : densityToNumMap) {
+        if (maxNum < densityAndNum.second) {
+            maxNum = densityAndNum.second;
+            modeDensity = static_cast<float>(densityAndNum.first) / divisor;
+        }
+    }
+
+    return std::make_pair(modeDensity, maxNum);
+}
+
 bool check_rowReordering(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &rebell) {
     bool isCorrect = true;
 

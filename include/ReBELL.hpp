@@ -55,6 +55,9 @@ class ReBELL {
   // Calculate the maximum and minimum density of all blocks
   std::pair<float, float> calculateMaxMinDensity();
 
+  // Calculate the mode density and its frequency among all blocks.
+  std::pair<float, UIN> calculateDensityMode();
+
  private:
   UIN numRowPanels_;
   UIN maxNumColBlocks_;

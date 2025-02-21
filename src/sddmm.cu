@@ -117,6 +117,9 @@ void sddmm(const Matrix<float> &matrixA,
            maxDensity,
            minDensity);
 
+    const auto [modeDensity, frequency] = rebell.calculateDensityMode();
+    printf("rebell : mode density = %f, frequency = %d\n", modeDensity, frequency);
+
     const auto [numTiles, averageDensity] = calculateNumTilesAndAverageDensityInOriginalMatrix(matrixS);
     printf("Number of tiles before reordering: %d, average density : %f\n",
            numTiles, averageDensity);
