@@ -21,7 +21,7 @@ inline void printCudaErrorStringSync() {
  * @output:
  * return a pair of int, the first element is the optimal block size, the second element is the minimal grid size
  **/
-std::pair<int, int> calculateOccupancyMaxPotentialBlockSize(void *func) {
+inline std::pair<int, int> calculateOccupancyMaxPotentialBlockSize(void *func) {
     int minGridSize;
     int blockSize;
     cudaOccupancyMaxPotentialBlockSize(&minGridSize,
