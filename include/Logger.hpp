@@ -105,4 +105,8 @@ void Logger::printLogInformation() {
     printf("[zcx_other : %.2f]\n", zcx_other_time_);
     zcx_time_ = zcx_other_time_ + zcx_sddmm_time_;
     printf("[zcx : %.2f]\n", zcx_time_);
+
+    if (numError_ > 0) {
+        printf("[check : NO PASS numError : %ld]\n", numError_);
+    }
 }
