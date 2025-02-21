@@ -6,6 +6,7 @@
 #include "Matrix.hpp"
 #include "TensorCoreConfig.cuh"
 #include "ReBELL.hpp"
+#include "Logger.hpp"
 
 namespace kernel {
 
@@ -20,7 +21,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
                       const sparseMatrix::CSR<float> &matrixS,
                       const ReBELL &rebell,
                       sparseMatrix::CSR<float> &matrixP,
-                      float &time);
+                      Logger &logger);
 
 // 在外部进行K迭代
 void sddmm_gpu_rebell_out_kIter(const Matrix<float> &matrixA,

@@ -1438,7 +1438,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
                       const sparseMatrix::CSR<float> &matrixS,
                       const ReBELL &rebell,
                       sparseMatrix::CSR<float> &matrixP,
-                      float &time) {
+                      Logger &logger) {
 
     // Convert the data type of matrix A and matrix B for use tensor core
     dev::vector<MATRIX_A_TYPE> matrixA_values_convertedType_dev(matrixA.size());
@@ -1472,7 +1472,8 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
     grid.x = rebell.numRowPanels();
     grid.y = std::ceil(static_cast<float>(rebell.maxNumColBlocks()) / eachThreadBlockCountsTheNumberOfColBlocks);
 
-    printf("grid: [%d,%d,%d], block: [%d,%d,%d]\n", grid.x, grid.y, grid.z, block.x, block.y, block.z);
+    logger.grid_ = grid;
+    logger.block_ = block;
 
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
@@ -1508,7 +1509,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
 
     timeCalculator.endClock();
 
-    time = timeCalculator.getTime();
+    logger.zcx_sddmm_time_ = timeCalculator.getTime();
 
     // Copy the results from the device to the host
     matrixP.setValues() = d2h(matrixP_dev);

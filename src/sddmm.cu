@@ -131,10 +131,7 @@ void sddmm(const Matrix<float> &matrixA,
 //    check_rebell(matrixS, rebell);
 
     // sddmm comp by gpu
-    float sddmm_time;
-    sddmm_gpu_rebell(matrixA, matrixB, alpha, beta, matrixS, rebell, matrixP, sddmm_time);
-
-    logger.zcx_sddmm_time_ = sddmm_time;
+    sddmm_gpu_rebell(matrixA, matrixB, alpha, beta, matrixS, rebell, matrixP, logger);
 
     // Error check
 //    check_sddmm(matrixA, matrixB, matrixS, matrixP);
