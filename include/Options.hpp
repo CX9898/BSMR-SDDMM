@@ -17,13 +17,16 @@ class Options {
  public:
   Options(int argc, char *argv[]);
 
+  std::string programPath() const { return programPath_; }
+  std::string programName() const { return programName_; }
   std::string inputFile() const { return inputFile_; }
   size_t K() const { return K_; }
   float alpha() const { return alpha_; }
   float beta() const { return beta_; }
 
  private:
-  std::string program_name_;
+  std::string programPath_;
+  std::string programName_;
   std::string inputFile_ = filePath;
   size_t K_ = 32;
   float alpha_ = 1.0f;
@@ -35,7 +38,6 @@ class Options {
       "-F", "-f",
       "-K", "-k"
   };
-
   inline void parsingOptionAndParameters(const std::string &option, const std::string &value);
 };
 
@@ -61,7 +63,8 @@ inline void Options::parsingOptionAndParameters(const std::string &option, const
 }
 
 Options::Options(int argc, char **argv) {
-    program_name_ = util::getParentFolderPath(argv[0]) + argv[0];
+    programPath_ = util::getParentFolderPath(argv[0]);
+    programName_ = util::getFileName(argv[0]);
 
     // 记录参数的索引
     std::vector<int> optionIndices;
