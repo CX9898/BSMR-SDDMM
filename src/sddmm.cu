@@ -1,5 +1,5 @@
 #include "sddmm.hpp"
-#include "kernel.cuh"
+#include "sddmmKernel.cuh"
 #include "CudaTimeCalculator.cuh"
 #include "host.hpp"
 #include "checkData.hpp"

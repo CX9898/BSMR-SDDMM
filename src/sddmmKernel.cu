@@ -2,7 +2,7 @@
 
 #include <mma.h>
 
-#include "kernel.cuh"
+#include "sddmmKernel.cuh"
 #include "TensorCoreConfig.cuh"
 #include "ReBELL.hpp"
 #include "CudaTimeCalculator.cuh"
@@ -818,10 +818,11 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block256_matrixA_rowMaj_matrixB_colMa
                                                                                   const UIN *__restrict__ blockRowOffsets,
                                                                                   const UIN *__restrict__ blockValues,
                                                                                   float *matrixP) {
-    constexpr int eachThreadBlockCountsTheNumberOfColBlocks = 8;
+    constexpr int eachThreadLoadsTheNumberOfMatrixADatas = (WMMA_M * WMMA_K) / (WARP_SIZE * number_of_warps);
+    constexpr int eachWarpLoadsTheNumberOfMatrixADatas = WARP_SIZE * eachThreadLoadsTheNumberOfMatrixADatas;
 
     constexpr int aTileSMEMSize = (WMMA_M * WMMA_N) * 2;
-    constexpr int bTileSMEMSize = (WMMA_K * WMMA_N * eachThreadBlockCountsTheNumberOfColBlocks) * 2;
+    constexpr int bTileSMEMSize = (WMMA_K * WMMA_N * each_thread_block_counts_the_number_Of_col_blocks) * 2;
 
     __shared__ half aTileSMEM[aTileSMEMSize];
     __shared__ half bTileSMEM[bTileSMEMSize];
@@ -839,7 +840,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block256_matrixA_rowMaj_matrixB_colMa
     const UIN rowPanelId = blockIdx.x;
     const UIN numColBlocksCurrentRowPanel = blockRowOffsets[rowPanelId + 1] - blockRowOffsets[rowPanelId];
 
-    const UIN colBlockIter = blockIdx.y * eachThreadBlockCountsTheNumberOfColBlocks;
+    const UIN colBlockIter = blockIdx.y * each_thread_block_counts_the_number_Of_col_blocks;
     if (colBlockIter >= numColBlocksCurrentRowPanel) {
         return;
     }
@@ -853,16 +854,16 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block256_matrixA_rowMaj_matrixB_colMa
     const UIN lda = K;
     const UIN ldb = K;
 
-    // Loop over K
+    // Loop over K, one iteration WMMA_K * 2
     for (int kIter = 0; kIter < K; kIter += WMMA_K * 2) {
         // Load matrix A into shared memory, each thread loads 2 elements, conflict-free access
 #pragma unroll
-        for (int iter = 0; iter < 2; ++iter) {
+        for (int iter = 0; iter < eachThreadLoadsTheNumberOfMatrixADatas; ++iter) {
             const UIN reorderedRowIndex = (rowPanelId * ROW_PANEL_SIZE) + (warpId * 2) + iter;
             const UIN aRowId = reorderedRowIndex < numNonZeroRow ? reorderedRows[reorderedRowIndex] : M;
             const UIN aColId = kIter + laneId;
 
-            aTileSMEM[warpId * 64 + iter * 32 + laneId] =
+            aTileSMEM[warpId * eachWarpLoadsTheNumberOfMatrixADatas + iter * WARP_SIZE + laneId] =
                 (aRowId < M && aColId < K) ? matrixA[aRowId * lda + aColId] : static_cast<half>(0);
         }
 
