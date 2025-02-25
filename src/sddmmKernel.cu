@@ -1431,6 +1431,55 @@ __global__ void sddmm_gpu_rebell_4WMMA_K_m16n16k16_matrixA_rowMaj_matrixB_colMaj
     }
 }
 
+__global__ void sddmm_gpu_sparse_residue(const UIN M, const UIN N, const UIN K,
+                                         const float *__restrict__ matrixA,
+                                         const float *__restrict__ matrixB,
+                                         const float alpha, const float beta,
+                                         const UIN numNonZeroRow,
+                                         const UIN *__restrict__ reorderedRows,
+                                         const UIN *__restrict__ sparseCols,
+                                         const UIN *__restrict__ sparseColOffset,
+                                         float *matrixP) {
+    // 线程块中线程数量
+    constexpr int eachThreadLoadsTheNumberOfMatrixADatas = (WMMA_M * WMMA_K) / (WARP_SIZE * number_of_warps);
+    constexpr int eachWarpLoadsTheNumberOfMatrixADatas = WARP_SIZE * eachThreadLoadsTheNumberOfMatrixADatas;
+
+    constexpr int aTileSMEMSize = (WMMA_M * WMMA_N) * 2;
+
+    __shared__ float aTileSMEM[aTileSMEMSize];
+
+    const UIN laneId = threadIdx.x & 31;
+    const UIN warpId = threadIdx.x >> 5;
+
+    const UIN rowPanelId = blockIdx.x;
+
+    const UIN lda = K;
+    const UIN ldb = K;
+
+    // Loop over K
+    for (int kIter = 0; kIter < K; kIter += WMMA_K * 2) {
+        // Load matrix A into shared memory, each thread loads 2 elements, conflict-free access
+#pragma unroll
+        for (int iter = 0; iter < eachThreadLoadsTheNumberOfMatrixADatas; ++iter) {
+            const UIN reorderedRowIndex = (rowPanelId * ROW_PANEL_SIZE) + (warpId * 2) + iter;
+            const UIN aRowId = reorderedRowIndex < numNonZeroRow ? reorderedRows[reorderedRowIndex] : M;
+            const UIN aColId = kIter + laneId;
+
+            aTileSMEM[warpId * eachWarpLoadsTheNumberOfMatrixADatas + iter * WARP_SIZE + laneId] =
+                (aRowId < M && aColId < K) ? matrixA[aRowId * lda + aColId] : static_cast<float>(0);
+        }
+
+        __syncthreads();
+
+        // Load matrix B data
+
+
+        // Compute the matrix multiplication
+
+        __syncthreads();
+    }
+}
+
 } // namespace kernel
 
 void sddmm_gpu_rebell(const Matrix<float> &matrixA,
