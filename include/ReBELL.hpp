@@ -3,6 +3,7 @@
 #include "Matrix.hpp"
 
 constexpr float row_similarity_threshold_alpha = 0.3f;
+constexpr int dense_column_segment_threshold = 10;
 
 constexpr UIN ROW_PANEL_SIZE = WMMA_M;
 constexpr UIN BLOCK_COL_SIZE = WMMA_N;
@@ -91,7 +92,7 @@ std::vector<UIN> bsa_rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
 
 /**
  * @funcitonName: colReordering
- * @functionInterpretation: Divide rows into row panels and sort the columns in each row panel.
+ * @functionInterpretation: Divide rows into row panels and columns reordered in each row panel.
  * @input:
  * `matrix`: Sparse matrix data in CSR format.
  * @output: Update `reorderingColsOffset_` and `reorderingCols_`.
@@ -101,6 +102,22 @@ void colReordering(const sparseMatrix::CSR<float> &matrix,
                    const std::vector<UIN> &reorderedRows,
                    std::vector<UIN> &reorderedColOffsets,
                    std::vector<UIN> &reorderedCols);
+
+/**
+ * @funcitonName: colReordering
+ * @functionInterpretation: Divide rows into row panels and columns reordered in each row panel. After the columns reordered, the columns are divided into dense and sparse residual columns.
+ * @input:
+ * `matrix`: Sparse matrix data in CSR format.
+ * `reorderedRows` : Reordered row index array.
+ * @output:
+ **/
+void colReordering(const sparseMatrix::CSR<float> &matrix,
+                   const UIN numRowPanels,
+                   const std::vector<UIN> &reorderedRows,
+                   std::vector<UIN> &denseCols,
+                   std::vector<UIN> &denseColOffsets,
+                   std::vector<UIN> &sparseCols,
+                   std::vector<UIN> &sparseColOffsets);
 
 // Error checking
 bool check_rebell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &rebell);

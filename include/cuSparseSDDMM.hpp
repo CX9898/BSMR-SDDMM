@@ -9,7 +9,7 @@
 #include "cudaUtil.cuh"
 #include "host.hpp"
 #include "checkData.hpp"
-#include "kernel.cuh"
+#include "sddmmKernel.cuh"
 #include "Logger.hpp"
 
 #define CHECK_CUSPARSE(func)                                                   \
