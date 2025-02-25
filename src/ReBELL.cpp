@@ -26,7 +26,7 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
     // Column reordering
-    colReordering(matrix, numRowPanels_, reorderedRows(), reorderedColOffsets_, reorderedCols_);
+    colReordering(matrix, numRowPanels_, reorderedRows(), reorderedCols_, reorderedColOffsets_);
     timeCalculator.endClock();
     float colReordering_time = timeCalculator.getTime();
     printf("colReordering time : %f ms\n", colReordering_time);

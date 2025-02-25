@@ -12,8 +12,8 @@
 void colReordering(const sparseMatrix::CSR<float> &matrix,
                    const UIN numRowPanels,
                    const std::vector<UIN> &reorderedRows,
-                   std::vector<UIN> &reorderedColOffsets,
-                   std::vector<UIN> &reorderedCols) {
+                   std::vector<UIN> &reorderedCols,
+                   std::vector<UIN> &reorderedColOffsets) {
     std::vector<UIN> numOfNonZeroColSegmentInEachRowPanel(numRowPanels, 0);
     std::vector<std::vector<UIN>>
         colsInEachRowPanel_sparse(numRowPanels, std::vector<UIN>(matrix.col())); // Containing empty columns

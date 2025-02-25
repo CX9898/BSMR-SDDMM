@@ -100,8 +100,8 @@ std::vector<UIN> bsa_rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
 void colReordering(const sparseMatrix::CSR<float> &matrix,
                    const UIN numRowPanels,
                    const std::vector<UIN> &reorderedRows,
-                   std::vector<UIN> &reorderedColOffsets,
-                   std::vector<UIN> &reorderedCols);
+                   std::vector<UIN> &reorderedCols,
+                   std::vector<UIN> &reorderedColOffsets);
 
 /**
  * @funcitonName: colReordering
