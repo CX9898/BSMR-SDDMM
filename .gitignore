@@ -15,3 +15,6 @@
 
 # Result analysis program
 autoAnalysisResults
+
+# Download the matrix data for testing
+autoTestTool/matrices/
