@@ -15,9 +15,9 @@ constexpr UIN NULL_VALUE = MAX_UIN;
  * @className: ReBELL
  * @classInterpretation: Reorder the rows and columns of a sparse matrix and store it in BELL format
  * @MemberVariables:
- * `reorderedRows_`: Reordered row index array.
- * `reorderedCols_`: Reordered col index array in each row panel.
- * `reorderedRowPanelOffset_`: Offset array of col array in each row panel.
+ * `reorderedRows_`: Store the reordered row indexes.
+ * `reorderedCols_`: Store the reordered column indexes for each row panel in order.
+ * `reorderedColOffsets_`: Offset array of reordered  column array in each row panel.
  * `blockValues_`: BELL format. Stores the index of the original matrix element.
  * `blockRowOffsets_`: BELL format. Stores the number of column blocks in each row panel
  **/
