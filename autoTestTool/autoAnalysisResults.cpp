@@ -8,6 +8,45 @@
 
 const std::string dataSplitSymbol("---New data---");
 
+struct SettingInformation {
+  void initInformation(const std::string &line);
+
+  std::string buildType_;
+  std::string gpu_;
+
+  std::string wmma_m_;
+  std::string wmma_n_;
+  std::string wmma_k_;
+
+  std::string blockDim_;
+
+  std::string matrixA_type_;
+  std::string matrixB_type_;
+  std::string matrixC_type_;
+
+  std::string matrixA_storageOrder_;
+  std::string matrixB_storageOrder_;
+  std::string matrixC_storageOrder_;
+};
+
+struct ResultsInformation1 {
+  std::string M_;
+  std::string N_;
+  std::string K_;
+  std::string NNZ_;
+  std::string sparsity_;
+
+  std::string isratnisa_sddmm_;
+  std::string zcx_sddmm_;
+
+  std::string isratnisa_other_;
+  std::string zcx_other_;
+
+  std::string isratnisa_;
+  std::string zcx_;
+  std::string cuSparse_;
+};
+
 struct ResultsInformation {
  public:
 
@@ -237,24 +276,24 @@ void printHeadOfList() {
     printf("\n");
 
     // print the head of the list
-    printf("| ");
-    printf("file |");
-    printf("M |");
-    printf("N |");
-    printf("sparsity |");
-    printf("isratnisa_sddmm |");
-    printf("zcx_sddmm |");
-    printf("isratnisa_other |");
-    printf("zcx_other |");
-    printf("isratnisa |");
-    printf("zcx |");
-    printf("cuSparse |");
+    printf("|");
+    printf(" file |");
+    printf(" M |");
+    printf(" N |");
+    printf(" sparsity |");
+    printf(" isratnisa_sddmm |");
+    printf(" zcx_sddmm |");
+    printf(" isratnisa_other |");
+    printf(" zcx_other |");
+    printf(" isratnisa |");
+    printf(" zcx |");
+    printf(" cuSparse |");
     printf("\n");
 
     // print the split line
     const int numColData = 11;
     printf("|");
-    for(int i = 0; i < numColData; ++i){
+    for (int i = 0; i < numColData; ++i) {
         printf("--|");
     }
     printf("\n");
