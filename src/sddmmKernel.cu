@@ -818,7 +818,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block256_matrixA_rowMaj_matrixB_colMa
                                                                                   const UIN *__restrict__ blockRowOffsets,
                                                                                   const UIN *__restrict__ blockValues,
                                                                                   float *matrixP) {
-    constexpr int eachThreadLoadsTheNumberOfMatrixADatas = (WMMA_M * WMMA_K) / (WARP_SIZE * number_of_warps);
+    constexpr int eachThreadLoadsTheNumberOfMatrixADatas = (WMMA_M * WMMA_K * 2) / (WARP_SIZE * number_of_warps);
     constexpr int eachWarpLoadsTheNumberOfMatrixADatas = WARP_SIZE * eachThreadLoadsTheNumberOfMatrixADatas;
 
     constexpr int aTileSMEMSize = (WMMA_M * WMMA_N) * 2;
@@ -1515,7 +1515,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
 
     dim3 grid, block;
 
-    const UIN eachThreadBlockCountsTheNumberOfColBlocks = 16;
+    const UIN eachThreadBlockCountsTheNumberOfColBlocks = 8;
     block.x = WARP_SIZE * eachThreadBlockCountsTheNumberOfColBlocks;
 
     // Assign row panel to x-axis of grid, and assign col block to y-axis of grid
@@ -1542,7 +1542,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
 //            matrixP_dev.data());
     } else if (matrixA.storageOrder() == MatrixStorageOrder::row_major
         && matrixB.storageOrder() == MatrixStorageOrder::col_major) {
-        kernel::sddmm_gpu_rebell_m16n16k16_block512_matrixA_rowMaj_matrixB_colMaj<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(),
+        kernel::sddmm_gpu_rebell_m16n16k16_block256_matrixA_rowMaj_matrixB_colMaj<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(),
             matrixA_values_convertedType_dev.data(),
             matrixB_values_convertedType_dev.data(),
             alpha, beta,
