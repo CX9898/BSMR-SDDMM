@@ -235,10 +235,29 @@ void printSettingInformation(const ResultsInformation &resultsInformation) {
 
 void printHeadOfList() {
     printf("\n");
-    printf(
-        "| matrix_M_N_NNZ | sparsity | k | isratnisa_sddmm | zcx_sddmm | isratnisa_other | zcx_other | isratnisa | zcx | cuSparse |\n");
-    printf(
-        "|----------------|----------|---|-----------------|-----------|-----------------|-----------|-----------|-----|----------|\n");
+
+    // print the head of the list
+    printf("| ");
+    printf("file |");
+    printf("M |");
+    printf("N |");
+    printf("sparsity |");
+    printf("isratnisa_sddmm |");
+    printf("zcx_sddmm |");
+    printf("isratnisa_other |");
+    printf("zcx_other |");
+    printf("isratnisa |");
+    printf("zcx |");
+    printf("cuSparse |");
+    printf("\n");
+
+    // print the split line
+    const int numColData = 11;
+    printf("|");
+    for(int i = 0; i < numColData; ++i){
+        printf("--|");
+    }
+    printf("\n");
 }
 
 void printOneLineOfList(const ResultsInformation &resultsInformation) {
