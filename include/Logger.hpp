@@ -42,6 +42,8 @@ struct Logger {
 
   inline void printLogInformation();
 
+  std::string inputFile_;
+
   std::string checkData_;
   float errorRate_ = 0.0f;
 
@@ -84,14 +86,17 @@ void Logger::getInformation(const sparseMatrix::COO<T> &matrix) {
 }
 
 void Logger::printLogInformation() {
+    printf("[File : %s]\n", inputFile_.c_str());
+
     printf("[Build type : %s]\n", buildType_.c_str());
     printf("[Device : %s]\n", gpu_.c_str());
 
     printf("[WMMA_M : %zu], [WMMA_N : %zu], [WMMA_K : %zu]\n", wmma_m_, wmma_n_, wmma_k_);
 
+    printf("[K : %ld], ", K_);
+
     printf("[M : %ld], ", M_);
     printf("[N : %ld], ", N_);
-    printf("[K : %ld], ", K_);
     printf("[NNZ : %ld], ", NNZ_);
     printf("[sparsity : %.2f%%]\n", sparsity_ * 100);
 

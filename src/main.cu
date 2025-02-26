@@ -51,6 +51,7 @@ int main(int argc, char *argv[]) {
     matrixS.initializeFromMatrixMarketFile(options.inputFile());
 
     Logger logger;
+    logger.inputFile_ = util::getFileName(options.inputFile());
     logger.getInformation(matrixS);
 
     Matrix<float> matrixA(matrixS.row(), K, MatrixStorageOrder::row_major);
