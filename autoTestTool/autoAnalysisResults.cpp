@@ -5,6 +5,7 @@
 #include <vector>
 #include <algorithm>
 #include <unordered_set>
+#include <unordered_map>
 
 const std::string dataSplitSymbol("---New data---");
 
@@ -29,13 +30,7 @@ struct SettingInformation {
   std::string matrixC_storageOrder_;
 };
 
-struct ResultsInformation1 {
-  std::string M_;
-  std::string N_;
-  std::string K_;
-  std::string NNZ_;
-  std::string sparsity_;
-
+struct OneTimeData {
   std::string isratnisa_sddmm_;
   std::string zcx_sddmm_;
 
@@ -47,10 +42,21 @@ struct ResultsInformation1 {
   std::string cuSparse_;
 };
 
+struct ResultsInformation1 {
+  std::string file_;
+  std::string M_;
+  std::string N_;
+  std::string NNZ_;
+  std::string sparsity_;
+
+  std::unordered_map<std::string, OneTimeData> kToOneTimeData_;
+};
+
 struct ResultsInformation {
  public:
 
   void initInformation(const std::string &line);
+
   void clear();
 
   std::string checkData_;
@@ -305,7 +311,8 @@ void printOneLineOfList(const ResultsInformation &resultsInformation) {
     };
     printf("|");
     std::string
-        matrixFileName("matrix_" + resultsInformation.M_ + "_" + resultsInformation.N_ + "_" + resultsInformation.NNZ_);
+        matrixFileName(
+        "matrix_" + resultsInformation.M_ + "_" + resultsInformation.N_ + "_" + resultsInformation.NNZ_);
     printOneInformation(matrixFileName);
     printOneInformation(resultsInformation.sparsity_);
     printOneInformation(resultsInformation.K_);
@@ -351,10 +358,14 @@ void sortResultsInformation(std::vector<ResultsInformation> &resultsInformation)
     size_t endIdxForLastSorted = 0;
     for (int idx = 0; idx < resultsInformation.size(); ++idx) {
         const size_t curM = resultsInformation[idx].M_.empty()
-            && std::all_of(resultsInformation[idx].M_.begin(), resultsInformation[idx].M_.end(), ::isdigit) ?
+            &&
+                std::all_of(resultsInformation[idx].M_.begin(), resultsInformation[idx].M_.end(), ::isdigit)
+            ?
             0 : std::stoll(resultsInformation[idx].M_);
         const size_t curN = resultsInformation[idx].N_.empty()
-            && std::all_of(resultsInformation[idx].N_.begin(), resultsInformation[idx].N_.end(), ::isdigit) ?
+            &&
+                std::all_of(resultsInformation[idx].N_.begin(), resultsInformation[idx].N_.end(), ::isdigit)
+            ?
             0 : std::stoll(resultsInformation[idx].N_);
         if (curM != compareM || curN != compareN) {
             std::sort(resultsInformation.data() + endIdxForLastSorted, resultsInformation.data() + idx,
@@ -457,7 +468,46 @@ void printInformationToMarkDown(const std::vector<ResultsInformation> &resultsIn
 
 }
 
+void readResultsFile(const std::string &resultsFile, SettingInformation &settingInformation,
+                     std::unordered_map<std::string, ResultsInformation1> &fileToResultsInformationMap) {
+    std::ifstream inFile;
+    inFile.open(resultsFile, std::ios::in); // open file
+    if (!inFile.is_open()) {
+        std::cerr << "Error, Results file cannot be opened : " << resultsFile << std::endl;
+    }
+
+    std::vector<std::string> oneTimeData;
+    std::string line; // Store the data for each line
+    while (getline(inFile, line)) {
+        if (line != dataSplitSymbol) {
+            oneTimeData.push_back(line);
+        }
+    }
+}
+
 int main(int argc, char *argv[]) {
+
+    if (argc < 2) {
+        printf("Please enter the file name.\n");
+        return -1;
+    }
+
+    SettingInformation settingInformation;
+
+    for (int i = 1; i < argc; ++i) {
+        const std::string resultsFile = argv[i];
+
+        settingInformation.initInformation()
+
+        readResultsFile(resultsFile, settingInformation, fileToResultsInformationMap);
+    }
+
+    std::unordered_map<std::string, ResultsInformation1> fileToResultsInformationMap;
+    for (int i = 1; i < argc; ++i) {
+        const std::string resultsFile = argv[i];
+
+        readResultsFile(resultsFile, settingInformation, fileToResultsInformationMap);
+    }
 
     if (argc != 3) {
         printf("Please enter two files.");
