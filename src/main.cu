@@ -86,10 +86,10 @@ int main(int argc, char *argv[]) {
     printf("check cuSparseSDDMM and sddmm : \n");
     size_t numError = 0;
     if (!checkData(matrixP_cuSparse.values(), matrixP.values(), numError)) {
-        printf("[checkData : NO PASS Error rate : %2.2f%%]\n",
-               static_cast<float>(numError) / static_cast<float>(matrixP.values().size()) * 100);
+        const float errorRate = static_cast<float>(numError) / static_cast<float>(matrixP.values().size()) * 100;
+        printf("[checkData : NO PASS Error rate : %2.2f%%]\n", errorRate);
+        logger.errorRate_ = errorRate;
     }
-    logger.numError_ = numError;
 
     logger.printLogInformation();
 

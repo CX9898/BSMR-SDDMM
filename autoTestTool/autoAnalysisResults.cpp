@@ -209,7 +209,7 @@ void ResultsInformation::initInformation(const std::string &line) {
     initOperation(line, "[zcx : ", is_initialized_zcx_, zcx_);
     initOperation(line, "[cuSparse : ", is_initialized_cuSparse_, cuSparse_);
 
-    initOperation(line, "[checkData : ", is_initialized_checkData_, checkData_);
+    initOperation(line, "[check : ", is_initialized_checkData_, checkData_);
 }
 
 void printSettingInformation(const ResultsInformation &resultsInformation) {

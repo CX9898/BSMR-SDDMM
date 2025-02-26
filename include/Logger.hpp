@@ -43,7 +43,7 @@ struct Logger {
   inline void printLogInformation();
 
   std::string checkData_;
-  size_t numError_;
+  float errorRate_ = 0.0f;
 
   std::string gpu_;
   std::string buildType_;
@@ -112,7 +112,7 @@ void Logger::printLogInformation() {
     zcx_time_ = zcx_other_time_ + zcx_sddmm_time_;
     printf("[zcx : %.2f]\n", zcx_time_);
 
-    if (numError_ > 0) {
-        printf("[check : NO PASS numError : %ld]\n", numError_);
+    if (errorRate_ > 0) {
+        printf("[check : NO PASS Error rate : %2.2f]\n", errorRate_);
     }
 }
