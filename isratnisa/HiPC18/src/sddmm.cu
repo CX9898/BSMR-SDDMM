@@ -11,6 +11,7 @@
 #include "util.h"
 #include "kernel.h"
 #include <bits/stdc++.h>
+#include <string>
 #include "Options.hpp"
 using namespace std;
 
@@ -327,12 +328,24 @@ void preprocessing(const Matrix S) {
     printf("[isratnisa : %.2f ]\n", sum_time);
 }
 
+std::string getFileName(const std::string &path) {
+    if (path.empty()) return "";
+
+    const size_t pos = path.find_last_of("/\\");
+    if (pos == std::string::npos) {
+        std::cerr << "Warning. The input path has no parent folder" << std::endl;
+    }
+    const std::string filename = (pos == std::string::npos) ? path : path.substr(pos + 1);
+    return filename;
+}
+
 int main(int argc, char *argv[]) {
 
     Options options(argc, argv);
     Matrix S;
 
     ifstream fp(options.inputFile());
+
 //    char *filePath = nullptr;
 //    const char *folderPath = "../dataset/test/";
 //    const char *fileName = "matrix_5000_5000_125000";
@@ -353,6 +366,9 @@ int main(int argc, char *argv[]) {
     tile_sizeY = options.tile_sizeY();
     tile_sizeX = options.tile_sizeX();
     actv_row_size = tile_sizeY;
+
+    printf("[File : %s]\n", getFileName(options.inputFile()).c_str());
+    printf("[K : %d]\n", k);
 
     string str;
     fp >> str;

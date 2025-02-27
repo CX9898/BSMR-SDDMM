@@ -6,14 +6,74 @@
 #include <algorithm>
 #include <unordered_set>
 #include <unordered_map>
+#include <map>
 
 const std::string dataSplitSymbol("---New data---");
 
+std::string findWord(const std::string &line, const std::string &word) {
+    size_t findIdx = line.find(word);
+    if (findIdx != std::string::npos) {
+        const size_t beginIdx = findIdx + 1;
+        size_t endIdx = beginIdx + 1;
+        while (line[endIdx++] != ']') {}
+        return line.substr(beginIdx, endIdx - beginIdx - 1);
+    }
+    return "";
+}
+
+std::string findWord(const std::vector<std::string> &multiLine, const std::string &word) {
+    std::string value;
+    for (const std::string &line : multiLine) {
+        value = findWord(line, word);
+        if (!value.empty()) {
+            break;
+        }
+    }
+    return value;
+}
+
+std::string getValue(const std::string &line, const std::string &word) {
+    size_t findIdx = line.find(word);
+    if (findIdx != std::string::npos) {
+        const size_t beginIdx = line.find(word) + word.size();
+        size_t endIdx = beginIdx;
+        while (line[endIdx++] != ']') {}
+        return line.substr(beginIdx, endIdx - beginIdx - 1);
+    }
+    return "";
+}
+
+std::string getValue(const std::vector<std::string> &multiLine, const std::string &word) {
+    std::string value;
+    for (const std::string &line : multiLine) {
+        value = getValue(line, word);
+        if (!value.empty()) {
+            break;
+        }
+    }
+    return value;
+}
+
+// Initialize variables and check if they are different
+bool initOperationOrCheckIfDifferent(std::string &src, const std::string &data) {
+    if (src.empty()) {
+        src = data;
+    } else {
+        if (!data.empty() && src != data) {
+            fprintf(stderr, "Error, the value is different. src : %s, data : %s\n", src.c_str(), data.c_str());
+            return false;
+        }
+    }
+    return true;
+}
+
 struct SettingInformation {
-  void initInformation(const std::string &line);
+  bool initInformation(const std::vector<std::string> &oneTimeData);
+
+  void printInformation() const;
 
   std::string buildType_;
-  std::string gpu_;
+  std::string device_;
 
   std::string wmma_m_;
   std::string wmma_n_;
@@ -30,7 +90,96 @@ struct SettingInformation {
   std::string matrixC_storageOrder_;
 };
 
+// init the setting information, if setting information is already initialized, and the new data is different, than return false
+bool SettingInformation::initInformation(const std::vector<std::string> &oneTimeResults) {
+    std::string buildType, device, wmma_m, wmma_n, wmma_k, blockDim, matrixA_type, matrixB_type, matrixC_type,
+        matrixA_storageOrder, matrixB_storageOrder, matrixC_storageOrder;
+
+    for (const std::string &line : oneTimeResults) {
+        buildType = buildType.empty() ? findWord(line, "[Build type : ") : buildType;
+        device = device.empty() ? findWord(line, "[Device : ") : device;
+        wmma_m = wmma_m.empty() ? findWord(line, "[WMMA_M : ") : wmma_m;
+        wmma_n = wmma_n.empty() ? findWord(line, "[WMMA_N : ") : wmma_n;
+        wmma_k = wmma_k.empty() ? findWord(line, "[WMMA_K : ") : wmma_k;
+        blockDim = blockDim.empty() ? findWord(line, "[blockDim : ") : blockDim;
+        matrixA_type = matrixA_type.empty() ? findWord(line, "[matrixA type : ") : matrixA_type;
+        matrixB_type = matrixB_type.empty() ? findWord(line, "[matrixB type : ") : matrixB_type;
+        matrixC_type = matrixC_type.empty() ? findWord(line, "[matrixC type : ") : matrixC_type;
+        matrixA_storageOrder = matrixA_storageOrder.empty() ? findWord(line,
+                                                                       "[matrixA storageOrder : ") : matrixA_storageOrder;
+        matrixB_storageOrder = matrixB_storageOrder.empty() ? findWord(line,
+                                                                       "[matrixB storageOrder : ") : matrixB_storageOrder;
+        matrixC_storageOrder = matrixC_storageOrder.empty() ? findWord(line,
+                                                                       "[matrixC storageOrder : ") : matrixC_storageOrder;
+    }
+
+    if (!initOperationOrCheckIfDifferent(buildType_, buildType)) {
+        return false;
+    }
+    if (!initOperationOrCheckIfDifferent(device_, device)) {
+        return false;
+    }
+    if (!initOperationOrCheckIfDifferent(wmma_m_, wmma_m)) {
+        return false;
+    }
+    if (!initOperationOrCheckIfDifferent(wmma_n_, wmma_n)) {
+        return false;
+    }
+    if (!initOperationOrCheckIfDifferent(wmma_k_, wmma_k)) {
+        return false;
+    }
+    if (!initOperationOrCheckIfDifferent(blockDim_, blockDim)) {
+        return false;
+    }
+    if (!initOperationOrCheckIfDifferent(matrixA_type_, matrixA_type)) {
+        return false;
+    }
+    if (!initOperationOrCheckIfDifferent(matrixB_type_, matrixB_type)) {
+        return false;
+    }
+    if (!initOperationOrCheckIfDifferent(matrixC_type_, matrixC_type)) {
+        return false;
+    }
+    if (!initOperationOrCheckIfDifferent(matrixA_storageOrder_, matrixA_storageOrder)) {
+        return false;
+    }
+    if (!initOperationOrCheckIfDifferent(matrixB_storageOrder_, matrixB_storageOrder)) {
+        return false;
+    }
+    if (!initOperationOrCheckIfDifferent(matrixC_storageOrder_, matrixC_storageOrder)) {
+        return false;
+    }
+
+    return true;
+}
+
+void SettingInformation::printInformation() const {
+    auto printOneInformation = [](const std::string &information) -> void {
+      if (!information.empty()) {
+          printf("- %s\n", information.c_str());
+      }
+    };
+
+    printf("\n");
+
+    printOneInformation(buildType_);
+    printOneInformation(device_);
+    printOneInformation(wmma_m_);
+    printOneInformation(wmma_n_);
+    printOneInformation(wmma_k_);
+    printOneInformation(blockDim_);
+    printOneInformation(matrixA_type_);
+    printOneInformation(matrixB_type_);
+    printOneInformation(matrixC_type_);
+    printOneInformation(matrixA_storageOrder_);
+    printOneInformation(matrixB_storageOrder_);
+    printOneInformation(matrixC_storageOrder_);
+
+    printf("\n");
+}
+
 struct OneTimeData {
+  void initInformation(const std::vector<std::string> &oneTimeResults);
   std::string isratnisa_sddmm_;
   std::string zcx_sddmm_;
 
@@ -42,251 +191,80 @@ struct OneTimeData {
   std::string cuSparse_;
 };
 
+void OneTimeData::initInformation(const std::vector<std::string> &oneTimeResults) {
+    for (const std::string &line : oneTimeResults) {
+        isratnisa_sddmm_ = isratnisa_sddmm_.empty() ? getValue(line, "[isratnisa_sddmm : ") : isratnisa_sddmm_;
+        zcx_sddmm_ = zcx_sddmm_.empty() ? getValue(line, "[zcx_sddmm : ") : zcx_sddmm_;
+        isratnisa_other_ = isratnisa_other_.empty() ? getValue(line, "[isratnisa_other : ") : isratnisa_other_;
+        zcx_other_ = zcx_other_.empty() ? getValue(line, "[zcx_other : ") : zcx_other_;
+        isratnisa_ = isratnisa_.empty() ? getValue(line, "[isratnisa : ") : isratnisa_;
+        zcx_ = zcx_.empty() ? getValue(line, "[zcx : ") : zcx_;
+        cuSparse_ = cuSparse_.empty() ? getValue(line, "[cuSparse : ") : cuSparse_;
+    }
+}
+
 struct ResultsInformation1 {
+  bool initInformation(const std::vector<std::string> &oneTimeResults);
+
+  void printInformation() const;
+
   std::string file_;
   std::string M_;
   std::string N_;
   std::string NNZ_;
   std::string sparsity_;
 
-  std::unordered_map<std::string, OneTimeData> kToOneTimeData_;
+  std::map<int, OneTimeData> kToOneTimeData_;
 };
 
-struct ResultsInformation {
- public:
+bool ResultsInformation1::initInformation(const std::vector<std::string> &oneTimeResults) {
+    std::string file, M, N, NNZ, sparsity, K_str;
+    for (const std::string &line : oneTimeResults) {
+        file = file.empty() ? getValue(line, "[File : ") : file;
+        M = M.empty() ? getValue(line, "[M : ") : M;
+        N = N.empty() ? getValue(line, "[N : ") : N;
+        NNZ = NNZ.empty() ? getValue(line, "[NNZ : ") : NNZ;
+        sparsity = sparsity.empty() ? getValue(line, "[sparsity : ") : sparsity;
+        K_str = K_str.empty() ? getValue(line, "[K : ") : K_str;
+    }
 
-  void initInformation(const std::string &line);
+    if (!initOperationOrCheckIfDifferent(file_, file)) {
+        return false;
+    }
+    if (!initOperationOrCheckIfDifferent(M_, M)) {
+        return false;
+    }
+    if (!initOperationOrCheckIfDifferent(N_, N)) {
+        return false;
+    }
+    if (!initOperationOrCheckIfDifferent(NNZ_, NNZ)) {
+        return false;
+    }
+    if (!initOperationOrCheckIfDifferent(sparsity_, sparsity)) {
+        return false;
+    }
 
-  void clear();
+    int k = std::stoi(K_str);
+    if (kToOneTimeData_.find(k) == kToOneTimeData_.end()) {
+        kToOneTimeData_[k] = OneTimeData();
+    }
+    kToOneTimeData_[k].initInformation(oneTimeResults);
 
-  std::string checkData_;
-
-  std::string gpu_;
-  std::string buildType_;
-
-  std::string wmma_m_;
-  std::string wmma_n_;
-  std::string wmma_k_;
-
-  std::string gridDim_;
-  std::string blockDim_;
-
-  std::string matrixA_type_;
-  std::string matrixB_type_;
-  std::string matrixC_type_;
-
-  std::string matrixA_storageOrder_;
-  std::string matrixB_storageOrder_;
-  std::string matrixC_storageOrder_;
-
-  std::string M_;
-  std::string N_;
-  std::string K_;
-  std::string NNZ_;
-  std::string sparsity_;
-
-  std::string isratnisa_sddmm_;
-  std::string zcx_sddmm_;
-
-  std::string isratnisa_other_;
-  std::string zcx_other_;
-
-  std::string isratnisa_;
-  std::string zcx_;
-  std::string cuSparse_;
-
- private:
-  bool is_initialized_checkData_ = false;
-
-  bool is_initialized_gpu_ = false;
-  bool is_initialized_buildType_ = false;
-
-  bool is_initialized_wmma_m_ = false;
-  bool is_initialized_wmma_n_ = false;
-  bool is_initialized_wmma_k_ = false;
-
-  bool is_initialized_gridDim_ = false;
-  bool is_initialized_blockDim_ = false;
-
-  bool is_initialized_matrixA_type_ = false;
-  bool is_initialized_matrixB_type_ = false;
-  bool is_initialized_matrixC_type_ = false;
-
-  bool is_initialized_matrixA_storageOrder_ = false;
-  bool is_initialized_matrixB_storageOrder_ = false;
-  bool is_initialized_matrixC_storageOrder_ = false;
-
-  bool is_initialized_M_ = false;
-  bool is_initialized_N_ = false;
-  bool is_initialized_K_ = false;
-  bool is_initialized_NNZ_ = false;
-  bool is_initialized_sparsity_ = false;
-
-  bool is_initialized_isratnisa_sddmm_ = false;
-  bool is_initialized_zcx_sddmm_ = false;
-  bool is_initialized_isratnisa_other_ = false;
-  bool is_initialized_zcx_other_ = false;
-  bool is_initialized_isratnisa_ = false;
-  bool is_initialized_zcx_ = false;
-  bool is_initialized_cuSparse_ = false;
-};
-
-void ResultsInformation::clear() {
-    gpu_.clear();
-    buildType_.clear();
-
-    wmma_m_.clear();
-    wmma_n_.clear();
-    wmma_k_.clear();
-
-    matrixA_type_.clear();
-    matrixB_type_.clear();
-    matrixC_type_.clear();
-
-    matrixA_storageOrder_;
-    matrixB_storageOrder_;
-    matrixC_storageOrder_;
-
-    M_.clear();
-    N_.clear();
-    K_.clear();
-    NNZ_.clear();
-    sparsity_.clear();
-
-    isratnisa_sddmm_.clear();
-    zcx_sddmm_.clear();
-
-    isratnisa_other_.clear();
-    zcx_other_.clear();
-
-    isratnisa_.clear();
-    zcx_.clear();
-
-    is_initialized_gpu_ = true;
-    is_initialized_buildType_ = true;
-
-    is_initialized_wmma_m_ = false;
-    is_initialized_wmma_n_ = false;
-    is_initialized_wmma_k_ = false;
-
-    is_initialized_matrixA_type_ = false;
-    is_initialized_matrixB_type_ = false;
-    is_initialized_matrixC_type_ = false;
-
-    is_initialized_matrixA_storageOrder_ = false;
-    is_initialized_matrixB_storageOrder_ = false;
-    is_initialized_matrixC_storageOrder_ = false;
-
-    is_initialized_M_ = false;
-    is_initialized_N_ = false;
-    is_initialized_K_ = false;
-    is_initialized_NNZ_ = false;
-    is_initialized_sparsity_ = false;
-
-    is_initialized_isratnisa_sddmm_ = false;
-    is_initialized_zcx_sddmm_ = false;
-    is_initialized_isratnisa_other_ = false;
-    is_initialized_zcx_other_ = false;
-    is_initialized_isratnisa_ = false;
-    is_initialized_zcx_ = false;
-    is_initialized_cuSparse_ = false;
+    return true;
 }
 
-inline bool contains(const std::string &str, const std::string &toFind) {
-    return str.find(toFind) != std::string::npos;
-}
+void ResultsInformation1::printInformation() const {
 
-void ResultsInformation::initInformation(const std::string &line) {
-    auto initOperation = [](const std::string &line, const std::string &find,
-                            bool &is_initialized, std::string &output) -> void {
-      if (!is_initialized) {
-          if (contains(line, find)) {
-              const size_t beginIdx = line.find(find) + find.size();
-              size_t endIdx = beginIdx;
-              while (line[endIdx++] != ']') {}
-              output = line.substr(beginIdx, endIdx - beginIdx - 1);
-              is_initialized = true;
-          }
-      }
-    };
-
-    auto initSettingOperation = [](const std::string &line, const std::string &find,
-                                   bool &is_initialized, std::string &output) -> void {
-      if (!is_initialized) {
-          if (contains(line, find)) {
-              const size_t beginIdx = line.find(find) + 1;
-              size_t endIdx = beginIdx + 1;
-              while (line[endIdx++] != ']') {}
-              output = line.substr(beginIdx, endIdx - beginIdx - 1);
-              is_initialized = true;
-          }
-      }
-    };
-
-    initSettingOperation(line, "[Build type : ", is_initialized_buildType_, buildType_);
-    initSettingOperation(line, "[Device : ", is_initialized_gpu_, gpu_);
-    initSettingOperation(line, "[WMMA_M : ", is_initialized_wmma_m_, wmma_m_);
-    initSettingOperation(line, "[WMMA_N : ", is_initialized_wmma_n_, wmma_n_);
-    initSettingOperation(line, "[WMMA_K : ", is_initialized_wmma_k_, wmma_k_);
-
-    initSettingOperation(line, "[gridDim : ", is_initialized_gridDim_, gridDim_);
-    initSettingOperation(line, "[blockDim : ", is_initialized_blockDim_, blockDim_);
-
-    initSettingOperation(line, "[matrixA type : ", is_initialized_matrixA_type_, matrixA_type_);
-    initSettingOperation(line, "[matrixB type : ", is_initialized_matrixB_type_, matrixB_type_);
-    initSettingOperation(line, "[matrixC type : ", is_initialized_matrixC_type_, matrixC_type_);
-
-    initSettingOperation(line, "[matrixA storageOrder : ", is_initialized_matrixA_storageOrder_, matrixA_storageOrder_);
-    initSettingOperation(line, "[matrixB storageOrder : ", is_initialized_matrixB_storageOrder_, matrixB_storageOrder_);
-    initSettingOperation(line, "[matrixC storageOrder : ", is_initialized_matrixC_storageOrder_, matrixC_storageOrder_);
-
-    initOperation(line, "[M : ", is_initialized_M_, M_);
-    initOperation(line, "[N : ", is_initialized_N_, N_);
-    initOperation(line, "[K : ", is_initialized_K_, K_);
-    initOperation(line, "[NNZ : ", is_initialized_NNZ_, NNZ_);
-    initOperation(line, "[sparsity : ", is_initialized_sparsity_, sparsity_);
-
-    initOperation(line, "[isratnisa_sddmm : ", is_initialized_isratnisa_sddmm_, isratnisa_sddmm_);
-    initOperation(line, "[zcx_sddmm : ", is_initialized_zcx_sddmm_, zcx_sddmm_);
-    initOperation(line, "[isratnisa_other : ", is_initialized_isratnisa_other_, isratnisa_other_);
-    initOperation(line, "[zcx_other : ", is_initialized_zcx_other_, zcx_other_);
-    initOperation(line, "[isratnisa : ", is_initialized_isratnisa_, isratnisa_);
-    initOperation(line, "[zcx : ", is_initialized_zcx_, zcx_);
-    initOperation(line, "[cuSparse : ", is_initialized_cuSparse_, cuSparse_);
-
-    initOperation(line, "[check : ", is_initialized_checkData_, checkData_);
-}
-
-void printSettingInformation(const ResultsInformation &resultsInformation) {
-
-    printf("\n");
-
-    printf("- %s\n", resultsInformation.buildType_.c_str());
-    printf("- %s\n", resultsInformation.gpu_.c_str());
-
-    printf("- %s, %s\n", resultsInformation.matrixA_type_.c_str(), resultsInformation.matrixA_storageOrder_.c_str());
-    printf("- %s, %s\n", resultsInformation.matrixB_type_.c_str(), resultsInformation.matrixB_storageOrder_.c_str());
-    printf("- %s, %s\n", resultsInformation.matrixC_type_.c_str(), resultsInformation.matrixC_storageOrder_.c_str());
-
-    printf("- %s\n", resultsInformation.wmma_m_.c_str());
-    printf("- %s\n", resultsInformation.wmma_n_.c_str());
-    printf("- %s\n", resultsInformation.wmma_k_.c_str());
-
-    printf("- %s\n", resultsInformation.gridDim_.c_str());
-    printf("- %s\n", resultsInformation.blockDim_.c_str());
-
-    printf("\n");
-}
-
-void printHeadOfList() {
-    printf("\n");
+    printf("file: %s, sparsity: %s\n", file_.c_str(), sparsity_.c_str());
 
     // print the head of the list
+    printf("\n");
     printf("|");
     printf(" file |");
     printf(" M |");
     printf(" N |");
     printf(" sparsity |");
+    printf(" K |");
     printf(" isratnisa_sddmm |");
     printf(" zcx_sddmm |");
     printf(" isratnisa_other |");
@@ -297,179 +275,42 @@ void printHeadOfList() {
     printf("\n");
 
     // print the split line
-    const int numColData = 11;
+    const int numColData = 12;
     printf("|");
     for (int i = 0; i < numColData; ++i) {
         printf("--|");
     }
     printf("\n");
-}
 
-void printOneLineOfList(const ResultsInformation &resultsInformation) {
     auto printOneInformation = [](const std::string &information) -> void {
       std::cout << information << "|";
     };
-    printf("|");
-    std::string
-        matrixFileName(
-        "matrix_" + resultsInformation.M_ + "_" + resultsInformation.N_ + "_" + resultsInformation.NNZ_);
-    printOneInformation(matrixFileName);
-    printOneInformation(resultsInformation.sparsity_);
-    printOneInformation(resultsInformation.K_);
-    printOneInformation(resultsInformation.isratnisa_sddmm_);
-    printOneInformation(resultsInformation.zcx_sddmm_);
-    printOneInformation(resultsInformation.isratnisa_other_);
-    printOneInformation(resultsInformation.zcx_other_);
-    printOneInformation(resultsInformation.isratnisa_);
-    printOneInformation(resultsInformation.zcx_);
-    printOneInformation(resultsInformation.cuSparse_);
 
-    printf("%s", resultsInformation.checkData_.c_str());
-    printf("\n");
-}
-
-size_t findNumK(const std::vector<ResultsInformation> &resultsInformation) {
-    std::unordered_set<int> kSet;
-    for (const auto &iter : resultsInformation) {
-        kSet.insert(std::stoi(iter.K_));
-    }
-    return kSet.size();
-}
-
-void sortResultsInformation(std::vector<ResultsInformation> &resultsInformation) {
-    printf("sortResultsInformation...\n");
-
-    std::sort(resultsInformation.begin(), resultsInformation.end(),
-              [&](ResultsInformation &a, ResultsInformation &b) {
-                const float M_a = a.M_.empty() ? 0 : std::stof(a.M_);
-                const float M_b = b.M_.empty() ? 0 : std::stof(b.M_);
-
-                const float N_a = a.N_.empty() ? 0 : std::stof(a.N_);
-                const float N_b = b.N_.empty() ? 0 : std::stof(b.N_);
-
-                if (M_a < M_b) {
-                    return true;
-                } else {
-                    return N_a < N_b;
-                }
-              });
-
-    size_t compareM = 0, compareN = 0;
-    size_t endIdxForLastSorted = 0;
-    for (int idx = 0; idx < resultsInformation.size(); ++idx) {
-        const size_t curM = resultsInformation[idx].M_.empty()
-            &&
-                std::all_of(resultsInformation[idx].M_.begin(), resultsInformation[idx].M_.end(), ::isdigit)
-            ?
-            0 : std::stoll(resultsInformation[idx].M_);
-        const size_t curN = resultsInformation[idx].N_.empty()
-            &&
-                std::all_of(resultsInformation[idx].N_.begin(), resultsInformation[idx].N_.end(), ::isdigit)
-            ?
-            0 : std::stoll(resultsInformation[idx].N_);
-        if (curM != compareM || curN != compareN) {
-            std::sort(resultsInformation.data() + endIdxForLastSorted, resultsInformation.data() + idx,
-                      [&](ResultsInformation &a, ResultsInformation &b) {
-                        const float sparsity_a = a.sparsity_.empty() ? 0 : std::stof(a.sparsity_);
-                        const float sparsity_b = b.sparsity_.empty() ? 0 : std::stof(b.sparsity_);
-                        return sparsity_a < sparsity_b;
-                      });
-            endIdxForLastSorted = idx;
-            compareM = curM;
-            compareN = curN;
-        }
-    }
-
-    std::sort(resultsInformation.data() + endIdxForLastSorted,
-              resultsInformation.data() + resultsInformation.size(),
-              [&](ResultsInformation &a, ResultsInformation &b) {
-                const float sparsity_a = a.sparsity_.empty() ? 0 : std::stof(a.sparsity_);
-                const float sparsity_b = b.sparsity_.empty() ? 0 : std::stof(b.sparsity_);
-                return sparsity_a < sparsity_b;
-              });
-
-    const size_t numK = findNumK(resultsInformation);
-    for (int idx = 0; idx < resultsInformation.size(); idx += numK) {
-        std::sort(resultsInformation.data() + idx, resultsInformation.data() + idx + numK,
-                  [&](ResultsInformation &a, ResultsInformation &b) {
-                    const int K_a = a.K_.empty() ? 0 : std::stoi(a.K_);
-                    const int K_b = b.K_.empty() ? 0 : std::stoi(b.K_);
-                    return K_a < K_b;
-                  });
-    }
-}
-
-void readLogFile(const std::string &file, std::vector<ResultsInformation> &resultsInformation) {
-    std::ifstream inFile;
-    inFile.open(file, std::ios::in); // open file
-    if (!inFile.is_open()) {
-        std::cerr << "Error, Results file cannot be opened : " << file << std::endl;
-        return;
-    }
-
-    int testResultId = -1;
-    std::string line; // Store the data for each line
-    while (getline(inFile, line) && testResultId < static_cast<int>(resultsInformation.size())) {
-        if (line == dataSplitSymbol) {
-            ++testResultId;
-            continue;
-        }
-        resultsInformation[testResultId].initInformation(line);
-    }
-
-    std::cout << "File read over : " << file << std::endl;
-}
-
-int getNumData(const std::string &file) {
-    std::ifstream inFile;
-    inFile.open(file, std::ios::in); // open file
-    if (!inFile.is_open()) {
-        std::cerr << "Error, Results file cannot be opened : " << file << std::endl;
-        return 0;
-    }
-
-    int numData = 0;
-    std::string line; // Store the data for each line
-    while (getline(inFile, line)) {
-        if (line == dataSplitSymbol) {
-            ++numData;
-        }
-    }
-
-    printf("File \"%s\" number of data : %d\n", file.data(), numData);
-
-    return numData;
-}
-
-void printInformationToMarkDown(const std::vector<ResultsInformation> &resultsInformation) {
-
-    const size_t numK = findNumK(resultsInformation);
-    const size_t numDataSets = resultsInformation.size() / numK;
-
-    printSettingInformation(resultsInformation[0]);
-    size_t compareM = 0, compareN = 0;
-    for (int dataSetId = 0; dataSetId < numDataSets; ++dataSetId) {
-
-        const size_t curM = std::stol(resultsInformation[dataSetId * numK].M_);
-        const size_t curN = std::stol(resultsInformation[dataSetId * numK].N_);
-        if (curM != compareM || curN != compareN) {
-            printf(" matrix %ld %ld\n", curM, curN);
-            compareM = curM;
-            compareN = curN;
-        }
-
-        printHeadOfList();
-        for (int resIdx = dataSetId * numK; resIdx < (dataSetId + 1) * numK && resIdx < resultsInformation.size();
-             ++resIdx) {
-            printOneLineOfList(resultsInformation[resIdx]);
-        }
+    // Print data line by line
+    for (const auto &iter : kToOneTimeData_) {
+        printf("|");
+        printOneInformation(file_);
+        printOneInformation(M_);
+        printOneInformation(N_);
+        printOneInformation(sparsity_);
+        std::cout << iter.first << "|";
+        printOneInformation(iter.second.isratnisa_sddmm_);
+        printOneInformation(iter.second.zcx_sddmm_);
+        printOneInformation(iter.second.isratnisa_other_);
+        printOneInformation(iter.second.zcx_other_);
+        printOneInformation(iter.second.isratnisa_);
+        printOneInformation(iter.second.zcx_);
+        printOneInformation(iter.second.cuSparse_);
         printf("\n");
     }
 
+    printf("\n");
 }
 
-void readResultsFile(const std::string &resultsFile, SettingInformation &settingInformation,
-                     std::unordered_map<std::string, ResultsInformation1> &fileToResultsInformationMap) {
+// return the data in the file
+std::vector<std::vector<std::string>> readResultsFile(const std::string &resultsFile) {
+    std::vector<std::vector<std::string>> allData;
+
     std::ifstream inFile;
     inFile.open(resultsFile, std::ios::in); // open file
     if (!inFile.is_open()) {
@@ -479,66 +320,56 @@ void readResultsFile(const std::string &resultsFile, SettingInformation &setting
     std::vector<std::string> oneTimeData;
     std::string line; // Store the data for each line
     while (getline(inFile, line)) {
-        if (line != dataSplitSymbol) {
-            oneTimeData.push_back(line);
+        if (line == dataSplitSymbol) {
+            allData.push_back(oneTimeData);
+            oneTimeData.clear();
+            continue;
         }
+        oneTimeData.push_back(line);
     }
+    if (!oneTimeData.empty()) {
+        allData.push_back(oneTimeData);
+    }
+
+    return allData;
 }
 
 int main(int argc, char *argv[]) {
 
     if (argc < 2) {
-        printf("Please enter the file name.\n");
+        printf("Please input the file.\n");
         return -1;
     }
 
     SettingInformation settingInformation;
+    std::unordered_map<std::string, ResultsInformation1> matrixFileToResultsInformationMap;
+    for (int fileIdx = 1; fileIdx < argc; ++fileIdx) {
+        const std::string resultsFile = argv[fileIdx];
 
-    for (int i = 1; i < argc; ++i) {
-        const std::string resultsFile = argv[i];
+        const std::vector<std::vector<std::string>> allData = readResultsFile(resultsFile);
 
-        settingInformation.initInformation()
-
-        readResultsFile(resultsFile, settingInformation, fileToResultsInformationMap);
+        for (const std::vector<std::string> &oneTimeResults : allData) {
+            if (!settingInformation.initInformation(oneTimeResults)) {
+                return -1;
+            }
+            const std::string matrixFile = findWord(oneTimeResults, "[File : ");
+            if (matrixFile.empty()) {
+                continue;
+            }
+            if (matrixFileToResultsInformationMap.find(matrixFile) == matrixFileToResultsInformationMap.end()) {
+                matrixFileToResultsInformationMap[matrixFile] = ResultsInformation1();
+            }
+            if (!matrixFileToResultsInformationMap[matrixFile].initInformation(oneTimeResults)) {
+                return -1;
+            }
+        }
     }
 
-    std::unordered_map<std::string, ResultsInformation1> fileToResultsInformationMap;
-    for (int i = 1; i < argc; ++i) {
-        const std::string resultsFile = argv[i];
+    settingInformation.printInformation();
 
-        readResultsFile(resultsFile, settingInformation, fileToResultsInformationMap);
+    for (const auto &iter : matrixFileToResultsInformationMap) {
+        iter.second.printInformation();
     }
-
-    if (argc != 3) {
-        printf("Please enter two files.");
-    }
-
-    std::string inputFilePath1;
-    std::string inputFilePath2;
-
-    inputFilePath1 = argv[1];
-    inputFilePath2 = argv[2];
-
-    printf("start analyze the data...\n");
-
-    int numData1 = getNumData(inputFilePath1);
-    int numData2 = getNumData(inputFilePath2);
-
-    if (numData1 != numData2) {
-        fprintf(stderr, "Error! The two files do not have the same amount of data\n");
-        return -1;
-    }
-
-    std::vector<ResultsInformation> resultsInformation(numData1);
-
-    readLogFile(inputFilePath1, resultsInformation);
-    readLogFile(inputFilePath2, resultsInformation);
-
-    sortResultsInformation(resultsInformation);
-
-    printf("Markdown format:\n");
-
-    printInformationToMarkDown(resultsInformation);
 
     return 0;
 }
