@@ -71,7 +71,7 @@ std::pair<UIN, UIN> analysisColSegment(const std::vector<UIN> &numOfNonZeroInEac
 
     while (numNonZeroColSegment < numOfNonZeroInEachColSegment.size()
         && numOfNonZeroInEachColSegment[numNonZeroColSegment] > 0) {
-        ++numDenseColSegment;
+        ++numNonZeroColSegment;
 
         if (numOfNonZeroInEachColSegment[numNonZeroColSegment] > dense_column_segment_threshold) {
             ++numDenseColSegment;
