@@ -349,9 +349,8 @@ bool sparseMatrix::COO<T>::initializeFromMatrixMarketFile(const std::string &fil
     std::cout << "sparseMatrix::COO initialize From MatrixMarket file : " << filePath << std::endl;
 
     std::string line; // Store the data for each line
-    getline(inFile, line); // First line does not operate
+    while (getline(inFile, line) && line[0] == '%'){} // Skip comments
 
-    getline(inFile, line);
     int wordIter = 0;
     row_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
     col_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
