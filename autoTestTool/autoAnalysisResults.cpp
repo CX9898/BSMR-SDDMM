@@ -3,7 +3,6 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <algorithm>
 #include <unordered_set>
 #include <unordered_map>
 #include <map>
@@ -203,7 +202,7 @@ void OneTimeData::initInformation(const std::vector<std::string> &oneTimeResults
     }
 }
 
-struct ResultsInformation1 {
+struct ResultsInformation {
   bool initInformation(const std::vector<std::string> &oneTimeResults);
 
   void printInformation() const;
@@ -217,7 +216,7 @@ struct ResultsInformation1 {
   std::map<int, OneTimeData> kToOneTimeData_;
 };
 
-bool ResultsInformation1::initInformation(const std::vector<std::string> &oneTimeResults) {
+bool ResultsInformation::initInformation(const std::vector<std::string> &oneTimeResults) {
     std::string file, M, N, NNZ, sparsity, K_str;
     for (const std::string &line : oneTimeResults) {
         file = file.empty() ? getValue(line, "[File : ") : file;
@@ -253,9 +252,9 @@ bool ResultsInformation1::initInformation(const std::vector<std::string> &oneTim
     return true;
 }
 
-void ResultsInformation1::printInformation() const {
+void ResultsInformation::printInformation() const {
 
-    printf("file: %s, sparsity: %s\n", file_.c_str(), sparsity_.c_str());
+    printf(" file: %s, sparsity: %s\n", file_.c_str(), sparsity_.c_str());
 
     // print the head of the list
     printf("\n");
@@ -342,7 +341,7 @@ int main(int argc, char *argv[]) {
     }
 
     SettingInformation settingInformation;
-    std::unordered_map<std::string, ResultsInformation1> matrixFileToResultsInformationMap;
+    std::unordered_map<std::string, ResultsInformation> matrixFileToResultsInformationMap;
     for (int fileIdx = 1; fileIdx < argc; ++fileIdx) {
         const std::string resultsFile = argv[fileIdx];
 
@@ -357,7 +356,7 @@ int main(int argc, char *argv[]) {
                 continue;
             }
             if (matrixFileToResultsInformationMap.find(matrixFile) == matrixFileToResultsInformationMap.end()) {
-                matrixFileToResultsInformationMap[matrixFile] = ResultsInformation1();
+                matrixFileToResultsInformationMap[matrixFile] = ResultsInformation();
             }
             if (!matrixFileToResultsInformationMap[matrixFile].initInformation(oneTimeResults)) {
                 return -1;
