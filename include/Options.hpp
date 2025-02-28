@@ -17,7 +17,7 @@ const std::string filePath = folderPath + fileName + fileFormat;
 
 class Options {
  public:
-  Options(int argc, char *argv[]);
+  Options(const int argc, const char *const argv[]);
 
   std::string programPath() const { return programPath_; }
   std::string programName() const { return programName_; }
@@ -64,7 +64,7 @@ inline void Options::parsingOptionAndParameters(const std::string &option, const
     }
 }
 
-Options::Options(int argc, char **argv) {
+Options::Options(const int argc, const char *const argv[]) {
     programPath_ = util::getParentFolderPath(argv[0]);
     programName_ = util::getFileName(argv[0]);
 
