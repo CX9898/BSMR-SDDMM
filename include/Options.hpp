@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <unordered_set>
+#include <unordered_map>
 
 const std::string folderPath("../dataset/test/matrix_20000_20000_/");
 //const std::string folderPath("../autoTestTool/matrices/");
@@ -68,7 +69,7 @@ Options::Options(const int argc, const char *const argv[]) {
     programPath_ = util::getParentFolderPath(argv[0]);
     programName_ = util::getFileName(argv[0]);
 
-    // 记录参数的索引
+    // Record the index of the options
     std::vector<int> optionIndices;
     for (int argIdx = 1; argIdx < argc; ++argIdx) {
         if (argv[argIdx][0] == '-') {
@@ -76,22 +77,37 @@ Options::Options(const int argc, const char *const argv[]) {
         }
     }
 
-    // 检查是否有重复的参数
+    // Check options
+    std::unordered_map<std::string, std::string> optionToArgumentMap;
+    for (int optionIndex : optionIndices) {
+        std::string option_str = argv[optionIndex];
 
-    // 解析参数
-    for (int index : optionIndices) {
-        std::string option_str = argv[index];
+        // Check if the option is duplicated
+        if (optionToArgumentMap.find(option_str) != optionToArgumentMap.end()) {
+            std::cerr << "Option " << option_str << "is duplicated." << std::endl;
+            continue;
+        }
 
+        // Check if the option is valid
         if (shortOptions_.find(option_str) == shortOptions_.end()) {
-            std::cerr << "Unknown option: " << option_str.substr(1, option_str.size() - 1) << std::endl;
+            std::cerr << "Unknown option: " << option_str.substr(1, option_str.size() - 1) << std::endl
+                      << "Please check the usage of the program." << std::endl;
             continue;
         }
 
-        if (index + 1 >= argc) {
-            std::cerr << "Option " << option_str << " requires an argument." << std::endl;
+        // Check if the option has an argument
+        if (optionIndex + 1 >= argc) {
+            std::cerr << "Option " << option_str << "requires an argument." << std::endl;
             continue;
         }
 
-        parsingOptionAndParameters(option_str, argv[index + 1]);
+        // Record the option and its argument
+        std::string value = argv[optionIndex + 1];
+        optionToArgumentMap[option_str] = value;
+    }
+
+    // Parsing options
+    for (const auto &optionArgumentPair : optionToArgumentMap) {
+        parsingOptionAndParameters(optionArgumentPair.first, optionArgumentPair.second);
     }
 }
