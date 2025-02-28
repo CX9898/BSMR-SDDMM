@@ -163,6 +163,10 @@ class DataBase {
   UIN col() const { return col_; }
   UIN nnz() const { return nnz_; }
 
+  inline float getSparsity() const {
+      return static_cast<float>(row_ * col_ - nnz_) / (row_ * col_);
+  }
+
  protected:
   UIN row_;
   UIN col_;
@@ -183,6 +187,26 @@ class CSR : public DataBase {
       col_ = col;
       nnz_ = nnz;
   }
+
+  /**
+   * Initialize from smtx file.
+   *
+   * smtx file(CSR):
+   *    1) The file begins with comment information beginning with %
+   *    2) The storage format starts with a 3-integer header "nrows, ncols, nnz" that describes the number of rows in the matrix, the number of columns in the matrix, and the number of nonzeros in the matrix.
+   *    3) The two rows represent rowOffset, and colIndex respectively
+   **/
+  bool initializeFromSmtxFile(const std::string &filePath);
+
+  /**
+  * Initialize from MatrixMarket file.
+  *
+  * MatrixMarket file format(COO):
+  *    1) The file begins with comment information beginning with %
+  *    2) By three numbers separated by a space: number of rows, number of columns, and number of non-zeros.
+  *    3) Each after line has three numbers separated by a space: current row, current column, and value.
+  **/
+  bool initializeFromMatrixMarketFile(const std::string &filePath);
 
   const std::vector<UIN> &rowOffsets() const { return rowOffsets_; }
   const std::vector<UIN> &colIndices() const { return colIndices_; }
@@ -220,9 +244,9 @@ class COO : public DataBase {
   /**
    * Initialize from MatrixMarket file.
    *
-   * MatrixMarket file format:
-   *    1) The first line describes the file format.
-   *    2) The second line has three numbers separated by a space: number of rows, number of columns, and number of non-zeros.
+   * MatrixMarket file format(COO):
+   *    1) The file begins with comment information beginning with %
+   *    2) By three numbers separated by a space: number of rows, number of columns, and number of non-zeros.
    *    3) Each after line has three numbers separated by a space: current row, current column, and value.
    **/
   bool initializeFromMatrixMarketFile(const std::string &filePath);
@@ -242,10 +266,6 @@ class COO : public DataBase {
    * output : row, col, value
    **/
   std::tuple<UIN, UIN, T> getSpareMatrixOneData(const UIN idx) const;
-
-  inline float getSparsity() const {
-      return static_cast<float>(row_ * col_ - nnz_) / (row_ * col_);
-  }
 
   void draw() const;
 
