@@ -5,14 +5,16 @@
 
 #include <cuda_runtime.h>
 #include <cuda_fp16.h>
+#include <mma.h>
 
 using UIN = uint32_t;
 constexpr UIN MAX_UIN = std::numeric_limits<UIN>::max();
 
 // The dimension supported by WMMA
-#define WMMA_16_16_16
+//#define WMMA_16_16_16
 //#define WMMA_32_8_16
 //#define WMMA_8_32_16
+#define WMMA_16_16_8
 
 #ifdef WMMA_16_16_16
 constexpr int WMMA_M = 16;
@@ -32,9 +34,35 @@ constexpr int  WMMA_N = 32;
 constexpr int  WMMA_K = 16;
 #endif // WMMA_8_32_16
 
+#ifdef WMMA_16_16_8
+constexpr int WMMA_M = 16;
+constexpr int WMMA_N = 16;
+constexpr int WMMA_K = 8;
+#endif // WMMA_16_16_8
+
+#if defined(WMMA_16_16_16) || defined(WMMA_32_8_16) || defined(WMMA_8_32_16)
 using MATRIX_A_TYPE = __half;
 using MATRIX_B_TYPE = __half;
 using MATRIX_C_TYPE = float;
+
+#ifdef __CUDACC__
+using MATRIX_A_TYPE_FRAGMENT = __half;
+using MATRIX_B_TYPE_FRAGMENT = __half;
+#endif // __CUDACC__
+
+#endif // defined(WMMA_16_16_16) || defined(WMMA_32_8_16) || defined(WMMA_8_32_16)
+
+#ifdef WMMA_16_16_8
+using MATRIX_A_TYPE = float;
+using MATRIX_B_TYPE = float;
+using MATRIX_C_TYPE = float;
+
+#ifdef __CUDACC__
+using MATRIX_A_TYPE_FRAGMENT = ::nvcuda::wmma::precision::tf32;
+using MATRIX_B_TYPE_FRAGMENT = ::nvcuda::wmma::precision::tf32;
+#endif // __CUDACC__
+
+#endif // WMMA_16_16_8
 
 constexpr int WARP_SIZE = 32;
 
@@ -155,10 +183,14 @@ inline __host__ __device__ void calculateFragmentCoordinates(const UIN laneId, c
 #endif //WMMA_16_16_16
 
 #ifdef WMMA_32_16_16
-    calculateFragmentCoordinates_m32n8k16(laneId, index, row, col);
+    calculateFragmentCoordinates_m32n8k16(laneId, indexOfFragment, row, col);
 #endif //WMMA_32_16_16
 
 #ifdef WMMA_8_32_16
-    calculateFragmentCoordinates_m8n32k16(laneId, index, row, col);
+    calculateFragmentCoordinates_m8n32k16(laneId, indexOfFragment, row, col);
 #endif //WMMA_8_32_16
+
+#ifdef WMMA_16_16_8
+    calculateFragmentCoordinates_m8n32k16(laneId, indexOfFragment, row, col);
+#endif //WMMA_16_16_8
 }
