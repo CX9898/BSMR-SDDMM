@@ -50,16 +50,16 @@ int main(int argc, char *argv[]) {
     sparseMatrix::CSR<float> matrixS;
     matrixS.initializeFromMatrixMarketFile(options.inputFile());
 
-    Logger logger;
-    logger.inputFile_ = util::getFileName(options.inputFile());
-    logger.getInformation(matrixS);
-
     Matrix<float> matrixA(matrixS.row(), K, MatrixStorageOrder::row_major);
     matrixA.makeData();
 
     Matrix<float> matrixB(K, matrixS.col(), MatrixStorageOrder::col_major);
     matrixB.makeData();
 
+    // Logger
+    Logger logger;
+    logger.inputFile_ = util::getFileName(options.inputFile());
+    logger.getInformation(matrixS);
     logger.getInformation(matrixA, matrixB);
 
     // cuSparse library
