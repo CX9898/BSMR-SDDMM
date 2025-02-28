@@ -94,12 +94,6 @@ class Matrix {
   std::vector<T> getRowVector(UIN row) const;
   std::vector<T> getColVector(UIN col) const;
 
-  /**
-   * tensor core mode
-   **/
-  void openTensorCoreMode(const TensorCoreConfig tensorCoreConfig, MatrixMultiplicationOrder multiplicationOrder);
-  void closeTensorCoreMode();
-
   UIN size() const {
       return values_.size();
   }
@@ -142,10 +136,6 @@ class Matrix {
   UIN leadingDimension_;
 
   std::vector<T> values_;
-
-  bool tensorCoreMode_ = false;
-  UIN rowBeforeChange_;
-  UIN colBeforeChange_;
 };
 
 template<typename T>
@@ -280,29 +270,10 @@ class COO : public DataBase {
       return std::make_tuple(rowIndices_[idx], colIndices_[idx], values_[idx]);
   }
 
-  /**
-   * tensor core mode
-   **/
-  void openTensorCoreMode(const TensorCoreConfig tensorCoreConfig, MatrixMultiplicationOrder multiplicationOrder);
-  void openTensorCoreModeForSampled(TensorCoreConfig tensorCoreConfig);
-  void closeTensorCoreMode();
-  const std::vector<UIN> &matrixTileMappedToWarpIndex() { return matrixTileMappedToWarpIndex_; }
-
  private:
   std::vector<UIN> rowIndices_;
   std::vector<UIN> colIndices_;
   std::vector<T> values_;
-
-  /**
-   * tensor core mode
-   **/
-  bool tensorCoreMode_ = false;
-  std::vector<UIN> matrixTileMappedToWarpIndex_;
-  UIN rowBeforeChange_;
-  UIN colBeforeChange_;
-  std::vector<UIN> rowIndexBeforeChange_;
-  std::vector<UIN> colIndexBeforeChange_;
-  std::vector<T> valuesBeforeChange_;
 };
 
 template<typename T>

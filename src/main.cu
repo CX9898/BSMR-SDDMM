@@ -1,6 +1,3 @@
-#include <iostream>
-#include <string>
-
 #include "Matrix.hpp"
 #include "TensorCoreConfig.cuh"
 #include "util.hpp"
@@ -80,17 +77,6 @@ int main(int argc, char *argv[]) {
     }
 
     logger.printLogInformation();
-
-//    // old method
-//    sparseMatrix::COO<float> matrixP_oldMethod;
-//    sddmm(matrixA, matrixB, matrixS, matrixP_oldMethod);
-//    // Error check
-//    printf("check cuSparseSDDMM and sddmm : \n");
-//    size_t numError_old = 0;
-//    if (!checkData(matrixP_cuSparse.values(), matrixP_oldMethod.values(), numError_old)) {
-//        printf("[checkData : NO PASS Error rate : %2.2f%%]\n",
-//               static_cast<float>(numError_old) / static_cast<float>(matrixP_oldMethod.values().size()) * 100);
-//    }
 
     return 0;
 }
