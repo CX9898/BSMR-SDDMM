@@ -12,11 +12,9 @@ namespace kernel {
 using namespace nvcuda;
 
 __global__ void checkFragmentData() {
-    constexpr UIN wmmaM = 16;
-    constexpr UIN wmmaN = 16;
-    constexpr UIN wmmaK = 16;
-    constexpr UIN aTileSize = wmmaM * wmmaK;
-    constexpr UIN bTileSize = wmmaK * wmmaN;
+
+    constexpr UIN aTileSize = WMMA_M * WMMA_K;
+    constexpr UIN bTileSize = WMMA_K * WMMA_N;
     __shared__ MATRIX_A_TYPE aTileSMEM[aTileSize];
     __shared__ MATRIX_B_TYPE bTileSMEM[bTileSize];
 
@@ -33,6 +31,51 @@ __global__ void checkFragmentData() {
         }
     }
 
+    if (warpId == 0 && laneId == 0) {
+        printf("\nmatrix A data : \n\n");
+        printf("| | ");
+        for (int col = 0; col < WMMA_K; ++col) {
+            printf("%d |", col);
+        }
+        printf("\n");
+
+        printf("|");
+        for (int i = 0; i < WMMA_K + 1; ++i) {
+            printf("---|");
+        }
+        printf("\n");
+
+        for (int row = 0; row < WMMA_M; ++row) {
+            printf("|%d|", row);
+            for (int col = 0; col < WMMA_K; ++col) {
+                printf("%.0f|", static_cast<float>(aTileSMEM[row * WMMA_K + col]));
+            }
+            printf("\n");
+        }
+
+        printf("\nmatrix B data : \n\n");
+        printf("| | ");
+        for (int col = 0; col < WMMA_N; ++col) {
+            printf("%d |", col);
+        }
+        printf("\n");
+
+        printf("|");
+        for (int i = 0; i < WMMA_N + 1; ++i) {
+            printf("-|");
+        }
+        printf("\n");
+
+        for (int row = 0; row < WMMA_K; ++row) {
+            printf("|%d|", row);
+            for (int col = 0; col < WMMA_N; ++col) {
+                printf("%.0f|", static_cast<float>(aTileSMEM[row * WMMA_N + col]));
+            }
+            printf("\n");
+        }
+        printf("\n");
+    }
+
     if (warpId == 0) {
         wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE_FRAGMENT, wmma::row_major> aFrag;
         wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE_FRAGMENT, wmma::row_major> bFrag;
@@ -47,13 +90,13 @@ __global__ void checkFragmentData() {
         wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
 
         if (laneId == 0) {
-            printf("a Fragment data : \n");
+            printf("Fragment data : \n\n");
         }
         for (int laneIdx = 0; laneIdx < WARP_SIZE; ++laneIdx) {
             if (warpId == 0 && laneId == laneIdx) {
-                printf("laneId = %d : ", laneId);
-                for (int idxOfFragment = 0; idxOfFragment < aFrag.num_elements; ++idxOfFragment) {
-                    printf("%.0f ", static_cast<float>(aFrag.x[idxOfFragment]));
+                printf("|T%d|", laneId);
+                for (int idxOfFragment = 0; idxOfFragment < cFrag.num_elements; ++idxOfFragment) {
+                    printf("%.0f|", static_cast<float>(cFrag.x[idxOfFragment]));
                 }
                 printf("\n");
             }
@@ -1287,6 +1330,9 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
                       const ReBELL &rebell,
                       sparseMatrix::CSR<float> &matrixP,
                       Logger &logger) {
+
+    kernel::checkFragmentData<<<1, 32>>>();
+    cudaDeviceSynchronize();
 
     // Convert the data type of matrix A and matrix B for use tensor core
     dev::vector<MATRIX_A_TYPE> matrixA_values_convertedType_dev(matrixA.size());
