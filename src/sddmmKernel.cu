@@ -818,7 +818,8 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block256_matrixA_rowMaj_matrixB_colMa
                                                                                   const UIN *__restrict__ blockRowOffsets,
                                                                                   const UIN *__restrict__ blockValues,
                                                                                   float *matrixP) {
-    constexpr int eachThreadLoadsTheNumberOfMatrixADatas = (WMMA_M * WMMA_K * 2) / (WARP_SIZE * number_of_warps);
+    constexpr int eachThreadLoadsTheNumberOfMatrixADatas =
+        (WMMA_M * WMMA_K * 2) / (WARP_SIZE * sddmm_rebell_number_of_warps_per_thread_block);
     constexpr int eachWarpLoadsTheNumberOfMatrixADatas = WARP_SIZE * eachThreadLoadsTheNumberOfMatrixADatas;
 
     constexpr int aTileSMEMSize = (WMMA_M * WMMA_N) * 2;
@@ -1441,7 +1442,8 @@ __global__ void sddmm_gpu_sparse_residue(const UIN M, const UIN N, const UIN K,
                                          const UIN *__restrict__ sparseColOffset,
                                          float *matrixP) {
     // 线程块中线程数量
-    constexpr int eachThreadLoadsTheNumberOfMatrixADatas = (WMMA_M * WMMA_K) / (WARP_SIZE * number_of_warps);
+    constexpr int eachThreadLoadsTheNumberOfMatrixADatas =
+        (WMMA_M * WMMA_K) / (WARP_SIZE * sddmm_rebell_number_of_warps_per_thread_block);
     constexpr int eachWarpLoadsTheNumberOfMatrixADatas = WARP_SIZE * eachThreadLoadsTheNumberOfMatrixADatas;
 
     constexpr int aTileSMEMSize = (WMMA_M * WMMA_N) * 2;

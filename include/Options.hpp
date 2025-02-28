@@ -30,7 +30,7 @@ class Options {
   std::string programPath_;
   std::string programName_;
   std::string inputFile_ = filePath;
-  size_t K_ = 32;
+  size_t K_ = 4096;
   float alpha_ = 1.0f;
   float beta_ = 0.0f;
 

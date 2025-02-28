@@ -9,7 +9,7 @@
 #include "Logger.hpp"
 
 constexpr int each_thread_block_counts_the_number_Of_col_blocks = 8;
-constexpr int number_of_warps = each_thread_block_counts_the_number_Of_col_blocks;
+constexpr int sddmm_rebell_number_of_warps_per_thread_block = each_thread_block_counts_the_number_Of_col_blocks;
 
 namespace kernel {
 
