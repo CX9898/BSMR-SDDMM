@@ -30,8 +30,7 @@ struct Logger {
       wmma_k_ = WMMA_K;
   };
 
-  template<typename T>
-  inline void getInformation(const sparseMatrix::COO<T> &matrix);
+  inline void getInformation(const sparseMatrix::DataBase &matrix);
 
   template<typename T>
   inline void getInformation(const Matrix<T> &matrixA, const Matrix<T> &matrixB) {
@@ -77,8 +76,7 @@ struct Logger {
   float cuSparse_time_;
 };
 
-template<typename T>
-void Logger::getInformation(const sparseMatrix::COO<T> &matrix) {
+void Logger::getInformation(const sparseMatrix::DataBase &matrix) {
     M_ = matrix.row();
     N_ = matrix.col();
     NNZ_ = matrix.nnz();
