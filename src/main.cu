@@ -66,17 +66,6 @@ int main(int argc, char *argv[]) {
     sparseMatrix::CSR<float> matrixP_cuSparse(matrixS);
     cuSparseSDDMM(matrixA, matrixB, matrixS, alpha, beta, matrixP_cuSparse, logger);
 
-//    // old method
-//    sparseMatrix::COO<float> matrixP_oldMethod;
-//    sddmm(matrixA, matrixB, matrixS, matrixP_oldMethod);
-//    // Error check
-//    printf("check cuSparseSDDMM and sddmm : \n");
-//    size_t numError_old = 0;
-//    if (!checkData(matrixP_cuSparse.values(), matrixP_oldMethod.values(), numError_old)) {
-//        printf("[checkData : NO PASS Error rate : %2.2f%%]\n",
-//               static_cast<float>(numError_old) / static_cast<float>(matrixP_oldMethod.values().size()) * 100);
-//    }
-
     // sddmm
     sparseMatrix::CSR<float> matrixP(matrixS);
     sddmm(matrixA, matrixB, alpha, beta, matrixS, matrixP, logger);
@@ -91,6 +80,17 @@ int main(int argc, char *argv[]) {
     }
 
     logger.printLogInformation();
+
+//    // old method
+//    sparseMatrix::COO<float> matrixP_oldMethod;
+//    sddmm(matrixA, matrixB, matrixS, matrixP_oldMethod);
+//    // Error check
+//    printf("check cuSparseSDDMM and sddmm : \n");
+//    size_t numError_old = 0;
+//    if (!checkData(matrixP_cuSparse.values(), matrixP_oldMethod.values(), numError_old)) {
+//        printf("[checkData : NO PASS Error rate : %2.2f%%]\n",
+//               static_cast<float>(numError_old) / static_cast<float>(matrixP_oldMethod.values().size()) * 100);
+//    }
 
     return 0;
 }
