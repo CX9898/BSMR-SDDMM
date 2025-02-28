@@ -618,7 +618,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block256_matrixA_rowMaj_matrixB_colMa
         (WMMA_M * WMMA_K * 2) / (WARP_SIZE * sddmm_rebell_number_of_warps_per_thread_block);
     constexpr int eachWarpLoadsTheNumberOfMatrixADatas = WARP_SIZE * eachThreadLoadsTheNumberOfMatrixADatas;
 
-    constexpr int aTileSMEMSize = (WMMA_M * WMMA_N) * 2;
+    constexpr int aTileSMEMSize = (WMMA_M * WMMA_K) * 2;
     constexpr int bTileSMEMSize = (WMMA_K * WMMA_N * each_thread_block_counts_the_number_Of_col_blocks) * 2;
 
     __shared__ half aTileSMEM[aTileSMEMSize];
