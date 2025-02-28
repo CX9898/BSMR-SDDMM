@@ -73,10 +73,10 @@ inline std::uniform_int_distribution<uint64_t> createRandomUniformDistribution(u
 
 /**
  * @funcitonName: iterateOneWordFromLine
- * @functionInterpretation:
+ * @functionInterpretation: Traverse one word from the input line.
  * @input:
  * `line`: line to iterate.
- * `wordIter` : Where to start the traversal, Note that the variables change after the function runs!
+ * `wordIter` : Where to start the traversal. Note that the variables change after the function runs!
  * @output:
  * Return one word starting from the input `wordIter`.
  * `wordIter` will also change to the beginning of the next word
