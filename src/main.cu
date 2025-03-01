@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
     size_t numError = 0;
     if (!checkData(matrixP_cuSparse.values(), matrixP.values(), numError)) {
         const float errorRate = static_cast<float>(numError) / static_cast<float>(matrixP.values().size()) * 100;
-        printf("[checkData : NO PASS Error rate : %2.2f%%]\n", errorRate);
+        printf("[checkResults : NO PASS Error rate : %2.2f%%]\n", errorRate);
         logger.errorRate_ = errorRate;
     }
 

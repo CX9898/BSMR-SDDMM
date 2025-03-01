@@ -12,7 +12,6 @@ namespace kernel {
 using namespace nvcuda;
 
 __global__ void checkFragmentData() {
-
     constexpr UIN aTileSize = WMMA_M * WMMA_K;
     constexpr UIN bTileSize = WMMA_K * WMMA_N;
     __shared__ MATRIX_A_TYPE aTileSMEM[aTileSize];
@@ -33,15 +32,15 @@ __global__ void checkFragmentData() {
 
     if (warpId == 0 && laneId == 0) {
         printf("\nmatrix A data : \n\n");
-        printf("| | ");
+        printf("| |");
         for (int col = 0; col < WMMA_K; ++col) {
-            printf("%d |", col);
+            printf("%d|", col);
         }
         printf("\n");
 
         printf("|");
         for (int i = 0; i < WMMA_K + 1; ++i) {
-            printf("---|");
+            printf("-|");
         }
         printf("\n");
 
@@ -54,9 +53,9 @@ __global__ void checkFragmentData() {
         }
 
         printf("\nmatrix B data : \n\n");
-        printf("| | ");
+        printf("| |");
         for (int col = 0; col < WMMA_N; ++col) {
-            printf("%d |", col);
+            printf("%d|", col);
         }
         printf("\n");
 
@@ -74,6 +73,34 @@ __global__ void checkFragmentData() {
             printf("\n");
         }
         printf("\n");
+
+        printf("matrix C data : \n\n");
+        printf("| |");
+        for (int col = 0; col < WMMA_N; ++col) {
+            printf("%d|", col);
+        }
+        printf("\n");
+
+        printf("|");
+        for (int i = 0; i < WMMA_N + 1; ++i) {
+            printf("-|");
+        }
+        printf("\n");
+
+        for (int row = 0; row < WMMA_M; ++row) {
+            printf("|%d|", row);
+            for (int col = 0; col < WMMA_N; ++col) {
+                MATRIX_C_TYPE c = 0.0f;
+                for (int k = 0; k < WMMA_K; ++k) {
+                    const MATRIX_A_TYPE a = aTileSMEM[row * WMMA_K + k];
+                    const MATRIX_A_TYPE b = bTileSMEM[k * WMMA_N + col];
+                    c += a * b;
+                }
+                printf("%.0f|", static_cast<float>(c));
+            }
+            printf("\n");
+        }
+        printf("\n");
     }
 
     if (warpId == 0) {
@@ -84,8 +111,8 @@ __global__ void checkFragmentData() {
 
         fill_fragment(cFrag, 0.0f);
 
-        wmma::load_matrix_sync(aFrag, aTileSMEM, 16);
-        wmma::load_matrix_sync(bFrag, bTileSMEM, 16);
+        wmma::load_matrix_sync(aFrag, aTileSMEM, WMMA_K);
+        wmma::load_matrix_sync(bFrag, bTileSMEM, WMMA_N);
 
         wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
 
@@ -1330,9 +1357,6 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
                       const ReBELL &rebell,
                       sparseMatrix::CSR<float> &matrixP,
                       Logger &logger) {
-
-    kernel::checkFragmentData<<<1, 32>>>();
-    cudaDeviceSynchronize();
 
     // Convert the data type of matrix A and matrix B for use tensor core
     dev::vector<MATRIX_A_TYPE> matrixA_values_convertedType_dev(matrixA.size());

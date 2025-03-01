@@ -116,6 +116,6 @@ void Logger::printLogInformation() {
     printf("[zcx : %.2f]\n", zcx_time_);
 
     if (errorRate_ > 0) {
-        printf("[check : NO PASS Error rate : %2.2f]\n", errorRate_);
+        printf("[checkResults : NO PASS Error rate : %2.2f%%]\n", errorRate_);
     }
 }

@@ -1,7 +1,9 @@
 #pragma once
 
-#include <iostream>
 #include <cusparse.h>
+
+#include <iostream>
+#include <typeinfo>
 
 #include "Matrix.hpp"
 #include "devVector.cuh"
@@ -22,12 +24,12 @@
     }                                                                          \
 }
 
-void cuSparseSDDMM(const Matrix<float> &matrixA,
-                   const Matrix<float> &matrixB,
-                   const sparseMatrix::CSR<float> &matrixS,
+void cuSparseSDDMM(const Matrix<MATRIX_A_TYPE> &matrixA,
+                   const Matrix<MATRIX_B_TYPE> &matrixB,
+                   const sparseMatrix::CSR<MATRIX_C_TYPE> &matrixS,
                    const float alpha,
                    const float beta,
-                   sparseMatrix::CSR<float> &matrixP,
+                   sparseMatrix::CSR<MATRIX_C_TYPE> &matrixP,
                    Logger &logger) {
 
     cusparseHandle_t handle;
@@ -45,33 +47,47 @@ void cuSparseSDDMM(const Matrix<float> &matrixA,
 
         const int numThreadPerBlock = 1024;
         kernel::convertDataType<<< (matrixA.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
-                matrixA.size(), matrixA_values_dev.data(), matrixA_values_convertedType_dev.data());
+            matrixA.size(), matrixA_values_dev.data(), matrixA_values_convertedType_dev.data());
         kernel::convertDataType<<< (matrixB.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
-                matrixB.size(), matrixB_values_dev.data(), matrixB_values_convertedType_dev.data());
+            matrixB.size(), matrixB_values_dev.data(), matrixB_values_convertedType_dev.data());
     }
 
-    // Create dense matrix A
+    cudaDataType_t CUSPARSE_MATRIX_A_TYPE = CUDA_R_32F;
+    if (typeid(MATRIX_A_TYPE) == typeid(half)) {
+        CUSPARSE_MATRIX_A_TYPE = CUDA_R_16F;
+    }
     const auto CUSPARSE_ORDER_A = matrixA.storageOrder() == row_major ?
-                                  CUSPARSE_ORDER_ROW : CUSPARSE_ORDER_COL;
+        CUSPARSE_ORDER_ROW : CUSPARSE_ORDER_COL;
+
+    // Create dense matrix A
     cusparseCreateDnMat(&_mtxA,
                         matrixA.row(),
                         matrixA.col(),
                         matrixA.leadingDimension(),
                         matrixA_values_convertedType_dev.data(),
-                        CUDA_R_16F,
+                        CUSPARSE_MATRIX_A_TYPE,
                         CUSPARSE_ORDER_A);
 
-    // Create dense matrix B
+    cudaDataType_t CUSPARSE_MATRIX_B_TYPE = CUDA_R_32F;
+    if (typeid(MATRIX_A_TYPE) == typeid(half)) {
+        CUSPARSE_MATRIX_B_TYPE = CUDA_R_16F;
+    }
     const auto CUSPARSE_ORDER_B = matrixB.storageOrder() == row_major ?
-                                  CUSPARSE_ORDER_ROW : CUSPARSE_ORDER_COL;
+        CUSPARSE_ORDER_ROW : CUSPARSE_ORDER_COL;
+
+    // Create dense matrix B
     cusparseCreateDnMat(&_mtxB,
                         matrixB.row(),
                         matrixB.col(),
                         matrixB.leadingDimension(),
                         matrixB_values_convertedType_dev.data(),
-                        CUDA_R_16F,
+                        CUSPARSE_MATRIX_B_TYPE,
                         CUSPARSE_ORDER_B);
 
+    cusparseIndexType_t CUSPARSE_INDEX_TYPE = CUSPARSE_INDEX_32I;
+    if (typeid(UIN) == typeid(uint64_t)) {
+        CUSPARSE_INDEX_TYPE = CUSPARSE_INDEX_64I;
+    }
 
     // Create sparse matrix S in CSR format
     dev::vector<UIN> mtxS_offsets_dev(matrixS.rowOffsets());
@@ -79,7 +95,7 @@ void cuSparseSDDMM(const Matrix<float> &matrixA,
     dev::vector<float> mtxS_values_dev(matrixS.values());
     cusparseCreateCsr(&_mtxS, matrixS.row(), matrixS.col(), matrixS.nnz(),
                       mtxS_offsets_dev.data(), mtxS_colIndices_dev.data(), mtxS_values_dev.data(),
-                      CUSPARSE_INDEX_32I, CUSPARSE_INDEX_32I,
+                      CUSPARSE_INDEX_TYPE, CUSPARSE_INDEX_TYPE,
                       CUSPARSE_INDEX_BASE_ZERO, CUDA_R_32F);
 
     CudaTimeCalculator timer;
@@ -88,21 +104,21 @@ void cuSparseSDDMM(const Matrix<float> &matrixA,
     void *dBuffer = NULL;
     size_t bufferSize = 0;
     cusparseSDDMM_bufferSize(
-            handle,
-            CUSPARSE_OPERATION_NON_TRANSPOSE,
-            CUSPARSE_OPERATION_NON_TRANSPOSE,
-            &alpha, _mtxA, _mtxB, &beta, _mtxS, CUDA_R_32F,
-            CUSPARSE_SDDMM_ALG_DEFAULT, &bufferSize);
+        handle,
+        CUSPARSE_OPERATION_NON_TRANSPOSE,
+        CUSPARSE_OPERATION_NON_TRANSPOSE,
+        &alpha, _mtxA, _mtxB, &beta, _mtxS, CUDA_R_32F,
+        CUSPARSE_SDDMM_ALG_DEFAULT, &bufferSize);
 
     cudaMalloc(&dBuffer, bufferSize);
 
     // execute preprocess (optional)
     cusparseSDDMM_preprocess(
-            handle,
-            CUSPARSE_OPERATION_NON_TRANSPOSE,
-            CUSPARSE_OPERATION_NON_TRANSPOSE,
-            &alpha, _mtxA, _mtxB, &beta, _mtxS, CUDA_R_32F,
-            CUSPARSE_SDDMM_ALG_DEFAULT, dBuffer);
+        handle,
+        CUSPARSE_OPERATION_NON_TRANSPOSE,
+        CUSPARSE_OPERATION_NON_TRANSPOSE,
+        &alpha, _mtxA, _mtxB, &beta, _mtxS, CUDA_R_32F,
+        CUSPARSE_SDDMM_ALG_DEFAULT, dBuffer);
 
     // execute SDDMM
     cusparseSDDMM(handle,
