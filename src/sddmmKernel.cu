@@ -720,8 +720,8 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block256_matrixA_rowMaj_matrixB_colMa
     const UIN lda = K;
     const UIN ldb = K;
 
-    // Loop over K, one iteration WMMA_K * 2
-    for (int kIter = 0; kIter < K; kIter += WMMA_K * number_of_tiles_loaded_in_one_cycle) {
+    // Loop over K, one iteration 32
+    for (int kIter = 0; kIter < K; kIter += 32) {
         // Load matrix A into shared memory, each thread loads 2 elements, conflict-free access
 #pragma unroll
         for (int iter = 0; iter < 2; ++iter) {
