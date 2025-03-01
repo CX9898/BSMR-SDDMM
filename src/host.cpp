@@ -45,6 +45,7 @@ template<typename T>
 void sddmm_cpu(
     const Matrix<T> &matrixA,
     const Matrix<T> &matrixB,
+    const float alpha, const float beta,
     const sparseMatrix::CSR<T> &matrixS,
     sparseMatrix::CSR<T> &matrixP) {
     if (matrixA.col() != matrixB.row() ||
@@ -70,7 +71,7 @@ void sddmm_cpu(
                 val += valA * valB;
             }
 
-//            val *= matrixS.values_[matrixSIdx];
+            val = alpha * val + beta * matrixS.values()[matrixSIdx];
             matrixP.setValues()[matrixSIdx] = val;
         }
     }
@@ -78,16 +79,19 @@ void sddmm_cpu(
 
 template void sddmm_cpu<int>(const Matrix<int> &matrixA,
                              const Matrix<int> &matrixB,
+                             const float alpha, const float beta,
                              const sparseMatrix::CSR<int> &matrixS,
                              sparseMatrix::CSR<int> &matrixP);
 
 template void sddmm_cpu<float>(const Matrix<float> &matrixA,
                                const Matrix<float> &matrixB,
+                               const float alpha, const float beta,
                                const sparseMatrix::CSR<float> &matrixS,
                                sparseMatrix::CSR<float> &matrixP);
 
 template void sddmm_cpu<double>(const Matrix<double> &matrixA,
                                 const Matrix<double> &matrixB,
+                                const float alpha, const float beta,
                                 const sparseMatrix::CSR<double> &matrixS,
                                 sparseMatrix::CSR<double> &matrixP);
 

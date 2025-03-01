@@ -6,11 +6,11 @@
 #include "ReBELL.hpp"
 
 // Reordering method
-void sddmm(const Matrix<float> &matrixA,
-           const Matrix<float> &matrixB,
+void sddmm(const Matrix<MATRIX_A_TYPE> &matrixA,
+           const Matrix<MATRIX_B_TYPE> &matrixB,
            const float alpha, const float beta,
-           const sparseMatrix::CSR<float> &matrixS,
-           sparseMatrix::CSR<float> &matrixP,
+           const sparseMatrix::CSR<MATRIX_C_TYPE> &matrixS,
+           sparseMatrix::CSR<MATRIX_C_TYPE> &matrixP,
            Logger &logger) {
 
     // Reordering
@@ -43,14 +43,15 @@ void sddmm(const Matrix<float> &matrixA,
 //    check_sddmm(matrixA, matrixB, matrixS, matrixP);
 }
 
-bool check_sddmm(const Matrix<float> &matrixA,
-                 const Matrix<float> &matrixB,
-                 const sparseMatrix::CSR<float> &matrixS,
-                 const sparseMatrix::CSR<float> &matrixP) {
+bool check_sddmm(const Matrix<MATRIX_A_TYPE> &matrixA,
+                 const Matrix<MATRIX_B_TYPE> &matrixB,
+                 const float alpha, const float beta,
+                 const sparseMatrix::CSR<MATRIX_C_TYPE> &matrixS,
+                 const sparseMatrix::CSR<MATRIX_C_TYPE> &matrixP) {
 
     // sddmm comp by cpu
-    sparseMatrix::CSR<float> matrixP_cpu_res(matrixS);
-    sddmm_cpu(matrixA, matrixB, matrixS, matrixP_cpu_res);
+    sparseMatrix::CSR<MATRIX_C_TYPE> matrixP_cpu_res(matrixS);
+    sddmm_cpu(matrixA, matrixB, alpha, beta, matrixS, matrixP_cpu_res);
 
     // Error check
     printf("check rebell sddmm : \n");

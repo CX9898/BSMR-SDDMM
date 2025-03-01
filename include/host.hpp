@@ -13,6 +13,7 @@ template<typename T>
 void sddmm_cpu(
     const Matrix<T> &matrixA,
     const Matrix<T> &matrixB,
+    const float alpha, const float beta,
     const sparseMatrix::CSR<T> &matrixS,
     sparseMatrix::CSR<T> &matrixP);
 
