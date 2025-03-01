@@ -188,6 +188,8 @@ struct OneTimeData {
   std::string isratnisa_;
   std::string zcx_;
   std::string cuSparse_;
+
+  std::string checkResults_;
 };
 
 void OneTimeData::initInformation(const std::vector<std::string> &oneTimeResults) {
@@ -199,6 +201,7 @@ void OneTimeData::initInformation(const std::vector<std::string> &oneTimeResults
         isratnisa_ = isratnisa_.empty() ? getValue(line, "[isratnisa : ") : isratnisa_;
         zcx_ = zcx_.empty() ? getValue(line, "[zcx : ") : zcx_;
         cuSparse_ = cuSparse_.empty() ? getValue(line, "[cuSparse : ") : cuSparse_;
+        checkResults_ = checkResults_.empty() ? getValue(line, "[checkResults : ") : checkResults_;
     }
 }
 
@@ -300,6 +303,7 @@ void ResultsInformation::printInformation() const {
         printOneInformation(iter.second.isratnisa_);
         printOneInformation(iter.second.zcx_);
         printOneInformation(iter.second.cuSparse_);
+        std::cout << iter.second.checkResults_;
         printf("\n");
     }
 
