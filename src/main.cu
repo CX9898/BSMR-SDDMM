@@ -44,13 +44,13 @@ int main(int argc, char *argv[]) {
     const size_t K = options.K();
     const float alpha = options.alpha(), beta = options.beta();
 
-    sparseMatrix::CSR<MATRIX_C_TYPE> matrixS;
+    sparseMatrix::CSR<float> matrixS;
     matrixS.initializeFromMatrixMarketFile(options.inputFile());
 
-    Matrix<MATRIX_C_TYPE> matrixA(matrixS.row(), K, MatrixStorageOrder::row_major);
+    Matrix<float> matrixA(matrixS.row(), K, MatrixStorageOrder::row_major);
     matrixA.makeData();
 
-    Matrix<MATRIX_C_TYPE> matrixB(K, matrixS.col(), MatrixStorageOrder::col_major);
+    Matrix<float> matrixB(K, matrixS.col(), MatrixStorageOrder::col_major);
     matrixB.makeData();
 
     // Logger
@@ -60,11 +60,11 @@ int main(int argc, char *argv[]) {
     logger.getInformation(matrixA, matrixB);
 
     // cuSparse library
-    sparseMatrix::CSR<MATRIX_C_TYPE> matrixP_cuSparse(matrixS);
+    sparseMatrix::CSR<float> matrixP_cuSparse(matrixS);
     cuSparseSDDMM(matrixA, matrixB, matrixS, alpha, beta, matrixP_cuSparse, logger);
 
     // sddmm
-    sparseMatrix::CSR<MATRIX_C_TYPE> matrixP(matrixS);
+    sparseMatrix::CSR<float> matrixP(matrixS);
     sddmm(matrixA, matrixB, alpha, beta, matrixS, matrixP, logger);
 
     // Error check

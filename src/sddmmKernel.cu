@@ -14,8 +14,8 @@ using namespace nvcuda;
 __global__ void checkFragmentData() {
     constexpr UIN aTileSize = WMMA_M * WMMA_K;
     constexpr UIN bTileSize = WMMA_K * WMMA_N;
-    __shared__ MATRIX_A_TYPE aTileSMEM[aTileSize];
-    __shared__ MATRIX_B_TYPE bTileSMEM[bTileSize];
+    __shared__ half aTileSMEM[aTileSize];
+    __shared__ half bTileSMEM[bTileSize];
 
     const UIN warpId = threadIdx.x / WARP_SIZE;
     const UIN laneId = threadIdx.x % WARP_SIZE;
@@ -90,10 +90,10 @@ __global__ void checkFragmentData() {
         for (int row = 0; row < WMMA_M; ++row) {
             printf("|%d|", row);
             for (int col = 0; col < WMMA_N; ++col) {
-                MATRIX_C_TYPE c = 0.0f;
+                float c = 0.0f;
                 for (int k = 0; k < WMMA_K; ++k) {
-                    const MATRIX_A_TYPE a = aTileSMEM[row * WMMA_K + k];
-                    const MATRIX_A_TYPE b = bTileSMEM[k * WMMA_N + col];
+                    const float a = aTileSMEM[row * WMMA_K + k];
+                    const float b = bTileSMEM[k * WMMA_N + col];
                     c += a * b;
                 }
                 printf("%.0f|", static_cast<float>(c));
@@ -104,10 +104,10 @@ __global__ void checkFragmentData() {
     }
 
     if (warpId == 0) {
-        wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE_FRAGMENT, wmma::row_major> aFrag;
-        wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE_FRAGMENT, wmma::row_major> bFrag;
+        wmma::fragment<wmma::matrix_a, 16, 16, 16, half, wmma::row_major> aFrag;
+        wmma::fragment<wmma::matrix_b, 16, 16, 16, half, wmma::row_major> bFrag;
 
-        wmma::fragment<wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> cFrag;
+        wmma::fragment<wmma::accumulator, 16, 16, 16, float> cFrag;
 
         fill_fragment(cFrag, 0.0f);
 
@@ -748,10 +748,10 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block256_matrixA_rowMaj_matrixB_colMa
         __syncthreads();
 
         // Compute the matrix multiplication
-        for (int iter = 0; iter < number_of_tiles_loaded_in_one_cycle; ++iter) {
+        for (int iter = 0; iter < 32; iter += WMMA_K) {
             if (colBlockId < numColBlocksCurrentRowPanel) {
-                wmma::load_matrix_sync(aFrag, aTileSMEM + iter * WMMA_K, 32);
-                wmma::load_matrix_sync(bFrag, bTileSMEM + warpId * 512 + iter * WMMA_K, 32);
+                wmma::load_matrix_sync(aFrag, aTileSMEM + iter, 32);
+                wmma::load_matrix_sync(bFrag, bTileSMEM + warpId * 512 + iter, 32);
                 wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
             }
         }

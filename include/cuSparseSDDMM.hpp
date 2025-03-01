@@ -24,12 +24,12 @@
     }                                                                          \
 }
 
-void cuSparseSDDMM(const Matrix<MATRIX_A_TYPE> &matrixA,
-                   const Matrix<MATRIX_B_TYPE> &matrixB,
-                   const sparseMatrix::CSR<MATRIX_C_TYPE> &matrixS,
+void cuSparseSDDMM(const Matrix<float> &matrixA,
+                   const Matrix<float> &matrixB,
+                   const sparseMatrix::CSR<float> &matrixS,
                    const float alpha,
                    const float beta,
-                   sparseMatrix::CSR<MATRIX_C_TYPE> &matrixP,
+                   sparseMatrix::CSR<float> &matrixP,
                    Logger &logger) {
 
     cusparseHandle_t handle;
