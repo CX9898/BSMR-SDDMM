@@ -125,7 +125,7 @@ void Matrix<T>::makeData(UIN numRow, UIN numCol) {
     values_.resize(numRow * numCol);
 
 //    for (UIN idx = 0; idx < values_.size(); ++idx) {
-//        values_[idx] = static_cast<T>(idx) / 10;
+//        values_[idx] = static_cast<T>(idx);
 //    }
     std::mt19937 generator;
     auto distribution = util::createRandomUniformDistribution(static_cast<T>(0), static_cast<T>(2));

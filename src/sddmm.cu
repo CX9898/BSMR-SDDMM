@@ -17,30 +17,28 @@ void sddmm(const Matrix<float> &matrixA,
     float rebell_time;
     ReBELL rebell(matrixS, rebell_time);
 
-    const auto [maxDensity, minDensity] = rebell.calculateMaxMinDensity();
-    printf("rebell : numBlock = %d, average density = %f, max average = %f, min average = %f\n",
-           rebell.getNumBlocks(),
-           rebell.calculateAverageDensity(),
-           maxDensity,
-           minDensity);
-
-    const auto [modeDensity, frequency] = rebell.calculateDensityMode();
-    printf("rebell : mode density = %f, frequency = %d\n", modeDensity, frequency);
-
-    const auto [numTiles, averageDensity] = calculateNumTilesAndAverageDensityInOriginalMatrix(matrixS);
-    printf("Number of tiles before reordering: %d, average density : %f\n",
-           numTiles, averageDensity);
+//    const auto [maxDensity, minDensity] = rebell.calculateMaxMinDensity();
+//    printf("rebell : numBlock = %d, average density = %f, max average = %f, min average = %f\n",
+//           rebell.getNumBlocks(),
+//           rebell.calculateAverageDensity(),
+//           maxDensity,
+//           minDensity);
+//
+//    const auto [modeDensity, frequency] = rebell.calculateDensityMode();
+//    printf("rebell : mode density = %f, frequency = %d\n", modeDensity, frequency);
+//
+//    const auto [numTiles, averageDensity] = calculateNumTilesAndAverageDensityInOriginalMatrix(matrixS);
+//    printf("Number of tiles before reordering: %d, average density : %f\n",
+//           numTiles, averageDensity);
 
     logger.zcx_other_time_ = rebell_time;
 
 //    {
 //        const UIN index = 2;
-//        const UIN colBlockId = 8;
-//        const UIN blockValueIndex = 35370505;
+//        const UIN colBlockId = 0;
+//        const UIN blockValueIndex = 16;
 //        const auto rowPanel = rebell.calculateRowPanelIdByBlockValuesIndex(blockValueIndex);
 //        const auto [row, col] = rebell.calculateRowColByBlockValueIndex(blockValueIndex);
-////        int row = 0;
-////        int col = 1;
 //        const auto [localRow, localCol] = rebell.calculateLocalRowColByBlockValueIndex(blockValueIndex);
 //
 //        printf("row = %d, col = %d, rowPanel = %d, localRow = %d, localCol = %d\n",
@@ -80,7 +78,7 @@ void sddmm(const Matrix<float> &matrixA,
 //    check_rebell(matrixS, rebell);
 
     // Error check
-    check_sddmm(matrixA, matrixB, alpha, beta, matrixS, matrixP);
+//    check_sddmm(matrixA, matrixB, alpha, beta, matrixS, matrixP);
 }
 
 bool check_sddmm(const Matrix<float> &matrixA,
