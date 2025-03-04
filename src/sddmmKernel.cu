@@ -12,63 +12,86 @@ namespace kernel {
 using namespace nvcuda;
 
 __global__ void checkFragmentData() {
-    constexpr UIN aTileSize = WMMA_M * WMMA_K;
-    constexpr UIN bTileSize = WMMA_K * WMMA_N;
-    __shared__ half aTileSMEM[aTileSize];
-    __shared__ half bTileSMEM[bTileSize];
+    constexpr UIN wmmaM = 16;
+    constexpr UIN wmmaN = 16;
+    constexpr UIN wmmaK = 8;
+    using matrixAType = float;
+    using matrixBType = float;
+    using matrixATypeFragment = wmma::precision::tf32;
+    using matrixBTypeFragment = wmma::precision::tf32;
+
+    constexpr UIN aTileSize = wmmaM * wmmaK;
+    constexpr UIN bTileSize = wmmaK * wmmaN;
+
+    constexpr UIN ldATile = wmmaK;
+    constexpr UIN ldBTile = wmmaK;
+
+    __shared__ matrixAType aTileSMEM[aTileSize];
+    __shared__ matrixBType bTileSMEM[bTileSize];
 
     const UIN warpId = threadIdx.x / WARP_SIZE;
     const UIN laneId = threadIdx.x % WARP_SIZE;
 
     if (warpId == 0 && laneId == 0) {
         for (int i = 0; i < aTileSize; ++i) {
-            aTileSMEM[i] = static_cast<half>(i);
+            aTileSMEM[i] = static_cast<matrixAType>(i);
 
         }
+
+        int row = 0;
+        int col = 0;
         for (int i = 0; i < bTileSize; ++i) {
-            bTileSMEM[i] = static_cast<half>(i);
+            row %= wmmaK;
+            bTileSMEM[i] = static_cast<matrixBType>(col * ldBTile + row);
+            ++row;
+            if (i % ldBTile == 0) {
+                ++col;
+            }
         }
+//        for (int i = 0; i < bTileSize; ++i) {
+//            bTileSMEM[i] = static_cast<matrixBType>(i);
+//        }
     }
 
     if (warpId == 0 && laneId == 0) {
         printf("\nmatrix A data : \n\n");
         printf("| |");
-        for (int col = 0; col < WMMA_K; ++col) {
+        for (int col = 0; col < wmmaK; ++col) {
             printf("%d|", col);
         }
         printf("\n");
 
         printf("|");
-        for (int i = 0; i < WMMA_K + 1; ++i) {
+        for (int i = 0; i < wmmaK + 1; ++i) {
             printf("-|");
         }
         printf("\n");
 
-        for (int row = 0; row < WMMA_M; ++row) {
+        for (int row = 0; row < wmmaM; ++row) {
             printf("|%d|", row);
-            for (int col = 0; col < WMMA_K; ++col) {
-                printf("%.0f|", static_cast<float>(aTileSMEM[row * WMMA_K + col]));
+            for (int col = 0; col < wmmaK; ++col) {
+                printf("%.0f|", static_cast<float>(aTileSMEM[row * wmmaK + col]));
             }
             printf("\n");
         }
 
         printf("\nmatrix B data : \n\n");
         printf("| |");
-        for (int col = 0; col < WMMA_N; ++col) {
+        for (int col = 0; col < wmmaN; ++col) {
             printf("%d|", col);
         }
         printf("\n");
 
         printf("|");
-        for (int i = 0; i < WMMA_N + 1; ++i) {
+        for (int i = 0; i < wmmaN + 1; ++i) {
             printf("-|");
         }
         printf("\n");
 
-        for (int row = 0; row < WMMA_K; ++row) {
+        for (int row = 0; row < wmmaK; ++row) {
             printf("|%d|", row);
-            for (int col = 0; col < WMMA_N; ++col) {
-                printf("%.0f|", static_cast<float>(aTileSMEM[row * WMMA_N + col]));
+            for (int col = 0; col < wmmaN; ++col) {
+                printf("%.0f|", static_cast<float>(aTileSMEM[row + col * wmmaN]));
             }
             printf("\n");
         }
@@ -76,24 +99,24 @@ __global__ void checkFragmentData() {
 
         printf("matrix C data : \n\n");
         printf("| |");
-        for (int col = 0; col < WMMA_N; ++col) {
+        for (int col = 0; col < wmmaN; ++col) {
             printf("%d|", col);
         }
         printf("\n");
 
         printf("|");
-        for (int i = 0; i < WMMA_N + 1; ++i) {
+        for (int i = 0; i < wmmaN + 1; ++i) {
             printf("-|");
         }
         printf("\n");
 
-        for (int row = 0; row < WMMA_M; ++row) {
+        for (int row = 0; row < wmmaM; ++row) {
             printf("|%d|", row);
-            for (int col = 0; col < WMMA_N; ++col) {
+            for (int col = 0; col < wmmaN; ++col) {
                 float c = 0.0f;
-                for (int k = 0; k < WMMA_K; ++k) {
-                    const float a = aTileSMEM[row * WMMA_K + k];
-                    const float b = bTileSMEM[k * WMMA_N + col];
+                for (int k = 0; k < wmmaK; ++k) {
+                    const float a = aTileSMEM[row * wmmaK + k];
+                    const float b = bTileSMEM[k * wmmaN + col];
                     c += a * b;
                 }
                 printf("%.0f|", static_cast<float>(c));
@@ -104,15 +127,15 @@ __global__ void checkFragmentData() {
     }
 
     if (warpId == 0) {
-        wmma::fragment<wmma::matrix_a, 16, 16, 16, half, wmma::row_major> aFrag;
-        wmma::fragment<wmma::matrix_b, 16, 16, 16, half, wmma::row_major> bFrag;
+        wmma::fragment<wmma::matrix_a, wmmaM, wmmaN, wmmaK, matrixATypeFragment, wmma::row_major> aFrag;
+        wmma::fragment<wmma::matrix_b, wmmaM, wmmaN, wmmaK, matrixBTypeFragment, wmma::col_major> bFrag;
 
-        wmma::fragment<wmma::accumulator, 16, 16, 16, float> cFrag;
+        wmma::fragment<wmma::accumulator, wmmaM, wmmaN, wmmaK, float> cFrag;
 
         fill_fragment(cFrag, 0.0f);
 
-        wmma::load_matrix_sync(aFrag, aTileSMEM, WMMA_K);
-        wmma::load_matrix_sync(bFrag, bTileSMEM, WMMA_N);
+        wmma::load_matrix_sync(aFrag, aTileSMEM, ldATile);
+        wmma::load_matrix_sync(bFrag, bTileSMEM, ldBTile);
 
         wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
 
@@ -634,6 +657,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block128_matrixA_rowMaj_matrixB_colMa
             bTileSMEM[warpId * 512 + iter * 32 + laneId] =
                 (bRowId < K && bColId < N) ? matrixB[bRowId + bColId * ldb] : static_cast<MATRIX_B_TYPE>(0);
         }
+
         __syncthreads();
 
         // Compute the matrix multiplication
@@ -671,6 +695,180 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block128_matrixA_rowMaj_matrixB_colMa
 // m16n16k16
 // blockDim: [256, 1, 1]
 // 一个thread block负责一个row panel中的8个col block
+__global__ void sddmm_gpu_rebell_m16n16k16_block256_matrixA_rowMaj_matrixB_rowMaj(const UIN M,
+                                                                                  const UIN N,
+                                                                                  const UIN K,
+                                                                                  const MATRIX_A_TYPE *__restrict__ matrixA,
+                                                                                  const MATRIX_B_TYPE *__restrict__ matrixB,
+                                                                                  const float alpha, const float beta,
+                                                                                  const UIN numNonZeroRow,
+                                                                                  const UIN *__restrict__ reorderedRows,
+                                                                                  const UIN *__restrict__ reorderedCols,
+                                                                                  const UIN *__restrict__ reorderedColOffset,
+                                                                                  const UIN *__restrict__ blockRowOffsets,
+                                                                                  const UIN *__restrict__ blockValues,
+                                                                                  MATRIX_C_TYPE *matrixP) {
+    constexpr int number_of_tiles_loaded_in_one_cycle = 32 / WMMA_K;
+
+    constexpr int aTileSMEMSize = (WMMA_M * WMMA_K) * number_of_tiles_loaded_in_one_cycle;
+    constexpr int bTileSMEMSize = (WMMA_K * WMMA_N * each_thread_block_counts_the_number_Of_col_blocks)
+        * number_of_tiles_loaded_in_one_cycle;
+
+    __shared__ MATRIX_A_TYPE aTileSMEM[aTileSMEMSize];
+    __shared__ MATRIX_B_TYPE bTileSMEM[bTileSMEMSize];
+
+    wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE_FRAGMENT, wmma::row_major> aFrag;
+    wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE_FRAGMENT, wmma::col_major> bFrag;
+
+    wmma::fragment<wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> cFrag;
+
+    fill_fragment(cFrag, 0.0f);
+
+    const UIN laneId = threadIdx.x & 31;
+    const UIN warpId = threadIdx.x >> 5;
+
+    const UIN rowPanelId = blockIdx.x;
+    const UIN numColBlocksCurrentRowPanel = blockRowOffsets[rowPanelId + 1] - blockRowOffsets[rowPanelId];
+
+    const UIN colBlockIter = blockIdx.y * each_thread_block_counts_the_number_Of_col_blocks;
+    if (colBlockIter >= numColBlocksCurrentRowPanel) {
+        return;
+    }
+
+    const UIN colBlockId = colBlockIter + warpId;
+    const UIN startIndexOfBlockValuesCurrentBlock = (blockRowOffsets[rowPanelId] + colBlockId) * BLOCK_SIZE;
+
+    const UIN startIndexOfReorderedColsCurrentColBlock = reorderedColOffset[rowPanelId] + BLOCK_COL_SIZE * colBlockId;
+    const UIN endIndexOfReorderedColsCurrentPanel = reorderedColOffset[rowPanelId + 1];
+
+    const UIN lda = K;
+    const UIN ldb = N;
+
+    // Loop over K, one iteration 32
+    for (int kIter = 0; kIter < K; kIter += 32) {
+        // Load matrix A into shared memory, each thread loads 2 elements, conflict-free access
+#pragma unroll
+        for (int iter = 0; iter < 2; ++iter) {
+            const UIN reorderedRowIndex = (rowPanelId * ROW_PANEL_SIZE) + (warpId * 2) + iter;
+            const UIN aRowId = reorderedRowIndex < numNonZeroRow ? reorderedRows[reorderedRowIndex] : M;
+            const UIN aColId = kIter + laneId;
+
+            aTileSMEM[warpId * 64 + iter * WARP_SIZE + laneId] =
+                (aRowId < M && aColId < K) ? matrixA[aRowId * lda + aColId] : static_cast<MATRIX_A_TYPE>(0);
+        }
+
+        // Load matrix B data into shared memory, each thread loads 16 elements, conflict-free access
+#pragma unroll
+        for (int iter = 0; iter < 16; ++iter) {
+            const UIN bRowId = kIter + laneId;
+            const UIN reorderedColIndex = startIndexOfReorderedColsCurrentColBlock + iter;
+            const UIN bColId = reorderedColIndex < endIndexOfReorderedColsCurrentPanel ?
+                reorderedCols[reorderedColIndex] : N;
+
+            bTileSMEM[warpId * 512 + iter * 32 + laneId] =
+                (bRowId < K && bColId < N) ? matrixB[bRowId * ldb + bColId] : static_cast<MATRIX_B_TYPE>(0);
+
+            if (colBlockId == 8 && rowPanelId == 201 && bColId == 66) {
+                printf("bRowId = %d, bColId = %d, b = %f, index = %d\n",
+                       bRowId,
+                       bColId,
+                       static_cast<float>(bTileSMEM[warpId * 512 + iter * 32 + laneId]),
+                       warpId * 512 + iter * 32 + laneId);
+            }
+        }
+
+        __syncthreads();
+
+        if (colBlockId == 8 && rowPanelId == 201 && laneId == 0) {
+            const UIN localRow = 0;
+            const UIN localCOl = 9;
+
+            printf("!matrixA :\n");
+            for (int k = 0; k < 32; ++k) {
+                printf("%f ", static_cast<float>(aTileSMEM[localRow * 32 + k]));
+            }
+            printf("\n");
+
+            printf("!matrixB :\n");
+            for (int k = 0; k < 32; ++k) {
+                printf("%f, index = %d\n",
+                       static_cast<float>(bTileSMEM[warpId * 512 + localCOl * 32 + k]),
+                       warpId * 512 + localCOl * 32 + k);
+            }
+            printf("\n");
+        }
+
+        // Compute the matrix multiplication
+        for (int iter = 0; iter < 32; iter += WMMA_K) {
+            if (colBlockId < numColBlocksCurrentRowPanel) {
+                wmma::load_matrix_sync(aFrag, aTileSMEM + iter, 32);
+                wmma::load_matrix_sync(bFrag, bTileSMEM + warpId * 512 + iter, 32);
+                wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
+
+                if (colBlockId == 8 && rowPanelId == 201 && laneId == 0){
+                    printf(" aTile iter : %d, bTile iter : %d, warpId = %d\n", iter, warpId * 512 + iter, warpId);
+                }
+            }
+        }
+
+        __syncthreads();
+    }
+
+    // Store the result
+    if (colBlockId < numColBlocksCurrentRowPanel) {
+#pragma unroll
+        for (int idxOfFragment = 0; idxOfFragment < cFrag.num_elements; ++idxOfFragment) {
+            const float c = alpha * cFrag.x[idxOfFragment];
+
+            UIN localRow, localCol;
+            calculateFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
+
+            const UIN idxOfMatrixP =
+                blockValues[startIndexOfBlockValuesCurrentBlock + localRow * BLOCK_COL_SIZE + localCol];
+
+            if (idxOfMatrixP == 2) {
+                printf(
+                    "!!!idxOfMatrixP = %d, localRow = %d, localCol = %d, rowPanel = %d, colBlockId = %d, warpId = %d, laneId = %d, blockValueIndex = %d, idxOfFragment = %d, matrixP[idxOfMatrixP] = %f, c = %f\n",
+                    idxOfMatrixP,
+                    localRow,
+                    localCol,
+                    rowPanelId,
+                    colBlockId,
+                    warpId,
+                    laneId,
+                    startIndexOfBlockValuesCurrentBlock + localRow * BLOCK_COL_SIZE + localCol,
+                    idxOfFragment,
+                    matrixP[idxOfMatrixP],
+                    c);
+            }
+
+            // Saved when the value is not 0
+            if (idxOfMatrixP != NULL_VALUE) {
+                matrixP[idxOfMatrixP] = c + beta * matrixP[idxOfFragment];
+            }
+
+            if (idxOfMatrixP == 2) {
+                printf(
+                    "!!!idxOfMatrixP = %d, localRow = %d, localCol = %d, rowPanel = %d, colBlockId = %d, warpId = %d, laneId = %d, blockValueIndex = %d, idxOfFragment = %d, matrixP[idxOfMatrixP] = %f, c = %f\n",
+                    idxOfMatrixP,
+                    localRow,
+                    localCol,
+                    rowPanelId,
+                    colBlockId,
+                    warpId,
+                    laneId,
+                    startIndexOfBlockValuesCurrentBlock + localRow * BLOCK_COL_SIZE + localCol,
+                    idxOfFragment,
+                    matrixP[idxOfMatrixP],
+                    c);
+            }
+        }
+    }
+}
+
+// m16n16k16
+// blockDim: [256, 1, 1]
+// 一个thread block负责一个row panel中的8个col block
 __global__ void sddmm_gpu_rebell_m16n16k16_block256_matrixA_rowMaj_matrixB_colMaj(const UIN M,
                                                                                   const UIN N,
                                                                                   const UIN K,
@@ -694,7 +892,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block256_matrixA_rowMaj_matrixB_colMa
     __shared__ MATRIX_B_TYPE bTileSMEM[bTileSMEMSize];
 
     wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE_FRAGMENT, wmma::row_major> aFrag;
-    wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE_FRAGMENT, wmma::col_major> bFrag;
+    wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE_FRAGMENT, wmma::col_major> bFrag;
 
     wmma::fragment<wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> cFrag;
 
@@ -743,9 +941,36 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block256_matrixA_rowMaj_matrixB_colMa
 
             bTileSMEM[warpId * 512 + iter * 32 + laneId] =
                 (bRowId < K && bColId < N) ? matrixB[bRowId + bColId * ldb] : static_cast<MATRIX_B_TYPE>(0);
+
+            if (colBlockId == 8 && rowPanelId == 201 && bColId == 66) {
+                printf("bRowId = %d, bColId = %d, b = %f, index = %d\n",
+                       bRowId,
+                       bColId,
+                       bTileSMEM[warpId * 512 + iter * 32 + laneId],
+                       warpId * 512 + iter * 32 + laneId);
+            }
         }
 
         __syncthreads();
+
+        if (colBlockId == 8 && rowPanelId == 201 && laneId == 0) {
+            const UIN localRow = 0;
+            const UIN localCOl = 9;
+
+            printf("!matrixA :\n");
+            for (int k = 0; k < 32; ++k) {
+                printf("%f ", aTileSMEM[localRow * 32 + k]);
+            }
+            printf("\n");
+
+            printf("!matrixB :\n");
+            for (int k = 0; k < 32; ++k) {
+                printf("%f, index = %d\n",
+                       bTileSMEM[warpId * 512 + localCOl * 32 + k],
+                       warpId * 512 + localCOl * 32 + k);
+            }
+            printf("\n");
+        }
 
         // Compute the matrix multiplication
         for (int iter = 0; iter < 32; iter += WMMA_K) {
@@ -771,9 +996,41 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block256_matrixA_rowMaj_matrixB_colMa
             const UIN idxOfMatrixP =
                 blockValues[startIndexOfBlockValuesCurrentBlock + localRow * BLOCK_COL_SIZE + localCol];
 
+            if (idxOfMatrixP == 2) {
+                printf(
+                    "!!!idxOfMatrixP = %d, localRow = %d, localCol = %d, rowPanel = %d, colBlockId = %d, warpId = %d, laneId = %d, blockValueIndex = %d, idxOfFragment = %d, matrixP[idxOfMatrixP] = %f, c = %f\n",
+                    idxOfMatrixP,
+                    localRow,
+                    localCol,
+                    rowPanelId,
+                    colBlockId,
+                    warpId,
+                    laneId,
+                    startIndexOfBlockValuesCurrentBlock + localRow * BLOCK_COL_SIZE + localCol,
+                    idxOfFragment,
+                    matrixP[idxOfMatrixP],
+                    c);
+            }
+
             // Saved when the value is not 0
             if (idxOfMatrixP != NULL_VALUE) {
                 matrixP[idxOfMatrixP] = c + beta * matrixP[idxOfFragment];
+            }
+
+            if (idxOfMatrixP == 2) {
+                printf(
+                    "!!!idxOfMatrixP = %d, localRow = %d, localCol = %d, rowPanel = %d, colBlockId = %d, warpId = %d, laneId = %d, blockValueIndex = %d, idxOfFragment = %d, matrixP[idxOfMatrixP] = %f, c = %f\n",
+                    idxOfMatrixP,
+                    localRow,
+                    localCol,
+                    rowPanelId,
+                    colBlockId,
+                    warpId,
+                    laneId,
+                    startIndexOfBlockValuesCurrentBlock + localRow * BLOCK_COL_SIZE + localCol,
+                    idxOfFragment,
+                    matrixP[idxOfMatrixP],
+                    c);
             }
         }
     }
@@ -1398,16 +1655,17 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
 
     if (matrixA.storageOrder() == MatrixStorageOrder::row_major
         && matrixB.storageOrder() == MatrixStorageOrder::row_major) {
-//        kernel::sddmm_gpu_rebell_m16n16k16_block128_matrixA_rowMaj_matrixB_rowMaj<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(),
-//            matrixA_values_convertedType_dev.data(),
-//            matrixB_values_convertedType_dev.data(),
-//            rebell.reorderedRows().size(),
-//            reorderedRowIndices_dev.data(),
-//            reorderedColIndices_dev.data(),
-//            reorderedColIndicesOffset_dev.data(),
-//            blockRowOffsets_dev.data(),
-//            blockValues_dev.data(),
-//            matrixP_dev.data());
+        kernel::sddmm_gpu_rebell_m16n16k16_block256_matrixA_rowMaj_matrixB_rowMaj<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(),
+            matrixA_values_convertedType_dev.data(),
+            matrixB_values_convertedType_dev.data(),
+            alpha, beta,
+            rebell.reorderedRows().size(),
+            reorderedRowIndices_dev.data(),
+            reorderedColIndices_dev.data(),
+            reorderedColIndicesOffset_dev.data(),
+            blockRowOffsets_dev.data(),
+            blockValues_dev.data(),
+            matrixP_dev.data());
     } else if (matrixA.storageOrder() == MatrixStorageOrder::row_major
         && matrixB.storageOrder() == MatrixStorageOrder::col_major) {
         kernel::sddmm_gpu_rebell_m16n16k16_block256_matrixA_rowMaj_matrixB_colMaj<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(),
