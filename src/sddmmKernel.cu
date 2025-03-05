@@ -970,7 +970,7 @@ __global__ void sddmm_gpu_rebell_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj
     // Loop over K, one iteration 32
     for (int kIter = 0; kIter < K; kIter += 32) {
         // Load matrix A into shared memory, each thread loads 2 elements, conflict-free access
-#pragma unroll
+#pragma unroll 2
         for (int iter = 0; iter < 2; ++iter) {
             const UIN reorderedRowIndex = (rowPanelId * ROW_PANEL_SIZE) + (warpId * 2) + iter;
             const UIN aRowId = reorderedRowIndex < numNonZeroRow ? reorderedRows[reorderedRowIndex] : M;
@@ -981,7 +981,7 @@ __global__ void sddmm_gpu_rebell_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj
         }
 
         // Load matrix B data into shared memory, each thread loads 16 elements, conflict-free access
-#pragma unroll
+#pragma unroll 2
         for (int iter = 0; iter < 16; ++iter) {
             const UIN bRowId = kIter + laneId;
             const UIN reorderedColIndex = startIndexOfReorderedColsCurrentColBlock + iter;
