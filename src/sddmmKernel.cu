@@ -38,23 +38,23 @@ __global__ void checkFragmentData() {
 
         }
 
-        int row = 0;
-        int col = 0;
-        for (int i = 0; i < bTileSize; ++i) {
-            row %= wmmaK;
-            bTileSMEM[i] = static_cast<matrixBType>(col * ldBTile + row);
-            ++row;
-            if (i % ldBTile == 0) {
-                ++col;
-            }
-        }
+//        int row = 0;
+//        int col = 0;
 //        for (int i = 0; i < bTileSize; ++i) {
-//            bTileSMEM[i] = static_cast<matrixBType>(i);
+//            row %= wmmaK;
+//            bTileSMEM[i] = static_cast<matrixBType>(row * wmmaK + col);
+//            ++row;
+//            if (i % ldBTile == 0) {
+//                ++col;
+//            }
 //        }
+        for (int i = 0; i < bTileSize; ++i) {
+            bTileSMEM[i] = static_cast<matrixBType>(i);
+        }
     }
 
     if (warpId == 0 && laneId == 0) {
-        printf("\nmatrix A data : \n\n");
+        printf("\nmatrix A data : \n");
         printf("| |");
         for (int col = 0; col < wmmaK; ++col) {
             printf("%d|", col);
@@ -75,7 +75,7 @@ __global__ void checkFragmentData() {
             printf("\n");
         }
 
-        printf("\nmatrix B data : \n\n");
+        printf("\nmatrix B data : \n");
         printf("| |");
         for (int col = 0; col < wmmaN; ++col) {
             printf("%d|", col);
@@ -91,13 +91,13 @@ __global__ void checkFragmentData() {
         for (int row = 0; row < wmmaK; ++row) {
             printf("|%d|", row);
             for (int col = 0; col < wmmaN; ++col) {
-                printf("%.0f|", static_cast<float>(aTileSMEM[row + col * wmmaN]));
+                printf("%.0f|", static_cast<float>(aTileSMEM[row * wmmaN + col]));
             }
             printf("\n");
         }
         printf("\n");
 
-        printf("matrix C data : \n\n");
+        printf("\nmatrix C data : \n");
         printf("| |");
         for (int col = 0; col < wmmaN; ++col) {
             printf("%d|", col);
@@ -140,7 +140,33 @@ __global__ void checkFragmentData() {
         wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
 
         if (laneId == 0) {
-            printf("Fragment data : \n\n");
+            printf("\nFragment A tiled data : \n");
+        }
+        for (int laneIdx = 0; laneIdx < WARP_SIZE; ++laneIdx) {
+            if (warpId == 0 && laneId == laneIdx) {
+                printf("|T%d|", laneId);
+                for (int idxOfFragment = 0; idxOfFragment < aFrag.num_elements; ++idxOfFragment) {
+                    printf("%.0f|", static_cast<float>(aFrag.x[idxOfFragment]));
+                }
+                printf("\n");
+            }
+        }
+
+        if (laneId == 0) {
+            printf("\nFragment B tiled data : \n");
+        }
+        for (int laneIdx = 0; laneIdx < WARP_SIZE; ++laneIdx) {
+            if (warpId == 0 && laneId == laneIdx) {
+                printf("|T%d|", laneId);
+                for (int idxOfFragment = 0; idxOfFragment < bFrag.num_elements; ++idxOfFragment) {
+                    printf("%.0f|", static_cast<float>(bFrag.x[idxOfFragment]));
+                }
+                printf("\n");
+            }
+        }
+
+        if (laneId == 0) {
+            printf("\nFragment C tiled data : \n");
         }
         for (int laneIdx = 0; laneIdx < WARP_SIZE; ++laneIdx) {
             if (warpId == 0 && laneId == laneIdx) {
@@ -976,8 +1002,8 @@ __global__ void sddmm_gpu_rebell_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj
             const UIN aRowId = reorderedRowIndex < numNonZeroRow ? reorderedRows[reorderedRowIndex] : M;
             const UIN aColId = kIter + laneId;
 
-            aTileSMEM[warpId * 64 + iter * 32 + laneId] = (aRowId < M && aColId < K) ?
-                wmma::__float_to_tf32(matrixA[aRowId * lda + aColId]) : wmma::__float_to_tf32(0);
+            aTileSMEM[warpId * 64 + iter * 32 + laneId] =
+                (aRowId < M && aColId < K) ? (matrixA[aRowId * lda + aColId]) : (0.0f);
         }
 
         // Load matrix B data into shared memory, each thread loads 16 elements, conflict-free access
@@ -988,8 +1014,8 @@ __global__ void sddmm_gpu_rebell_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj
             const UIN bColId = reorderedColIndex < endIndexOfReorderedColsCurrentPanel ?
                 reorderedCols[reorderedColIndex] : N;
 
-            bTileSMEM[warpId * 512 + iter * 32 + laneId] = (bRowId < K && bColId < N) ?
-                wmma::__float_to_tf32(matrixB[bRowId + bColId * ldb]) : wmma::__float_to_tf32(0);
+            bTileSMEM[warpId * 512 + iter * 32 + laneId] =
+                (bRowId < K && bColId < N) ? matrixB[bRowId + bColId * ldb] : (0.0f);
         }
 
         __syncthreads();
@@ -999,6 +1025,11 @@ __global__ void sddmm_gpu_rebell_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj
             if (colBlockId < numColBlocksCurrentRowPanel) {
                 wmma::load_matrix_sync(aFrag, aTileSMEM + iter, 32);
                 wmma::load_matrix_sync(bFrag, bTileSMEM + warpId * 512 + iter, 32);
+
+                // Convert to TF32
+                for (int i = 0; i < aFrag.num_elements; ++i)aFrag.x[i] = wmma::__float_to_tf32(aFrag.x[i]);
+                for (int i = 0; i < bFrag.num_elements; ++i)bFrag.x[i] = wmma::__float_to_tf32(bFrag.x[i]);
+
                 wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
             }
         }
@@ -1604,6 +1635,9 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
                       const ReBELL &rebell,
                       sparseMatrix::CSR<float> &matrixP,
                       Logger &logger) {
+
+    kernel::checkFragmentData<<<1, 32>>>();
+    cudaDeviceSynchronize();
 
     // Convert the data type of matrix A and matrix B for use tensor core
     dev::vector<MATRIX_A_TYPE> matrixA_values_convertedType_dev(matrixA.size());
