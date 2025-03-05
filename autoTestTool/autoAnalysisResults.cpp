@@ -210,6 +210,10 @@ struct ResultsInformation {
 
   void printInformation() const;
 
+  bool empty() const {
+      return kToOneTimeData_.empty();
+  }
+
   std::string file_;
   std::string M_;
   std::string N_;
@@ -337,6 +341,34 @@ std::vector<std::vector<std::string>> readResultsFile(const std::string &results
     return allData;
 }
 
+std::unordered_map<std::string, ResultsInformation> pickTheBadResults(
+    const std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
+    std::unordered_map<std::string, ResultsInformation> bad;
+
+    for (const auto &iter : matrixFileToResultsInformationMap) {
+        const std::string file = iter.first;
+        const ResultsInformation &resultesInformation = iter.second;
+
+        ResultsInformation badResultsInformation(resultesInformation);
+        badResultsInformation.kToOneTimeData_.clear();
+        for (const auto &kToOneTimeData : resultesInformation.kToOneTimeData_) {
+            const int k = kToOneTimeData.first;
+            const float zcx_sddmm = std::stof(kToOneTimeData.second.zcx_sddmm_);
+            const float isratnisa_sddmm = std::stof(kToOneTimeData.second.isratnisa_sddmm_);
+            const float cuSparse = std::stof(kToOneTimeData.second.cuSparse_);
+            if (zcx_sddmm > isratnisa_sddmm || zcx_sddmm > cuSparse) {
+                OneTimeData oneTimeData = kToOneTimeData.second;
+                badResultsInformation.kToOneTimeData_[k] = oneTimeData;
+            }
+        }
+        if (!badResultsInformation.empty()) {
+            bad[file] = badResultsInformation;
+        }
+    }
+
+    return bad;
+}
+
 int main(int argc, char *argv[]) {
 
     if (argc < 2) {
@@ -368,9 +400,17 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    // Print the results to Markdown format
     settingInformation.printInformation();
-
     for (const auto &iter : matrixFileToResultsInformationMap) {
+        iter.second.printInformation();
+    }
+
+    // Print the bad results to Markdown format
+    std::unordered_map<std::string, ResultsInformation> badResults =
+        pickTheBadResults(matrixFileToResultsInformationMap);
+    std::cout << " Bad results: " << std::endl;
+    for (const auto &iter : badResults) {
         iter.second.printInformation();
     }
 
