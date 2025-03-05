@@ -131,49 +131,45 @@ inline __host__ __device__ void calculateFragmentLaneAndIndex(const UIN tileRow,
 inline __host__ __device__ void calculateFragmentCoordinates_m16n16(const UIN laneId, const UIN indexOfFragment,
                                                                     UIN &row, UIN &col) {
     // Divide the lanes into groups of 4
-    const UIN laneGroupId = laneId / 4;
-    const UIN localIdInLaneGroup = laneId % 4;
+    const UIN laneGroupId = laneId >> 2; // laneId / 4
+    const UIN localIdInLaneGroup = laneId & 3; // laneId % 4
 
-    // Divide the index into groups of 2
-    const UIN indexGroupId = indexOfFragment / 2;
+    const UIN indexGroupId = indexOfFragment >> 1; // indexOfFragment / 2
+    const UIN isOddIndex = indexOfFragment & 1; // indexOfFragment % 2
+    const UIN isBigLaneGroup = indexOfFragment >> 2; // indexOfFragment / 4
 
-    const UIN isOddIndexGroupId = indexGroupId % 2;
+//    const UIN isOddIndexGroupId = indexGroupId % 2
 
-    const UIN isOddIndex = indexOfFragment % 2;
-    const UIN isBigLaneGroup = indexOfFragment / 4;
-
-    row = laneGroupId + 8 * isOddIndexGroupId;
-    col = localIdInLaneGroup * 2 + isOddIndex + 8 * isBigLaneGroup;
+    row = laneGroupId + (indexGroupId & 1) * 8;
+    // row = laneGroupId + 8 * isOddIndexGroupId;
+    col = (localIdInLaneGroup << 1) + isOddIndex + (isBigLaneGroup << 3);
+    // col = localIdInLaneGroup * 2 + isOddIndex + 8 * isBigLaneGroup;
 }
 
 inline __host__ __device__ void calculateFragmentCoordinates_m32n8(const UIN laneId, const UIN indexOfFragment,
                                                                    UIN &row, UIN &col) {
     // Divide the lanes into groups of 4
-    const UIN laneGroupId = laneId / 4;
-    const UIN localIdInLaneGroup = laneId % 4;
+    const UIN laneGroupId = laneId >> 2;  // laneId / 4
+    const UIN localIdInLaneGroup = laneId & 3;  // laneId % 4
 
-    // Divide the index into groups of 2
-    const UIN indexGroupId = indexOfFragment / 2;
+    const UIN indexGroupId = indexOfFragment >> 1;  // indexOfFragment / 2
+    const UIN isOddIndex = indexOfFragment & 1;  // indexOfFragment % 2
 
-    const UIN isOddIndex = indexOfFragment % 2;
-
-    row = indexGroupId * 8 + laneGroupId;
-    col = localIdInLaneGroup * 2 + isOddIndex;
+    row = (indexGroupId << 3) + laneGroupId;  // indexGroupId * 8 + laneGroupId
+    col = (localIdInLaneGroup << 1) + isOddIndex;  // localIdInLaneGroup * 2 + isOddIndex
 }
 
 inline __host__ __device__ void calculateFragmentCoordinates_m8n32(const UIN laneId, const UIN indexOfFragment,
                                                                    UIN &row, UIN &col) {
     // Divide the lanes into groups of 4
-    const UIN laneGroupId = laneId / 4;
-    const UIN localIdInLaneGroup = laneId % 4;
+    const UIN laneGroupId = laneId >> 2;  // laneId / 4
+    const UIN localIdInLaneGroup = laneId & 3;  // laneId % 4
 
-    // Divide the index into groups of 2
-    const UIN indexGroupId = indexOfFragment / 2;
+    const UIN indexGroupId = indexOfFragment >> 1;  // indexOfFragment / 2
+    const UIN isOddIndex = indexOfFragment & 1;  // indexOfFragment % 2
 
-    const UIN isOddIndex = indexOfFragment % 2;
-
-    row = localIdInLaneGroup * 2 + isOddIndex;
-    col = indexGroupId * 8 + laneGroupId;
+    row = (localIdInLaneGroup << 1) + isOddIndex;  // localIdInLaneGroup * 2 + isOddIndex
+    col = (indexGroupId << 3) + laneGroupId;  // indexGroupId * 8 + laneGroupId
 }
 
 inline __host__ __device__ void calculateFragmentCoordinates(const UIN laneId, const UIN indexOfFragment,
