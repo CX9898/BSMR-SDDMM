@@ -225,7 +225,7 @@ inline __host__ __device__ void calculateMatrixBFragmentCoordinates_m16n16k8_col
     row = (laneId >> 3) + ((indexOfFragment >> 1) << 2); // laneId / 8 + (indexOfFragment / 2) * 4;
 
 //    col = laneId % 4 + ((laneId % 8) / 4) * 8 + (indexOfFragment % 2) * 4;
-    col = (laneId & 3) + ((laneId >> 2) & 2) * 4 + ((indexOfFragment & 1) << 2);
+    col = (laneId & 3) + (((laneId >> 2) & 1) << 3) + ((indexOfFragment & 1) << 2);
 }
 } // namespace tc
 
