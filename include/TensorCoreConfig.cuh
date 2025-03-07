@@ -66,9 +66,9 @@ using MATRIX_B_TYPE_FRAGMENT = ::nvcuda::wmma::precision::tf32;
 
 constexpr int WARP_SIZE = 32;
 
-inline __host__ __device__ void calculateFragmentLaneAndIndex_m16n16(const UIN tileRow, const UIN tileCol,
-                                                                     const UIN row, const UIN col,
-                                                                     UIN &laneId, UIN &indexOfFragment) {
+inline __host__ __device__ void calculateMatrixCFragmentLaneAndIndex_m16n16(const UIN tileRow, const UIN tileCol,
+                                                                            const UIN row, const UIN col,
+                                                                            UIN &laneId, UIN &indexOfFragment) {
     if (tileRow > row || tileCol > col || tileRow + WMMA_M <= row || tileCol + WMMA_N <= col) {
         return;
     }
@@ -81,9 +81,9 @@ inline __host__ __device__ void calculateFragmentLaneAndIndex_m16n16(const UIN t
     laneId = beginLane + localCol % 8 / 2;
     indexOfFragment = isBigRow * 2 + isBigCol * 4 + localCol % 2;
 }
-inline __host__ __device__ void calculateFragmentLaneAndIndex_m32n8(const UIN tileRow, const UIN tileCol,
-                                                                    const UIN row, const UIN col,
-                                                                    UIN &laneId, UIN &indexOfFragment) {
+inline __host__ __device__ void calculateMatrixCFragmentLaneAndIndex_m32n8(const UIN tileRow, const UIN tileCol,
+                                                                           const UIN row, const UIN col,
+                                                                           UIN &laneId, UIN &indexOfFragment) {
     if (tileRow > row || tileCol > col || tileRow + WMMA_M <= row || tileCol + WMMA_N <= col) {
         return;
     }
@@ -96,9 +96,9 @@ inline __host__ __device__ void calculateFragmentLaneAndIndex_m32n8(const UIN ti
     laneId = beginLane + localCol / 2;
     indexOfFragment = groupId * 2 + isColOdd;
 }
-inline __host__ __device__ void calculateFragmentLaneAndIndex_m8n32(const UIN tileRow, const UIN tileCol,
-                                                                    const UIN row, const UIN col,
-                                                                    UIN &laneId, UIN &indexOfFragment) {
+inline __host__ __device__ void calculateMatrixCFragmentLaneAndIndex_m8n32(const UIN tileRow, const UIN tileCol,
+                                                                           const UIN row, const UIN col,
+                                                                           UIN &laneId, UIN &indexOfFragment) {
     if (tileRow > row || tileCol > col || tileRow + WMMA_M <= row || tileCol + WMMA_N <= col) {
         return;
     }
@@ -112,24 +112,24 @@ inline __host__ __device__ void calculateFragmentLaneAndIndex_m8n32(const UIN ti
     indexOfFragment = groupId * 2 + isColOdd;
 }
 
-inline __host__ __device__ void calculateFragmentLaneAndIndex(const UIN tileRow, const UIN tileCol,
-                                                              const UIN row, const UIN col,
-                                                              UIN &laneId, UIN &indexOfFragment) {
+inline __host__ __device__ void calculateMatrixCFragmentLaneAndIndex(const UIN tileRow, const UIN tileCol,
+                                                                     const UIN row, const UIN col,
+                                                                     UIN &laneId, UIN &indexOfFragment) {
 #if defined(WMMA_16_16_16) || defined(WMMA_16_16_8)
-    calculateFragmentLaneAndIndex_m16n16(tileRow, tileCol, row, col, laneId, indexOfFragment);
+    calculateMatrixCFragmentLaneAndIndex_m16n16(tileRow, tileCol, row, col, laneId, indexOfFragment);
 #endif //WMMA_16_16_16
 
 #ifdef WMMA_32_16_16
-    calculateFragmentLaneAndIndex_m32n8(tileRow, tileCol, row, col, laneId, indexOfFragment);
+    calculateMatrixCFragmentLaneAndIndex_m32n8(tileRow, tileCol, row, col, laneId, indexOfFragment);
 #endif //WMMA_32_16_16
 
 #ifdef WMMA_8_32_16
-    calculateFragmentLaneAndIndex_m8n32(tileRow, tileCol, row, col, laneId, indexOfFragment);
+    calculateMatrixCFragmentLaneAndIndex_m8n32(tileRow, tileCol, row, col, laneId, indexOfFragment);
 #endif //WMMA_8_32_16
 }
 
-inline __host__ __device__ void calculateFragmentCoordinates_m16n16(const UIN laneId, const UIN indexOfFragment,
-                                                                    UIN &row, UIN &col) {
+inline __host__ __device__ void calculateMatrixCFragmentCoordinates_m16n16(const UIN laneId, const UIN indexOfFragment,
+                                                                           UIN &row, UIN &col) {
     // Divide the lanes into groups of 4
     const UIN laneGroupId = laneId >> 2; // laneId / 4
     const UIN localIdInLaneGroup = laneId & 3; // laneId % 4
@@ -172,17 +172,59 @@ inline __host__ __device__ void calculateFragmentCoordinates_m8n32(const UIN lan
     col = (indexGroupId << 3) + laneGroupId;  // indexGroupId * 8 + laneGroupId
 }
 
-inline __host__ __device__ void calculateFragmentCoordinates(const UIN laneId, const UIN indexOfFragment,
-                                                             UIN &row, UIN &col) {
+inline __host__ __device__ void calculateMatrixCFragmentCoordinates(const UIN laneId, const UIN indexOfFragment,
+                                                                    UIN &row, UIN &col) {
 #if defined(WMMA_16_16_16) || defined(WMMA_16_16_8)
-    calculateFragmentCoordinates_m16n16(laneId, indexOfFragment, row, col);
+    calculateMatrixCFragmentCoordinates_m16n16(laneId, indexOfFragment, row, col);
 #endif //WMMA_16_16_16
 
 #ifdef WMMA_32_16_16
-    calculateFragmentCoordinates_m32n8(laneId, indexOfFragment, row, col);
+    calculateMatrixCFragmentCoordinates_m32n8(laneId, indexOfFragment, row, col);
 #endif //WMMA_32_16_16
 
 #ifdef WMMA_8_32_16
-    calculateFragmentCoordinates_m8n32(laneId, indexOfFragment, row, col);
+    calculateMatrixCFragmentCoordinates_m8n32(laneId, indexOfFragment, row, col);
 #endif //WMMA_8_32_16
+}
+
+inline __host__ __device__ void calculateMatrixAFragmentCoordinates_m16n16k8_rowMaj(const UIN laneId,
+                                                                                    const UIN indexOfFragment,
+                                                                                    UIN &row,
+                                                                                    UIN &col) {
+    row = (laneId >> 2) + ((indexOfFragment & 1) << 3); // laneId / 4 + (index % 2) * 8;
+    col = (laneId & 3) + ((indexOfFragment >> 1) << 2); // laneId % 4 + (index / 2) * 4;
+}
+
+inline __host__ __device__ void calculateMatrixAFragmentCoordinates(const UIN laneId, const UIN indexOfFragment,
+                                                                    UIN &row, UIN &col) {
+
+#ifdef WMMA_16_16_8
+    calculateMatrixAFragmentCoordinates_m16n16k8_rowMaj(laneId, indexOfFragment, row, col);
+#endif // WMMA_16_16_8
+}
+
+inline __host__ __device__ void calculateMatrixBFragmentCoordinates_m16n16k8_rowMaj(const UIN laneId,
+                                                                                    const UIN indexOfFragment,
+                                                                                    UIN &row,
+                                                                                    UIN &col) {
+    row = (laneId & 3) + ((indexOfFragment & 1) << 2); // laneId % 4 + (indexOfFragment % 2) * 4;
+    col = (laneId >> 2) + ((indexOfFragment >> 1) << 3); // laneId / 4 + (indexOfFragment / 2) * 8;
+}
+
+inline __host__ __device__ void calculateMatrixBFragmentCoordinates_m16n16k8_colMaj(const UIN laneId,
+                                                                                    const UIN indexOfFragment,
+                                                                                    UIN &row,
+                                                                                    UIN &col) {
+    row = (laneId >> 3) + ((indexOfFragment >> 1) << 2); // laneId / 8 + (indexOfFragment / 2) * 4;
+    
+//    col = laneId % 4 + ((laneId % 8) / 4) * 8 + (indexOfFragment % 2) * 4;
+    col = (laneId & 3) + ((laneId >> 2) & 2) * 4 + ((indexOfFragment & 1) << 2);
+}
+
+inline __host__ __device__ void calculateMatrixBFragmentCoordinates(const UIN laneId, const UIN indexOfFragment,
+                                                                    UIN &row, UIN &col) {
+
+#ifdef WMMA_16_16_8
+    calculateMatrixBFragmentCoordinates_m16n16k8_colMaj(laneId, indexOfFragment, row, col);
+#endif // WMMA_16_16_8
 }
