@@ -66,6 +66,7 @@ using MATRIX_B_TYPE_FRAGMENT = ::nvcuda::wmma::precision::tf32;
 
 constexpr int WARP_SIZE = 32;
 
+namespace tc {
 inline __host__ __device__ void calculateMatrixCFragmentLaneAndIndex_m16n16(const UIN tileRow, const UIN tileCol,
                                                                             const UIN row, const UIN col,
                                                                             UIN &laneId, UIN &indexOfFragment) {
@@ -111,23 +112,25 @@ inline __host__ __device__ void calculateMatrixCFragmentLaneAndIndex_m8n32(const
     laneId = beginLane + localRow / 2;
     indexOfFragment = groupId * 2 + isColOdd;
 }
+} // namespace tc
 
 inline __host__ __device__ void calculateMatrixCFragmentLaneAndIndex(const UIN tileRow, const UIN tileCol,
                                                                      const UIN row, const UIN col,
                                                                      UIN &laneId, UIN &indexOfFragment) {
 #if defined(WMMA_16_16_16) || defined(WMMA_16_16_8)
-    calculateMatrixCFragmentLaneAndIndex_m16n16(tileRow, tileCol, row, col, laneId, indexOfFragment);
+    tc::calculateMatrixCFragmentLaneAndIndex_m16n16(tileRow, tileCol, row, col, laneId, indexOfFragment);
 #endif //WMMA_16_16_16
 
 #ifdef WMMA_32_16_16
-    calculateMatrixCFragmentLaneAndIndex_m32n8(tileRow, tileCol, row, col, laneId, indexOfFragment);
+    tc::calculateMatrixCFragmentLaneAndIndex_m32n8(tileRow, tileCol, row, col, laneId, indexOfFragment);
 #endif //WMMA_32_16_16
 
 #ifdef WMMA_8_32_16
-    calculateMatrixCFragmentLaneAndIndex_m8n32(tileRow, tileCol, row, col, laneId, indexOfFragment);
+    tc::calculateMatrixCFragmentLaneAndIndex_m8n32(tileRow, tileCol, row, col, laneId, indexOfFragment);
 #endif //WMMA_8_32_16
 }
 
+namespace tc {
 inline __host__ __device__ void calculateMatrixCFragmentCoordinates_m16n16(const UIN laneId, const UIN indexOfFragment,
                                                                            UIN &row, UIN &col) {
     // Divide the lanes into groups of 4
@@ -171,22 +174,24 @@ inline __host__ __device__ void calculateFragmentCoordinates_m8n32(const UIN lan
     row = (localIdInLaneGroup << 1) + isOddIndex;  // localIdInLaneGroup * 2 + isOddIndex
     col = (indexGroupId << 3) + laneGroupId;  // indexGroupId * 8 + laneGroupId
 }
+} // namespace tc
 
 inline __host__ __device__ void calculateMatrixCFragmentCoordinates(const UIN laneId, const UIN indexOfFragment,
                                                                     UIN &row, UIN &col) {
 #if defined(WMMA_16_16_16) || defined(WMMA_16_16_8)
-    calculateMatrixCFragmentCoordinates_m16n16(laneId, indexOfFragment, row, col);
+    tc::calculateMatrixCFragmentCoordinates_m16n16(laneId, indexOfFragment, row, col);
 #endif //WMMA_16_16_16
 
 #ifdef WMMA_32_16_16
-    calculateMatrixCFragmentCoordinates_m32n8(laneId, indexOfFragment, row, col);
+    tc::calculateMatrixCFragmentCoordinates_m32n8(laneId, indexOfFragment, row, col);
 #endif //WMMA_32_16_16
 
 #ifdef WMMA_8_32_16
-    calculateMatrixCFragmentCoordinates_m8n32(laneId, indexOfFragment, row, col);
+    tc::calculateMatrixCFragmentCoordinates_m8n32(laneId, indexOfFragment, row, col);
 #endif //WMMA_8_32_16
 }
 
+namespace tc {
 inline __host__ __device__ void calculateMatrixAFragmentCoordinates_m16n16k8_rowMaj(const UIN laneId,
                                                                                     const UIN indexOfFragment,
                                                                                     UIN &row,
@@ -194,15 +199,17 @@ inline __host__ __device__ void calculateMatrixAFragmentCoordinates_m16n16k8_row
     row = (laneId >> 2) + ((indexOfFragment & 1) << 3); // laneId / 4 + (index % 2) * 8;
     col = (laneId & 3) + ((indexOfFragment >> 1) << 2); // laneId % 4 + (index / 2) * 4;
 }
+} // namespace tc
 
 inline __host__ __device__ void calculateMatrixAFragmentCoordinates(const UIN laneId, const UIN indexOfFragment,
                                                                     UIN &row, UIN &col) {
 
 #ifdef WMMA_16_16_8
-    calculateMatrixAFragmentCoordinates_m16n16k8_rowMaj(laneId, indexOfFragment, row, col);
+    tc::calculateMatrixAFragmentCoordinates_m16n16k8_rowMaj(laneId, indexOfFragment, row, col);
 #endif // WMMA_16_16_8
 }
 
+namespace tc {
 inline __host__ __device__ void calculateMatrixBFragmentCoordinates_m16n16k8_rowMaj(const UIN laneId,
                                                                                     const UIN indexOfFragment,
                                                                                     UIN &row,
@@ -216,15 +223,16 @@ inline __host__ __device__ void calculateMatrixBFragmentCoordinates_m16n16k8_col
                                                                                     UIN &row,
                                                                                     UIN &col) {
     row = (laneId >> 3) + ((indexOfFragment >> 1) << 2); // laneId / 8 + (indexOfFragment / 2) * 4;
-    
+
 //    col = laneId % 4 + ((laneId % 8) / 4) * 8 + (indexOfFragment % 2) * 4;
     col = (laneId & 3) + ((laneId >> 2) & 2) * 4 + ((indexOfFragment & 1) << 2);
 }
+} // namespace tc
 
 inline __host__ __device__ void calculateMatrixBFragmentCoordinates(const UIN laneId, const UIN indexOfFragment,
                                                                     UIN &row, UIN &col) {
 
 #ifdef WMMA_16_16_8
-    calculateMatrixBFragmentCoordinates_m16n16k8_colMaj(laneId, indexOfFragment, row, col);
+    tc::calculateMatrixBFragmentCoordinates_m16n16k8_colMaj(laneId, indexOfFragment, row, col);
 #endif // WMMA_16_16_8
 }
