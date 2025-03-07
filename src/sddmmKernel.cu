@@ -281,7 +281,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block64_rowPanel_matrixA_rowMaj_matri
 #pragma unroll
             for (int idxOfFragment = 0; idxOfFragment < cFrag.num_elements; ++idxOfFragment) {
                 UIN localRow, localCol;
-                calculateFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
+                calculateMatrixCFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
 
                 const UIN idxOfMatrixP =
                     blockValues[startIndexOfBlockValuesCurrentBlock + localRow * BLOCK_COL_SIZE + localCol];
@@ -385,7 +385,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block64_rowPanel_matrixA_rowMaj_matri
 #pragma unroll
             for (int idxOfFragment = 0; idxOfFragment < cFrag.num_elements; ++idxOfFragment) {
                 UIN localRow, localCol;
-                calculateFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
+                calculateMatrixCFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
 
                 const UIN idxOfMatrixP =
                     blockValues[startIndexOfBlockValuesCurrentBlock + localRow * BLOCK_COL_SIZE + localCol];
@@ -490,7 +490,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block64_matrixA_rowMaj_matrixB_rowMaj
 #pragma unroll
         for (int idxOfFragment = 0; idxOfFragment < cFrag.num_elements; ++idxOfFragment) {
             UIN localRow, localCol;
-            calculateFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
+            calculateMatrixCFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
 
             const UIN idxOfMatrixP =
                 blockValues[startIndexOfBlockValuesCurrentBlock + localRow * BLOCK_COL_SIZE + localCol];
@@ -595,7 +595,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block64_matrixA_rowMaj_matrixB_colMaj
 #pragma unroll
         for (int idxOfFragment = 0; idxOfFragment < cFrag.num_elements; ++idxOfFragment) {
             UIN localRow, localCol;
-            calculateFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
+            calculateMatrixCFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
 
             const UIN idxOfMatrixP =
                 blockValues[startIndexOfBlockValuesCurrentBlock + localRow * BLOCK_COL_SIZE + localCol];
@@ -705,7 +705,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block128_matrixA_rowMaj_matrixB_colMa
             const float c = alpha * cFrag.x[idxOfFragment];
 
             UIN localRow, localCol;
-            calculateFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
+            calculateMatrixCFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
 
             const UIN idxOfMatrixP =
                 blockValues[startIndexOfBlockValuesCurrentBlock + localRow * BLOCK_COL_SIZE + localCol];
@@ -816,7 +816,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block256_matrixA_rowMaj_matrixB_rowMa
             const float c = alpha * cFrag.x[idxOfFragment];
 
             UIN localRow, localCol;
-            calculateFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
+            calculateMatrixCFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
 
             const UIN idxOfMatrixP =
                 blockValues[startIndexOfBlockValuesCurrentBlock + localRow * BLOCK_COL_SIZE + localCol];
@@ -928,7 +928,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block256_matrixA_rowMaj_matrixB_colMa
             const float c = alpha * cFrag.x[idxOfFragment];
 
             UIN localRow, localCol;
-            calculateFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
+            calculateMatrixCFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
 
             const UIN idxOfMatrixP =
                 blockValues[startIndexOfBlockValuesCurrentBlock + localRow * BLOCK_COL_SIZE + localCol];
@@ -1003,7 +1003,7 @@ __global__ void sddmm_gpu_rebell_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj
             const UIN aColId = kIter + laneId;
 
             aTileSMEM[warpId * 64 + iter * 32 + laneId] =
-                (aRowId < M && aColId < K) ? (matrixA[aRowId * lda + aColId]) : (0.0f);
+                (aRowId < M && aColId < K) ? (matrixA[aRowId * lda + aColId]) : static_cast<MATRIX_A_TYPE>(0.0f);
         }
 
         // Load matrix B data into shared memory, each thread loads 16 elements, conflict-free access
@@ -1015,7 +1015,7 @@ __global__ void sddmm_gpu_rebell_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj
                 reorderedCols[reorderedColIndex] : N;
 
             bTileSMEM[warpId * 512 + iter * 32 + laneId] =
-                (bRowId < K && bColId < N) ? matrixB[bRowId + bColId * ldb] : (0.0f);
+                (bRowId < K && bColId < N) ? matrixB[bRowId + bColId * ldb] : static_cast<MATRIX_B_TYPE>(0.0f);
         }
 
         __syncthreads();
@@ -1027,7 +1027,9 @@ __global__ void sddmm_gpu_rebell_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj
                 wmma::load_matrix_sync(bFrag, bTileSMEM + warpId * 512 + iter, 32);
 
                 // Convert to TF32
+#pragma unroll
                 for (int i = 0; i < aFrag.num_elements; ++i)aFrag.x[i] = wmma::__float_to_tf32(aFrag.x[i]);
+#pragma unroll
                 for (int i = 0; i < bFrag.num_elements; ++i)bFrag.x[i] = wmma::__float_to_tf32(bFrag.x[i]);
 
                 wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
@@ -1044,7 +1046,7 @@ __global__ void sddmm_gpu_rebell_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj
             const float c = alpha * cFrag.x[idxOfFragment];
 
             UIN localRow, localCol;
-            calculateFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
+            calculateMatrixCFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
 
             const UIN idxOfMatrixP =
                 blockValues[startIndexOfBlockValuesCurrentBlock + localRow * BLOCK_COL_SIZE + localCol];
@@ -1053,6 +1055,114 @@ __global__ void sddmm_gpu_rebell_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj
             if (idxOfMatrixP != NULL_VALUE) {
                 matrixP[idxOfMatrixP] = c + beta * matrixP[idxOfFragment];
             }
+        }
+    }
+}
+
+// m16n16k16
+// blockDim: [256, 1, 1]
+// 一个thread block负责一个row panel中的8个col block
+__global__ void sddmm_gpu_rebell_m16n16k8_block256_noSMEM_matrixA_rowMaj_matrixB_colMaj(const UIN M,
+                                                                                        const UIN N,
+                                                                                        const UIN K,
+                                                                                        const MATRIX_A_TYPE *__restrict__ matrixA,
+                                                                                        const MATRIX_B_TYPE *__restrict__ matrixB,
+                                                                                        const float alpha,
+                                                                                        const float beta,
+                                                                                        const UIN numNonZeroRow,
+                                                                                        const UIN *__restrict__ reorderedRows,
+                                                                                        const UIN *__restrict__ reorderedCols,
+                                                                                        const UIN *__restrict__ reorderedColOffset,
+                                                                                        const UIN *__restrict__ blockRowOffsets,
+                                                                                        const UIN *__restrict__ blockValues,
+                                                                                        MATRIX_C_TYPE *matrixP) {
+
+    wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE_FRAGMENT, wmma::row_major> aFrag;
+    wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE_FRAGMENT, wmma::col_major> bFrag;
+
+    wmma::fragment<wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> cFrag;
+
+    fill_fragment(cFrag, 0.0f);
+
+    const UIN laneId = threadIdx.x & 31;
+    const UIN warpId = threadIdx.x >> 5;
+
+    const UIN rowPanelId = blockIdx.x;
+    const UIN numColBlocksCurrentRowPanel = blockRowOffsets[rowPanelId + 1] - blockRowOffsets[rowPanelId];
+
+    const UIN colBlockId = blockIdx.y * each_thread_block_counts_the_number_Of_col_blocks + warpId;
+    if (colBlockId >= numColBlocksCurrentRowPanel) {
+        return;
+    }
+
+    const UIN startIndexOfBlockValuesCurrentBlock = (blockRowOffsets[rowPanelId] + colBlockId) * BLOCK_SIZE;
+
+    const UIN startIndexOfReorderedColsCurrentColBlock = reorderedColOffset[rowPanelId] + BLOCK_COL_SIZE * colBlockId;
+    const UIN endIndexOfReorderedColsCurrentPanel = reorderedColOffset[rowPanelId + 1];
+
+    const UIN lda = K;
+    const UIN ldb = K;
+
+    // Loop over K, one iteration 8
+    for (int kIter = 0; kIter < K; kIter += 8) {
+
+        // Load matrix A
+#pragma unroll
+        for (int indexOfFragment = 0; indexOfFragment < aFrag.num_elements; ++indexOfFragment) {
+            UIN localRow, localCol;
+            calculateMatrixAFragmentCoordinates(laneId, indexOfFragment, localRow, localCol);
+
+            const UIN reorderedRowIndex = (rowPanelId * ROW_PANEL_SIZE) + localRow;
+            const UIN aRowId = reorderedRowIndex < numNonZeroRow ? reorderedRows[reorderedRowIndex] : M;
+            const UIN aColId = kIter + localCol;
+
+            aFrag.x[indexOfFragment] =
+                (aRowId < M && aColId < K) ? (matrixA[aRowId * lda + aColId]) : static_cast<MATRIX_A_TYPE>(0.0f);
+        }
+
+        // Load matrix B
+#pragma unroll
+        for (int indexOfFragment = 0; indexOfFragment < bFrag.num_elements; ++indexOfFragment) {
+            UIN localRow, localCol;
+            calculateMatrixBFragmentCoordinates(laneId, indexOfFragment, localRow, localCol);
+
+            const UIN bRowId = kIter + localRow;
+            const UIN reorderedColIndex = startIndexOfReorderedColsCurrentColBlock + localCol;
+            const UIN bColId = reorderedColIndex < endIndexOfReorderedColsCurrentPanel ?
+                reorderedCols[reorderedColIndex] : N;
+
+            bFrag.x[indexOfFragment] =
+                (bRowId < K && bColId < N) ? matrixB[bRowId + bColId * ldb] : static_cast<MATRIX_B_TYPE>(0.0f);
+        }
+
+        // Convert to TF32
+#pragma unroll
+        for (int i = 0; i < aFrag.num_elements; ++i)aFrag.x[i] = wmma::__float_to_tf32(aFrag.x[i]);
+#pragma unroll
+        for (int i = 0; i < bFrag.num_elements; ++i)bFrag.x[i] = wmma::__float_to_tf32(bFrag.x[i]);
+
+        __syncthreads();
+
+        // Compute the matrix multiplication
+        wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
+
+        __syncthreads();
+    }
+
+    // Store the result
+#pragma unroll
+    for (int idxOfFragment = 0; idxOfFragment < cFrag.num_elements; ++idxOfFragment) {
+        const float c = alpha * cFrag.x[idxOfFragment];
+
+        UIN localRow, localCol;
+        calculateMatrixCFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
+
+        const UIN idxOfMatrixP =
+            blockValues[startIndexOfBlockValuesCurrentBlock + localRow * BLOCK_COL_SIZE + localCol];
+
+        // Saved when the value is not 0
+        if (idxOfMatrixP != NULL_VALUE) {
+            matrixP[idxOfMatrixP] = c + beta * matrixP[idxOfFragment];
         }
     }
 }
@@ -1151,7 +1261,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block512_matrixA_rowMaj_matrixB_colMa
             const float c = alpha * cFrag.x[idxOfFragment];
 
             UIN localRow, localCol;
-            calculateFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
+            calculateMatrixCFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
 
             const UIN idxOfMatrixP =
                 blockValues[startIndexOfBlockValuesCurrentBlock + localRow * BLOCK_COL_SIZE + localCol];
@@ -1251,7 +1361,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_outkIter_matrixA_rowMaj_matrixB_rowMa
 #pragma unroll
             for (int idxOfFragment = 0; idxOfFragment < cFrag.num_elements; ++idxOfFragment) {
                 UIN localRow, localCol;
-                calculateFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
+                calculateMatrixCFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
 
                 const UIN idxOfMatrixP =
                     blockValues[startIndexOfBlockValuesCurrentBlock + localRow * BLOCK_COL_SIZE + localCol];
@@ -1353,7 +1463,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_outkIter_matrixA_rowMaj_matrixB_colMa
 #pragma unroll
             for (int idxOfFragment = 0; idxOfFragment < cFrag.num_elements; ++idxOfFragment) {
                 UIN localRow, localCol;
-                calculateFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
+                calculateMatrixCFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
 
                 const UIN idxOfMatrixP =
                     blockValues[startIndexOfBlockValuesCurrentBlock + localRow * BLOCK_COL_SIZE + localCol];
@@ -1457,7 +1567,7 @@ __global__ void sddmm_gpu_rebell_4WMMA_K_m16n16k16_matrixA_rowMaj_matrixB_rowMaj
 #pragma unroll
             for (int idxOfFragment = 0; idxOfFragment < cFrag.num_elements; ++idxOfFragment) {
                 UIN localRow, localCol;
-                calculateFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
+                calculateMatrixCFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
 
                 const UIN idxOfMatrixP =
                     blockValues[startIndexOfBlockValuesCurrentBlock + localRow * BLOCK_COL_SIZE + localCol];
@@ -1561,7 +1671,7 @@ __global__ void sddmm_gpu_rebell_4WMMA_K_m16n16k16_matrixA_rowMaj_matrixB_colMaj
 #pragma unroll
             for (int idxOfFragment = 0; idxOfFragment < cFrag.num_elements; ++idxOfFragment) {
                 UIN localRow, localCol;
-                calculateFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
+                calculateMatrixCFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
 
                 const UIN idxOfMatrixP =
                     blockValues[startIndexOfBlockValuesCurrentBlock + localRow * BLOCK_COL_SIZE + localCol];
@@ -1636,9 +1746,6 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
                       sparseMatrix::CSR<float> &matrixP,
                       Logger &logger) {
 
-    kernel::checkFragmentData<<<1, 32>>>();
-    cudaDeviceSynchronize();
-
     // Convert the data type of matrix A and matrix B for use tensor core
     dev::vector<MATRIX_A_TYPE> matrixA_values_convertedType_dev(matrixA.size());
     dev::vector<MATRIX_B_TYPE> matrixB_values_convertedType_dev(matrixB.size());
@@ -1707,7 +1814,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
 #endif // WMMA_16_16_16
 
 #ifdef WMMA_16_16_8
-        kernel::sddmm_gpu_rebell_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(),
+        kernel::sddmm_gpu_rebell_m16n16k8_block256_noSMEM_matrixA_rowMaj_matrixB_colMaj<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(),
             matrixA_values_convertedType_dev.data(),
             matrixB_values_convertedType_dev.data(),
             alpha, beta,
