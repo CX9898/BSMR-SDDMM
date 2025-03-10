@@ -36,10 +36,16 @@ void sddmm(const Matrix<float> &matrixA,
 //    {
 //        const UIN index = 2;
 //        const UIN colBlockId = 0;
-//        const UIN blockValueIndex = 16;
+//        const UIN blockValueIndex = 0;
 //        const auto rowPanel = rebell.calculateRowPanelIdByBlockValuesIndex(blockValueIndex);
 //        const auto [row, col] = rebell.calculateRowColByBlockValueIndex(blockValueIndex);
 //        const auto [localRow, localCol] = rebell.calculateLocalRowColByBlockValueIndex(blockValueIndex);
+//
+//        printf("reRows :");
+//        for(auto iter : rebell.reorderedRows()){
+//            printf("%d ",iter);
+//        }
+//        printf("\n");
 //
 //        printf("row = %d, col = %d, rowPanel = %d, localRow = %d, localCol = %d\n",
 //               row,

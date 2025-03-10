@@ -6,13 +6,15 @@
 #include <unordered_set>
 #include <unordered_map>
 
-const std::string folderPath("../dataset/test/matrix_20000_20000_/");
+#include "util.hpp"
+
+const std::string folderPath("../dataset/test/matrix_15000_15000_/");
 //const std::string folderPath("../autoTestTool/matrices/");
 //const std::string folderPath("./");
 //const std::string fileName = ("nips");
 //const std::string fileName = ("test2");
 //const std::string fileName("1138_bus/1138_bus");
-const std::string fileName("matrix_20000_20000_20000000");
+const std::string fileName("matrix_15000_15000_11250000");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 
@@ -31,7 +33,7 @@ class Options {
   std::string programPath_;
   std::string programName_;
   std::string inputFile_ = filePath;
-  size_t K_ = 4096;
+  size_t K_ = 2048;
   float alpha_ = 1.0f;
   float beta_ = 0.0f;
 
