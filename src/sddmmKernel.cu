@@ -1019,7 +1019,9 @@ __global__ void sddmm_gpu_rebell_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj
                 (aRowId < M && aColId < K) ? (matrixA[aRowId * lda + aColId]) : static_cast<MATRIX_A_TYPE>(0.0f);
         }
 
-        // Load matrix B data into shared memory, each thread loads 16 elements, conflict-free access
+        __syncthreads();
+
+        // Load matrix B into shared memory, each thread loads 16 elements, conflict-free access
 #pragma unroll 4
         for (int iter = 0; iter < 16; ++iter) {
             const UIN bRowId = kIter + laneId;
@@ -1031,7 +1033,7 @@ __global__ void sddmm_gpu_rebell_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj
                 (bRowId < K && bColId < N) ? matrixB[bRowId + bColId * ldb] : static_cast<MATRIX_B_TYPE>(0.0f);
         }
 
-        __syncthreads();
+        __syncwarp();
 
         // Compute the matrix multiplication
 #pragma unroll
