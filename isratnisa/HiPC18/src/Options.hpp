@@ -5,8 +5,10 @@
 #include <vector>
 #include <unordered_set>
 
-const std::string folderPath("../../dataset/");
-const std::string fileName = ("nips");
+//const std::string folderPath("../../dataset/");
+//const std::string fileName = ("nips");
+const std::string folderPath("../../../dataset/test/matrix_20000_20000_/");
+const std::string fileName = ("matrix_20000_20000_4000000");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
 
@@ -24,7 +26,7 @@ class Options {
  private:
   std::string program_name_;
   std::string inputFile_ = filePath;
-  size_t k_ = 32;
+  size_t k_ = 256;
   float alpha_ = 1.0f;
   float beta_ = 0.0f;
   int tile_sizeX_ = 50000;
