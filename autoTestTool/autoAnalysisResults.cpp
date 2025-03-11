@@ -284,7 +284,7 @@ void ResultsInformation::printInformation() const {
     const int numColData = 12;
     printf("|");
     for (int i = 0; i < numColData; ++i) {
-        printf("--|");
+        printf("-|");
     }
     printf("\n");
 
@@ -369,6 +369,15 @@ std::unordered_map<std::string, ResultsInformation> pickTheBadResults(
     return bad;
 }
 
+int getNumResults(const std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
+    int num = 0;
+    for (const auto &iter : matrixFileToResultsInformationMap) {
+        num += iter.second.kToOneTimeData_.size();
+    }
+
+    return num;
+}
+
 int main(int argc, char *argv[]) {
 
     if (argc < 2) {
@@ -401,6 +410,8 @@ int main(int argc, char *argv[]) {
     }
 
     // Print the results to Markdown format
+    const int numResults = getNumResults(matrixFileToResultsInformationMap);
+    printf("Num results: %d\n", numResults);
     settingInformation.printInformation();
     for (const auto &iter : matrixFileToResultsInformationMap) {
         iter.second.printInformation();
@@ -409,7 +420,8 @@ int main(int argc, char *argv[]) {
     // Print the bad results to Markdown format
     std::unordered_map<std::string, ResultsInformation> badResults =
         pickTheBadResults(matrixFileToResultsInformationMap);
-    std::cout << " Bad results: " << std::endl;
+    const int numBadResults = getNumResults(badResults);
+    printf(" Bad results: %.2f%%\n\n", (static_cast<float>(numBadResults) / numResults) * 100);
     for (const auto &iter : badResults) {
         iter.second.printInformation();
     }
