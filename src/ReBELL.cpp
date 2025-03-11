@@ -26,7 +26,16 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
     // Column reordering
-    colReordering(matrix, numRowPanels_, reorderedRows(), reorderedCols_, reorderedColOffsets_);
+    std::vector<UIN> sparseCols;
+    std::vector<UIN> sparseColOffsets;
+    colReordering(matrix,
+                  numRowPanels_,
+                  reorderedRows(),
+                  reorderedCols_,
+                  reorderedColOffsets_,
+                  sparseCols,
+                  sparseColOffsets,
+                  sparsePartDataOffsets_);
     timeCalculator.endClock();
     float colReordering_time = timeCalculator.getTime();
     printf("colReordering time : %f ms\n", colReordering_time);
@@ -56,10 +65,13 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
                          numBlockInEachRowPanel.data() + numBlockInEachRowPanel.size(),
                          blockRowOffsets_.data() + 1);
 
+    relativeRows_.resize(sparsePartDataOffsets_.back());
+    sparsePartData_.resize(sparsePartDataOffsets_.back());
+
     // initialize blockValues_
     blockValues_.resize(blockRowOffsets_.back() * BLOCK_SIZE);
     host::fill_n(blockValues_.data(), blockValues_.size(), NULL_VALUE);
-#pragma omp parallel for
+//#pragma omp parallel for
     for (int indexOfReorderedRows = 0; indexOfReorderedRows < reorderedRows_.size(); ++indexOfReorderedRows) {
         const UIN row = reorderedRows_[indexOfReorderedRows];
 
@@ -72,12 +84,13 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
         const UIN rowPanelId = indexOfReorderedRows / ROW_PANEL_SIZE;
         const UIN localRowId = indexOfReorderedRows % ROW_PANEL_SIZE;
         const UIN startIndexOfBlockValuesCurrentRowPanel = blockRowOffsets_[rowPanelId] * BLOCK_SIZE;
-        // Iterate over the columns in the row panel
-        for (int iter = 0, indexOfReorderedCols = reorderedColOffsets_[rowPanelId];
+
+        // Iterate over the dense columns in the row panel
+        for (int count = 0, indexOfReorderedCols = reorderedColOffsets_[rowPanelId];
              indexOfReorderedCols < reorderedColOffsets_[rowPanelId + 1];
-             ++iter, ++indexOfReorderedCols) {
-            const UIN localColId = iter % BLOCK_COL_SIZE;
-            const UIN colBlockId = iter / BLOCK_COL_SIZE;
+             ++count, ++indexOfReorderedCols) {
+            const UIN localColId = count % BLOCK_COL_SIZE;
+            const UIN colBlockId = count / BLOCK_COL_SIZE;
             const UIN idxOfBlockValues = startIndexOfBlockValuesCurrentRowPanel + colBlockId * BLOCK_SIZE +
                 localRowId * BLOCK_COL_SIZE + localColId;
 
@@ -85,6 +98,20 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
             const auto findIter = colToIndexOfOriginalMatrixMap.find(col);
             if (findIter != colToIndexOfOriginalMatrixMap.end()) {
                 blockValues_[idxOfBlockValues] = findIter->second;
+            }
+        }
+
+        UIN count = 0;
+        // Iterate over the sparse columns in the row panel
+        for (int indexOfReorderedCols = sparseColOffsets[rowPanelId];
+             indexOfReorderedCols < sparseColOffsets[rowPanelId + 1]; ++indexOfReorderedCols) {
+            const UIN col = sparseCols[indexOfReorderedCols];
+
+            const auto findIter = colToIndexOfOriginalMatrixMap.find(col);
+            if (findIter != colToIndexOfOriginalMatrixMap.end()) {
+                relativeRows_[sparsePartDataOffsets_[rowPanelId] + count] = localRowId;
+                sparsePartData_[sparsePartDataOffsets_[rowPanelId] + count] = findIter->second;
+                ++count;
             }
         }
     }

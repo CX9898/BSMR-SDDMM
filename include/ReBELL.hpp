@@ -32,6 +32,9 @@ class ReBELL {
   const std::vector<UIN> &reorderedColOffsets() const { return reorderedColOffsets_; }
   const std::vector<UIN> &blockValues() const { return blockValues_; }
   const std::vector<UIN> &blockRowOffsets() const { return blockRowOffsets_; }
+  const std::vector<UIN> &sparsePartDataOffsets() const { return sparsePartDataOffsets_; }
+  const std::vector<UIN> &sparsePartData() const { return sparsePartData_; }
+  const std::vector<UIN> &relativeRows() const { return relativeRows_; }
 
   // Calculate the rowPanelID by blockValueIndex
   UIN calculateRowPanelIdByBlockValuesIndex(UIN blockValueIndex) const;
@@ -63,12 +66,17 @@ class ReBELL {
   UIN numRowPanels_;
   UIN maxNumColBlocks_;
 
+  // Dense part data
   std::vector<UIN> reorderedRows_;
-  std::vector<UIN> reorderedCols_;
   std::vector<UIN> reorderedColOffsets_;
-
-  std::vector<UIN> blockValues_;
+  std::vector<UIN> reorderedCols_;
   std::vector<UIN> blockRowOffsets_;
+  std::vector<UIN> blockValues_;
+
+  // Sparse part data
+  std::vector<UIN> sparsePartDataOffsets_;
+  std::vector<UIN> sparsePartData_;
+  std::vector<UIN> relativeRows_;
 };
 
 /**
@@ -117,7 +125,8 @@ void colReordering(const sparseMatrix::CSR<float> &matrix,
                    std::vector<UIN> &denseCols,
                    std::vector<UIN> &denseColOffsets,
                    std::vector<UIN> &sparseCols,
-                   std::vector<UIN> &sparseColOffsets);
+                   std::vector<UIN> &sparseColOffsets,
+                   std::vector<UIN> &sparsePartDataOffsets);
 
 // Error checking
 bool check_rebell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &rebell);

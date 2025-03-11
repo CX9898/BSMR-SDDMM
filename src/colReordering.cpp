@@ -94,11 +94,13 @@ void colReordering(const sparseMatrix::CSR<float> &matrix,
                    std::vector<UIN> &denseCols,
                    std::vector<UIN> &denseColOffsets,
                    std::vector<UIN> &sparseCols,
-                   std::vector<UIN> &sparseColOffsets) {
+                   std::vector<UIN> &sparseColOffsets,
+                   std::vector<UIN> &sparsePartDataOffsets) {
     std::vector<UIN> numOfDenseColSegmentInEachRowPanel(numRowPanels, 0);
     std::vector<UIN> numOfSparseColSegmentInEachRowPanel(numRowPanels, 0);
     std::vector<std::vector<UIN>>
         colsInEachRowPanel_sparse(numRowPanels, std::vector<UIN>(matrix.col())); // Containing empty columns
+    std::vector<UIN> numOfSparsePartDataInEachRowPanel(numRowPanels, 0);
 #pragma omp parallel for schedule(dynamic)
     for (int rowPanelId = 0; rowPanelId < numRowPanels; ++rowPanelId) {
         const UIN startIdxOfReorderedRowsCurrentRowPanel = rowPanelId * ROW_PANEL_SIZE;
@@ -126,22 +128,38 @@ void colReordering(const sparseMatrix::CSR<float> &matrix,
                                            colIndicesCurrentRowPanel.data());
 
         const auto [numDenseColSegment, numSparseColSegment] = analysisColSegment(numOfNonZeroInEachColSegment);
+
+        UIN numSparsePartData = 0;
+        for (int i = numDenseColSegment; i < numOfNonZeroInEachColSegment.size(); ++i) {
+            numSparsePartData += numOfNonZeroInEachColSegment[i];
+        }
         numOfDenseColSegmentInEachRowPanel[rowPanelId] = numDenseColSegment;
         numOfSparseColSegmentInEachRowPanel[rowPanelId] = numSparseColSegment;
+        numOfSparsePartDataInEachRowPanel[rowPanelId] = numSparsePartData;
     }
 
+    // Initialize the sparsePartDataOffsets
+    sparsePartDataOffsets.resize(numRowPanels + 1);
+    sparsePartDataOffsets[0] = 0;
+    host::inclusive_scan(numOfSparsePartDataInEachRowPanel.data(),
+                         numOfSparsePartDataInEachRowPanel.data() + numOfSparsePartDataInEachRowPanel.size(),
+                         sparsePartDataOffsets.data() + 1);
+
+    // Initialize the denseColOffsets
     denseColOffsets.resize(numRowPanels + 1);
     denseColOffsets[0] = 0;
     host::inclusive_scan(numOfDenseColSegmentInEachRowPanel.data(),
                          numOfDenseColSegmentInEachRowPanel.data() + numOfDenseColSegmentInEachRowPanel.size(),
                          denseColOffsets.data() + 1);
 
+    // Initialize the sparseColOffsets
     sparseColOffsets.resize(numRowPanels + 1);
     sparseColOffsets[0] = 0;
     host::inclusive_scan(numOfSparseColSegmentInEachRowPanel.data(),
                          numOfSparseColSegmentInEachRowPanel.data() + numOfSparseColSegmentInEachRowPanel.size(),
                          sparseColOffsets.data() + 1);
 
+    // Initialize the denseCols,sparseCols
     denseCols.resize(denseColOffsets[numRowPanels]);
     sparseCols.resize(sparseColOffsets[numRowPanels]);
 #pragma omp parallel for
