@@ -256,7 +256,7 @@ void sddmm_CPU_COO(vector<int> row_ind,
     double CPU_time = omp_get_wtime() - start_time;
     //correctness check
 
-    // printf("\nomp time CPU : %.4f \n\n", CPU_time*1000);
+     printf("\nomp time CPU : %.4f \n\n", CPU_time*1000);
 }
 
 void preprocessing(const Matrix S) {

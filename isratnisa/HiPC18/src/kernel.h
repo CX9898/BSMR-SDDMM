@@ -64,10 +64,11 @@ __global__ void comp_kernel_COO(int const *__restrict__ row_ind,
             float4 ctmp2 = *((float4 * ) & v[col * k + t_st + t + 4]);
             sm2 += rtmp2.x * ctmp2.x + rtmp2.y * ctmp2.y + rtmp2.z * ctmp2.z + rtmp2.w * ctmp2.w;
         }
-        sm1 += __shfl_xor(sm1, 1); // 使用shuffle指令. 使线程0的sm1加到线程1的sm1上, 线程1的sm1加到线程2的sm2上
+        sm1 += __shfl_xor(sm1, 1); // 使用shuffle指令. 使线程0的sm1加到线程1的sm1上, 线程1的sm1加到线程0的sm1上
         sm2 += __shfl_xor(sm2, 1);
-//        sm1 += __shfl_xor_sync(0xFFFFFFFF, sm1, 1); // 使用shuffle指令. 使线程0的sm1加到线程1的sm1上, 线程1的sm1加到线程2的sm2上
-//        sm2 += __shfl_xor_sync(0xFFFFFFFF, sm2, 1);
+//        const unsigned mask = (1 << tId) | (1 << (tId ^ 1)); // 只同步相邻线程
+//        sm1 += __shfl_xor_sync(mask, sm1, 1); // 使用shuffle指令. 使线程0的sm1加到线程1的sm1上, 线程1的sm1加到线程0的sm1上
+//        sm2 += __shfl_xor_sync(mask, sm2, 1);
         //val[c] = val[c] * (sm1 + sm2);
         val[c] += (sm1 + sm2); // 将分来计算的两个元素加在一起储存到结果矩阵
 
