@@ -26,7 +26,7 @@ class Options {
  private:
   std::string program_name_;
   std::string inputFile_ = filePath;
-  size_t k_ = 256;
+  size_t k_ = 32;
   float alpha_ = 1.0f;
   float beta_ = 0.0f;
   int tile_sizeX_ = 50000;
