@@ -2081,45 +2081,46 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
 //    cudaStreamCreate(&densePartStream);
 //    cudaStreamCreate(&sparsePartStream);
 
-    CudaTimeCalculator timeCalculator_densePart, timeCalculator_sparsePart;
+    CudaTimeCalculator timeCalculator;
 
-    timeCalculator_densePart.startClock();
+    timeCalculator.startClock();
 
 #ifdef WMMA_16_16_16
-        kernel::sddmm_gpu_rebell_m16n16k16_block256_matrixA_rowMaj_matrixB_colMaj<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(),
-            matrixA_values_convertedType_dev.data(),
-            matrixB_values_convertedType_dev.data(),
-            alpha, beta,
-            rebell.reorderedRows().size(),
-            reorderedRowIndices_dev.data(),
-            reorderedColIndices_dev.data(),
-            reorderedColIndicesOffset_dev.data(),
-            blockRowOffsets_dev.data(),
-            blockValues_dev.data(),
-            matrixP_dev.data());
+    kernel::sddmm_gpu_rebell_m16n16k16_block256_matrixA_rowMaj_matrixB_colMaj<<<grid_rebell, block_rebell>>>(matrixS.row(), matrixS.col(), matrixA.col(),
+        matrixA_values_convertedType_dev.data(),
+        matrixB_values_convertedType_dev.data(),
+        alpha, beta,
+        rebell.reorderedRows().size(),
+        reorderedRowIndices_dev.data(),
+        reorderedColIndices_dev.data(),
+        reorderedColIndicesOffset_dev.data(),
+        blockRowOffsets_dev.data(),
+        blockValues_dev.data(),
+        matrixP_dev.data());
 #endif // WMMA_16_16_16
 
 #ifdef WMMA_16_16_8
-        kernel::sddmm_gpu_rebell_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj<<<grid_rebell, block_rebell>>>(matrixS.row(), matrixS.col(), matrixA.col(),
-            matrixA_values_convertedType_dev.data(),
-            matrixB_values_convertedType_dev.data(),
-            alpha, beta,
-            rebell.reorderedRows().size(),
-            reorderedRowIndices_dev.data(),
-            reorderedColIndices_dev.data(),
-            reorderedColIndicesOffset_dev.data(),
-            blockRowOffsets_dev.data(),
-            blockValues_dev.data(),
-            matrixP_dev.data());
+    kernel::sddmm_gpu_rebell_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj<<<grid_rebell, block_rebell>>>(matrixS.row(), matrixS.col(), matrixA.col(),
+        matrixA_values_convertedType_dev.data(),
+        matrixB_values_convertedType_dev.data(),
+        alpha, beta,
+        rebell.reorderedRows().size(),
+        reorderedRowIndices_dev.data(),
+        reorderedColIndices_dev.data(),
+        reorderedColIndicesOffset_dev.data(),
+        blockRowOffsets_dev.data(),
+        blockValues_dev.data(),
+        matrixP_dev.data());
 #endif // WMMA_16_16_8
 
-    timeCalculator_densePart.endClock();
+    timeCalculator.endClock();
+    const float densePartTime = timeCalculator.getTime();
 
     dim3 grid_sparse, block_sparse;
     block_sparse.x = 256;
     grid_sparse.x = rebell.numRowPanels();
 
-    timeCalculator_sparsePart.startClock();
+    timeCalculator.startClock();
 
     if (!rebell.sparsePartData().empty()) {
         kernel::sddmm_gpu_sparse_residue_block256_rowPanel_matrixA_rowMaj_matrixB_colMaj<<<grid_sparse, block_sparse>>>(matrixS.row(), matrixS.col(), matrixA.col(),
@@ -2135,15 +2136,11 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
             matrixP_dev.data());
     }
 
-    timeCalculator_sparsePart.endClock();
+    timeCalculator.endClock();
 
-    float densePartTime = timeCalculator_densePart.getTime();
-    float sparsePartTime = timeCalculator_sparsePart.getTime();
+    const float sparsePartTime = timeCalculator.getTime();
 
     printf("densePartTime: %f, sparsePartTime: %f\n", densePartTime, sparsePartTime);
-
-//    cudaStreamSynchronize(densePartStream);
-//    cudaStreamSynchronize(sparsePartStream);
 
     logger.zcx_sddmm_time_ = densePartTime + sparsePartTime;
 
