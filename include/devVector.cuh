@@ -54,6 +54,9 @@ class vector {
 template<typename T>
 inline vector<T>::vector(const size_t size) : vector() {
     size_ = size;
+    if(!size_){
+        return;
+    }
     cudaMalloc(reinterpret_cast<void **> (&data_), size * sizeof(T));
     if (!data_) {
         fprintf(stderr, "Device out of memory, memory allocation failed\n");
@@ -63,6 +66,9 @@ inline vector<T>::vector(const size_t size) : vector() {
 template<typename T>
 inline vector<T>::vector(size_t size, T value) {
     size_ = size;
+    if(!size_){
+        return;
+    }
     cudaMalloc(reinterpret_cast<void **> (&data_), size * sizeof(T));
     if (!data_) {
         fprintf(stderr, "Device out of memory, memory allocation failed\n");
@@ -73,6 +79,9 @@ inline vector<T>::vector(size_t size, T value) {
 template<typename T>
 inline vector<T>::vector(const vector<T> &src) {
     size_ = src.size_;
+    if(!size_){
+        return;
+    }
     cudaMalloc(reinterpret_cast<void **> (&data_), src.size_ * sizeof(T));
     if (!data_) {
         fprintf(stderr, "Device out of memory, memory allocation failed\n");
@@ -84,6 +93,9 @@ template<typename T>
 inline vector<T>::vector(const std::vector<T> &src) {
     size_ = src.size();
     cudaMalloc(reinterpret_cast<void **> (&data_), src.size() * sizeof(T));
+    if(!size_){
+        return;
+    }
     if (!data_) {
         fprintf(stderr, "Device out of memory, memory allocation failed\n");
     }
@@ -92,9 +104,12 @@ inline vector<T>::vector(const std::vector<T> &src) {
 
 template<typename T>
 inline void vector<T>::resize(size_t size) {
-    size_ = size;
     if (data_) {
         cudaFree(data_);
+    }
+    size_ = size;
+    if(!size_){
+        return;
     }
     cudaMalloc(reinterpret_cast<void **> (&data_), size * sizeof(T));
     if (!data_) {
