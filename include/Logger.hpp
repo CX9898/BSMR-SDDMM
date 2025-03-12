@@ -53,8 +53,11 @@ struct Logger {
   size_t wmma_n_;
   size_t wmma_k_;
 
-  dim3 gridDim_;
-  dim3 blockDim_;
+  dim3 gridDim_dense_;
+  dim3 blockDim_dense_;
+
+  dim3 gridDim_sparse_;
+  dim3 blockDim_sparse_;
 
   std::string matrixA_type_;
   std::string matrixB_type_;
@@ -105,8 +108,11 @@ void Logger::printLogInformation() {
     printf("[matrixA storageOrder : %s]\n", matrixA_storageOrder_.c_str());
     printf("[matrixB storageOrder : %s]\n", matrixB_storageOrder_.c_str());
 
-    printf("[gridDim : %d, %d, %d]\n", gridDim_.x, gridDim_.y, gridDim_.z);
-    printf("[blockDim : %d, %d, %d]\n", blockDim_.x, blockDim_.y, blockDim_.z);
+    printf("[gridDim_dense : %d, %d, %d]\n", gridDim_dense_.x, gridDim_dense_.y, gridDim_dense_.z);
+    printf("[blockDim_dense : %d, %d, %d]\n", blockDim_dense_.x, blockDim_dense_.y, blockDim_dense_.z);
+
+    printf("[gridDim_sparse : %d, %d, %d]\n", gridDim_sparse_.x, gridDim_sparse_.y, gridDim_sparse_.z);
+    printf("[blockDim_sparse : %d, %d, %d]\n", blockDim_sparse_.x, blockDim_sparse_.y, blockDim_sparse_.z);
 
     printf("[cuSparse : %.2f]\n", cuSparse_time_);
 

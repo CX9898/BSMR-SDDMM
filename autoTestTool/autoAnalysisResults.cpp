@@ -78,7 +78,8 @@ struct SettingInformation {
   std::string wmma_n_;
   std::string wmma_k_;
 
-  std::string blockDim_;
+  std::string blockDim_dense_;
+  std::string blockDim_sparse_;
 
   std::string matrixA_type_;
   std::string matrixB_type_;
@@ -91,8 +92,8 @@ struct SettingInformation {
 
 // init the setting information, if setting information is already initialized, and the new data is different, than return false
 bool SettingInformation::initInformation(const std::vector<std::string> &oneTimeResults) {
-    std::string buildType, device, wmma_m, wmma_n, wmma_k, blockDim, matrixA_type, matrixB_type, matrixC_type,
-        matrixA_storageOrder, matrixB_storageOrder, matrixC_storageOrder;
+    std::string buildType, device, wmma_m, wmma_n, wmma_k, blockDim_dense, blockDim_sparse, matrixA_type, matrixB_type,
+        matrixC_type, matrixA_storageOrder, matrixB_storageOrder, matrixC_storageOrder;
 
     for (const std::string &line : oneTimeResults) {
         buildType = buildType.empty() ? findWord(line, "[Build type : ") : buildType;
@@ -100,7 +101,8 @@ bool SettingInformation::initInformation(const std::vector<std::string> &oneTime
         wmma_m = wmma_m.empty() ? findWord(line, "[WMMA_M : ") : wmma_m;
         wmma_n = wmma_n.empty() ? findWord(line, "[WMMA_N : ") : wmma_n;
         wmma_k = wmma_k.empty() ? findWord(line, "[WMMA_K : ") : wmma_k;
-        blockDim = blockDim.empty() ? findWord(line, "[blockDim : ") : blockDim;
+        blockDim_dense = blockDim_dense.empty() ? findWord(line, "[blockDim_dense : ") : blockDim_dense;
+        blockDim_sparse = blockDim_sparse.empty() ? findWord(line, "[blockDim_sparse : ") : blockDim_sparse;
         matrixA_type = matrixA_type.empty() ? findWord(line, "[matrixA type : ") : matrixA_type;
         matrixB_type = matrixB_type.empty() ? findWord(line, "[matrixB type : ") : matrixB_type;
         matrixC_type = matrixC_type.empty() ? findWord(line, "[matrixC type : ") : matrixC_type;
@@ -127,7 +129,10 @@ bool SettingInformation::initInformation(const std::vector<std::string> &oneTime
     if (!initOperationOrCheckIfDifferent(wmma_k_, wmma_k)) {
         return false;
     }
-    if (!initOperationOrCheckIfDifferent(blockDim_, blockDim)) {
+    if (!initOperationOrCheckIfDifferent(blockDim_dense_, blockDim_dense)) {
+        return false;
+    }
+    if (!initOperationOrCheckIfDifferent(blockDim_sparse_, blockDim_sparse)) {
         return false;
     }
     if (!initOperationOrCheckIfDifferent(matrixA_type_, matrixA_type)) {
@@ -166,7 +171,8 @@ void SettingInformation::printInformation() const {
     printOneInformation(wmma_m_);
     printOneInformation(wmma_n_);
     printOneInformation(wmma_k_);
-    printOneInformation(blockDim_);
+    printOneInformation(blockDim_dense_);
+    printOneInformation(blockDim_sparse_);
     printOneInformation(matrixA_type_);
     printOneInformation(matrixB_type_);
     printOneInformation(matrixC_type_);
