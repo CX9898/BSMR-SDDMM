@@ -394,6 +394,12 @@ float calculateAverageSpeedup(const std::unordered_map<std::string,
         for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
             const float zcx_sddmm = std::stof(kToOneTimeData.second.zcx_sddmm_);
             const float isratnisa_sddmm = std::stof(kToOneTimeData.second.isratnisa_sddmm_);
+
+            if (zcx_sddmm <= 1e-6 || isratnisa_sddmm <= 1e-6) {
+                --numResults;
+                continue;
+            }
+
             sumSpeedup += isratnisa_sddmm / zcx_sddmm;
         }
     }
