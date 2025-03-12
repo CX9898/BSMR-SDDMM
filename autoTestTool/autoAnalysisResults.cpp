@@ -445,7 +445,7 @@ int main(int argc, char *argv[]) {
     const float averageSpeedup = calculateAverageSpeedup(matrixFileToResultsInformationMap);
     printf("Average speedup: %.2f\n", averageSpeedup);
     const int numBadResults = getNumResults(badResults);
-    printf("Bad results: %.2f%%\n\n", (static_cast<float>(numBadResults) / numResults) * 100);
+    printf("Bad results: %.2f%%\n", (static_cast<float>(numBadResults) / numResults) * 100);
 
     // Print the program setting information to Markdown format
     settingInformation.printInformation();
