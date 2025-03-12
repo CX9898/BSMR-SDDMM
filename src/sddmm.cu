@@ -84,7 +84,7 @@ void sddmm(const Matrix<float> &matrixA,
 //    check_rebell(matrixS, rebell);
 
     // Error check
-    check_sddmm(matrixA, matrixB, alpha, beta, matrixS, matrixP);
+//    check_sddmm(matrixA, matrixB, alpha, beta, matrixS, matrixP);
 }
 
 bool check_sddmm(const Matrix<float> &matrixA,

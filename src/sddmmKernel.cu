@@ -1825,19 +1825,19 @@ __global__ void sddmm_gpu_sparse_residue_block256_rowPanel_matrixA_rowMaj_matrix
 
 // blockDim: [256,1,1]
 __global__ void sddmm_gpu_sparse_residue_block256_matrixA_rowMaj_matrixB_colMaj(const UIN M,
-                                                                                         const UIN N,
-                                                                                         const UIN K,
-                                                                                         const float *__restrict__ matrixA,
-                                                                                         const float *__restrict__ matrixB,
-                                                                                         const float alpha,
-                                                                                         const float beta,
-                                                                                         const UIN numNonZeroRow,
-                                                                                         const UIN *__restrict__ reorderedRows,
-                                                                                         const UIN *__restrict__ sparsePartDataOffsets,
-                                                                                         const UIN *__restrict__ sparsePartData,
-                                                                                         const UIN *__restrict__ relativeRows,
-                                                                                         const UIN *__restrict__ sparsePartColIndices,
-                                                                                         float *matrixP) {
+                                                                                const UIN N,
+                                                                                const UIN K,
+                                                                                const float *__restrict__ matrixA,
+                                                                                const float *__restrict__ matrixB,
+                                                                                const float alpha,
+                                                                                const float beta,
+                                                                                const UIN numNonZeroRow,
+                                                                                const UIN *__restrict__ reorderedRows,
+                                                                                const UIN *__restrict__ sparsePartDataOffsets,
+                                                                                const UIN *__restrict__ sparsePartData,
+                                                                                const UIN *__restrict__ relativeRows,
+                                                                                const UIN *__restrict__ sparsePartColIndices,
+                                                                                float *matrixP) {
     // 线程块中线程数量
     constexpr int numWarpsPerBlock = 8;
 
@@ -1859,6 +1859,19 @@ __global__ void sddmm_gpu_sparse_residue_block256_matrixA_rowMaj_matrixB_colMaj(
     const UIN tId = threadIdx.x;
 
     const UIN rowPanelId = blockIdx.x;
+
+//    const UIN numColBlocksCurrentRowPanel = blockRowOffsets[rowPanelId + 1] - blockRowOffsets[rowPanelId];
+//
+//    const UIN colBlockIter = blockIdx.y * each_thread_block_counts_the_number_Of_col_blocks;
+//    if (colBlockIter >= numColBlocksCurrentRowPanel) {
+//        return;
+//    }
+//
+//    const UIN colBlockId = colBlockIter + warpId;
+//    const UIN startIndexOfBlockValuesCurrentBlock = (blockRowOffsets[rowPanelId] + colBlockId) * BLOCK_SIZE;
+//
+//    const UIN startIndexOfReorderedColsCurrentColBlock = reorderedColOffset[rowPanelId] + BLOCK_COL_SIZE * colBlockId;
+//    const UIN endIndexOfReorderedColsCurrentPanel = reorderedColOffset[rowPanelId + 1];
 
     const UIN lda = K;
     const UIN ldb = K;
@@ -2050,7 +2063,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
     dev::vector<UIN> sparsePartData_dev(rebell.sparsePartData());
     dev::vector<UIN> relativeRows_dev(rebell.sparsePartRelativeRows());
     dev::vector<UIN> sparsePartColIndices_dev(rebell.sparsePartColIndices());
-    dev::vector<float> matrixP_dev(matrixS.values().size(),0);
+    dev::vector<float> matrixP_dev(matrixS.values().size(), 0);
 
     dim3 grid_rebell, block_rebell;
 
@@ -2064,24 +2077,14 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
     logger.gridDim_ = grid_rebell;
     logger.blockDim_ = block_rebell;
 
-    CudaTimeCalculator timeCalculator;
-    timeCalculator.startClock();
+//    cudaStream_t densePartStream, sparsePartStream;
+//    cudaStreamCreate(&densePartStream);
+//    cudaStreamCreate(&sparsePartStream);
 
-    if (matrixA.storageOrder() == MatrixStorageOrder::row_major
-        && matrixB.storageOrder() == MatrixStorageOrder::row_major) {
-        kernel::sddmm_gpu_rebell_m16n16k16_block256_matrixA_rowMaj_matrixB_rowMaj<<<grid_rebell, block_rebell>>>(matrixS.row(), matrixS.col(), matrixA.col(),
-            matrixA_values_convertedType_dev.data(),
-            matrixB_values_convertedType_dev.data(),
-            alpha, beta,
-            rebell.reorderedRows().size(),
-            reorderedRowIndices_dev.data(),
-            reorderedColIndices_dev.data(),
-            reorderedColIndicesOffset_dev.data(),
-            blockRowOffsets_dev.data(),
-            blockValues_dev.data(),
-            matrixP_dev.data());
-    } else if (matrixA.storageOrder() == MatrixStorageOrder::row_major
-        && matrixB.storageOrder() == MatrixStorageOrder::col_major) {
+    CudaTimeCalculator timeCalculator_densePart, timeCalculator_sparsePart;
+
+    timeCalculator_densePart.startClock();
+
 #ifdef WMMA_16_16_16
         kernel::sddmm_gpu_rebell_m16n16k16_block256_matrixA_rowMaj_matrixB_colMaj<<<grid, block>>>(matrixS.row(), matrixS.col(), matrixA.col(),
             matrixA_values_convertedType_dev.data(),
@@ -2109,44 +2112,38 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
             blockValues_dev.data(),
             matrixP_dev.data());
 #endif // WMMA_16_16_8
-    } else {
-        fprintf(stderr, "sddmm_gpu_rebell not support this matrix storage order\n");
-    }
 
-    timeCalculator.endClock();
-
-    float densePartTime = timeCalculator.getTime();
-
-    timeCalculator.startClock();
+    timeCalculator_densePart.endClock();
 
     dim3 grid_sparse, block_sparse;
     block_sparse.x = 256;
     grid_sparse.x = rebell.numRowPanels();
 
+    timeCalculator_sparsePart.startClock();
+
     if (!rebell.sparsePartData().empty()) {
-        if (matrixA.storageOrder() == MatrixStorageOrder::row_major
-            && matrixB.storageOrder() == MatrixStorageOrder::col_major) {
-            kernel::sddmm_gpu_sparse_residue_block256_rowPanel_matrixA_rowMaj_matrixB_colMaj<<<grid_sparse, block_sparse>>>(matrixS.row(), matrixS.col(), matrixA.col(),
-                matrixA_values_convertedType_dev.data(),
-                matrixB_values_convertedType_dev.data(),
-                alpha, beta,
-                rebell.reorderedRows().size(),
-                reorderedRowIndices_dev.data(),
-                sparsePartDataOffsets_dev.data(),
-                sparsePartData_dev.data(),
-                relativeRows_dev.data(),
-                sparsePartColIndices_dev.data(),
-                matrixP_dev.data());
-        } else {
-            fprintf(stderr, "sddmm_gpu_sparse_residue not support this matrix storage order\n");
-        }
+        kernel::sddmm_gpu_sparse_residue_block256_rowPanel_matrixA_rowMaj_matrixB_colMaj<<<grid_sparse, block_sparse>>>(matrixS.row(), matrixS.col(), matrixA.col(),
+            matrixA_values_convertedType_dev.data(),
+            matrixB_values_convertedType_dev.data(),
+            alpha, beta,
+            rebell.reorderedRows().size(),
+            reorderedRowIndices_dev.data(),
+            sparsePartDataOffsets_dev.data(),
+            sparsePartData_dev.data(),
+            relativeRows_dev.data(),
+            sparsePartColIndices_dev.data(),
+            matrixP_dev.data());
     }
 
-    timeCalculator.endClock();
+    timeCalculator_sparsePart.endClock();
 
-    float sparsePartTime = timeCalculator.getTime();
+    float densePartTime = timeCalculator_densePart.getTime();
+    float sparsePartTime = timeCalculator_sparsePart.getTime();
 
     printf("densePartTime: %f, sparsePartTime: %f\n", densePartTime, sparsePartTime);
+
+//    cudaStreamSynchronize(densePartStream);
+//    cudaStreamSynchronize(sparsePartStream);
 
     logger.zcx_sddmm_time_ = densePartTime + sparsePartTime;
 
