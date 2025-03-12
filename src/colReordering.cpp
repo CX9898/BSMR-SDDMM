@@ -65,22 +65,25 @@ void colReordering(const sparseMatrix::CSR<float> &matrix,
 }
 
 // return the number of dense column segments and the number of sparse column segments
-std::pair<UIN, UIN> analysisColSegment(const std::vector<UIN> &numOfNonZeroInEachColSegment) {
+std::pair<UIN, UIN> analysisColSegment(const UIN dense_column_segment_threshold,
+                                       const std::vector<UIN> &numOfNonZeroInEachColSegment) {
     UIN numNonZeroColSegment = 0;
     UIN numDenseColSegment = 0;
 
     while (numNonZeroColSegment < numOfNonZeroInEachColSegment.size()
         && numOfNonZeroInEachColSegment[numNonZeroColSegment] > 0) {
-        ++numNonZeroColSegment;
 
-        if (numOfNonZeroInEachColSegment[numNonZeroColSegment] > dense_column_segment_threshold) {
+        if (numOfNonZeroInEachColSegment[numNonZeroColSegment] >= dense_column_segment_threshold) {
             ++numDenseColSegment;
         }
+
+        ++numNonZeroColSegment;
     }
 
     const UIN remainderNumber = numDenseColSegment % BLOCK_COL_SIZE;
-    if (remainderNumber < BLOCK_COL_SIZE / 2) {
-        numDenseColSegment -= remainderNumber;
+    if (remainderNumber > BLOCK_COL_SIZE / 2) {
+        numDenseColSegment = std::min(static_cast<UIN>(numOfNonZeroInEachColSegment.size()),
+                                      numDenseColSegment + BLOCK_COL_SIZE - remainderNumber);
     }
 
     const UIN numSparseColSegment = numNonZeroColSegment - numDenseColSegment;
@@ -91,6 +94,7 @@ std::pair<UIN, UIN> analysisColSegment(const std::vector<UIN> &numOfNonZeroInEac
 void colReordering(const sparseMatrix::CSR<float> &matrix,
                    const UIN numRowPanels,
                    const std::vector<UIN> &reorderedRows,
+                   const UIN dense_column_segment_threshold,
                    std::vector<UIN> &denseCols,
                    std::vector<UIN> &denseColOffsets,
                    std::vector<UIN> &sparseCols,
@@ -98,8 +102,8 @@ void colReordering(const sparseMatrix::CSR<float> &matrix,
                    std::vector<UIN> &sparsePartDataOffsets) {
     std::vector<UIN> numOfDenseColSegmentInEachRowPanel(numRowPanels, 0);
     std::vector<UIN> numOfSparseColSegmentInEachRowPanel(numRowPanels, 0);
-    std::vector<std::vector<UIN>>
-        colsInEachRowPanel_sparse(numRowPanels, std::vector<UIN>(matrix.col())); // Containing empty columns
+    std::vector<std::vector<UIN>> colsInEachRowPanel(
+        numRowPanels, std::vector<UIN>(matrix.col())); // Containing empty columns
     std::vector<UIN> numOfSparsePartDataInEachRowPanel(numRowPanels, 0);
 #pragma omp parallel for schedule(dynamic)
     for (int rowPanelId = 0; rowPanelId < numRowPanels; ++rowPanelId) {
@@ -121,16 +125,17 @@ void colReordering(const sparseMatrix::CSR<float> &matrix,
             }
         }
 
-        std::vector<UIN> &colIndicesCurrentRowPanel = colsInEachRowPanel_sparse[rowPanelId];
-        std::iota(colIndicesCurrentRowPanel.begin(), colIndicesCurrentRowPanel.end(), 0);
+        std::vector<UIN> &colIndices = colsInEachRowPanel[rowPanelId];
+        std::iota(colIndices.begin(), colIndices.end(), 0);
         host::sort_by_key_descending_order(numOfNonZeroInEachColSegment.data(),
                                            numOfNonZeroInEachColSegment.data() + numOfNonZeroInEachColSegment.size(),
-                                           colIndicesCurrentRowPanel.data());
+                                           colIndices.data());
 
-        const auto [numDenseColSegment, numSparseColSegment] = analysisColSegment(numOfNonZeroInEachColSegment);
+        const auto [numDenseColSegment, numSparseColSegment] =
+            analysisColSegment(dense_column_segment_threshold, numOfNonZeroInEachColSegment);
 
         UIN numSparsePartData = 0;
-        for (int i = numDenseColSegment; i < numOfNonZeroInEachColSegment.size(); ++i) {
+        for (int i = numDenseColSegment; i < numDenseColSegment + numSparseColSegment; ++i) {
             numSparsePartData += numOfNonZeroInEachColSegment[i];
         }
         numOfDenseColSegmentInEachRowPanel[rowPanelId] = numDenseColSegment;
@@ -164,12 +169,12 @@ void colReordering(const sparseMatrix::CSR<float> &matrix,
     sparseCols.resize(sparseColOffsets[numRowPanels]);
 #pragma omp parallel for
     for (int rowPanelId = 0; rowPanelId < numRowPanels; ++rowPanelId) {
-        std::copy(colsInEachRowPanel_sparse[rowPanelId].begin(),
-                  colsInEachRowPanel_sparse[rowPanelId].begin() + numOfDenseColSegmentInEachRowPanel[rowPanelId],
+        std::copy(colsInEachRowPanel[rowPanelId].begin(),
+                  colsInEachRowPanel[rowPanelId].begin() + numOfDenseColSegmentInEachRowPanel[rowPanelId],
                   denseCols.begin() + denseColOffsets[rowPanelId]);
 
-        std::copy(colsInEachRowPanel_sparse[rowPanelId].begin() + numOfDenseColSegmentInEachRowPanel[rowPanelId],
-                  colsInEachRowPanel_sparse[rowPanelId].begin()
+        std::copy(colsInEachRowPanel[rowPanelId].begin() + numOfDenseColSegmentInEachRowPanel[rowPanelId],
+                  colsInEachRowPanel[rowPanelId].begin()
                       + numOfDenseColSegmentInEachRowPanel[rowPanelId]
                       + numOfSparseColSegmentInEachRowPanel[rowPanelId],
                   sparseCols.begin() + sparseColOffsets[rowPanelId]);

@@ -3,7 +3,6 @@
 #include "Matrix.hpp"
 
 constexpr float row_similarity_threshold_alpha = 0.3f;
-constexpr int dense_column_segment_threshold = 10;
 
 constexpr UIN ROW_PANEL_SIZE = WMMA_M;
 constexpr UIN BLOCK_COL_SIZE = WMMA_N;
@@ -34,7 +33,10 @@ class ReBELL {
   const std::vector<UIN> &blockRowOffsets() const { return blockRowOffsets_; }
   const std::vector<UIN> &sparsePartDataOffsets() const { return sparsePartDataOffsets_; }
   const std::vector<UIN> &sparsePartData() const { return sparsePartData_; }
-  const std::vector<UIN> &relativeRows() const { return relativeRows_; }
+  const std::vector<UIN> &sparsePartRelativeRows() const { return sparsePartRelativeRows_; }
+  const std::vector<UIN> &sparsePartColIndices() const { return sparsePartColIndices_; }
+
+  UIN dense_column_segment_threshold() const { return dense_column_segment_threshold_; }
 
   // Calculate the rowPanelID by blockValueIndex
   UIN calculateRowPanelIdByBlockValuesIndex(UIN blockValueIndex) const;
@@ -76,7 +78,10 @@ class ReBELL {
   // Sparse part data
   std::vector<UIN> sparsePartDataOffsets_;
   std::vector<UIN> sparsePartData_;
-  std::vector<UIN> relativeRows_;
+  std::vector<UIN> sparsePartRelativeRows_;
+  std::vector<UIN> sparsePartColIndices_;
+
+  UIN dense_column_segment_threshold_;
 };
 
 /**
@@ -122,6 +127,7 @@ void colReordering(const sparseMatrix::CSR<float> &matrix,
 void colReordering(const sparseMatrix::CSR<float> &matrix,
                    const UIN numRowPanels,
                    const std::vector<UIN> &reorderedRows,
+                   const UIN dense_column_segment_threshold,
                    std::vector<UIN> &denseCols,
                    std::vector<UIN> &denseColOffsets,
                    std::vector<UIN> &sparseCols,
