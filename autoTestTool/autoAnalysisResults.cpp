@@ -384,6 +384,25 @@ int getNumResults(const std::unordered_map<std::string, ResultsInformation> &mat
     return num;
 }
 
+float calculateAverageSpeedup(const std::unordered_map<std::string,
+                                                       ResultsInformation> &matrixFileToResultsInformationMap) {
+    float sumSpeedup = 0.0f;
+
+    int numResults = 0;
+    for (const auto &iter : matrixFileToResultsInformationMap) {
+        numResults += iter.second.kToOneTimeData_.size();
+        for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
+            const float zcx_sddmm = std::stof(kToOneTimeData.second.zcx_sddmm_);
+            const float isratnisa_sddmm = std::stof(kToOneTimeData.second.isratnisa_sddmm_);
+            sumSpeedup += isratnisa_sddmm / zcx_sddmm;
+        }
+    }
+
+    float averageSpeedup = sumSpeedup / numResults;
+
+    return averageSpeedup;
+}
+
 int main(int argc, char *argv[]) {
 
     if (argc < 2) {
@@ -391,6 +410,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
+    // Read the results file
     SettingInformation settingInformation;
     std::unordered_map<std::string, ResultsInformation> matrixFileToResultsInformationMap;
     for (int fileIdx = 1; fileIdx < argc; ++fileIdx) {
@@ -415,19 +435,28 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    // Print the results to Markdown format
+    // Pick the bad results
+    std::unordered_map<std::string, ResultsInformation> badResults =
+        pickTheBadResults(matrixFileToResultsInformationMap);
+
+    // Print the results Analysis information
     const int numResults = getNumResults(matrixFileToResultsInformationMap);
-    printf("Num results: %d\n", numResults);
+    printf("Number of results: %d\n", numResults);
+    const float averageSpeedup = calculateAverageSpeedup(matrixFileToResultsInformationMap);
+    printf("Average speedup: %.2f\n", averageSpeedup);
+    const int numBadResults = getNumResults(badResults);
+    printf("Bad results: %.2f%%\n\n", (static_cast<float>(numBadResults) / numResults) * 100);
+
+    // Print the program setting information to Markdown format
     settingInformation.printInformation();
+
+    // Print the results to Markdown format
     for (const auto &iter : matrixFileToResultsInformationMap) {
         iter.second.printInformation();
     }
 
     // Print the bad results to Markdown format
-    std::unordered_map<std::string, ResultsInformation> badResults =
-        pickTheBadResults(matrixFileToResultsInformationMap);
-    const int numBadResults = getNumResults(badResults);
-    printf(" Bad results: %.2f%%\n\n", (static_cast<float>(numBadResults) / numResults) * 100);
+    printf("Bad results: \n\n");
     for (const auto &iter : badResults) {
         iter.second.printInformation();
     }
