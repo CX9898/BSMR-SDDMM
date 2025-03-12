@@ -33,50 +33,6 @@ void sddmm(const Matrix<float> &matrixA,
 
     logger.zcx_other_time_ = rebell_time;
 
-//    {
-//        const UIN index = 2;
-//        const UIN colBlockId = 0;
-//        const UIN blockValueIndex = 0;
-//        const auto rowPanel = rebell.calculateRowPanelIdByBlockValuesIndex(blockValueIndex);
-//        const auto [row, col] = rebell.calculateRowColByBlockValueIndex(blockValueIndex);
-//        const auto [localRow, localCol] = rebell.calculateLocalRowColByBlockValueIndex(blockValueIndex);
-//
-//        printf("reRows :");
-//        for(auto iter : rebell.reorderedRows()){
-//            printf("%d ",iter);
-//        }
-//        printf("\n");
-//
-//        printf("row = %d, col = %d, rowPanel = %d, localRow = %d, localCol = %d\n",
-//               row,
-//               col,
-//               rowPanel,
-//               localRow,
-//               localCol);
-//
-//        printf("matrixA: \n");
-//        auto vecA = matrixA.getRowVector(row);
-//        for (auto iter : vecA) {
-//            printf("%f ", iter);
-//        }
-//        printf("\n");
-////        for (int k = 0; k < matrixA.col(); ++k) {
-////            printf("%f ", matrixA.getOneValue(row, k));
-////        }
-////        printf("\n");
-//
-//        printf("matrixB: \n");
-//        auto vecB = matrixB.getColVector(col);
-//        for (auto iter : vecB) {
-//            printf("%f ", iter);
-//        }
-//        printf("\n");
-////        for (int k = 0; k < matrixA.col(); ++k) {
-////            printf("%f ", matrixB.getOneValue(k, col));
-////        }
-////        printf("\n");
-//    }
-
     // sddmm comp by gpu
     sddmm_gpu_rebell(matrixA, matrixB, alpha, beta, matrixS, rebell, matrixP, logger);
 

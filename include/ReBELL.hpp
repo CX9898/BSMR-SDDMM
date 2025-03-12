@@ -25,7 +25,8 @@ class ReBELL {
   ReBELL(const sparseMatrix::CSR<float> &matrix, float &time);
 
   UIN numRowPanels() const { return numRowPanels_; }
-  UIN maxNumColBlocks() const { return maxNumColBlocks_; }
+  UIN maxNumDenseColBlocks() const { return maxNumDenseColBlocks_; }
+  UIN maxNumSparseColBlocks() const { return maxNumSparseColBlocks_; }
   const std::vector<UIN> &reorderedRows() const { return reorderedRows_; }
   const std::vector<UIN> &reorderedCols() const { return reorderedCols_; }
   const std::vector<UIN> &reorderedColOffsets() const { return reorderedColOffsets_; }
@@ -66,7 +67,8 @@ class ReBELL {
 
  private:
   UIN numRowPanels_;
-  UIN maxNumColBlocks_;
+  UIN maxNumDenseColBlocks_;
+  UIN maxNumSparseColBlocks_;
 
   // Dense part data
   std::vector<UIN> reorderedRows_;

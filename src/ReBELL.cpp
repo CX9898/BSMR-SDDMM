@@ -48,13 +48,14 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
     float colReordering_time = timeCalculator.getTime();
     printf("colReordering time : %f ms\n", colReordering_time);
 
-    // Calculate the maximum number of column blocks in a row panel
-    maxNumColBlocks_ = 0;
+    // Calculate the maximum number of dense column blocks in a row panel
+    maxNumDenseColBlocks_ = 0;
+#pragma omp parallel reduction(max : maxNumDenseColBlocks_)
     for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
         const UIN numBlocksCurrentRowPanel = std::ceil(
             static_cast<float>(reorderedColOffsets_[rowPanelId + 1] - reorderedColOffsets()[rowPanelId])
                 / BLOCK_COL_SIZE);
-        maxNumColBlocks_ = std::max(maxNumColBlocks_, numBlocksCurrentRowPanel);
+        maxNumDenseColBlocks_ = std::max(maxNumDenseColBlocks_, numBlocksCurrentRowPanel);
     }
 
     timeCalculator.startClock();
@@ -154,6 +155,15 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
             }
         }
 
+    }
+
+    // Calculate the maximum number of sparse column blocks in a row panel
+    maxNumSparseColBlocks_ = 0;
+#pragma omp parallel reduction(max : maxNumSparseColBlocks_)
+    for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
+        const UIN numBlocksCurrentRowPanel = std::ceil(
+            static_cast<float>(sparsePartDataOffsets()[rowPanelId + 1] - sparsePartDataOffsets()[rowPanelId]) / 256);
+        maxNumSparseColBlocks_ = std::max(maxNumSparseColBlocks_, numBlocksCurrentRowPanel);
     }
 
     timeCalculator.endClock();
