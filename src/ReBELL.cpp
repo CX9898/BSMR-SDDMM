@@ -254,7 +254,7 @@ float ReBELL::calculateAverageDensity() {
         }
     }
 
-    return totalDensity / getNumBlocks();
+    return totalDensity / getNumDenseBlocks();
 }
 
 std::pair<float, float> ReBELL::calculateMaxMinDensity() {

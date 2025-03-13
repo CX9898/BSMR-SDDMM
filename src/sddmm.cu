@@ -17,19 +17,19 @@ void sddmm(const Matrix<float> &matrixA,
     float rebell_time;
     ReBELL rebell(matrixS, rebell_time);
 
-//    const auto [maxDensity, minDensity] = rebell.calculateMaxMinDensity();
-//    printf("rebell : numBlock = %d, average density = %f, max average = %f, min average = %f\n",
-//           rebell.getNumBlocks(),
-//           rebell.calculateAverageDensity(),
-//           maxDensity,
-//           minDensity);
-//
-//    const auto [modeDensity, frequency] = rebell.calculateDensityMode();
-//    printf("rebell : mode density = %f, frequency = %d\n", modeDensity, frequency);
-//
-//    const auto [numTiles, averageDensity] = calculateNumTilesAndAverageDensityInOriginalMatrix(matrixS);
-//    printf("Number of tiles before reordering: %d, average density : %f\n",
-//           numTiles, averageDensity);
+    const auto [maxDensity, minDensity] = rebell.calculateMaxMinDensity();
+    printf("rebell : numDenseBlock = %d, average density = %f, max average = %f, min average = %f\n",
+           rebell.getNumDenseBlocks(),
+           rebell.calculateAverageDensity(),
+           maxDensity,
+           minDensity);
+
+    const auto [modeDensity, frequency] = rebell.calculateDensityMode();
+    printf("rebell : mode density = %f, frequency = %d\n", modeDensity, frequency);
+
+    const auto [numTiles, averageDensity] = calculateNumTilesAndAverageDensityInOriginalMatrix(matrixS);
+    printf("Number of tiles before reordering: %d, average density : %f\n",
+           numTiles, averageDensity);
 
     logger.zcx_other_time_ = rebell_time;
 

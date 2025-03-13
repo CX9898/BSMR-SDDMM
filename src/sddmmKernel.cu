@@ -209,17 +209,17 @@ template __global__ void convertDataType<half>(const UIN n, const float *in, hal
 // m16n16k16
 // blockDim: [64, 1, 1]
 __global__ void sddmm_gpu_dense_block_m16n16k16_block64_rowPanel_matrixA_rowMaj_matrixB_rowMaj(const UIN M,
-                                                                                          const UIN N,
-                                                                                          const UIN K,
-                                                                                          const MATRIX_A_TYPE *matrixA,
-                                                                                          const MATRIX_B_TYPE *matrixB,
-                                                                                          const UIN numNonZeroRow,
-                                                                                          const UIN *reorderedRows,
-                                                                                          const UIN *reorderedCols,
-                                                                                          const UIN *reorderedColOffset,
-                                                                                          const UIN *blockRowOffsets,
-                                                                                          const UIN *blockValues,
-                                                                                          MATRIX_C_TYPE *matrixP) {
+                                                                                               const UIN N,
+                                                                                               const UIN K,
+                                                                                               const MATRIX_A_TYPE *matrixA,
+                                                                                               const MATRIX_B_TYPE *matrixB,
+                                                                                               const UIN numNonZeroRow,
+                                                                                               const UIN *reorderedRows,
+                                                                                               const UIN *reorderedCols,
+                                                                                               const UIN *reorderedColOffset,
+                                                                                               const UIN *blockRowOffsets,
+                                                                                               const UIN *blockValues,
+                                                                                               MATRIX_C_TYPE *matrixP) {
     constexpr int aTileSMEMSize = WMMA_M * WMMA_N;
     constexpr int bTileSMEMSize = WMMA_K * WMMA_N * 2;
 
@@ -312,17 +312,17 @@ __global__ void sddmm_gpu_dense_block_m16n16k16_block64_rowPanel_matrixA_rowMaj_
 // blockDim: [64, 1, 1]
 // 一个thread block负责一个row panel
 __global__ void sddmm_gpu_dense_block_m16n16k16_block64_rowPanel_matrixA_rowMaj_matrixB_colMaj(const UIN M,
-                                                                                          const UIN N,
-                                                                                          const UIN K,
-                                                                                          const MATRIX_A_TYPE *matrixA,
-                                                                                          const MATRIX_B_TYPE *matrixB,
-                                                                                          const UIN numNonZeroRow,
-                                                                                          const UIN *reorderedRows,
-                                                                                          const UIN *reorderedCols,
-                                                                                          const UIN *reorderedColOffset,
-                                                                                          const UIN *blockRowOffsets,
-                                                                                          const UIN *blockValues,
-                                                                                          MATRIX_C_TYPE *matrixP) {
+                                                                                               const UIN N,
+                                                                                               const UIN K,
+                                                                                               const MATRIX_A_TYPE *matrixA,
+                                                                                               const MATRIX_B_TYPE *matrixB,
+                                                                                               const UIN numNonZeroRow,
+                                                                                               const UIN *reorderedRows,
+                                                                                               const UIN *reorderedCols,
+                                                                                               const UIN *reorderedColOffset,
+                                                                                               const UIN *blockRowOffsets,
+                                                                                               const UIN *blockValues,
+                                                                                               MATRIX_C_TYPE *matrixP) {
     constexpr int aTileSMEMSize = WMMA_M * WMMA_N;
     constexpr int bTileSMEMSize = WMMA_K * WMMA_N * 2;
 
@@ -416,17 +416,17 @@ __global__ void sddmm_gpu_dense_block_m16n16k16_block64_rowPanel_matrixA_rowMaj_
 // blockDim: [64, 1, 1]
 // 一个thread block负责一个row panel中的2个col block
 __global__ void sddmm_gpu_dense_block_m16n16k16_block64_matrixA_rowMaj_matrixB_rowMaj(const UIN M,
-                                                                                 const UIN N,
-                                                                                 const UIN K,
-                                                                                 const MATRIX_A_TYPE *matrixA,
-                                                                                 const MATRIX_B_TYPE *matrixB,
-                                                                                 const UIN numNonZeroRow,
-                                                                                 const UIN *reorderedRows,
-                                                                                 const UIN *reorderedCols,
-                                                                                 const UIN *reorderedColOffset,
-                                                                                 const UIN *blockRowOffsets,
-                                                                                 const UIN *blockValues,
-                                                                                 MATRIX_C_TYPE *matrixP) {
+                                                                                      const UIN N,
+                                                                                      const UIN K,
+                                                                                      const MATRIX_A_TYPE *matrixA,
+                                                                                      const MATRIX_B_TYPE *matrixB,
+                                                                                      const UIN numNonZeroRow,
+                                                                                      const UIN *reorderedRows,
+                                                                                      const UIN *reorderedCols,
+                                                                                      const UIN *reorderedColOffset,
+                                                                                      const UIN *blockRowOffsets,
+                                                                                      const UIN *blockValues,
+                                                                                      MATRIX_C_TYPE *matrixP) {
     constexpr int aTileSMEMSize = WMMA_M * WMMA_N;
     constexpr int bTileSMEMSize = WMMA_K * WMMA_N * 2;
 
@@ -519,17 +519,17 @@ __global__ void sddmm_gpu_dense_block_m16n16k16_block64_matrixA_rowMaj_matrixB_r
 // blockDim: [64, 1, 1]
 // 一个thread block负责一个row panel中的2个col block
 __global__ void sddmm_gpu_dense_block_m16n16k16_block64_matrixA_rowMaj_matrixB_colMaj(const UIN M,
-                                                                                 const UIN N,
-                                                                                 const UIN K,
-                                                                                 const MATRIX_A_TYPE *matrixA,
-                                                                                 const MATRIX_B_TYPE *matrixB,
-                                                                                 const UIN numNonZeroRow,
-                                                                                 const UIN *reorderedRows,
-                                                                                 const UIN *reorderedCols,
-                                                                                 const UIN *reorderedColOffset,
-                                                                                 const UIN *blockRowOffsets,
-                                                                                 const UIN *blockValues,
-                                                                                 MATRIX_C_TYPE *matrixP) {
+                                                                                      const UIN N,
+                                                                                      const UIN K,
+                                                                                      const MATRIX_A_TYPE *matrixA,
+                                                                                      const MATRIX_B_TYPE *matrixB,
+                                                                                      const UIN numNonZeroRow,
+                                                                                      const UIN *reorderedRows,
+                                                                                      const UIN *reorderedCols,
+                                                                                      const UIN *reorderedColOffset,
+                                                                                      const UIN *blockRowOffsets,
+                                                                                      const UIN *blockValues,
+                                                                                      MATRIX_C_TYPE *matrixP) {
     constexpr int eachThreadBlockCountsTheNumberOfColBlocks = 2;
 
     constexpr int aTileSMEMSize = WMMA_M * WMMA_N;
@@ -624,18 +624,19 @@ __global__ void sddmm_gpu_dense_block_m16n16k16_block64_matrixA_rowMaj_matrixB_c
 // blockDim: [128, 1, 1]
 // 一个thread block负责一个row panel中的4个col block
 __global__ void sddmm_gpu_dense_block_m16n16k16_block128_matrixA_rowMaj_matrixB_colMaj(const UIN M,
-                                                                                  const UIN N,
-                                                                                  const UIN K,
-                                                                                  const MATRIX_A_TYPE *__restrict__ matrixA,
-                                                                                  const MATRIX_B_TYPE *__restrict__ matrixB,
-                                                                                  const float alpha, const float beta,
-                                                                                  const UIN numNonZeroRow,
-                                                                                  const UIN *__restrict__ reorderedRows,
-                                                                                  const UIN *__restrict__ reorderedCols,
-                                                                                  const UIN *__restrict__ reorderedColOffset,
-                                                                                  const UIN *__restrict__ blockRowOffsets,
-                                                                                  const UIN *__restrict__ blockValues,
-                                                                                  MATRIX_C_TYPE *matrixP) {
+                                                                                       const UIN N,
+                                                                                       const UIN K,
+                                                                                       const MATRIX_A_TYPE *__restrict__ matrixA,
+                                                                                       const MATRIX_B_TYPE *__restrict__ matrixB,
+                                                                                       const float alpha,
+                                                                                       const float beta,
+                                                                                       const UIN numNonZeroRow,
+                                                                                       const UIN *__restrict__ reorderedRows,
+                                                                                       const UIN *__restrict__ reorderedCols,
+                                                                                       const UIN *__restrict__ reorderedColOffset,
+                                                                                       const UIN *__restrict__ blockRowOffsets,
+                                                                                       const UIN *__restrict__ blockValues,
+                                                                                       MATRIX_C_TYPE *matrixP) {
     constexpr int eachThreadBlockCountsTheNumberOfColBlocks = 4;
 
     constexpr int aTileSMEMSize = (WMMA_M * WMMA_N) * 2;
@@ -734,18 +735,19 @@ __global__ void sddmm_gpu_dense_block_m16n16k16_block128_matrixA_rowMaj_matrixB_
 // blockDim: [256, 1, 1]
 // 一个thread block负责一个row panel中的8个col block
 __global__ void sddmm_gpu_dense_block_m16n16k16_block256_matrixA_rowMaj_matrixB_rowMaj(const UIN M,
-                                                                                  const UIN N,
-                                                                                  const UIN K,
-                                                                                  const MATRIX_A_TYPE *__restrict__ matrixA,
-                                                                                  const MATRIX_B_TYPE *__restrict__ matrixB,
-                                                                                  const float alpha, const float beta,
-                                                                                  const UIN numNonZeroRow,
-                                                                                  const UIN *__restrict__ reorderedRows,
-                                                                                  const UIN *__restrict__ reorderedCols,
-                                                                                  const UIN *__restrict__ reorderedColOffset,
-                                                                                  const UIN *__restrict__ blockRowOffsets,
-                                                                                  const UIN *__restrict__ blockValues,
-                                                                                  MATRIX_C_TYPE *matrixP) {
+                                                                                       const UIN N,
+                                                                                       const UIN K,
+                                                                                       const MATRIX_A_TYPE *__restrict__ matrixA,
+                                                                                       const MATRIX_B_TYPE *__restrict__ matrixB,
+                                                                                       const float alpha,
+                                                                                       const float beta,
+                                                                                       const UIN numNonZeroRow,
+                                                                                       const UIN *__restrict__ reorderedRows,
+                                                                                       const UIN *__restrict__ reorderedCols,
+                                                                                       const UIN *__restrict__ reorderedColOffset,
+                                                                                       const UIN *__restrict__ blockRowOffsets,
+                                                                                       const UIN *__restrict__ blockValues,
+                                                                                       MATRIX_C_TYPE *matrixP) {
     constexpr int number_of_tiles_loaded_in_one_cycle = 32 / WMMA_K;
 
     constexpr int aTileSMEMSize = (WMMA_M * WMMA_K) * number_of_tiles_loaded_in_one_cycle;
@@ -846,18 +848,19 @@ __global__ void sddmm_gpu_dense_block_m16n16k16_block256_matrixA_rowMaj_matrixB_
 // blockDim: [256, 1, 1]
 // 一个thread block负责一个row panel中的8个col block
 __global__ void sddmm_gpu_dense_block_m16n16k16_block256_matrixA_rowMaj_matrixB_colMaj(const UIN M,
-                                                                                  const UIN N,
-                                                                                  const UIN K,
-                                                                                  const MATRIX_A_TYPE *__restrict__ matrixA,
-                                                                                  const MATRIX_B_TYPE *__restrict__ matrixB,
-                                                                                  const float alpha, const float beta,
-                                                                                  const UIN numNonZeroRow,
-                                                                                  const UIN *__restrict__ reorderedRows,
-                                                                                  const UIN *__restrict__ reorderedCols,
-                                                                                  const UIN *__restrict__ reorderedColOffset,
-                                                                                  const UIN *__restrict__ blockRowOffsets,
-                                                                                  const UIN *__restrict__ blockValues,
-                                                                                  MATRIX_C_TYPE *matrixP) {
+                                                                                       const UIN N,
+                                                                                       const UIN K,
+                                                                                       const MATRIX_A_TYPE *__restrict__ matrixA,
+                                                                                       const MATRIX_B_TYPE *__restrict__ matrixB,
+                                                                                       const float alpha,
+                                                                                       const float beta,
+                                                                                       const UIN numNonZeroRow,
+                                                                                       const UIN *__restrict__ reorderedRows,
+                                                                                       const UIN *__restrict__ reorderedCols,
+                                                                                       const UIN *__restrict__ reorderedColOffset,
+                                                                                       const UIN *__restrict__ blockRowOffsets,
+                                                                                       const UIN *__restrict__ blockValues,
+                                                                                       MATRIX_C_TYPE *matrixP) {
     constexpr int number_of_tiles_loaded_in_one_cycle = 32 / WMMA_K;
 
     constexpr int aTileSMEMSize = (WMMA_M * WMMA_K) * number_of_tiles_loaded_in_one_cycle;
@@ -957,18 +960,19 @@ __global__ void sddmm_gpu_dense_block_m16n16k16_block256_matrixA_rowMaj_matrixB_
 // blockDim: [256, 1, 1]
 // 一个thread block负责一个row panel中的8个col block
 __global__ void sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj(const UIN M,
-                                                                                 const UIN N,
-                                                                                 const UIN K,
-                                                                                 const MATRIX_A_TYPE *__restrict__ matrixA,
-                                                                                 const MATRIX_B_TYPE *__restrict__ matrixB,
-                                                                                 const float alpha, const float beta,
-                                                                                 const UIN numNonZeroRow,
-                                                                                 const UIN *__restrict__ reorderedRows,
-                                                                                 const UIN *__restrict__ reorderedCols,
-                                                                                 const UIN *__restrict__ reorderedColOffset,
-                                                                                 const UIN *__restrict__ blockRowOffsets,
-                                                                                 const UIN *__restrict__ blockValues,
-                                                                                 MATRIX_C_TYPE *matrixP) {
+                                                                                      const UIN N,
+                                                                                      const UIN K,
+                                                                                      const MATRIX_A_TYPE *__restrict__ matrixA,
+                                                                                      const MATRIX_B_TYPE *__restrict__ matrixB,
+                                                                                      const float alpha,
+                                                                                      const float beta,
+                                                                                      const UIN numNonZeroRow,
+                                                                                      const UIN *__restrict__ reorderedRows,
+                                                                                      const UIN *__restrict__ reorderedCols,
+                                                                                      const UIN *__restrict__ reorderedColOffset,
+                                                                                      const UIN *__restrict__ blockRowOffsets,
+                                                                                      const UIN *__restrict__ blockValues,
+                                                                                      MATRIX_C_TYPE *matrixP) {
     constexpr int number_of_tiles_loaded_in_one_cycle = 32 / WMMA_K;
 
     constexpr int aTileSMEMSize = (WMMA_M * WMMA_K) * number_of_tiles_loaded_in_one_cycle;
@@ -1080,19 +1084,19 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_c
 // blockDim: [256, 1, 1]
 // 一个thread block负责一个row panel中的8个col block
 __global__ void sddmm_gpu_dense_block_m16n16k8_block256_noSMEM_matrixA_rowMaj_matrixB_colMaj(const UIN M,
-                                                                                        const UIN N,
-                                                                                        const UIN K,
-                                                                                        const MATRIX_A_TYPE *__restrict__ matrixA,
-                                                                                        const MATRIX_B_TYPE *__restrict__ matrixB,
-                                                                                        const float alpha,
-                                                                                        const float beta,
-                                                                                        const UIN numNonZeroRow,
-                                                                                        const UIN *__restrict__ reorderedRows,
-                                                                                        const UIN *__restrict__ reorderedCols,
-                                                                                        const UIN *__restrict__ reorderedColOffset,
-                                                                                        const UIN *__restrict__ blockRowOffsets,
-                                                                                        const UIN *__restrict__ blockValues,
-                                                                                        MATRIX_C_TYPE *matrixP) {
+                                                                                             const UIN N,
+                                                                                             const UIN K,
+                                                                                             const MATRIX_A_TYPE *__restrict__ matrixA,
+                                                                                             const MATRIX_B_TYPE *__restrict__ matrixB,
+                                                                                             const float alpha,
+                                                                                             const float beta,
+                                                                                             const UIN numNonZeroRow,
+                                                                                             const UIN *__restrict__ reorderedRows,
+                                                                                             const UIN *__restrict__ reorderedCols,
+                                                                                             const UIN *__restrict__ reorderedColOffset,
+                                                                                             const UIN *__restrict__ blockRowOffsets,
+                                                                                             const UIN *__restrict__ blockValues,
+                                                                                             MATRIX_C_TYPE *matrixP) {
 
     wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE_FRAGMENT, wmma::row_major> aFrag;
     wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE_FRAGMENT, wmma::col_major> bFrag;
@@ -1227,18 +1231,19 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_block256_noSMEM_matrixA_rowMaj_ma
 // blockDim: [512, 1, 1]
 // 一个thread block负责一个row panel中的16个col block
 __global__ void sddmm_gpu_dense_block_m16n16k16_block512_matrixA_rowMaj_matrixB_colMaj(const UIN M,
-                                                                                  const UIN N,
-                                                                                  const UIN K,
-                                                                                  const MATRIX_A_TYPE *__restrict__ matrixA,
-                                                                                  const MATRIX_B_TYPE *__restrict__ matrixB,
-                                                                                  const float alpha, const float beta,
-                                                                                  const UIN numNonZeroRow,
-                                                                                  const UIN *__restrict__ reorderedRows,
-                                                                                  const UIN *__restrict__ reorderedCols,
-                                                                                  const UIN *__restrict__ reorderedColOffset,
-                                                                                  const UIN *__restrict__ blockRowOffsets,
-                                                                                  const UIN *__restrict__ blockValues,
-                                                                                  MATRIX_C_TYPE *matrixP) {
+                                                                                       const UIN N,
+                                                                                       const UIN K,
+                                                                                       const MATRIX_A_TYPE *__restrict__ matrixA,
+                                                                                       const MATRIX_B_TYPE *__restrict__ matrixB,
+                                                                                       const float alpha,
+                                                                                       const float beta,
+                                                                                       const UIN numNonZeroRow,
+                                                                                       const UIN *__restrict__ reorderedRows,
+                                                                                       const UIN *__restrict__ reorderedCols,
+                                                                                       const UIN *__restrict__ reorderedColOffset,
+                                                                                       const UIN *__restrict__ blockRowOffsets,
+                                                                                       const UIN *__restrict__ blockValues,
+                                                                                       MATRIX_C_TYPE *matrixP) {
     constexpr int eachThreadBlockCountsTheNumberOfColBlocks = 16;
 
     constexpr int aTileSMEMSize = (WMMA_M * WMMA_N) * 2;
@@ -1744,13 +1749,13 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
     logger.gridDim_dense_ = grid_dense;
     logger.blockDim_dense_ = block_dense;
 
-//    cudaStream_t densePartStream, sparsePartStream;
-//    cudaStreamCreate(&densePartStream);
-//    cudaStreamCreate(&sparsePartStream);
+//    cudaStream_t denseBlockStream, sparseRemainderStream;
+//    cudaStreamCreate(&denseBlockStream);
+//    cudaStreamCreate(&sparseRemainderStream);
 
-    CudaTimeCalculator timeCalculator;
+    CudaTimeCalculator timeCalculator_denseBlock, timeCalculator_sparseRemainder;
 
-    timeCalculator.startClock();
+    timeCalculator_denseBlock.startClock();
 
 #ifdef WMMA_16_16_16
     kernel::sddmm_gpu_dense_block_m16n16k16_block256_matrixA_rowMaj_matrixB_colMaj<<<grid_rebell, block_rebell>>>(matrixS.row(), matrixS.col(), matrixA.col(),
@@ -1780,8 +1785,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
         matrixP_dev.data());
 #endif // WMMA_16_16_8
 
-    timeCalculator.endClock();
-    const float densePartTime = timeCalculator.getTime();
+    timeCalculator_denseBlock.endClock();
 
     dim3 grid_sparse, block_sparse;
     block_sparse.x = sddmm_sparse_remainder_number_of_thread_per_thread_block;
@@ -1791,7 +1795,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
     logger.gridDim_sparse_ = grid_sparse;
     logger.blockDim_sparse_ = block_sparse;
 
-    timeCalculator.startClock();
+    timeCalculator_sparseRemainder.startClock();
 
     kernel::sddmm_gpu_sparse_residue_block512_matrixA_rowMaj_matrixB_colMaj<<<grid_sparse, block_sparse>>>(matrixS.row(), matrixS.col(), matrixA.col(),
         matrixA_values_convertedType_dev.data(),
@@ -1805,13 +1809,17 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
         sparsePartColIndices_dev.data(),
         matrixP_dev.data());
 
-    timeCalculator.endClock();
+    timeCalculator_sparseRemainder.endClock();
 
-    const float sparsePartTime = timeCalculator.getTime();
+    const float densePartTime = timeCalculator_denseBlock.getTime();
+    const float sparsePartTime = timeCalculator_sparseRemainder.getTime();
 
-    printf("densePartTime: %f, sparsePartTime: %f\n", densePartTime, sparsePartTime);
+    printf("denseBlockTime: %f, sparseRemainderTime: %f\n", densePartTime, sparsePartTime);
 
     logger.zcx_sddmm_time_ = densePartTime + sparsePartTime;
+
+//    cudaStreamDestroy(denseBlockStream);
+//    cudaStreamDestroy(sparseRemainderStream);
 
     // Copy the results from the device to the host
     matrixP.setValues() = d2h(matrixP_dev);

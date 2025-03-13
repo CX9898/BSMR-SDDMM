@@ -54,7 +54,7 @@ class ReBELL {
   // Calculate the colBlockId in row panel by blockValueIndex
   UIN calculateColBlockIdByBlockValueIndex(UIN blockValueIndex) const;
 
-  UIN getNumBlocks() const { return blockRowOffsets().back(); }
+  UIN getNumDenseBlocks() const { return blockRowOffsets().back(); }
 
   // Calculate the average density of all blocks
   float calculateAverageDensity();
