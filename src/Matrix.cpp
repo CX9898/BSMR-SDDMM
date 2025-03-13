@@ -309,9 +309,10 @@ bool sparseMatrix::CSR<T>::initializeFromSmtxFile(const std::string &filePath) {
     col_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
     nnz_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
 
-//    if (wordIter < line.size()) {
-//        std::cerr << "Error, Matrix Market file " << line << " line format is incorrect!" << std::endl;
-//    }
+    if(nnz_ ==0) {
+        std::cerr << "Error, smtx file " << filePath << " nnz is 0!" << std::endl;
+        return false;
+    }
 
     rowOffsets_.resize(row_ + 1);
     colIndices_.resize(nnz_);
@@ -362,8 +363,14 @@ bool sparseMatrix::CSR<T>::initializeFromMatrixMarketFile(const std::string &fil
     col_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
     nnz_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
 
+    if(nnz_ == 0){
+        std::cerr << "Error, Matrix Market file " << filePath << " nnz is 0!" << std::endl;
+        return false;
+    }
+
     if (wordIter < line.size()) {
         std::cerr << "Error, Matrix Market file " << line << " line format is incorrect!" << std::endl;
+        return false;
     }
 
     std::vector<UIN> rowIndices(nnz_);

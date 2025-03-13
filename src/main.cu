@@ -45,7 +45,10 @@ int main(int argc, char *argv[]) {
     const float alpha = options.alpha(), beta = options.beta();
 
     sparseMatrix::CSR<float> matrixS;
-    matrixS.initializeFromMatrixFile(options.inputFile());
+    if (!matrixS.initializeFromMatrixFile(options.inputFile())) {
+        fprintf(stderr, "Error, matrix S initialize failed.\n");
+        return -1;
+    }
 
     Matrix<float> matrixA(matrixS.row(), K, MatrixStorageOrder::row_major);
     matrixA.makeData();
