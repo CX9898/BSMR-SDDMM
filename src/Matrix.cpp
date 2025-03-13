@@ -276,6 +276,21 @@ template
 class sparseMatrix::COO<double>;
 
 template<typename T>
+bool sparseMatrix::CSR<T>::initializeFromMatrixFile(const std::string &filePath) {
+
+    const std::string fileSuffix = util::getFileSuffix(filePath);
+    if (fileSuffix == ".mtx") {
+        return initializeFromMatrixMarketFile(filePath);
+    } else if (fileSuffix == ".smtx") {
+        return initializeFromSmtxFile(filePath);
+    } else {
+        std::cerr << "Error, file format is not supported : " << filePath << std::endl;
+    }
+
+    return false;
+}
+
+template<typename T>
 bool sparseMatrix::CSR<T>::initializeFromSmtxFile(const std::string &filePath) {
     std::ifstream inFile;
     inFile.open(filePath, std::ios::in); // open file
@@ -294,9 +309,9 @@ bool sparseMatrix::CSR<T>::initializeFromSmtxFile(const std::string &filePath) {
     col_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
     nnz_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
 
-    if (wordIter < line.size()) {
-        std::cerr << "Error, Matrix Market file " << line << " line format is incorrect!" << std::endl;
-    }
+//    if (wordIter < line.size()) {
+//        std::cerr << "Error, Matrix Market file " << line << " line format is incorrect!" << std::endl;
+//    }
 
     rowOffsets_.resize(row_ + 1);
     colIndices_.resize(nnz_);

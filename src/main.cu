@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
     const float alpha = options.alpha(), beta = options.beta();
 
     sparseMatrix::CSR<float> matrixS;
-    matrixS.initializeFromMatrixMarketFile(options.inputFile());
+    matrixS.initializeFromMatrixFile(options.inputFile());
 
     Matrix<float> matrixA(matrixS.row(), K, MatrixStorageOrder::row_major);
     matrixA.makeData();
@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
 
     // Logger
     Logger logger;
-    logger.inputFile_ = util::getFileName(options.inputFile());
+    logger.inputFile_ = options.inputFile();
     logger.getInformation(matrixS);
     logger.getInformation(matrixA, matrixB);
 

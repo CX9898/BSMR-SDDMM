@@ -178,6 +178,8 @@ class CSR : public DataBase {
       nnz_ = nnz;
   }
 
+  bool initializeFromMatrixFile(const std::string &filePath);
+
   /**
    * Initialize from smtx file.
    *
