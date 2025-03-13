@@ -11,6 +11,7 @@
 #include "ReBELL.hpp"
 #include "CudaTimeCalculator.cuh"
 #include "parallelAlgorithm.cuh"
+#include "sddmmKernel.cuh"
 
 ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
 
@@ -161,8 +162,9 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
     maxNumSparseColBlocks_ = 0;
 #pragma omp parallel reduction(max : maxNumSparseColBlocks_)
     for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
-        const UIN numBlocksCurrentRowPanel = std::ceil(
-            static_cast<float>(sparsePartDataOffsets()[rowPanelId + 1] - sparsePartDataOffsets()[rowPanelId]) / 256);
+        const UIN numSparseData = sparsePartDataOffsets()[rowPanelId + 1] - sparsePartDataOffsets()[rowPanelId];
+        const UIN numBlocksCurrentRowPanel =
+            std::ceil(static_cast<float>(numSparseData) / sddmm_sparse_remainder_number_of_thread_per_thread_block);
         maxNumSparseColBlocks_ = std::max(maxNumSparseColBlocks_, numBlocksCurrentRowPanel);
     }
 

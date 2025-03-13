@@ -208,7 +208,7 @@ template __global__ void convertDataType<half>(const UIN n, const float *in, hal
 
 // m16n16k16
 // blockDim: [64, 1, 1]
-__global__ void sddmm_gpu_rebell_m16n16k16_block64_rowPanel_matrixA_rowMaj_matrixB_rowMaj(const UIN M,
+__global__ void sddmm_gpu_dense_block_m16n16k16_block64_rowPanel_matrixA_rowMaj_matrixB_rowMaj(const UIN M,
                                                                                           const UIN N,
                                                                                           const UIN K,
                                                                                           const MATRIX_A_TYPE *matrixA,
@@ -311,7 +311,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block64_rowPanel_matrixA_rowMaj_matri
 // m16n16k16
 // blockDim: [64, 1, 1]
 // 一个thread block负责一个row panel
-__global__ void sddmm_gpu_rebell_m16n16k16_block64_rowPanel_matrixA_rowMaj_matrixB_colMaj(const UIN M,
+__global__ void sddmm_gpu_dense_block_m16n16k16_block64_rowPanel_matrixA_rowMaj_matrixB_colMaj(const UIN M,
                                                                                           const UIN N,
                                                                                           const UIN K,
                                                                                           const MATRIX_A_TYPE *matrixA,
@@ -415,7 +415,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block64_rowPanel_matrixA_rowMaj_matri
 // m16n16k16
 // blockDim: [64, 1, 1]
 // 一个thread block负责一个row panel中的2个col block
-__global__ void sddmm_gpu_rebell_m16n16k16_block64_matrixA_rowMaj_matrixB_rowMaj(const UIN M,
+__global__ void sddmm_gpu_dense_block_m16n16k16_block64_matrixA_rowMaj_matrixB_rowMaj(const UIN M,
                                                                                  const UIN N,
                                                                                  const UIN K,
                                                                                  const MATRIX_A_TYPE *matrixA,
@@ -518,7 +518,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block64_matrixA_rowMaj_matrixB_rowMaj
 // m16n16k16
 // blockDim: [64, 1, 1]
 // 一个thread block负责一个row panel中的2个col block
-__global__ void sddmm_gpu_rebell_m16n16k16_block64_matrixA_rowMaj_matrixB_colMaj(const UIN M,
+__global__ void sddmm_gpu_dense_block_m16n16k16_block64_matrixA_rowMaj_matrixB_colMaj(const UIN M,
                                                                                  const UIN N,
                                                                                  const UIN K,
                                                                                  const MATRIX_A_TYPE *matrixA,
@@ -623,7 +623,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block64_matrixA_rowMaj_matrixB_colMaj
 // m16n16k16
 // blockDim: [128, 1, 1]
 // 一个thread block负责一个row panel中的4个col block
-__global__ void sddmm_gpu_rebell_m16n16k16_block128_matrixA_rowMaj_matrixB_colMaj(const UIN M,
+__global__ void sddmm_gpu_dense_block_m16n16k16_block128_matrixA_rowMaj_matrixB_colMaj(const UIN M,
                                                                                   const UIN N,
                                                                                   const UIN K,
                                                                                   const MATRIX_A_TYPE *__restrict__ matrixA,
@@ -733,7 +733,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block128_matrixA_rowMaj_matrixB_colMa
 // m16n16k16
 // blockDim: [256, 1, 1]
 // 一个thread block负责一个row panel中的8个col block
-__global__ void sddmm_gpu_rebell_m16n16k16_block256_matrixA_rowMaj_matrixB_rowMaj(const UIN M,
+__global__ void sddmm_gpu_dense_block_m16n16k16_block256_matrixA_rowMaj_matrixB_rowMaj(const UIN M,
                                                                                   const UIN N,
                                                                                   const UIN K,
                                                                                   const MATRIX_A_TYPE *__restrict__ matrixA,
@@ -845,7 +845,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block256_matrixA_rowMaj_matrixB_rowMa
 // m16n16k16
 // blockDim: [256, 1, 1]
 // 一个thread block负责一个row panel中的8个col block
-__global__ void sddmm_gpu_rebell_m16n16k16_block256_matrixA_rowMaj_matrixB_colMaj(const UIN M,
+__global__ void sddmm_gpu_dense_block_m16n16k16_block256_matrixA_rowMaj_matrixB_colMaj(const UIN M,
                                                                                   const UIN N,
                                                                                   const UIN K,
                                                                                   const MATRIX_A_TYPE *__restrict__ matrixA,
@@ -956,7 +956,7 @@ __global__ void sddmm_gpu_rebell_m16n16k16_block256_matrixA_rowMaj_matrixB_colMa
 // m16n16k16
 // blockDim: [256, 1, 1]
 // 一个thread block负责一个row panel中的8个col block
-__global__ void sddmm_gpu_rebell_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj(const UIN M,
+__global__ void sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj(const UIN M,
                                                                                  const UIN N,
                                                                                  const UIN K,
                                                                                  const MATRIX_A_TYPE *__restrict__ matrixA,
@@ -1079,7 +1079,7 @@ __global__ void sddmm_gpu_rebell_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj
 // m16n16k16
 // blockDim: [256, 1, 1]
 // 一个thread block负责一个row panel中的8个col block
-__global__ void sddmm_gpu_rebell_m16n16k8_block256_noSMEM_matrixA_rowMaj_matrixB_colMaj(const UIN M,
+__global__ void sddmm_gpu_dense_block_m16n16k8_block256_noSMEM_matrixA_rowMaj_matrixB_colMaj(const UIN M,
                                                                                         const UIN N,
                                                                                         const UIN K,
                                                                                         const MATRIX_A_TYPE *__restrict__ matrixA,
@@ -1226,7 +1226,7 @@ __global__ void sddmm_gpu_rebell_m16n16k8_block256_noSMEM_matrixA_rowMaj_matrixB
 // m16n16k16
 // blockDim: [512, 1, 1]
 // 一个thread block负责一个row panel中的16个col block
-__global__ void sddmm_gpu_rebell_m16n16k16_block512_matrixA_rowMaj_matrixB_colMaj(const UIN M,
+__global__ void sddmm_gpu_dense_block_m16n16k16_block512_matrixA_rowMaj_matrixB_colMaj(const UIN M,
                                                                                   const UIN N,
                                                                                   const UIN K,
                                                                                   const MATRIX_A_TYPE *__restrict__ matrixA,
@@ -1351,14 +1351,12 @@ __global__ void sddmm_gpu_sparse_residue_block256_rowPanel_matrixA_rowMaj_matrix
     constexpr int kStep = 32;
 
     constexpr int aTileSMEMSize = WMMA_M * kStep; // 512
-    constexpr int cSMEMSize = numWarpsPerBlock * WARP_SIZE; // 256
 
     constexpr int eachThreadLoadsTheNumberOfMatrixADatas = aTileSMEMSize / (WARP_SIZE * numWarpsPerBlock); // 2
     constexpr int eachWarpLoadsTheNumberOfMatrixADatas = WARP_SIZE * eachThreadLoadsTheNumberOfMatrixADatas; // 64
     constexpr int eachWarpLoadsTheNumberOfMatrixARows = WMMA_M / numWarpsPerBlock; // 2
 
     __shared__ float aTileSMEM[aTileSMEMSize];
-    __shared__ float cTileSMEM[cSMEMSize];
 
     const UIN laneId = threadIdx.x & 31;
     const UIN warpId = threadIdx.x >> 5;
@@ -1438,6 +1436,93 @@ __global__ void sddmm_gpu_sparse_residue_block256_matrixA_rowMaj_matrixB_colMaj(
     constexpr int eachThreadLoadsTheNumberOfMatrixADatas = aTileSMEMSize / (WARP_SIZE * numWarpsPerBlock); // 2
     constexpr int eachWarpLoadsTheNumberOfMatrixADatas = WARP_SIZE * eachThreadLoadsTheNumberOfMatrixADatas; // 64
     constexpr int eachWarpLoadsTheNumberOfMatrixARows = WMMA_M / numWarpsPerBlock; // 2
+
+    const UIN laneId = threadIdx.x & 31;
+    const UIN warpId = threadIdx.x >> 5;
+
+    const UIN rowPanelId = blockIdx.x;
+
+    const UIN startIndexOfSparseDataCurrentBlock = sparsePartDataOffsets[rowPanelId] + blockIdx.y * cSMEMSize;
+    const UIN indexBoundaryCurrentRowPanel = sparsePartDataOffsets[rowPanelId + 1];
+
+    // If the current block is out of the boundary, return
+    if (startIndexOfSparseDataCurrentBlock >= indexBoundaryCurrentRowPanel) {
+        return;
+    }
+
+    const UIN index = startIndexOfSparseDataCurrentBlock + threadIdx.x;
+
+    const UIN relativeRow = relativeRows[index];
+    const UIN col = sparsePartColIndices[index];
+
+    __shared__ float aTileSMEM[aTileSMEMSize];
+    __shared__ float cSMEM[cSMEMSize];
+
+    cSMEM[threadIdx.x] = 0.0f;
+
+    const UIN lda = K;
+    const UIN ldb = K;
+
+    // Loop over K, one iteration 32 elements
+    for (int kIter = 0; kIter < K; kIter += kStep) {
+        // Load matrix A into shared memory, conflict-free access
+#pragma unroll
+        for (int rowIter = 0; rowIter < eachWarpLoadsTheNumberOfMatrixARows; ++rowIter) {
+            const UIN reorderedRowIndex = (rowPanelId * ROW_PANEL_SIZE) +
+                (warpId * eachWarpLoadsTheNumberOfMatrixARows) + rowIter;
+            const UIN aRowId = reorderedRowIndex < numNonZeroRow ? reorderedRows[reorderedRowIndex] : M;
+            const UIN aColId = kIter + laneId;
+            aTileSMEM[warpId * eachWarpLoadsTheNumberOfMatrixADatas + rowIter * kStep + laneId] =
+                (aRowId < M && aColId < K) ? matrixA[aRowId * lda + aColId] : static_cast<float>(0);
+        }
+
+        __syncthreads();
+
+        // Load matrix B and compute the matrix multiplication
+        if (index < indexBoundaryCurrentRowPanel) {
+#pragma unroll 4
+            for (int localKIter = 0; localKIter < kStep; localKIter += 4) {
+                const float4 aData = *((float4 *) &aTileSMEM[relativeRow * kStep + localKIter]);
+                const float4 bData = *((float4 *) &matrixB[col * ldb + kIter + localKIter]);
+                cSMEM[threadIdx.x] += aData.x * bData.x + aData.y * bData.y + aData.z * bData.z + aData.w * bData.w;
+            }
+        }
+
+        __syncthreads();
+    }
+
+    if (index < indexBoundaryCurrentRowPanel) {
+        matrixP[sparsePartData[index]] = cSMEM[threadIdx.x];
+    }
+}
+
+// blockDim: [512,1,1]
+__global__ void sddmm_gpu_sparse_residue_block512_matrixA_rowMaj_matrixB_colMaj(const UIN M,
+                                                                                const UIN N,
+                                                                                const UIN K,
+                                                                                const float *__restrict__ matrixA,
+                                                                                const float *__restrict__ matrixB,
+                                                                                const float alpha,
+                                                                                const float beta,
+                                                                                const UIN numNonZeroRow,
+                                                                                const UIN *__restrict__ reorderedRows,
+                                                                                const UIN *__restrict__ sparsePartDataOffsets,
+                                                                                const UIN *__restrict__ sparsePartData,
+                                                                                const UIN *__restrict__ relativeRows,
+                                                                                const UIN *__restrict__ sparsePartColIndices,
+                                                                                float *matrixP) {
+    // 线程块中线程数量
+    constexpr int numWarpsPerBlock = 16;
+    constexpr int numThreadsPerBlock = numWarpsPerBlock * WARP_SIZE; // 256
+
+    constexpr int kStep = 32;
+
+    constexpr int aTileSMEMSize = WMMA_M * kStep; // 512
+    constexpr int cSMEMSize = numThreadsPerBlock; // 512
+
+    constexpr int eachThreadLoadsTheNumberOfMatrixADatas = aTileSMEMSize / (WARP_SIZE * numWarpsPerBlock); // 1
+    constexpr int eachWarpLoadsTheNumberOfMatrixADatas = WARP_SIZE * eachThreadLoadsTheNumberOfMatrixADatas; // 32
+    constexpr int eachWarpLoadsTheNumberOfMatrixARows = WMMA_M / numWarpsPerBlock; // 1
 
     const UIN laneId = threadIdx.x & 31;
     const UIN warpId = threadIdx.x >> 5;
@@ -1668,7 +1753,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
     timeCalculator.startClock();
 
 #ifdef WMMA_16_16_16
-    kernel::sddmm_gpu_rebell_m16n16k16_block256_matrixA_rowMaj_matrixB_colMaj<<<grid_rebell, block_rebell>>>(matrixS.row(), matrixS.col(), matrixA.col(),
+    kernel::sddmm_gpu_dense_block_m16n16k16_block256_matrixA_rowMaj_matrixB_colMaj<<<grid_rebell, block_rebell>>>(matrixS.row(), matrixS.col(), matrixA.col(),
         matrixA_values_convertedType_dev.data(),
         matrixB_values_convertedType_dev.data(),
         alpha, beta,
@@ -1682,7 +1767,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
 #endif // WMMA_16_16_16
 
 #ifdef WMMA_16_16_8
-    kernel::sddmm_gpu_rebell_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj<<<grid_dense, block_dense>>>(matrixS.row(), matrixS.col(), matrixA.col(),
+    kernel::sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj<<<grid_dense, block_dense>>>(matrixS.row(), matrixS.col(), matrixA.col(),
         matrixA_values_convertedType_dev.data(),
         matrixB_values_convertedType_dev.data(),
         alpha, beta,
@@ -1699,7 +1784,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
     const float densePartTime = timeCalculator.getTime();
 
     dim3 grid_sparse, block_sparse;
-    block_sparse.x = 256;
+    block_sparse.x = sddmm_sparse_remainder_number_of_thread_per_thread_block;
     grid_sparse.x = rebell.numRowPanels();
     grid_sparse.y = rebell.maxNumSparseColBlocks();
 
@@ -1708,7 +1793,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
 
     timeCalculator.startClock();
 
-    kernel::sddmm_gpu_sparse_residue_block256_matrixA_rowMaj_matrixB_colMaj<<<grid_sparse, block_sparse>>>(matrixS.row(), matrixS.col(), matrixA.col(),
+    kernel::sddmm_gpu_sparse_residue_block512_matrixA_rowMaj_matrixB_colMaj<<<grid_sparse, block_sparse>>>(matrixS.row(), matrixS.col(), matrixA.col(),
         matrixA_values_convertedType_dev.data(),
         matrixB_values_convertedType_dev.data(),
         alpha, beta,
