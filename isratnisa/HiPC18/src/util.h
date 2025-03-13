@@ -30,6 +30,160 @@ class Matrix {
 
 };
 
+inline std::string iterateOneWordFromLine(const std::string &line, int &wordIter) {
+    const int begin = wordIter;
+    while (wordIter < line.size() && line[wordIter] != ' ') {
+        ++wordIter;
+    }
+    const int end = wordIter;
+    ++wordIter;
+
+    return line.substr(begin, end - begin);
+}
+
+bool initializeFromSmtxFile(const std::string &filePath, Matrix &S) {
+    std::ifstream inFile;
+    inFile.open(filePath, std::ios::in); // open file
+    if (!inFile.is_open()) {
+        std::cerr << "Error, smtx file cannot be opened : " << filePath << std::endl;
+        return false;
+    }
+
+    std::string line; // Store the data for each line
+    while (getline(inFile, line) && line[0] == '%') {} // Skip comments
+
+    int wordIter = 0;
+    S.n_rows = std::stoi(iterateOneWordFromLine(line, wordIter));
+    S.n_cols = std::stoi(iterateOneWordFromLine(line, wordIter));
+    S.nnz = std::stoi(iterateOneWordFromLine(line, wordIter));
+
+    if (S.nnz == 0) {
+        std::cerr << "Error, smtx file " << filePath << " nnz is 0!" << std::endl;
+        return false;
+    }
+
+    std::vector<int> rowOffsets(S.n_rows + 1);
+    std::vector<int> colIndices(S.nnz);
+
+    // initialize rowOffsets
+    {
+        getline(inFile, line);
+        wordIter = 0;
+        for (int idx = 0; idx < rowOffsets.size(); ++idx) {
+            const int rowOffset = std::stoi(iterateOneWordFromLine(line, wordIter));
+            rowOffsets[idx] = rowOffset;
+        }
+    }
+
+    // initialize colIndices and values
+    {
+        getline(inFile, line);
+        wordIter = 0;
+        for (int idx = 0; idx < colIndices.size(); ++idx) {
+            const int col = std::stoi(iterateOneWordFromLine(line, wordIter));
+            colIndices[idx] = col;
+        }
+    }
+
+    S.rows.resize(S.nnz);
+    S.cols.resize(S.nnz);
+    S.vals.resize(S.nnz);
+
+    int indexOfCoo = 0;
+    for (int row = 0; row < S.n_rows; ++row) {
+        for (int idx = rowOffsets[row]; idx < rowOffsets[row + 1]; ++idx) {
+            S.rows[indexOfCoo] = row;
+            S.cols[indexOfCoo] = colIndices[idx];
+            S.vals[indexOfCoo] = 0.0f;
+            ++indexOfCoo;
+        }
+    }
+
+    inFile.close();
+
+    return true;
+}
+
+bool initializeFromMatrixMarketFile(const std::string &filePath, Matrix &S) {
+    std::ifstream inFile;
+    inFile.open(filePath, std::ios::in); // open file
+    if (!inFile.is_open()) {
+        std::cerr << "Error, matrixMarket file cannot be opened : " << filePath << std::endl;
+        return false;
+    }
+
+    std::cout << "sparseMatrix::CSR initialize From MatrixMarket file : " << filePath << std::endl;
+
+    std::string line; // Store the data for each line
+    while (getline(inFile, line) && line[0] == '%') {} // Skip comments
+
+    int wordIter = 0;
+    S.n_rows = std::stoi(iterateOneWordFromLine(line, wordIter));
+    S.n_cols = std::stoi(iterateOneWordFromLine(line, wordIter));
+    S.nnz = std::stoi(iterateOneWordFromLine(line, wordIter));
+
+    if (S.nnz == 0) {
+        std::cerr << "Error, Matrix Market file " << filePath << " nnz is 0!" << std::endl;
+        return false;
+    }
+
+    if (wordIter < line.size()) {
+        std::cerr << "Error, Matrix Market file " << line << " line format is incorrect!" << std::endl;
+        return false;
+    }
+
+    std::vector<int> rowIndices(S.nnz);
+    std::vector<int> colIndices(S.nnz);
+    std::vector<float> values(S.nnz);
+
+    int idx = 0;
+    while (getline(inFile, line)) {
+        wordIter = 0;
+        const int row = std::stoi(iterateOneWordFromLine(line, wordIter)) - 1;
+        const int col = std::stoi(iterateOneWordFromLine(line, wordIter)) - 1;
+        const float val = static_cast<float>(std::stod(iterateOneWordFromLine(line, wordIter)));
+
+        if (wordIter < line.size()) {
+            std::cerr << "Error, Matrix Market file " << line << " line format is incorrect!" << std::endl;
+        }
+
+        rowIndices[idx] = row;
+        colIndices[idx] = col;
+        values[idx] = val;
+
+        ++idx;
+    }
+
+    S.rows = rowIndices;
+    S.cols = colIndices;
+    S.vals = values;
+
+    inFile.close();
+
+    return true;
+}
+
+std::string getFileSuffix(const std::string &filename) {
+    size_t pos = filename.find_last_of("."); // 查找最后一个 '.'
+    if (pos != std::string::npos) {
+        return filename.substr(pos); // 截取后缀
+    }
+    return ""; // 如果没有找到，则返回空字符串
+}
+
+bool intialize_matrix(const std::string &matrixFile, Matrix &S) {
+    const std::string fileSuffix = getFileSuffix(matrixFile);
+    if (fileSuffix == ".mtx") {
+        return initializeFromMatrixMarketFile(matrixFile, S);
+    } else if (fileSuffix == ".smtx") {
+        return initializeFromSmtxFile(matrixFile, S);
+    } else {
+        std::cerr << "Error, file format is not supported : " << matrixFile << std::endl;
+    }
+
+    return false;
+}
+
 class TiledMatrix {
  public:
   int ntile_c;

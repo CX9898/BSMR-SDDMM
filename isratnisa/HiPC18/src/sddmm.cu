@@ -344,7 +344,7 @@ int main(int argc, char *argv[]) {
     Options options(argc, argv);
     Matrix S;
 
-    ifstream fp(options.inputFile());
+//    ifstream fp(options.inputFile());
 
 //    char *filePath = nullptr;
 //    const char *folderPath = "../dataset/test/";
@@ -370,35 +370,37 @@ int main(int argc, char *argv[]) {
     printf("[File : %s]\n", getFileName(options.inputFile()).c_str());
     printf("[K : %d]\n", k);
 
-    string str;
-    fp >> str;
-    while (!isdigit(str[0])) {
-        getline(fp, str);
-    }
+    intialize_matrix(options.inputFile(), S);
 
-    istringstream is(str);
-    is >> S.n_rows;
-    is >> S.n_cols;
-    is >> S.nnz;
-    cout << "\nMatrix info: " << " rows: " << S.n_rows << ", cols: " << S.n_cols << ", nnz: " << S.nnz << endl;
-    std::cout << "M : " << S.n_rows << ", N : " << S.n_cols << ", K = " << k << std::endl;
-    long orig_nnz = S.nnz, rid = 0, cid = 0;
-    float vid = 0;
-
-    S.rows.resize(S.nnz);
-    S.cols.resize(S.nnz);
-    S.vals.resize(S.nnz);
-
-    long idx = 0;
-    for (long o_idx = 0; o_idx < orig_nnz; ++o_idx) {
-        fp >> rid >> cid >> vid;
-        S.rows[idx] = rid - 1;
-        S.cols[idx] = cid - 1;
-        S.vals[idx] = vid;
-        idx++;
-    }
-    cout << "\nTilesize: X = " << tile_sizeX << ", tilesize: Y = " << tile_sizeY << ", TB: " << BLOCKSIZE << endl;
-    S.nnz = idx;
+//    string str;
+//    fp >> str;
+//    while (!isdigit(str[0])) {
+//        getline(fp, str);
+//    }
+//
+//    istringstream is(str);
+//    is >> S.n_rows;
+//    is >> S.n_cols;
+//    is >> S.nnz;
+//    cout << "\nMatrix info: " << " rows: " << S.n_rows << ", cols: " << S.n_cols << ", nnz: " << S.nnz << endl;
+//    std::cout << "M : " << S.n_rows << ", N : " << S.n_cols << ", K = " << k << std::endl;
+//    long orig_nnz = S.nnz, rid = 0, cid = 0;
+//    float vid = 0;
+//
+//    S.rows.resize(S.nnz);
+//    S.cols.resize(S.nnz);
+//    S.vals.resize(S.nnz);
+//
+//    long idx = 0;
+//    for (long o_idx = 0; o_idx < orig_nnz; ++o_idx) {
+//        fp >> rid >> cid >> vid;
+//        S.rows[idx] = rid - 1;
+//        S.cols[idx] = cid - 1;
+//        S.vals[idx] = vid;
+//        idx++;
+//    }
+//    cout << "\nTilesize: X = " << tile_sizeX << ", tilesize: Y = " << tile_sizeY << ", TB: " << BLOCKSIZE << endl;
+//    S.nnz = idx;
 
     preprocessing(S);
 }
