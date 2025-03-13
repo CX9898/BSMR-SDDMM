@@ -265,6 +265,17 @@ bool ResultsInformation::initInformation(const std::vector<std::string> &oneTime
     return true;
 }
 
+std::string getFileName(const std::string &path) {
+    if (path.empty()) return "";
+
+    const size_t pos = path.find_last_of("/\\");
+    if (pos == std::string::npos) {
+        std::cerr << "Warning. The input path has no parent folder" << std::endl;
+    }
+    const std::string filename = (pos == std::string::npos) ? path : path.substr(pos + 1);
+    return filename;
+}
+
 void ResultsInformation::printInformation() const {
 
     printf(" file: %s, sparsity: %s\n", file_.c_str(), sparsity_.c_str());
@@ -301,7 +312,7 @@ void ResultsInformation::printInformation() const {
     // Print data line by line
     for (const auto &iter : kToOneTimeData_) {
         printf("|");
-        printOneInformation(file_);
+        printOneInformation(getFileName(file_));
         printOneInformation(M_);
         printOneInformation(N_);
         printOneInformation(sparsity_);
