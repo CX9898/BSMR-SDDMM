@@ -35,13 +35,24 @@ std::string getParentFolderPath(const std::string &path);
 /**
  * @funcitonName: getFileName
  * @functionInterpretation:
- *  Enter the file path or folder path, and return the parent folder path.
+ *  Enter the file path or folder path, and return the file name.
  * @input:
  *  `path` : File path.
  * @output:
  *  Returns the file name of the input path.
  **/
 std::string getFileName(const std::string &path);
+
+/**
+ * @funcitonName: getFileSuffix
+ * @functionInterpretation:
+ *  Enter the file path or folder path, and return the file suffix.
+ * @input:
+ *  `path` : File path.
+ * @output:
+ *  Returns the file name of the input path.
+ **/
+std::string getFileSuffix(const std::string& filename);
 
 /**
  * @funcitonName: createRandomUniformDistribution

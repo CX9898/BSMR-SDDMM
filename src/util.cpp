@@ -28,6 +28,14 @@ std::string getFileName(const std::string &path) {
     return filename;
 }
 
+std::string getFileSuffix(const std::string& filename) {
+    size_t pos = filename.find_last_of("."); // 查找最后一个 '.'
+    if (pos != std::string::npos) {
+        return filename.substr(pos); // 截取后缀
+    }
+    return ""; // 如果没有找到，则返回空字符串
+}
+
 std::string iterateOneWordFromLine(const std::string &line, int &wordIter) {
     const int begin = wordIter;
     while (wordIter < line.size() && line[wordIter] != ' ') {
