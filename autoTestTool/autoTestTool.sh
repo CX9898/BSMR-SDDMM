@@ -1,7 +1,20 @@
 #!/bin/bash
 
+#
+# Script Name: autoTestTool.sh
+# Description: 自动测试工具. 用于
+# Usage: ./autoTestTool.sh [参数]
+#
+# Notes:
+# - 额外的注意事项或说明
+# - 例如依赖项、支持的平台等
+#
+# Example:
+# ./autoTestTool.sh -
+#
+
 ##############################################################################################
-# Parameter setting
+# Script setting
 
 data_split_symbol="\n---New data---\n"
 test_done_symbol="\n---Test done---\n"
@@ -42,20 +55,7 @@ auto_analysis_results_program="${script_file_path}autoAnalysisResults"
 print_tag="* "
 
 ##############################################################################################
-
-num_test_file_folder=${#test_file_folder_path_list[@]}
-echo -n "${print_tag}The number of test file folder is ${num_test_file_folder}, which are :"
-for element in "${test_file_folder_path_list[@]}"; do
-    echo -n " $element"
-done
-echo
-
-num_k=${#k_list[@]}
-echo -n "${print_tag}The number of test k is ${num_k}, which are :"
-for element in "${k_list[@]}"; do
-    echo -n " $element"
-done
-echo
+# function
 
 # 参数1: 构建地址
 # 参数2: "CMakeLists.txt"文件路径
@@ -71,13 +71,6 @@ build_program(){
   cmake --build ${build_path} > /dev/null
   echo "${print_tag}Build complete : ${build_path}"
 }
-
-build_program ${zcx_build_folder_path} ${zcx_cmake_file_path}
-build_program ${isratnisa_build_folder_path} ${isratnisa_cmake_file_path}
-
-# 编译分析结果程序
-g++ ${auto_analysis_results_source_filename} -o ${auto_analysis_results_program}
-echo "${print_tag}Auto analysis results program : ${auto_analysis_results_source_filename}"
 
 # 创建不重名的日志文件, 并且将日志文件名更新在全局变量`log_file`中
 # 参数1 : 原始日志文件名
@@ -97,14 +90,6 @@ create_log_file(){
   echo "${print_tag}Create file: ${log_file}"
   touch ${log_file}
 }
-
-create_log_file ${zcx_test_log_filename}
-zcx_test_log_file=${log_file}
-create_log_file ${isratnisa_test_log_filename}
-isratnisa_test_log_file=${log_file}
-
-create_log_file ${analysis_results_log_filename}
-analysis_results_log_file=${log_file}
 
 # 参数1 : 进行测试的程序
 # 参数2 : 测试日志文件
@@ -170,10 +155,44 @@ autoTest(){
   done
   echo ""
 }
+##############################################################################################
+# main
 
+num_test_file_folder=${#test_file_folder_path_list[@]}
+echo -n "${print_tag}The number of test file folder is ${num_test_file_folder}, which are :"
+for element in "${test_file_folder_path_list[@]}"; do
+    echo -n " $element"
+done
+echo
+
+num_k=${#k_list[@]}
+echo -n "${print_tag}The number of test k is ${num_k}, which are :"
+for element in "${k_list[@]}"; do
+    echo -n " $element"
+done
+echo
+
+# 编译程序
+build_program ${zcx_build_folder_path} ${zcx_cmake_file_path}
+build_program ${isratnisa_build_folder_path} ${isratnisa_cmake_file_path}
+
+# 编译"分析结果"程序
+g++ ${auto_analysis_results_source_filename} -o ${auto_analysis_results_program}
+echo "${print_tag}Auto analysis results program : ${auto_analysis_results_source_filename}"
+
+# 创建日志文件
+create_log_file ${zcx_test_log_filename}
+zcx_test_log_file=${log_file}
+create_log_file ${isratnisa_test_log_filename}
+isratnisa_test_log_file=${log_file}
+create_log_file ${analysis_results_log_filename}
+analysis_results_log_file=${log_file}
+
+# 开始测试
 autoTest ${isratnisa_program_path}${isratnisa_program_name} ${isratnisa_test_log_file}
 autoTest ${zcx_program_path}${zcx_program_name} ${zcx_test_log_file}
 
+# 分析结果
 echo "${print_tag}Start analyzing results..."
 ${auto_analysis_results_program} ${zcx_test_log_file} ${isratnisa_test_log_file} >> ${analysis_results_log_file}
 echo "${print_tag}Results analysis completed: ${analysis_results_log_file}"
