@@ -13,6 +13,8 @@ constexpr int each_thread_block_counts_the_number_Of_cols =
     BLOCK_COL_SIZE * each_thread_block_counts_the_number_Of_col_blocks;
 constexpr int sddmm_dense_block_number_of_warps_per_thread_block = each_thread_block_counts_the_number_Of_col_blocks;
 constexpr int sddmm_sparse_remainder_number_of_thread_per_thread_block = 512;
+constexpr int sddmm_sparse_remainder_each_thread_block_counts_the_number_Of_cols =
+    sddmm_sparse_remainder_number_of_thread_per_thread_block / 2;
 
 namespace kernel {
 

@@ -17,6 +17,7 @@ const std::string folderPath("../dataset/test/matrix_15000_15000_/");
 const std::string fileName("matrix_15000_15000_11250000");
 const std::string fileFormat(".mtx");
 const std::string filePath = folderPath + fileName + fileFormat;
+//const std::string filePath("../dataset/dlmc/transformer/variational_dropout/0.98/body_decoder_layer_0_encdec_attention_multihead_attention_k.smtx");
 
 class Options {
  public:

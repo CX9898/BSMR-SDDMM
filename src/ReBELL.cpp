@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cmath>
 #include <unordered_map>
+#include <map>
 #include <unordered_set>
 #include <limits>
 #include <numeric>
@@ -51,7 +52,7 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
 
     // Calculate the maximum number of dense column blocks in a row panel
     maxNumDenseColBlocks_ = 0;
-#pragma omp parallel reduction(max : maxNumDenseColBlocks_)
+#pragma omp parallel for reduction(max : maxNumDenseColBlocks_)
     for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
         const UIN numBlocksCurrentRowPanel = std::ceil(
             static_cast<float>(reorderedColOffsets_[rowPanelId + 1] - reorderedColOffsets()[rowPanelId])
@@ -160,13 +161,24 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
 
     // Calculate the maximum number of sparse column blocks in a row panel
     maxNumSparseColBlocks_ = 0;
-#pragma omp parallel reduction(max : maxNumSparseColBlocks_)
+#pragma omp parallel for reduction(max : maxNumSparseColBlocks_)
     for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
         const UIN numSparseData = sparsePartDataOffsets()[rowPanelId + 1] - sparsePartDataOffsets()[rowPanelId];
-        const UIN numBlocksCurrentRowPanel =
-            std::ceil(static_cast<float>(numSparseData) / sddmm_sparse_remainder_number_of_thread_per_thread_block);
+        const UIN numBlocksCurrentRowPanel = std::ceil(
+            static_cast<float>(numSparseData) / sddmm_sparse_remainder_each_thread_block_counts_the_number_Of_cols);
         maxNumSparseColBlocks_ = std::max(maxNumSparseColBlocks_, numBlocksCurrentRowPanel);
     }
+
+//#pragma omp parallel for reduction(max : maxNumSparseColBlocks_)
+//    for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
+//        const UIN startIndex = sparsePartDataOffsets()[rowPanelId];
+//        const UIN endIndex = sparsePartDataOffsets()[rowPanelId + 1];
+//
+//        host::sort_by_key_for_multiple_vectors(sparsePartRelativeRows_.data() + startIndex,
+//                                               sparsePartRelativeRows_.data() + endIndex,
+//                                               sparsePartColIndices_.data() + startIndex,
+//                                               sparsePartData_.data() + startIndex);
+//    }
 
     timeCalculator.endClock();
     float bell_time = timeCalculator.getTime();
