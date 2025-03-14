@@ -358,6 +358,14 @@ std::vector<std::vector<std::string>> readResultsFile(const std::string &results
     return allData;
 }
 
+int getIntValue(const std::string &value) {
+    return value.empty() ? 0 : std::stoi(value);
+}
+
+float getFloatValue(const std::string &value) {
+    return value.empty() ? 0.0f : std::stof(value);
+}
+
 std::unordered_map<std::string, ResultsInformation> pickTheBadResults(
     const std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
     std::unordered_map<std::string, ResultsInformation> bad;
@@ -370,9 +378,9 @@ std::unordered_map<std::string, ResultsInformation> pickTheBadResults(
         badResultsInformation.kToOneTimeData_.clear();
         for (const auto &kToOneTimeData : resultesInformation.kToOneTimeData_) {
             const int k = kToOneTimeData.first;
-            const float zcx_sddmm = std::stof(kToOneTimeData.second.zcx_sddmm_);
-            const float isratnisa_sddmm = std::stof(kToOneTimeData.second.isratnisa_sddmm_);
-            const float cuSparse = std::stof(kToOneTimeData.second.cuSparse_);
+            const float zcx_sddmm = getFloatValue(kToOneTimeData.second.zcx_sddmm_);
+            const float isratnisa_sddmm = getFloatValue(kToOneTimeData.second.isratnisa_sddmm_);
+            const float cuSparse = getFloatValue(kToOneTimeData.second.cuSparse_);
             if (zcx_sddmm > isratnisa_sddmm || zcx_sddmm > cuSparse) {
                 OneTimeData oneTimeData = kToOneTimeData.second;
                 badResultsInformation.kToOneTimeData_[k] = oneTimeData;
@@ -403,8 +411,8 @@ float calculateAverageSpeedup(const std::unordered_map<std::string,
     for (const auto &iter : matrixFileToResultsInformationMap) {
         numResults += iter.second.kToOneTimeData_.size();
         for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
-            const float zcx_sddmm = std::stof(kToOneTimeData.second.zcx_sddmm_);
-            const float isratnisa_sddmm = std::stof(kToOneTimeData.second.isratnisa_sddmm_);
+            const float zcx_sddmm = getFloatValue(kToOneTimeData.second.zcx_sddmm_);
+            const float isratnisa_sddmm = getFloatValue(kToOneTimeData.second.isratnisa_sddmm_);
 
             if (zcx_sddmm <= 1e-6 || isratnisa_sddmm <= 1e-6) {
                 --numResults;
