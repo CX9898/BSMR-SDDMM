@@ -28,6 +28,10 @@ void sort_by_key_descending_order(uint32_t *key_first, uint32_t *key_last, uint3
 void sort_by_key_for_multiple_vectors(uint32_t *key_first,
                                       uint32_t *key_last,
                                       uint32_t *value1_first,
+                                      uint32_t *value2_first);
+void sort_by_key_for_multiple_vectors(uint32_t *key_first,
+                                      uint32_t *key_last,
+                                      uint32_t *value1_first,
                                       int *value2_first);
 void sort_by_key_for_multiple_vectors(uint32_t *key_first,
                                       uint32_t *key_last,
