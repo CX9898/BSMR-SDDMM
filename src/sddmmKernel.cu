@@ -1621,14 +1621,13 @@ __global__ void sddmm_gpu_sparse_residue_block512_shuffle_matrixA_rowMaj_matrixB
 
     const UIN relativeRow = relativeRows[index];
     const UIN col = sparsePartColIndices[index];
-    const UIN indexOfMatrixP = sparsePartData[index];
 
     __shared__ float aTileSMEM[aTileSMEMSize];
     __shared__ float pSMEM[pSMEMSize];
 
     pSMEM[threadIdx.x % 256] = 0.0f;
 
-    // 如果tid是偶数, laneID则是0; 如果tid是奇数, laneID则是1. 在后面的代码中作用在确保不同线程尅并行处理不同的数据段, 避免了线程之间的数据竞争
+    // 如果tid是偶数则是0; 如果tid是奇数则是1. 确保不同线程并行处理不同的数据段, 避免了线程之间的数据竞争
     const UIN oddOrEven = laneId & 1;
 
     // Loop over K, one iteration 128 elements
@@ -1643,15 +1642,16 @@ __global__ void sddmm_gpu_sparse_residue_block512_shuffle_matrixA_rowMaj_matrixB
 
         // Load matrix B and compute the matrix multiplication, 2 thread calculate one element
         float sm1 = 0, sm2 = 0;
+#pragma unroll 4
         for (int localKIter = oddOrEven * kStepPerThread; localKIter < (oddOrEven + 1) * kStepPerThread;
              localKIter += 8) {
-            const float4 rtmp1 = *((float4 *) &aTileSMEM[relativeRow * kStep + localKIter]);
-            const float4 ctmp1 = *((float4 *) &matrixB[col * K + kIter + localKIter]);
-            sm1 += rtmp1.x * ctmp1.x + rtmp1.y * ctmp1.y + rtmp1.z * ctmp1.z + rtmp1.w * ctmp1.w;
-
-            const float4 rtmp2 = *((float4 *) &aTileSMEM[relativeRow * kStep + localKIter + 4]);
-            const float4 ctmp2 = *((float4 *) &matrixB[col * K + kIter + localKIter + 4]);
-            sm2 += rtmp2.x * ctmp2.x + rtmp2.y * ctmp2.y + rtmp2.z * ctmp2.z + rtmp2.w * ctmp2.w;
+//            const float4 rtmp1 = *((float4 *) &aTileSMEM[relativeRow * kStep + localKIter]);
+//            const float4 ctmp1 = *((float4 *) &matrixB[col * K + kIter + localKIter]);
+//            sm1 += rtmp1.x * ctmp1.x + rtmp1.y * ctmp1.y + rtmp1.z * ctmp1.z + rtmp1.w * ctmp1.w;
+//
+//            const float4 rtmp2 = *((float4 *) &aTileSMEM[relativeRow * kStep + localKIter + 4]);
+//            const float4 ctmp2 = *((float4 *) &matrixB[col * K + kIter + localKIter + 4]);
+//            sm2 += rtmp2.x * ctmp2.x + rtmp2.y * ctmp2.y + rtmp2.z * ctmp2.z + rtmp2.w * ctmp2.w;
         }
 
         const unsigned mask = (1 << tId) | (1 << (tId ^ 1)); // 只同步相邻线程
@@ -1782,7 +1782,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
     const float densePartTime = timeCalculator_denseBlock.getTime();
     const float sparsePartTime = timeCalculator_sparseRemainder.getTime();
 
-    printf("denseBlockTime: %f, sparseRemainderTime: %f\n", densePartTime, sparsePartTime);
+    printf("denseBlockTime: %f ms, sparseRemainderTime: %f ms\n", densePartTime, sparsePartTime);
 
     logger.zcx_sddmm_time_ = densePartTime + sparsePartTime;
 

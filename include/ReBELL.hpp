@@ -55,6 +55,7 @@ class ReBELL {
   UIN calculateColBlockIdByBlockValueIndex(UIN blockValueIndex) const;
 
   UIN getNumDenseBlocks() const { return blockRowOffsets().back(); }
+  UIN getNumSparseBlocks() const;
 
   // Calculate the average density of all blocks
   float calculateAverageDensity();

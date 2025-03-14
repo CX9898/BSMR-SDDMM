@@ -16,8 +16,8 @@ const std::string folderPath("../dataset/test/matrix_15000_15000_/");
 //const std::string fileName("1138_bus/1138_bus");
 const std::string fileName("matrix_15000_15000_11250000");
 const std::string fileFormat(".mtx");
-const std::string filePath = folderPath + fileName + fileFormat;
-//const std::string filePath("../dataset/dlmc/transformer/variational_dropout/0.98/body_decoder_layer_0_encdec_attention_multihead_attention_k.smtx");
+//const std::string filePath = folderPath + fileName + fileFormat;
+const std::string filePath("./../dataset/test/matrix_5000_5000_/matrix_5000_5000_125000.mtx");
 
 class Options {
  public:

@@ -187,6 +187,11 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
     time = rowReordering_time + colReordering_time + bell_time;
 }
 
+UIN ReBELL::getNumSparseBlocks() const {
+    return sparsePartDataOffsets().back()
+        / static_cast<float>(sddmm_sparse_remainder_each_thread_block_counts_the_number_Of_cols);
+}
+
 UIN ReBELL::calculateRowPanelIdByBlockValuesIndex(UIN blockValueIndex) const {
     UIN rowPanelId = 0;
     while (rowPanelId + 1 < blockRowOffsets().size()) {
@@ -698,7 +703,6 @@ std::pair<UIN, float> calculateNumTilesAndAverageDensityInOriginalMatrix(const s
 
     const UIN numRowTiles = std::ceil(static_cast<float>(matrix.row()) / WMMA_M);
     const UIN numColTiles = std::ceil(static_cast<float>(matrix.col()) / WMMA_N);
-    printf("Total tiles: %d\n", numRowTiles * numColTiles);
 
 #pragma omp parallel for reduction(+ : numTiles, totalDensity) schedule(dynamic)
     for (int rowTileId = 0; rowTileId < numRowTiles; ++rowTileId) {
