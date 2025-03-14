@@ -166,8 +166,8 @@ void SettingInformation::printInformation() const {
 
     printf("\n");
 
-    printOneInformation(buildType_);
     printOneInformation(device_);
+    printOneInformation(buildType_);
     printOneInformation(wmma_m_);
     printOneInformation(wmma_n_);
     printOneInformation(wmma_k_);
@@ -278,12 +278,14 @@ std::string getFileName(const std::string &path) {
 
 void ResultsInformation::printInformation() const {
 
-    printf(" file: %s, sparsity: %s\n", file_.c_str(), sparsity_.c_str());
+    printf("## M : %s, N: %s, sparsity: %s, file: %s\n",
+           M_.c_str(), N_.c_str(), sparsity_.c_str(), file_.c_str());
+
+    const int numColAttributes = 11;
 
     // print the head of the list
     printf("\n");
     printf("|");
-    printf(" file |");
     printf(" M |");
     printf(" N |");
     printf(" sparsity |");
@@ -298,32 +300,31 @@ void ResultsInformation::printInformation() const {
     printf("\n");
 
     // print the split line
-    const int numColData = 12;
+    const int numColData = numColAttributes;
     printf("|");
     for (int i = 0; i < numColData; ++i) {
         printf("-|");
     }
     printf("\n");
 
-    auto printOneInformation = [](const std::string &information) -> void {
+    auto printOneLineInformation = [](const std::string &information) -> void {
       std::cout << information << "|";
     };
 
     // Print data line by line
     for (const auto &iter : kToOneTimeData_) {
         printf("|");
-        printOneInformation(getFileName(file_));
-        printOneInformation(M_);
-        printOneInformation(N_);
-        printOneInformation(sparsity_);
-        std::cout << iter.first << "|";
-        printOneInformation(iter.second.isratnisa_sddmm_);
-        printOneInformation(iter.second.zcx_sddmm_);
-        printOneInformation(iter.second.isratnisa_other_);
-        printOneInformation(iter.second.zcx_other_);
-        printOneInformation(iter.second.isratnisa_);
-        printOneInformation(iter.second.zcx_);
-        printOneInformation(iter.second.cuSparse_);
+        printOneLineInformation(M_);
+        printOneLineInformation(N_);
+        printOneLineInformation(sparsity_);
+        std::cout << iter.first << "|"; // K value
+        printOneLineInformation(iter.second.isratnisa_sddmm_);
+        printOneLineInformation(iter.second.zcx_sddmm_);
+        printOneLineInformation(iter.second.isratnisa_other_);
+        printOneLineInformation(iter.second.zcx_other_);
+        printOneLineInformation(iter.second.isratnisa_);
+        printOneLineInformation(iter.second.zcx_);
+        printOneLineInformation(iter.second.cuSparse_);
         std::cout << iter.second.checkResults_;
         printf("\n");
     }
@@ -481,9 +482,11 @@ int main(int argc, char *argv[]) {
     }
 
     // Print the bad results to Markdown format
-    printf("Bad results: \n\n");
-    for (const auto &iter : badResults) {
-        iter.second.printInformation();
+    if (numBadResults > 0) {
+        printf("Bad results: \n\n");
+        for (const auto &iter : badResults) {
+            iter.second.printInformation();
+        }
     }
 
     return 0;
