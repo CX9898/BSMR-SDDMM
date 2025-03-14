@@ -6,6 +6,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <map>
+#include <algorithm>
 
 const std::string dataSplitSymbol("---New data---");
 
@@ -396,27 +397,72 @@ std::unordered_map<std::string, ResultsInformation> pickTheBadResults(
 }
 
 int getNumResults(const std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
-    int num = 0;
+    int numResults = 0;
     for (const auto &iter : matrixFileToResultsInformationMap) {
-        num += iter.second.kToOneTimeData_.size();
+        numResults += iter.second.kToOneTimeData_.size();
+
+        for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
+            const float zcx_sddmm = getFloatValue(kToOneTimeData.second.zcx_sddmm_);
+
+            if (zcx_sddmm <= 1e-6) {
+                --numResults;
+            }
+        }
     }
 
-    return num;
+    return numResults;
+}
+
+bool checkIsCorrect(const std::string &checkResults) {
+    std::string str = checkResults;
+    std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+
+    bool isNoPass = checkResults.find("no pass");
+
+    if (isNoPass) {
+        float errorRate = 0.0f;
+        const size_t beginIdx = str.find("error rate : ");
+        const size_t endIdx = str.find("%");
+        if (beginIdx != std::string::npos && endIdx != std::string::npos) {
+            errorRate = std::stof(str.substr(beginIdx + 13, endIdx - beginIdx - 13));
+        }
+
+        if (errorRate > 1e-6) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+float calculateAccuracy(const std::unordered_map<std::string,
+                                                 ResultsInformation> &matrixFileToResultsInformationMap) {
+    const int numResults = getNumResults(matrixFileToResultsInformationMap);
+    int numErrors = 0;
+    for (const auto &iter : matrixFileToResultsInformationMap) {
+        for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
+            bool isCorrect = checkIsCorrect(kToOneTimeData.second.checkResults_);
+
+            if (!isCorrect) {
+                ++numErrors;
+            }
+        }
+    }
+
+    return 1.0f - static_cast<float>(numErrors) / numResults;
 }
 
 float calculateAverageSpeedup(const std::unordered_map<std::string,
                                                        ResultsInformation> &matrixFileToResultsInformationMap) {
     float sumSpeedup = 0.0f;
 
-    int numResults = 0;
+    const int numResults = getNumResults(matrixFileToResultsInformationMap);
     for (const auto &iter : matrixFileToResultsInformationMap) {
-        numResults += iter.second.kToOneTimeData_.size();
         for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
             const float zcx_sddmm = getFloatValue(kToOneTimeData.second.zcx_sddmm_);
             const float isratnisa_sddmm = getFloatValue(kToOneTimeData.second.isratnisa_sddmm_);
 
             if (zcx_sddmm <= 1e-6 || isratnisa_sddmm <= 1e-6) {
-                --numResults;
                 continue;
             }
 
@@ -468,6 +514,8 @@ int main(int argc, char *argv[]) {
     // Print the results Analysis information
     const int numResults = getNumResults(matrixFileToResultsInformationMap);
     printf("Number of results: %d\n", numResults);
+    const float accuracy = calculateAccuracy(matrixFileToResultsInformationMap);
+    printf("Accuracy: %.2f%%\n", accuracy * 100);
     const float averageSpeedup = calculateAverageSpeedup(matrixFileToResultsInformationMap);
     printf("Average speedup: %.2f\n", averageSpeedup);
     const int numBadResults = getNumResults(badResults);
