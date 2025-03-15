@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <map>
 #include <algorithm>
+#include <utility>
 
 const std::string dataSplitSymbol("---New data---");
 
@@ -452,9 +453,11 @@ float calculateAccuracy(const std::unordered_map<std::string,
     return 1.0f - static_cast<float>(numErrors) / numResults;
 }
 
-float calculateAverageSpeedup(const std::unordered_map<std::string,
-                                                       ResultsInformation> &matrixFileToResultsInformationMap) {
+// return the average speedup adn the maximum speedup
+std::pair<float, float> calculateAverageAndMaxSpeedup(
+    std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
     float sumSpeedup = 0.0f;
+    float maxSpeedup = 0.0f;
 
     const int numResults = getNumResults(matrixFileToResultsInformationMap);
     for (const auto &iter : matrixFileToResultsInformationMap) {
@@ -466,13 +469,31 @@ float calculateAverageSpeedup(const std::unordered_map<std::string,
                 continue;
             }
 
-            sumSpeedup += isratnisa_sddmm / zcx_sddmm;
+            float speedup = isratnisa_sddmm / zcx_sddmm;
+            maxSpeedup = std::max(speedup, maxSpeedup);
+            sumSpeedup += speedup;
         }
     }
 
     float averageSpeedup = sumSpeedup / numResults;
 
-    return averageSpeedup;
+    return std::make_pair(averageSpeedup, maxSpeedup);
+}
+
+// return the maximum sparsity and minimum sparsity
+std::pair<float, float> getMaxAndMinSparsity(
+    const std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
+    float maxSparsity = 0.0f;
+    float minSparsity = 100.0f;
+
+    for (const auto &iter : matrixFileToResultsInformationMap) {
+        const float sparsity = getFloatValue(iter.second.sparsity_);
+
+        maxSparsity = std::max(sparsity, maxSparsity);
+        minSparsity = std::min(sparsity, minSparsity);
+    }
+
+    return std::make_pair(maxSparsity, minSparsity);
 }
 
 int main(int argc, char *argv[]) {
@@ -514,10 +535,12 @@ int main(int argc, char *argv[]) {
     // Print the results Analysis information
     const int numResults = getNumResults(matrixFileToResultsInformationMap);
     printf("Number of results: %d\n", numResults);
+    const auto [maxSparsity, minSparsity] = getMaxAndMinSparsity(matrixFileToResultsInformationMap);
+    printf("Maximum sparsity: %.2f%%, minimum sparsity: %.2f%%\n", maxSparsity, minSparsity);
     const float accuracy = calculateAccuracy(matrixFileToResultsInformationMap);
     printf("Accuracy: %.2f%%\n", accuracy * 100);
-    const float averageSpeedup = calculateAverageSpeedup(matrixFileToResultsInformationMap);
-    printf("Average speedup: %.2f\n", averageSpeedup);
+    const auto [averageSpeedup, maxSpeedup] = calculateAverageAndMaxSpeedup(matrixFileToResultsInformationMap);
+    printf("Average speedup: %.2f, maximum speedup: %.2f\n", averageSpeedup, maxSpeedup);
     const int numBadResults = getNumResults(badResults);
     printf("Bad results: %.2f%%\n", (static_cast<float>(numBadResults) / numResults) * 100);
 
