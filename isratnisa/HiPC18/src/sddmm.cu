@@ -367,7 +367,7 @@ int main(int argc, char *argv[]) {
     tile_sizeX = options.tile_sizeX();
     actv_row_size = tile_sizeY;
 
-    printf("[File : %s]\n", options.inputFile()).c_str();
+    printf("[File : %s]\n", options.inputFile().c_str());
     printf("[K : %d]\n", k);
 
     intialize_matrix(options.inputFile(), S);
