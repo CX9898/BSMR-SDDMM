@@ -139,7 +139,7 @@ autoTest(){
         ${autoTest_program} -f ${test_file_folder_path}${file} -k ${k} -Y 192 -X 50000 >> ${autoTest_autoTestlog_file}
         local end_time=$(date +%s.%N)
         execution_time=$(echo "$end_time - $start_time" | bc)
-        sum_time+=${execution_time}
+        ((sum_time+=execution_time))
         echo -e "${print_tag}\t\tExecution time: ${execution_time} seconds"
         ((k_id++))
       done

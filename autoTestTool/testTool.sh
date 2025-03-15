@@ -93,7 +93,7 @@ testTool(){
       local end_time=$(date +%s.%N)
       execution_time=$(echo "$end_time - $start_time" | bc)
       echo -e "${print_tag}\t\tExecution time: ${execution_time} seconds"
-      sum_time+=${execution_time}
+      ((sum_time+=execution_time))
       ((k_id++))
     done
 
