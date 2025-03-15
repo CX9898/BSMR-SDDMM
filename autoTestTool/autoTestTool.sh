@@ -108,6 +108,8 @@ autoTest(){
   echo "${print_tag}Test program: ${autoTest_program}"
   echo "${print_tag}Test log file: ${autoTest_autoTestlog_file}"
 
+  local sum_time=0
+
   local test_file_folder_id=1
   for test_file_folder_path in "${test_file_folder_path_list[@]}"; do
 
@@ -127,6 +129,8 @@ autoTest(){
     for file in "${files_list[@]}"; do
       echo -e "${print_tag}\t${test_file_folder_path}$file start testing... [Remaining: $((${numTestFiles} - ${file_id}))]"
 
+      local execution_time=0
+
       local k_id=1
       for k in "${k_list[@]}"; do
         echo -e "${print_tag}\t\tK = ${k} start testing... [Remaining: $((${num_k} - ${k_id}))]"
@@ -134,7 +138,9 @@ autoTest(){
         local start_time=$(date +%s.%N)
         ${autoTest_program} -f ${test_file_folder_path}${file} -k ${k} -Y 192 -X 50000 >> ${autoTest_autoTestlog_file}
         local end_time=$(date +%s.%N)
-        echo -e "${print_tag}\t\tExecution time: $(echo "$end_time - $start_time" | bc) seconds"
+        execution_time=$(echo "$end_time - $start_time" | bc)
+        sum_time+=${execution_time}
+        echo -e "${print_tag}\t\tExecution time: ${execution_time} seconds"
         ((k_id++))
       done
 
@@ -147,6 +153,7 @@ autoTest(){
   echo -e ${test_done_symbol} >> ${autoTest_autoTestlog_file}
 
   echo "${print_tag}Test done"
+  echo "Total time spent: ${sum_time} seconds"
   echo "${print_tag}Test information file: ${autoTest_autoTestlog_file}"
 
   for ((i=0; i<50; i++))

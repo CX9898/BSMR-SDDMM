@@ -71,14 +71,18 @@ testTool(){
   echo "${print_tag}Test log file: ${autoTest_autoTestlog_file}"
 
   local numTestFiles=${#test_file_list[@]}
-  echo "${print_tag}Number of test files in the test folder: ${numTestFiles}"
+  echo "${print_tag}Number of test files: ${numTestFiles}"
 
   echo -e "[numTestFiles : ${numTestFiles}]\n" >> ${autoTest_autoTestlog_file}
   echo -e "[num_k : ${num_k}]\n" >> ${autoTest_autoTestlog_file}
 
+  local sum_time=0
+
   local file_id=1
   for file in "${test_file_list[@]}"; do
     echo -e "${print_tag}\t$file start testing... [Remaining: $((${numTestFiles} - ${file_id}))]"
+
+    local execution_time=0
 
     local k_id=1
     for k in "${k_list[@]}"; do
@@ -87,7 +91,9 @@ testTool(){
       local start_time=$(date +%s.%N)
       ${autoTest_program} -f ${file} -k ${k} -Y 192 -X 50000 >> ${autoTest_autoTestlog_file}
       local end_time=$(date +%s.%N)
-      echo -e "${print_tag}\t\tExecution time: $(echo "$end_time - $start_time" | bc) seconds"
+      execution_time=$(echo "$end_time - $start_time" | bc)
+      echo -e "${print_tag}\t\tExecution time: ${execution_time} seconds"
+      sum_time+=${execution_time}
       ((k_id++))
     done
 
@@ -97,6 +103,7 @@ testTool(){
   echo -e ${test_done_symbol} >> ${autoTest_autoTestlog_file}
 
   echo "${print_tag}Test done"
+  echo "Total time spent: ${sum_time} seconds"
   echo "${print_tag}Test information file: ${autoTest_autoTestlog_file}"
 
   for ((i=0; i<50; i++))
@@ -151,6 +158,13 @@ fi
 # 创建日志文件
 create_log_file "${target_log_filename}"
 target_log_file=${updated_log_file}
+
+num_k=${#k_list[@]}
+echo -n "${print_tag}The number of test k is ${num_k}, which are :"
+for element in "${k_list[@]}"; do
+    echo -n " $element"
+done
+echo
 
 # 开始测试
 testTool ${target_program} ${target_log_file}
