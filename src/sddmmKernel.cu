@@ -1625,13 +1625,14 @@ __global__ void sddmm_gpu_sparse_residue_block512_shuffle_matrixA_rowMaj_matrixB
     __shared__ float aTileSMEM[aTileSMEMSize];
     __shared__ float pSMEM[pSMEMSize];
 
-    pSMEM[threadIdx.x % 256] = 0.0f;
+    if (tId < pSMEMSize) { pSMEM[threadIdx.x] = 0.0f; }
 
     // 如果tid是偶数则是0; 如果tid是奇数则是1. 确保不同线程并行处理不同的数据段, 避免了线程之间的数据竞争
     const UIN oddOrEven = laneId & 1;
 
     // Loop over K, one iteration 128 elements
     for (int kIter = 0; kIter < K; kIter += kStep) {
+
         // Load matrix A into shared memory, conflict-free access
         const UIN reorderedRowIndex = (rowPanelId * ROW_PANEL_SIZE) + warpId;
         const UIN aRowId = reorderedRowIndex < numNonZeroRow ? reorderedRows[reorderedRowIndex] : M;
@@ -1642,27 +1643,28 @@ __global__ void sddmm_gpu_sparse_residue_block512_shuffle_matrixA_rowMaj_matrixB
 
         // Load matrix B and compute the matrix multiplication, 2 thread calculate one element
         float sm1 = 0, sm2 = 0;
+        if (index < indexBoundaryCurrentRowPanel) {
 #pragma unroll 4
-        for (int localKIter = oddOrEven * kStepPerThread; localKIter < (oddOrEven + 1) * kStepPerThread;
-             localKIter += 8) {
-//            const float4 rtmp1 = *((float4 *) &aTileSMEM[relativeRow * kStep + localKIter]);
-//            const float4 ctmp1 = *((float4 *) &matrixB[col * K + kIter + localKIter]);
-//            sm1 += rtmp1.x * ctmp1.x + rtmp1.y * ctmp1.y + rtmp1.z * ctmp1.z + rtmp1.w * ctmp1.w;
-//
-//            const float4 rtmp2 = *((float4 *) &aTileSMEM[relativeRow * kStep + localKIter + 4]);
-//            const float4 ctmp2 = *((float4 *) &matrixB[col * K + kIter + localKIter + 4]);
-//            sm2 += rtmp2.x * ctmp2.x + rtmp2.y * ctmp2.y + rtmp2.z * ctmp2.z + rtmp2.w * ctmp2.w;
+            for (int localKIter = oddOrEven * kStepPerThread; localKIter < (oddOrEven + 1) * kStepPerThread;
+                 localKIter += 8) {
+                const float4 rtmp1 = *((float4 *) &aTileSMEM[relativeRow * kStep + localKIter]);
+                const float4 ctmp1 = *((float4 *) &matrixB[col * K + kIter + localKIter]);
+                sm1 += rtmp1.x * ctmp1.x + rtmp1.y * ctmp1.y + rtmp1.z * ctmp1.z + rtmp1.w * ctmp1.w;
+
+                const float4 rtmp2 = *((float4 *) &aTileSMEM[relativeRow * kStep + localKIter + 4]);
+                const float4 ctmp2 = *((float4 *) &matrixB[col * K + kIter + localKIter + 4]);
+                sm2 += rtmp2.x * ctmp2.x + rtmp2.y * ctmp2.y + rtmp2.z * ctmp2.z + rtmp2.w * ctmp2.w;
+            }
         }
 
         const unsigned mask = (1 << tId) | (1 << (tId ^ 1)); // 只同步相邻线程
         sm1 += __shfl_xor_sync(mask, sm1, 1); // 使用shuffle指令. 使线程0的sm1加到线程1的sm1上, 线程1的sm1加到线程0的sm1上
         sm2 += __shfl_xor_sync(mask, sm2, 1);
 
-        pSMEM[threadIdx.x >> 1] += (sm1 + sm2); // 将分来计算的两个元素加在一起储存到结果矩阵
+        pSMEM[threadIdx.x >> 1] += (sm1 + sm2); // 将分来计算的两个元素加在一起储存到结果矩阵}
 
         __syncthreads();
     }
-
     if (index < indexBoundaryCurrentRowPanel) {
         matrixP[sparsePartData[index]] = pSMEM[threadIdx.x >> 1];
     }
