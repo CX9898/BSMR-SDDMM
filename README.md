@@ -42,7 +42,7 @@ cmake ..
 
 Options:
 
-- `-k` : K value. k $\ge$ 32
+- `-k` : K value. k is a multiple of 32
 - `-f` : input file path
 - `-a` : alpha value
 - `-b` : beta value
