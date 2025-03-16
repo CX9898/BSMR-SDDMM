@@ -18,6 +18,8 @@ numMatrix = args.n
 
 result = ssgetpy.search(limit=numMatrix)
 
+print("Download " + str(numMatrix) + " matrices from suite sparse matrix collection")
+
 output_path = "../dataset/ssgetpy/"
 matrix_file_list = []
 for matrix in result[:numMatrix]:
