@@ -280,7 +280,7 @@ bool sparseMatrix::CSR<T>::initializeFromMatrixFile(const std::string &filePath)
 
     const std::string fileSuffix = util::getFileSuffix(filePath);
     if (fileSuffix == ".mtx") {
-        return initializeFromMatrixMarketFile(filePath);
+        return initializeFromMtxFile(filePath);
     } else if (fileSuffix == ".smtx") {
         return initializeFromSmtxFile(filePath);
     } else {
@@ -309,7 +309,7 @@ bool sparseMatrix::CSR<T>::initializeFromSmtxFile(const std::string &filePath) {
     col_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
     nnz_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
 
-    if(nnz_ ==0) {
+    if (nnz_ == 0) {
         std::cerr << "Error, smtx file " << filePath << " nnz is 0!" << std::endl;
         return false;
     }
@@ -345,15 +345,15 @@ bool sparseMatrix::CSR<T>::initializeFromSmtxFile(const std::string &filePath) {
 }
 
 template<typename T>
-bool sparseMatrix::CSR<T>::initializeFromMatrixMarketFile(const std::string &filePath) {
+bool sparseMatrix::CSR<T>::initializeFromMtxFile(const std::string &filePath) {
     std::ifstream inFile;
     inFile.open(filePath, std::ios::in); // open file
     if (!inFile.is_open()) {
-        std::cerr << "Error, matrixMarket file cannot be opened : " << filePath << std::endl;
+        std::cerr << "Error, mtx file cannot be opened : " << filePath << std::endl;
         return false;
     }
 
-    std::cout << "sparseMatrix::CSR initialize From MatrixMarket file : " << filePath << std::endl;
+    std::cout << "sparseMatrix::CSR initialize from mtx file : " << filePath << std::endl;
 
     std::string line; // Store the data for each line
     while (getline(inFile, line) && line[0] == '%') {} // Skip comments
@@ -363,13 +363,13 @@ bool sparseMatrix::CSR<T>::initializeFromMatrixMarketFile(const std::string &fil
     col_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
     nnz_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
 
-    if(nnz_ == 0){
-        std::cerr << "Error, Matrix Market file " << filePath << " nnz is 0!" << std::endl;
+    if (nnz_ == 0) {
+        std::cerr << "Error, mtx file " << filePath << " nnz is 0!" << std::endl;
         return false;
     }
 
     if (wordIter < line.size()) {
-        std::cerr << "Error, Matrix Market file " << line << " line format is incorrect!" << std::endl;
+        std::cerr << "Error, mtx file " << line << " line format is incorrect!" << std::endl;
         return false;
     }
 
@@ -382,10 +382,11 @@ bool sparseMatrix::CSR<T>::initializeFromMatrixMarketFile(const std::string &fil
         wordIter = 0;
         const UIN row = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
         const UIN col = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
-        const T val = static_cast<T>(std::stod(util::iterateOneWordFromLine(line, wordIter)));
+        const std::string valueStr = util::iterateOneWordFromLine(line, wordIter);
+        const T val = valueStr.empty() ? static_cast<T>(0) : static_cast<T>(std::stod(valueStr));
 
         if (wordIter < line.size()) {
-            std::cerr << "Error, Matrix Market file " << line << " line format is incorrect!" << std::endl;
+            std::cerr << "Error, mtx file " << line << " line format is incorrect!" << std::endl;
         }
 
         rowIndices[idx] = row;
@@ -415,11 +416,11 @@ bool sparseMatrix::COO<T>::initializeFromMatrixMarketFile(const std::string &fil
     std::ifstream inFile;
     inFile.open(filePath, std::ios::in); // open file
     if (!inFile.is_open()) {
-        std::cerr << "Error, matrixMarket file cannot be opened : " << filePath << std::endl;
+        std::cerr << "Error, mtx file cannot be opened : " << filePath << std::endl;
         return false;
     }
 
-    std::cout << "sparseMatrix::COO initialize From MatrixMarket file : " << filePath << std::endl;
+    std::cout << "sparseMatrix::COO initialize from mtx file : " << filePath << std::endl;
 
     std::string line; // Store the data for each line
     while (getline(inFile, line) && line[0] == '%') {} // Skip comments
@@ -430,7 +431,7 @@ bool sparseMatrix::COO<T>::initializeFromMatrixMarketFile(const std::string &fil
     nnz_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
 
     if (wordIter < line.size()) {
-        std::cerr << "Error, Matrix Market file " << line << " line format is incorrect!" << std::endl;
+        std::cerr << "Error, mtx file " << line << " line format is incorrect!" << std::endl;
     }
 
     rowIndices_.resize(nnz_);
@@ -442,10 +443,11 @@ bool sparseMatrix::COO<T>::initializeFromMatrixMarketFile(const std::string &fil
         wordIter = 0;
         const UIN row = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
         const UIN col = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
-        const T val = static_cast<T>(std::stod(util::iterateOneWordFromLine(line, wordIter)));
+        const std::string valueStr = util::iterateOneWordFromLine(line, wordIter);
+        const T val = valueStr.empty() ? static_cast<T>(0) : static_cast<T>(std::stod(valueStr));
 
         if (wordIter < line.size()) {
-            std::cerr << "Error, Matrix Market file " << line << " line format is incorrect!" << std::endl;
+            std::cerr << "Error, mtx file " << line << " line format is incorrect!" << std::endl;
         }
 
         rowIndices_[idx] = row;

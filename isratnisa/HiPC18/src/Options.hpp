@@ -10,7 +10,8 @@
 const std::string folderPath("../../../dataset/test/matrix_20000_20000_/");
 const std::string fileName = ("matrix_20000_20000_4000000");
 const std::string fileFormat(".mtx");
-const std::string filePath = folderPath + fileName + fileFormat;
+//const std::string filePath = folderPath + fileName + fileFormat;
+const std::string filePath = "./../../../dataset/ssgetpy/1138_bus/1138_bus.mtx";
 
 class Options {
  public:

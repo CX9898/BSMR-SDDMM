@@ -1,6 +1,5 @@
 #include "Matrix.hpp"
 #include "TensorCoreConfig.cuh"
-#include "util.hpp"
 #include "cuSparseSDDMM.hpp"
 #include "sddmm.hpp"
 #include "Logger.hpp"

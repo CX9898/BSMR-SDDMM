@@ -17,7 +17,7 @@ const std::string folderPath("../dataset/test/matrix_15000_15000_/");
 const std::string fileName("matrix_15000_15000_11250000");
 const std::string fileFormat(".mtx");
 //const std::string filePath = folderPath + fileName + fileFormat;
-const std::string filePath("./../dataset/test/matrix_5000_5000_/matrix_5000_5000_125000.mtx");
+const std::string filePath("./../dataset/ssgetpy/662_bus/662_bus.mtx");
 
 class Options {
  public:

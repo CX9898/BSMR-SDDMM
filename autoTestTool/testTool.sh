@@ -93,7 +93,7 @@ testTool(){
       local end_time=$(date +%s.%N)
       execution_time=$(echo "$end_time - $start_time" | bc)
       echo -e "${print_tag}\t\tExecution time: ${execution_time} seconds"
-      ((sum_time+=execution_time))
+      sum_time=$(echo "$sum_time + $execution_time" | bc)
       ((k_id++))
     done
 
@@ -103,7 +103,7 @@ testTool(){
   echo -e ${test_done_symbol} >> ${autoTest_autoTestlog_file}
 
   echo "${print_tag}Test done"
-  echo "Total time spent: ${sum_time} seconds"
+  echo "${print_tag}Total time spent: ${sum_time} seconds"
   echo "${print_tag}Test information file: ${autoTest_autoTestlog_file}"
 
   for ((i=0; i<50; i++))
@@ -139,10 +139,9 @@ if [ -f "$test_file_list_file" ]; then
     # 读取文件内容，每行作为一个路径
     mapfile -t test_file_list < "$test_file_list_file"
 
-    dir=$(dirname "$test_file_list_file")
     # 遍历数组, 将绝对路径添加到文件名
     for i in "${!test_file_list[@]}"; do
-        test_file_list[$i]="${dir}/${test_file_list[$i]}"
+        test_file_list[$i]="${script_file_path}${test_file_list[$i]}"
     done
 else
     echo "Error: 文件 $test_file_list_file 不存在!请提供有效的列表文件."

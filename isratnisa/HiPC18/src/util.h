@@ -38,7 +38,7 @@ inline std::string iterateOneWordFromLine(const std::string &line, int &wordIter
     const int end = wordIter;
     ++wordIter;
 
-    return line.substr(begin, end - begin);
+    return end - begin > 0 ? line.substr(begin, end - begin) : "";
 }
 
 bool initializeFromSmtxFile(const std::string &filePath, Matrix &S) {
@@ -108,11 +108,11 @@ bool initializeFromMatrixMarketFile(const std::string &filePath, Matrix &S) {
     std::ifstream inFile;
     inFile.open(filePath, std::ios::in); // open file
     if (!inFile.is_open()) {
-        std::cerr << "Error, matrixMarket file cannot be opened : " << filePath << std::endl;
+        std::cerr << "Error, mtx file cannot be opened : " << filePath << std::endl;
         return false;
     }
 
-    std::cout << "sparseMatrix::CSR initialize From MatrixMarket file : " << filePath << std::endl;
+    std::cout << "sparseMatrix::CSR initialize From mtx file : " << filePath << std::endl;
 
     std::string line; // Store the data for each line
     while (getline(inFile, line) && line[0] == '%') {} // Skip comments
@@ -123,12 +123,12 @@ bool initializeFromMatrixMarketFile(const std::string &filePath, Matrix &S) {
     S.nnz = std::stoi(iterateOneWordFromLine(line, wordIter));
 
     if (S.nnz == 0) {
-        std::cerr << "Error, Matrix Market file " << filePath << " nnz is 0!" << std::endl;
+        std::cerr << "Error, mtx file " << filePath << " nnz is 0!" << std::endl;
         return false;
     }
 
     if (wordIter < line.size()) {
-        std::cerr << "Error, Matrix Market file " << line << " line format is incorrect!" << std::endl;
+        std::cerr << "Error, mtx file " << line << " line format is incorrect!" << std::endl;
         return false;
     }
 
@@ -141,10 +141,11 @@ bool initializeFromMatrixMarketFile(const std::string &filePath, Matrix &S) {
         wordIter = 0;
         const int row = std::stoi(iterateOneWordFromLine(line, wordIter)) - 1;
         const int col = std::stoi(iterateOneWordFromLine(line, wordIter)) - 1;
-        const float val = static_cast<float>(std::stod(iterateOneWordFromLine(line, wordIter)));
+        const std::string valueStr = iterateOneWordFromLine(line, wordIter);
+        const float val = valueStr.empty() ? static_cast<float>(0) : static_cast<float>(std::stod(valueStr));
 
         if (wordIter < line.size()) {
-            std::cerr << "Error, Matrix Market file " << line << " line format is incorrect!" << std::endl;
+            std::cerr << "Error, mtx file " << line << " line format is incorrect!" << std::endl;
         }
 
         rowIndices[idx] = row;
