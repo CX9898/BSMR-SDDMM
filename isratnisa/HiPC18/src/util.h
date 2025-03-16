@@ -1,5 +1,7 @@
 #pragma once
 
+#include <thrust/sort.h>
+
 #include <vector>
 #include <algorithm>
 #include <iterator>
@@ -104,6 +106,17 @@ bool initializeFromSmtxFile(const std::string &filePath, Matrix &S) {
     return true;
 }
 
+void sort_by_key_for_multiple_vectors(int *key_first,
+                                      int *key_last,
+                                      int *value1_first,
+                                      float *value2_first) {
+    thrust::sort_by_key(thrust::host,
+                        key_first,
+                        key_last,
+                        thrust::make_zip_iterator(thrust::make_tuple(value1_first, value2_first)));
+
+}
+
 bool initializeFromMatrixMarketFile(const std::string &filePath, Matrix &S) {
     std::ifstream inFile;
     inFile.open(filePath, std::ios::in); // open file
@@ -154,6 +167,11 @@ bool initializeFromMatrixMarketFile(const std::string &filePath, Matrix &S) {
 
         ++idx;
     }
+
+    sort_by_key_for_multiple_vectors(rowIndices.data(),
+                                     rowIndices.data() + rowIndices.size(),
+                                     colIndices.data(),
+                                     values.data());
 
     S.rows = rowIndices;
     S.cols = colIndices;
@@ -255,11 +273,11 @@ void unsorted_make_CSR(int *rows, int *cols, float *vals, long nnz, long n_rows,
     row_ptr[0] = 0;
     for (int r = 0; r < n_rows; ++r) {
         // nnz_row[r] =0;
-        while (get<0>(items[idx]) == r && idx < nnz) {
+        while (get < 0 > (items[idx]) == r && idx < nnz) {
             // nnz_row[r]++;
-            rows[idx] = get<0>(items[idx]) + 1;
-            cols[idx] = get<1>(items[idx]) + 1;
-            vals[idx] = get<2>(items[idx]);
+            rows[idx] = get < 0 > (items[idx]) + 1;
+            cols[idx] = get < 1 > (items[idx]) + 1;
+            vals[idx] = get < 2 > (items[idx]);
             idx++;
 
         }
