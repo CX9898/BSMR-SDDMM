@@ -187,6 +187,7 @@ void SettingInformation::printInformation() const {
 
 struct OneTimeData {
   void initInformation(const std::vector<std::string> &oneTimeResults);
+  bool isEffective() const;
   std::string isratnisa_sddmm_;
   std::string zcx_sddmm_;
 
@@ -199,6 +200,34 @@ struct OneTimeData {
 
   std::string checkResults_;
 };
+
+bool OneTimeData::isEffective() const {
+    if (isratnisa_sddmm_.empty()) {
+        return false;
+    }
+    if (zcx_sddmm_.empty()) {
+        return false;
+    }
+
+    if (isratnisa_other_.empty()) {
+        return false;
+    }
+    if (zcx_other_.empty()) {
+        return false;
+    }
+
+    if (isratnisa_.empty()) {
+        return false;
+    }
+    if (zcx_.empty()) {
+        return false;
+    }
+    if (cuSparse_.empty()) {
+        return false;
+    }
+
+    return true;
+}
 
 void OneTimeData::initInformation(const std::vector<std::string> &oneTimeResults) {
     for (const std::string &line : oneTimeResults) {
@@ -384,9 +413,11 @@ std::unordered_map<std::string, ResultsInformation> pickTheBadResults(
             const float zcx_sddmm = getFloatValue(kToOneTimeData.second.zcx_sddmm_);
             const float isratnisa_sddmm = getFloatValue(kToOneTimeData.second.isratnisa_sddmm_);
             const float cuSparse = getFloatValue(kToOneTimeData.second.cuSparse_);
-            if (zcx_sddmm > isratnisa_sddmm || zcx_sddmm > cuSparse) {
-                OneTimeData oneTimeData = kToOneTimeData.second;
-                badResultsInformation.kToOneTimeData_[k] = oneTimeData;
+            if(zcx_sddmm > 1e-6 && isratnisa_sddmm > 1e-6 && cuSparse > 1e-6){
+                if (zcx_sddmm > isratnisa_sddmm || zcx_sddmm > cuSparse) {
+                    OneTimeData oneTimeData = kToOneTimeData.second;
+                    badResultsInformation.kToOneTimeData_[k] = oneTimeData;
+                }
             }
         }
         if (!badResultsInformation.empty()) {
@@ -496,6 +527,23 @@ std::pair<float, float> getMaxAndMinSparsity(
     return std::make_pair(maxSparsity, minSparsity);
 }
 
+// Get the number of effective results
+int getEffectiveResults(
+    const std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
+
+    int numEffectiveResults = 0;
+
+    for (const auto &iter : matrixFileToResultsInformationMap) {
+        for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
+            if (kToOneTimeData.second.isEffective()) {
+                ++numEffectiveResults;
+            }
+        }
+    }
+
+    return numEffectiveResults;
+}
+
 int main(int argc, char *argv[]) {
 
     if (argc < 2) {
@@ -535,6 +583,8 @@ int main(int argc, char *argv[]) {
     // Print the results Analysis information
     const int numResults = getNumResults(matrixFileToResultsInformationMap);
     printf("Number of results: %d\n", numResults);
+    const int numEffectiveResults = getEffectiveResults(matrixFileToResultsInformationMap);
+    printf("Number of effective results: %d\n", numEffectiveResults);
     const auto [maxSparsity, minSparsity] = getMaxAndMinSparsity(matrixFileToResultsInformationMap);
     printf("Maximum sparsity: %.2f%%, minimum sparsity: %.2f%%\n", maxSparsity, minSparsity);
     const float accuracy = calculateAccuracy(matrixFileToResultsInformationMap);
