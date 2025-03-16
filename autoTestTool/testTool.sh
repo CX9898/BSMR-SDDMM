@@ -122,9 +122,9 @@ target_program=""
 target_log_filename="results"
 while getopts "f:p:n:" opt; do
     case ${opt} in
-        f) test_file_list_file="$OPTARG" ;;   # 处理 -f 选项（txt文件）
-        p) target_program="$OPTARG" ;;  # 处理 -p 选项（程序路径）
-        n) target_log_filename="$OPTARG" ;;  # 处理 -p 选项（程序路径）
+        f) test_file_list_file="$OPTARG" ;;   # 处理 -f 选项(txt文件)
+        p) target_program="$OPTARG" ;;  # 处理 -p 选项(程序路径)
+        n) target_log_filename="$OPTARG" ;;  # 处理 -n 选项(日志文件名)
         ?) echo "用法: $0 -f <txt文件> -p <程序> -n <日志文件名>"
            exit 1 ;;
     esac

@@ -22,8 +22,9 @@ print("Download " + str(numMatrix) + " matrices from suite sparse matrix collect
 
 output_path = "../dataset/ssgetpy/"
 matrix_file_list = []
-for matrix in result[:numMatrix]:
-    print(f"下载矩阵: {matrix.name}")
+for i, matrix in result[:numMatrix]:
+    remaining = numMatrix - (i + 1)  # 计算剩余次数
+    print(f"下载矩阵: {matrix.name}" + f" remaining: {remaining}")
     matrix.download(format="MM", destpath=output_path)
     tar_gz_file = output_path + matrix.name + ".tar.gz"
     extract_tar_gz(tar_gz_file, output_path)

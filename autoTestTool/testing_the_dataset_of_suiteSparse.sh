@@ -1,6 +1,6 @@
 #!/bin/bash
 
-python download_matrix_from_suiteSparse.py -n 10
+#python download_matrix_from_suiteSparse.py -n 1000
 
 bash build_program.sh
 
