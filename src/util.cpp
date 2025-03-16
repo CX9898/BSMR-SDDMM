@@ -28,7 +28,7 @@ std::string getFileName(const std::string &path) {
     return filename;
 }
 
-std::string getFileSuffix(const std::string& filename) {
+std::string getFileSuffix(const std::string &filename) {
     size_t pos = filename.find_last_of("."); // 查找最后一个 '.'
     if (pos != std::string::npos) {
         return filename.substr(pos); // 截取后缀
@@ -44,7 +44,7 @@ std::string iterateOneWordFromLine(const std::string &line, int &wordIter) {
     const int end = wordIter;
     ++wordIter;
 
-    return line.substr(begin, end - begin);
+    return end - begin > 0 ? line.substr(begin, end - begin) : "";
 }
 
 template<typename T>
