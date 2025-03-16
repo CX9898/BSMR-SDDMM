@@ -20,4 +20,7 @@ autoAnalysisResults
 autoTestTool/matrices/
 
 # Matrix data for testing
-dlmc*
+**/dlmc/
+
+# Download the matrix data for testing
+**/ssgetpy/
