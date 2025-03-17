@@ -1599,13 +1599,14 @@ __global__ void sddmm_gpu_sparse_residue_block512_shuffle_matrixA_rowMaj_matrixB
     constexpr int kStep = 32;
     constexpr int kStepPerThread = kStep / 2;
 
-    constexpr int aTileSMEMSize = WMMA_M * kStep; // 512
+    constexpr int aTileSMEM_ld = kStep + 4; // 4 padding
+    constexpr int aTileSMEMSize = WMMA_M * aTileSMEM_ld; // 512 actual data and 64 padding
     constexpr int pSMEMSize = numThreadsPerBlock / 2; // 256
 
-    const UIN laneId = threadIdx.x & 31;
-    const UIN warpId = threadIdx.x >> 5;
-
     const UIN tId = threadIdx.x;
+
+    const UIN laneId = tId & 31;
+    const UIN warpId = tId >> 5;
 
     const UIN rowPanelId = blockIdx.x;
 
@@ -1625,7 +1626,7 @@ __global__ void sddmm_gpu_sparse_residue_block512_shuffle_matrixA_rowMaj_matrixB
     __shared__ float aTileSMEM[aTileSMEMSize];
     __shared__ float pSMEM[pSMEMSize];
 
-    if (tId < pSMEMSize) { pSMEM[threadIdx.x] = 0.0f; }
+    if (tId < pSMEMSize) { pSMEM[tId] = 0.0f; }
 
     // 如果tid是偶数则是0; 如果tid是奇数则是1. 确保不同线程并行处理不同的数据段, 避免了线程之间的数据竞争
     const UIN oddOrEven = laneId & 1;
@@ -1637,7 +1638,7 @@ __global__ void sddmm_gpu_sparse_residue_block512_shuffle_matrixA_rowMaj_matrixB
         const UIN reorderedRowIndex = (rowPanelId * ROW_PANEL_SIZE) + warpId;
         const UIN aRowId = reorderedRowIndex < numNonZeroRow ? reorderedRows[reorderedRowIndex] : M;
         const UIN aColId = kIter + laneId;
-        aTileSMEM[warpId * kStep + laneId] =
+        aTileSMEM[warpId * aTileSMEM_ld + laneId] =
             (aRowId < M && aColId < K) ? matrixA[aRowId * K + aColId] : static_cast<float>(0);
         __syncthreads();
 
@@ -1647,7 +1648,7 @@ __global__ void sddmm_gpu_sparse_residue_block512_shuffle_matrixA_rowMaj_matrixB
 #pragma unroll 2
             for (int localKIter = oddOrEven * kStepPerThread; localKIter < (oddOrEven + 1) * kStepPerThread;
                  localKIter += 4) {
-                const float4 aData = *((float4 *) &aTileSMEM[relativeRow * kStep + localKIter]);
+                const float4 aData = *((float4 *) &aTileSMEM[relativeRow * aTileSMEM_ld + localKIter]);
                 const float4 bData = *((float4 *) &matrixB[col * K + kIter + localKIter]);
                 c += aData.x * bData.x + aData.y * bData.y + aData.z * bData.z + aData.w * bData.w;
             }
