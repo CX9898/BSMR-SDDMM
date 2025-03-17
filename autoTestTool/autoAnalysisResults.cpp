@@ -511,6 +511,34 @@ std::pair<float, float> calculateAverageAndMaxSpeedup(
     return std::make_pair(averageSpeedup, maxSpeedup);
 }
 
+// return the average speedup adn the maximum speedup
+std::pair<float, float> calculateAverageAndMaxSpeedup2(
+    std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
+    float sumSpeedup = 0.0f;
+    float maxSpeedup = 0.0f;
+
+    const int numResults = getNumResults(matrixFileToResultsInformationMap);
+    for (const auto &iter : matrixFileToResultsInformationMap) {
+        for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
+            const float zcx_sddmm = getFloatValue(kToOneTimeData.second.zcx_sddmm_);
+            const float cuSparse_sddmm = getFloatValue(kToOneTimeData.second.cuSparse_);
+
+            if (zcx_sddmm <= 1e-6 || cuSparse_sddmm <= 1e-6) {
+                continue;
+            }
+
+            float speedup = cuSparse_sddmm / zcx_sddmm;
+            maxSpeedup = std::max(speedup, maxSpeedup);
+            sumSpeedup += speedup;
+        }
+    }
+
+    float averageSpeedup = sumSpeedup / numResults;
+
+    return std::make_pair(averageSpeedup, maxSpeedup);
+}
+
+
 // return the maximum sparsity and minimum sparsity
 std::pair<float, float> getMaxAndMinSparsity(
     const std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
@@ -590,7 +618,10 @@ int main(int argc, char *argv[]) {
     const float accuracy = calculateAccuracy(matrixFileToResultsInformationMap);
     printf("Accuracy: %.2f%%\n", accuracy * 100);
     const auto [averageSpeedup, maxSpeedup] = calculateAverageAndMaxSpeedup(matrixFileToResultsInformationMap);
-    printf("Average speedup: %.2f, maximum speedup: %.2f\n", averageSpeedup, maxSpeedup);
+    printf("Average speedup over isratnisa: %.2f, maximum speedup: %.2f\n", averageSpeedup, maxSpeedup);
+    const auto [averageSpeedup2, maxSpeedup2] = calculateAverageAndMaxSpeedup2(matrixFileToResultsInformationMap);
+    printf("Average speedup over cuSparse: %.2f, maximum speedup: %.2f\n", averageSpeedup2, maxSpeedup2);
+
     const int numBadResults = getNumResults(badResults);
     printf("Bad results: %.2f%%\n", (static_cast<float>(numBadResults) / numResults) * 100);
 
