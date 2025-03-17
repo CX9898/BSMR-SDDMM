@@ -12,5 +12,5 @@ bash testTool.sh -f ${matrix_list_file} -p ./build_isratnisa/isratnisa-sddmm -n 
 
 # 分析结果
 g++ autoAnalysisResults.cpp -o autoAnalysisResults
-./autoAnalysisResults zcx_results.log isratnisa_results.log >> analysisResults.log
+./autoAnalysisResults zcx_results.log isratnisa_results.log > analysisResults.log
 echo "Results analysis completed: analysisResults.log"

@@ -34,24 +34,24 @@ log_file_suffix=".log"
 ##############################################################################################
 # Function
 
-# 创建不重名的日志文件, 并且将日志文件名更新在全局变量`updated_log_file`中
-# 参数1 : 原始日志文件名
-create_log_file(){
-  local log_filename=${1}
-
-  # 避免有同名文件
-  if [ -e "${script_file_path}${log_filename}${log_file_suffix}" ]; then
-    local file_id=1
-    while [ -e "${script_file_path}${log_filename}_${file_id}${log_file_suffix}" ]
-    do
-      ((file_id++))
-    done
-    log_filename="${log_filename}_${file_id}"
-  fi
-  updated_log_file=${script_file_path}${log_filename}${log_file_suffix}
-  echo "${print_tag}Create file: ${updated_log_file}"
-  touch ${updated_log_file}
-}
+## 创建不重名的日志文件, 并且将日志文件名更新在全局变量`updated_log_file`中
+## 参数1 : 原始日志文件名
+#create_log_file(){
+#  local log_filename=${1}
+#
+#  # 避免有同名文件
+#  if [ -e "${script_file_path}${log_filename}${log_file_suffix}" ]; then
+#    local file_id=1
+#    while [ -e "${script_file_path}${log_filename}_${file_id}${log_file_suffix}" ]
+#    do
+#      ((file_id++))
+#    done
+#    log_filename="${log_filename}_${file_id}"
+#  fi
+#  updated_log_file=${script_file_path}${log_filename}${log_file_suffix}
+#  echo "${print_tag}Create file: ${updated_log_file}"
+#  touch ${updated_log_file}
+#}
 
 # 参数1 : 进行测试的程序
 # 参数2 : 测试日志文件
@@ -155,8 +155,9 @@ if [ ! -f "$target_program" ]; then
 fi
 
 # 创建日志文件
-create_log_file "${target_log_filename}"
-target_log_file=${updated_log_file}
+#create_log_file "${target_log_filename}"
+target_log_file="${target_log_filename}${log_file_suffix}"
+> "$target_log_file"
 
 num_k=${#k_list[@]}
 echo -n "${print_tag}The number of test k is ${num_k}, which are :"
