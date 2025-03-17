@@ -19,7 +19,7 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
     // Calculate the dense column segment threshold
     const UIN minNumCurrentSparsity =
         std::ceil(BLOCK_SIZE * (1 - matrix.getSparsity()) / static_cast<float>(BLOCK_COL_SIZE));
-    dense_column_segment_threshold_ = minNumCurrentSparsity > 2 ? minNumCurrentSparsity : 2;
+    dense_column_segment_threshold_ = minNumCurrentSparsity > 6 ? minNumCurrentSparsity : 6;
 
     // Row reordering
     float rowReordering_time;
