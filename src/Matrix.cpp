@@ -276,30 +276,32 @@ template
 class sparseMatrix::COO<double>;
 
 template<typename T>
-bool sparseMatrix::CSR<T>::initializeFromMatrixFile(const std::string &filePath) {
+bool sparseMatrix::CSR<T>::initializeFromMatrixFile(const std::string &matrixFile) {
 
-    const std::string fileSuffix = util::getFileSuffix(filePath);
-    if (fileSuffix == ".mtx") {
-        return initializeFromMtxFile(filePath);
+    const std::string fileSuffix = util::getFileSuffix(matrixFile);
+    if (fileSuffix == ".mtx" || fileSuffix == ".mmio") {
+        return initializeFromMtxFile(matrixFile);
     } else if (fileSuffix == ".smtx") {
-        return initializeFromSmtxFile(filePath);
+        return initializeFromSmtxFile(matrixFile);
+    } else if (fileSuffix == ".txt") {
+        return initializeFromTxtFile(matrixFile);
     } else {
-        std::cerr << "Error, file format is not supported : " << filePath << std::endl;
+        std::cerr << "Error, file format is not supported : " << matrixFile << std::endl;
     }
 
     return false;
 }
 
 template<typename T>
-bool sparseMatrix::CSR<T>::initializeFromSmtxFile(const std::string &filePath) {
+bool sparseMatrix::CSR<T>::initializeFromSmtxFile(const std::string &matrixFile) {
     std::ifstream inFile;
-    inFile.open(filePath, std::ios::in); // open file
+    inFile.open(matrixFile, std::ios::in); // open file
     if (!inFile.is_open()) {
-        std::cerr << "Error, smtx file cannot be opened : " << filePath << std::endl;
+        std::cerr << "Error, smtx file cannot be opened : " << matrixFile << std::endl;
         return false;
     }
 
-    std::cout << "sparseMatrix::CSR initialize From smtx file : " << filePath << std::endl;
+    std::cout << "sparseMatrix::CSR initialize From smtx file : " << matrixFile << std::endl;
 
     std::string line; // Store the data for each line
     while (getline(inFile, line) && line[0] == '%') {} // Skip comments
@@ -310,7 +312,7 @@ bool sparseMatrix::CSR<T>::initializeFromSmtxFile(const std::string &filePath) {
     nnz_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
 
     if (nnz_ == 0) {
-        std::cerr << "Error, smtx file " << filePath << " nnz is 0!" << std::endl;
+        std::cerr << "Error, smtx file " << matrixFile << " nnz is 0!" << std::endl;
         return false;
     }
 
@@ -335,7 +337,7 @@ bool sparseMatrix::CSR<T>::initializeFromSmtxFile(const std::string &filePath) {
         for (int idx = 0; idx < colIndices_.size(); ++idx) {
             const UIN col = std::stoi(util::iterateOneWordFromLine(line, wordIter));
             colIndices_[idx] = col;
-            values_[idx] = static_cast<T>(col);
+            values_[idx] = static_cast<T>(1);
         }
     }
 
@@ -345,15 +347,15 @@ bool sparseMatrix::CSR<T>::initializeFromSmtxFile(const std::string &filePath) {
 }
 
 template<typename T>
-bool sparseMatrix::CSR<T>::initializeFromMtxFile(const std::string &filePath) {
+bool sparseMatrix::CSR<T>::initializeFromMtxFile(const std::string &matrixFile) {
     std::ifstream inFile;
-    inFile.open(filePath, std::ios::in); // open file
+    inFile.open(matrixFile, std::ios::in); // open file
     if (!inFile.is_open()) {
-        std::cerr << "Error, mtx file cannot be opened : " << filePath << std::endl;
+        std::cerr << "Error, mtx file cannot be opened : " << matrixFile << std::endl;
         return false;
     }
 
-    std::cout << "sparseMatrix::CSR initialize from mtx file : " << filePath << std::endl;
+    std::cout << "sparseMatrix::CSR initialize from mtx file : " << matrixFile << std::endl;
 
     std::string line; // Store the data for each line
     while (getline(inFile, line) && line[0] == '%') {} // Skip comments
@@ -364,7 +366,7 @@ bool sparseMatrix::CSR<T>::initializeFromMtxFile(const std::string &filePath) {
     nnz_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
 
     if (nnz_ == 0) {
-        std::cerr << "Error, mtx file " << filePath << " nnz is 0!" << std::endl;
+        std::cerr << "Error, mtx file " << matrixFile << " nnz is 0!" << std::endl;
         return false;
     }
 
@@ -383,10 +385,80 @@ bool sparseMatrix::CSR<T>::initializeFromMtxFile(const std::string &filePath) {
         const UIN row = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
         const UIN col = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
         const std::string valueStr = util::iterateOneWordFromLine(line, wordIter);
-        const T val = valueStr.empty() ? static_cast<T>(0) : static_cast<T>(std::stod(valueStr));
+        const T val = valueStr.empty() ? static_cast<T>(1) : static_cast<T>(std::stod(valueStr));
 
         if (wordIter < line.size()) {
             std::cerr << "Error, mtx file " << line << " line format is incorrect!" << std::endl;
+        }
+
+        rowIndices[idx] = row;
+        colIndices[idx] = col;
+        values[idx] = val;
+
+        ++idx;
+    }
+
+    host::sort_by_key_for_multiple_vectors(rowIndices.data(),
+                                           rowIndices.data() + rowIndices.size(),
+                                           colIndices.data(),
+                                           values.data());
+
+    std::vector<UIN> rowOffsets;
+    getCsrRowOffsets(row_, rowIndices, rowOffsets_);
+    colIndices_ = colIndices;
+    values_ = values;
+
+    inFile.close();
+
+    return true;
+}
+
+template<typename T>
+bool sparseMatrix::CSR<T>::initializeFromTxtFile(const std::string &matrixFile) {
+    std::ifstream inFile;
+    inFile.open(matrixFile, std::ios::in); // open file
+    if (!inFile.is_open()) {
+        std::cerr << "Error, txt file cannot be opened : " << matrixFile << std::endl;
+        return false;
+    }
+
+    std::cout << "sparseMatrix::CSR initialize From txt file : " << matrixFile << std::endl;
+    std::string line; // Store the data for each line
+    int wordIter = 0;
+    while (getline(inFile, line) && line[0] == '#') {
+        const std::string nodesStr("Nodes: ");
+        const std::string edgesStr("Edges: ");
+        if (line.find(nodesStr) != std::string::npos) {
+            wordIter = line.find(nodesStr) + 7;
+            const int nodes = std::stoi(util::iterateOneWordFromLine(line, wordIter));
+            row_ = nodes;
+            col_ = nodes;
+        }
+        if (line.find(edgesStr) != std::string::npos) {
+            wordIter = line.find(edgesStr) + 7;
+            const int edges = std::stoi(util::iterateOneWordFromLine(line, wordIter));
+            nnz_ = edges;
+        }
+    }
+
+    if (!row_ || !col_ || !nnz_) {
+        std::cerr << "Error, txt file " << matrixFile << " row or col or nnz not initialized!" << std::endl;
+    }
+
+    std::vector<UIN> rowIndices(nnz_);
+    std::vector<UIN> colIndices(nnz_);
+    std::vector<T> values(nnz_);
+
+    UIN idx = 0;
+    while (getline(inFile, line)) {
+        wordIter = 0;
+        const UIN row = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
+        const UIN col = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
+        const std::string valueStr = util::iterateOneWordFromLine(line, wordIter);
+        const T val = valueStr.empty() ? static_cast<T>(1) : static_cast<T>(std::stod(valueStr));
+
+        if (wordIter < line.size()) {
+            std::cerr << "Error, txt file " << line << " line format is incorrect!" << std::endl;
         }
 
         rowIndices[idx] = row;
