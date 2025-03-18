@@ -39,5 +39,5 @@ bash testTool.sh -f ${matrix_list_file} -p ${program_isratnisa} -n "${results_pa
 
 # 分析结果
 g++ autoAnalysisResults.cpp -o autoAnalysisResults
-./autoAnalysisResults zcx_results.log isratnisa_results.log > analysisResults.log
-echo "Results analysis completed: analysisResults.log"
+./autoAnalysisResults "${results_path}zcx_results.log" "${results_path}isratnisa_results.log" > ${results_path}analysisResults.log
+echo "Results analysis completed: ${results_path}analysisResults.log"
