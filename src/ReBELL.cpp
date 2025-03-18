@@ -19,13 +19,13 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
     // Calculate the dense column segment threshold
     const UIN minNumCurrentSparsity =
         std::ceil(BLOCK_SIZE * (1 - matrix.getSparsity()) / static_cast<float>(BLOCK_COL_SIZE));
-    dense_column_segment_threshold_ = minNumCurrentSparsity > 6 ? minNumCurrentSparsity : 6;
+    dense_column_segment_threshold_ = minNumCurrentSparsity > 4 ? minNumCurrentSparsity : 4;
 
     // Row reordering
     float rowReordering_time;
     reorderedRows_ = bsa_rowReordering_gpu(matrix,
                                            row_similarity_threshold_alpha,
-                                           BLOCK_COL_SIZE,
+                                           32,
                                            rowReordering_time);
 
     printf("rowReordering time : %f ms\n", rowReordering_time);
@@ -41,11 +41,11 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
                   numRowPanels_,
                   reorderedRows(),
                   dense_column_segment_threshold_,
-                  reorderedCols_,
-                  reorderedColOffsets_,
+                  denseCols_,
+                  denseColOffsets_,
                   sparseCols,
                   sparseColOffsets,
-                  sparsePartDataOffsets_);
+                  sparseDataOffsets_);
     timeCalculator.endClock();
     float colReordering_time = timeCalculator.getTime();
     printf("colReordering time : %f ms\n", colReordering_time);
@@ -55,7 +55,7 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
 #pragma omp parallel for reduction(max : maxNumDenseColBlocks_)
     for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
         const UIN numBlocksCurrentRowPanel = std::ceil(
-            static_cast<float>(reorderedColOffsets_[rowPanelId + 1] - reorderedColOffsets()[rowPanelId])
+            static_cast<float>(denseColOffsets_[rowPanelId + 1] - denseColOffsets()[rowPanelId])
                 / BLOCK_COL_SIZE);
         maxNumDenseColBlocks_ = std::max(maxNumDenseColBlocks_, numBlocksCurrentRowPanel);
     }
@@ -66,7 +66,7 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
     std::vector<UIN> numBlockInEachRowPanel(numRowPanels_);
 #pragma omp parallel for
     for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
-        const UIN numColIndices = reorderedColOffsets_[rowPanelId + 1] - reorderedColOffsets_[rowPanelId];
+        const UIN numColIndices = denseColOffsets_[rowPanelId + 1] - denseColOffsets_[rowPanelId];
         numBlockInEachRowPanel[rowPanelId] = std::ceil(static_cast<float>(numColIndices) / BLOCK_COL_SIZE);
     }
 
@@ -76,9 +76,9 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
                          numBlockInEachRowPanel.data() + numBlockInEachRowPanel.size(),
                          blockRowOffsets_.data() + 1);
 
-    sparsePartRelativeRows_.resize(sparsePartDataOffsets_.back());
-    sparsePartData_.resize(sparsePartDataOffsets_.back());
-    sparsePartColIndices_.resize(sparsePartDataOffsets_.back());
+    sparseRelativeRows_.resize(sparseDataOffsets_.back());
+    sparseData_.resize(sparseDataOffsets_.back());
+    sparseColIndices_.resize(sparseDataOffsets_.back());
 
     // initialize blockValues_
     blockValues_.resize(blockRowOffsets_.back() * BLOCK_SIZE);
@@ -98,15 +98,15 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
         const UIN startIndexOfBlockValuesCurrentRowPanel = blockRowOffsets_[rowPanelId] * BLOCK_SIZE;
 
         // Iterate over the dense columns in the row panel
-        for (int count = 0, indexOfReorderedCols = reorderedColOffsets_[rowPanelId];
-             indexOfReorderedCols < reorderedColOffsets_[rowPanelId + 1];
+        for (int count = 0, indexOfReorderedCols = denseColOffsets_[rowPanelId];
+             indexOfReorderedCols < denseColOffsets_[rowPanelId + 1];
              ++count, ++indexOfReorderedCols) {
             const UIN localColId = count % BLOCK_COL_SIZE;
             const UIN colBlockId = count / BLOCK_COL_SIZE;
             const UIN idxOfBlockValues = startIndexOfBlockValuesCurrentRowPanel + colBlockId * BLOCK_SIZE +
                 localRowId * BLOCK_COL_SIZE + localColId;
 
-            const UIN col = reorderedCols_[indexOfReorderedCols];
+            const UIN col = denseCols_[indexOfReorderedCols];
             const auto findIter = colToIndexOfOriginalMatrixMap.find(col);
             if (findIter != colToIndexOfOriginalMatrixMap.end()) {
                 blockValues_[idxOfBlockValues] = findIter->second;
@@ -139,7 +139,7 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
         }
 
         UIN count = 0;
-        const UIN startSparsePartIndex = sparsePartDataOffsets_[rowPanelId];
+        const UIN startSparsePartIndex = sparseDataOffsets_[rowPanelId];
         // Iterate over the sparse columns in the row panel
         for (int indexOfReorderedCols = sparseColOffsets[rowPanelId];
              indexOfReorderedCols < sparseColOffsets[rowPanelId + 1]; ++indexOfReorderedCols) {
@@ -148,9 +148,9 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
             const auto findIter = colToRelativeRowAndOriginIndexMap.find(col);
             if (findIter != colToRelativeRowAndOriginIndexMap.end()) {
                 for (const std::array<UIN, 2> &iter : findIter->second) {
-                    sparsePartRelativeRows_[startSparsePartIndex + count] = iter[0];
-                    sparsePartData_[startSparsePartIndex + count] = iter[1];
-                    sparsePartColIndices_[startSparsePartIndex + count] = col;
+                    sparseRelativeRows_[startSparsePartIndex + count] = iter[0];
+                    sparseData_[startSparsePartIndex + count] = iter[1];
+                    sparseColIndices_[startSparsePartIndex + count] = col;
 
                     ++count;
                 }
@@ -163,7 +163,7 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
     maxNumSparseColBlocks_ = 0;
 #pragma omp parallel for reduction(max : maxNumSparseColBlocks_)
     for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
-        const UIN numSparseData = sparsePartDataOffsets()[rowPanelId + 1] - sparsePartDataOffsets()[rowPanelId];
+        const UIN numSparseData = sparseDataOffsets()[rowPanelId + 1] - sparseDataOffsets()[rowPanelId];
         const UIN numBlocksCurrentRowPanel = std::ceil(
             static_cast<float>(numSparseData) / sddmm_sparse_remainder_each_thread_block_counts_the_number_Of_cols);
         maxNumSparseColBlocks_ = std::max(maxNumSparseColBlocks_, numBlocksCurrentRowPanel);
@@ -188,7 +188,7 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
 }
 
 UIN ReBELL::getNumSparseBlocks() const {
-    return sparsePartDataOffsets().back()
+    return sparseDataOffsets().back()
         / static_cast<float>(sddmm_sparse_remainder_each_thread_block_counts_the_number_Of_cols);
 }
 
@@ -205,8 +205,8 @@ UIN ReBELL::calculateRowPanelIdByBlockValuesIndex(UIN blockValueIndex) const {
 
 UIN ReBELL::calculateRowPanelIdByColIndex(UIN reorderedColIndex) const {
     UIN rowPanelId = 0;
-    while (rowPanelId + 1 < reorderedColOffsets().size()) {
-        if (reorderedColIndex < reorderedColOffsets()[rowPanelId + 1]) {
+    while (rowPanelId + 1 < denseColOffsets().size()) {
+        if (reorderedColIndex < denseColOffsets()[rowPanelId + 1]) {
             break;
         }
         ++rowPanelId;
@@ -237,10 +237,10 @@ std::pair<UIN, UIN> ReBELL::calculateRowColByBlockValueIndex(UIN blockValueIndex
     const UIN row = idxOfReorderedRows < reorderedRows().size() ?
         reorderedRows()[idxOfReorderedRows] : NULL_VALUE;
 
-    const UIN idxOfReorderedCols = reorderedColOffsets()[rowPanelId] +
+    const UIN idxOfReorderedCols = denseColOffsets()[rowPanelId] +
         colBlockId * BLOCK_COL_SIZE + localColId;
-    const UIN col = idxOfReorderedCols < reorderedColOffsets()[rowPanelId + 1] ?
-        reorderedCols()[idxOfReorderedCols] : NULL_VALUE;
+    const UIN col = idxOfReorderedCols < denseColOffsets()[rowPanelId + 1] ?
+        denseCols()[idxOfReorderedCols] : NULL_VALUE;
 
     return std::make_pair(row, col);
 }
@@ -423,10 +423,10 @@ bool check_colReordering(const sparseMatrix::CSR<float> &matrix, const struct Re
 
         // check dense column segment
         std::unordered_set<UIN> denseColIndicesRecordSet;
-        for (int idxOfReorderedColIndices = rebell.reorderedColOffsets()[rowPanelId];
-             idxOfReorderedColIndices < rebell.reorderedColOffsets()[rowPanelId + 1];
+        for (int idxOfReorderedColIndices = rebell.denseColOffsets()[rowPanelId];
+             idxOfReorderedColIndices < rebell.denseColOffsets()[rowPanelId + 1];
              ++idxOfReorderedColIndices) {
-            const UIN col = rebell.reorderedCols()[idxOfReorderedColIndices];
+            const UIN col = rebell.denseCols()[idxOfReorderedColIndices];
 
             // Check if column indexes are duplicated
             if (denseColIndicesRecordSet.find(col) != denseColIndicesRecordSet.end()) {
@@ -442,9 +442,9 @@ bool check_colReordering(const sparseMatrix::CSR<float> &matrix, const struct Re
             }
 
             // Check if the order of column indexes in the row panel is correct
-            if (idxOfReorderedColIndices + 1 < rebell.reorderedColOffsets()[rowPanelId + 1] &&
+            if (idxOfReorderedColIndices + 1 < rebell.denseColOffsets()[rowPanelId + 1] &&
                 colToNumOfNonZeroMap[col]
-                    < colToNumOfNonZeroMap[rebell.reorderedCols()[idxOfReorderedColIndices + 1]]) {
+                    < colToNumOfNonZeroMap[rebell.denseCols()[idxOfReorderedColIndices + 1]]) {
                 std::cerr << "Error! The order of column indexes in the row panel is incorrect!" << std::endl;
                 isCorrect = false;
             }
@@ -452,26 +452,26 @@ bool check_colReordering(const sparseMatrix::CSR<float> &matrix, const struct Re
 
         // check sparse part data
         std::unordered_set<UIN> sparseColIndicesRecordSet;
-        for (int idx = rebell.sparsePartDataOffsets()[rowPanelId];
-             idx < rebell.sparsePartDataOffsets()[rowPanelId + 1];
+        for (int idx = rebell.sparseDataOffsets()[rowPanelId];
+             idx < rebell.sparseDataOffsets()[rowPanelId + 1];
              ++idx) {
-            const UIN relativeRow = rebell.sparsePartRelativeRows()[idx];
+            const UIN relativeRow = rebell.sparseRelativeRows()[idx];
             const UIN row = rebell.reorderedRows()[rowPanelId * ROW_PANEL_SIZE + relativeRow];
-            const UIN col = rebell.sparsePartColIndices()[idx];
+            const UIN col = rebell.sparseColIndices()[idx];
 
             sparseColIndicesRecordSet.insert(col);
 
             // Check if the row is in the current row panel
             if (rowIndicesCurrentRowPanelSet.find(row) == rowIndicesCurrentRowPanelSet.end()) {
                 fprintf(stderr,
-                        "Error! Row not in current row panel! rowPanelId: %d, sparsePartData[%d]\n",
+                        "Error! Row not in current row panel! rowPanelId: %d, sparseData[%d]\n",
                         rowPanelId, idx);
             }
 
             // Check if the column index in the row panel is correct
             if (colToNumOfNonZeroMap.find(col) == colToNumOfNonZeroMap.end()) {
                 fprintf(stderr,
-                        "Error! Column not in current row panel! rowPanelId: %d, sparsePartData[%d]\n",
+                        "Error! Column not in current row panel! rowPanelId: %d, sparseData[%d]\n",
                         rowPanelId, idx);
                 isCorrect = false;
             }
@@ -480,7 +480,7 @@ bool check_colReordering(const sparseMatrix::CSR<float> &matrix, const struct Re
             if (colToNumOfNonZeroMap.find(col) != colToNumOfNonZeroMap.end()
                 && colToNumOfNonZeroMap.find(col)->second >= rebell.dense_column_segment_threshold()) {
                 fprintf(stderr,
-                        "Error! In sparse data, column index is not a sparse column! rowPanelId: %d, sparsePartData[%d]\n",
+                        "Error! In sparse data, column index is not a sparse column! rowPanelId: %d, sparseData[%d]\n",
                         rowPanelId,
                         idx);
                 isCorrect = false;
@@ -496,8 +496,8 @@ bool check_colReordering(const sparseMatrix::CSR<float> &matrix, const struct Re
         }
 
         // Check if the number of columns in the row panel is correct
-        const UIN numColsCurrentRowPanel = rebell.reorderedColOffsets()[rowPanelId + 1] -
-            rebell.reorderedColOffsets()[rowPanelId] + sparseColIndicesRecordSet.size();
+        const UIN numColsCurrentRowPanel = rebell.denseColOffsets()[rowPanelId + 1] -
+            rebell.denseColOffsets()[rowPanelId] + sparseColIndicesRecordSet.size();
         if (numColsCurrentRowPanel != colToNumOfNonZeroMap.size()) {
             fprintf(stderr, "Error! The number of columns in the row panel is incorrect! rowPanelId: %d\n", rowPanelId);
         }
@@ -515,7 +515,7 @@ bool check_bell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &reb
         const UIN numBlockCurrentRowPanel =
             rebell.blockRowOffsets()[idxOfBlockRowOffsets] - rebell.blockRowOffsets()[idxOfBlockRowOffsets - 1];
         const UIN numColsCurrentRowPanel =
-            rebell.reorderedColOffsets()[rowPanelId + 1] - rebell.reorderedColOffsets()[rowPanelId];
+            rebell.denseColOffsets()[rowPanelId + 1] - rebell.denseColOffsets()[rowPanelId];
 
         // Check if the number of blocks in the row panel is correct
         if (numBlockCurrentRowPanel !=
@@ -543,15 +543,15 @@ bool check_bell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &reb
     }
 
     std::unordered_map<UIN, UIN> idxOfOriginalMatrixToSparsePartDataIndexMap;
-    for (int idx = 0; idx < rebell.sparsePartData().size(); ++idx) {
-        const UIN originalMatrixIndex = rebell.sparsePartData()[idx];
+    for (int idx = 0; idx < rebell.sparseData().size(); ++idx) {
+        const UIN originalMatrixIndex = rebell.sparseData()[idx];
 
         // Check if the original matrix index is duplicated in sparsePartData
         if (idxOfOriginalMatrixToSparsePartDataIndexMap.find(originalMatrixIndex)
             != idxOfOriginalMatrixToSparsePartDataIndexMap.end()) {
             fprintf(stderr,
-                    "Error! The original matrix index is duplicated in sparsePartData!"
-                    " originalMatrixIndex: %u, sparsePartData[%d] and sparsePartData[%d]\n",
+                    "Error! The original matrix index is duplicated in sparseData!"
+                    " originalMatrixIndex: %u, sparsePartData[%d] and sparseData[%d]\n",
                     originalMatrixIndex,
                     idx,
                     idxOfOriginalMatrixToSparsePartDataIndexMap.find(originalMatrixIndex)->second);
@@ -577,10 +577,10 @@ bool check_bell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &reb
         const UIN startIndexOfBlockValuesCurrentRowPanel = rebell.blockRowOffsets()[rowPanelId] * BLOCK_SIZE;
 
         std::unordered_map<UIN, UIN> colToIndexOfReorderedColsMap_currentRow;
-        for (int indexOfReorderedCols = rebell.reorderedColOffsets()[rowPanelId];
-             indexOfReorderedCols < rebell.reorderedColOffsets()[rowPanelId + 1];
+        for (int indexOfReorderedCols = rebell.denseColOffsets()[rowPanelId];
+             indexOfReorderedCols < rebell.denseColOffsets()[rowPanelId + 1];
              ++indexOfReorderedCols) {
-            const UIN col = rebell.reorderedCols()[indexOfReorderedCols];
+            const UIN col = rebell.denseCols()[indexOfReorderedCols];
             colToIndexOfReorderedColsMap_currentRow[col] = indexOfReorderedCols;
         }
 
@@ -589,7 +589,7 @@ bool check_bell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &reb
              ++idxOfOriginalMatrix) {
             const UIN col = matrix.colIndices()[idxOfOriginalMatrix];
             const UIN indexOfReorderedCols = colToIndexOfReorderedColsMap_currentRow[col];
-            const UIN startIndexOfColsCurrentRowPanel = rebell.reorderedColOffsets()[rowPanelId];
+            const UIN startIndexOfColsCurrentRowPanel = rebell.denseColOffsets()[rowPanelId];
             const UIN colBlockId = (indexOfReorderedCols - startIndexOfColsCurrentRowPanel) / BLOCK_COL_SIZE;
 
             const UIN localRowId = indexOfReorderedRows % ROW_PANEL_SIZE;

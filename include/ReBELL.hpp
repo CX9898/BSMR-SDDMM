@@ -28,14 +28,14 @@ class ReBELL {
   UIN maxNumDenseColBlocks() const { return maxNumDenseColBlocks_; }
   UIN maxNumSparseColBlocks() const { return maxNumSparseColBlocks_; }
   const std::vector<UIN> &reorderedRows() const { return reorderedRows_; }
-  const std::vector<UIN> &reorderedCols() const { return reorderedCols_; }
-  const std::vector<UIN> &reorderedColOffsets() const { return reorderedColOffsets_; }
+  const std::vector<UIN> &denseCols() const { return denseCols_; }
+  const std::vector<UIN> &denseColOffsets() const { return denseColOffsets_; }
   const std::vector<UIN> &blockValues() const { return blockValues_; }
   const std::vector<UIN> &blockRowOffsets() const { return blockRowOffsets_; }
-  const std::vector<UIN> &sparsePartDataOffsets() const { return sparsePartDataOffsets_; }
-  const std::vector<UIN> &sparsePartData() const { return sparsePartData_; }
-  const std::vector<UIN> &sparsePartRelativeRows() const { return sparsePartRelativeRows_; }
-  const std::vector<UIN> &sparsePartColIndices() const { return sparsePartColIndices_; }
+  const std::vector<UIN> &sparseDataOffsets() const { return sparseDataOffsets_; }
+  const std::vector<UIN> &sparseData() const { return sparseData_; }
+  const std::vector<UIN> &sparseRelativeRows() const { return sparseRelativeRows_; }
+  const std::vector<UIN> &sparseColIndices() const { return sparseColIndices_; }
 
   UIN dense_column_segment_threshold() const { return dense_column_segment_threshold_; }
 
@@ -73,16 +73,16 @@ class ReBELL {
 
   // Dense part data
   std::vector<UIN> reorderedRows_;
-  std::vector<UIN> reorderedColOffsets_;
-  std::vector<UIN> reorderedCols_;
+  std::vector<UIN> denseColOffsets_;
+  std::vector<UIN> denseCols_;
   std::vector<UIN> blockRowOffsets_;
   std::vector<UIN> blockValues_;
 
   // Sparse part data
-  std::vector<UIN> sparsePartDataOffsets_;
-  std::vector<UIN> sparsePartData_;
-  std::vector<UIN> sparsePartRelativeRows_;
-  std::vector<UIN> sparsePartColIndices_;
+  std::vector<UIN> sparseDataOffsets_;
+  std::vector<UIN> sparseData_;
+  std::vector<UIN> sparseRelativeRows_;
+  std::vector<UIN> sparseColIndices_;
 
   UIN dense_column_segment_threshold_;
 };
