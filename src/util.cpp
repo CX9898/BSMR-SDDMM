@@ -38,7 +38,8 @@ std::string getFileSuffix(const std::string &filename) {
 
 std::string iterateOneWordFromLine(const std::string &line, int &wordIter) {
     const int begin = wordIter;
-    while (wordIter < line.size() && line[wordIter] != ' ') {
+    while (wordIter < line.size() &&
+        (line[wordIter] != ' ' && line[wordIter] != '\t' && line[wordIter] != '\r')) {
         ++wordIter;
     }
     const int end = wordIter;
