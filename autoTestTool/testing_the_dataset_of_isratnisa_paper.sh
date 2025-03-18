@@ -3,8 +3,7 @@
 results_path="dataset_of_isratnisa_paper_results/"
 dataset_path="${results_path}dataset/"
 
-# 下载数据集并解压, 并移动到指定目录, 并记录文件名
-file_list=""
+# 下载数据集并解压, 并移动到指定目录
 download_decompressing_move(){
   local url=$1
   local compressed_file=$(basename "$url")
@@ -13,17 +12,23 @@ download_decompressing_move(){
   local file=$(basename "${compressed_file}" .gz)
   mkdir -p ${dataset_path}
   mv ${file} ${dataset_path}
-  file_list="${file_list} ${dataset_path}${file}"
 }
 
 #############################################################
 # main
 
 mkdir -p ${results_path}
-
+download_decompressing_move "https://snap.stanford.edu/data/cit-HepPh.txt.gz"
+download_decompressing_move "https://snap.stanford.edu/data/bigdata/communities/com-amazon.ungraph.txt.gz"
+download_decompressing_move "https://snap.stanford.edu/data/bigdata/communities/com-dblp.ungraph.txt.gz"
+download_decompressing_move "https://snap.stanford.edu/data/email-Eu-core.txt.gz"
 download_decompressing_move "https://snap.stanford.edu/data/web-BerkStan.txt.gz"
 download_decompressing_move "https://snap.stanford.edu/data/web-Google.txt.gz"
 download_decompressing_move "https://snap.stanford.edu/data/web-NotreDame.txt.gz"
+download_decompressing_move "https://snap.stanford.edu/data/loc-gowalla_edges.txt.gz"
+
+wget "https://graphchallenge.s3.amazonaws.com/snap/facebook_combined/facebook_combined_adj.mmio"
+mv facebook_combined_adj.mmio ${dataset_path}
 
 # 生成矩阵文件列表
 matrix_list_file="${results_path}matrix_file_list.txt"
