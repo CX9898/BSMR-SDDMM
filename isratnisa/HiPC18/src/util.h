@@ -34,7 +34,8 @@ class Matrix {
 
 inline std::string iterateOneWordFromLine(const std::string &line, int &wordIter) {
     const int begin = wordIter;
-    while (wordIter < line.size() && line[wordIter] != ' ') {
+    while (wordIter < line.size() &&
+        (line[wordIter] != ' ' && line[wordIter] != '\t' && line[wordIter] != '\r')) {
         ++wordIter;
     }
     const int end = wordIter;
@@ -117,7 +118,7 @@ void sort_by_key_for_multiple_vectors(int *key_first,
 
 }
 
-bool initializeFromMatrixMarketFile(const std::string &filePath, Matrix &S) {
+bool initializeFromMtxFile(const std::string &filePath, Matrix &S) {
     std::ifstream inFile;
     inFile.open(filePath, std::ios::in); // open file
     if (!inFile.is_open()) {
@@ -182,6 +183,118 @@ bool initializeFromMatrixMarketFile(const std::string &filePath, Matrix &S) {
     return true;
 }
 
+template<typename T>
+void getOneLineThreeData(const std::string &line, int &first, int &second, T &third) {
+    first = -1;
+    second = -1;
+    third = -1;
+
+    if (line.empty()) {
+        return;
+    }
+
+    int wordIter = 0;
+    first = std::stoi(iterateOneWordFromLine(line, wordIter));
+    second = std::stoi(iterateOneWordFromLine(line, wordIter));
+    const std::string valueStr = iterateOneWordFromLine(line, wordIter);
+    third = valueStr.empty() ? static_cast<T>(1) : static_cast<T>(std::stof(valueStr));
+
+    if (wordIter < line.size()) {
+        std::cerr << "Error, file \"" << line << "\" line format is incorrect!" << std::endl;
+    }
+}
+
+bool initializeFromGraphDataset(const std::string &file, Matrix &S) {
+    std::ifstream inFile;
+    inFile.open(file, std::ios::in); // open file
+    if (!inFile.is_open()) {
+        std::cerr << "Error, file cannot be opened : " << file << std::endl;
+        return false;
+    }
+
+    std::cout << "sparseMatrix::CSR initialize From file : " << file << std::endl;
+
+    std::string line; // Store the data for each line
+    int wordIter = 0;
+    while (getline(inFile, line) && line[0] == '#') {
+        const std::string nodesStr("Nodes: ");
+        const std::string edgesStr("Edges: ");
+        if (line.find(nodesStr) != std::string::npos) {
+            wordIter = line.find(nodesStr) + 7;
+            const int nodes = std::stoi(iterateOneWordFromLine(line, wordIter));
+            S.n_rows = nodes;
+            S.n_cols = nodes;
+        }
+        if (line.find(edgesStr) != std::string::npos) {
+            wordIter = line.find(edgesStr) + 7;
+            const int edges = std::stoi(iterateOneWordFromLine(line, wordIter));
+            S.nnz = edges;
+        }
+    }
+
+    if (!S.n_rows || !S.n_cols || !S.nnz) {
+        std::cerr << "Error, file " << file << " row or col or nnz not initialized!" << std::endl;
+    }
+
+    std::vector<int> rowIndices(S.nnz);
+    std::vector<int> colIndices(S.nnz);
+    std::vector<float> values(S.nnz, 0);
+
+    int idx = 0;
+    std::unordered_map<int, int> nodeToIdMap;
+    int nodeCount = 0;
+    do {
+        int node, node2;
+        float third;
+        getOneLineThreeData(line, node, node2, third);
+        if (node == -1 || node2 == -1) {
+            continue;
+        }
+        if (nodeToIdMap.find(node) == nodeToIdMap.end() && idx > 0) {
+            ++nodeCount;
+            nodeToIdMap[node] = nodeCount;
+        }
+        if (nodeToIdMap.find(node2) == nodeToIdMap.end() && idx > 0) {
+            ++nodeCount;
+            nodeToIdMap[node2] = nodeCount;
+        }
+
+        rowIndices[idx] = nodeToIdMap[node];
+        colIndices[idx] = nodeToIdMap[node2];
+        values[idx] = third;
+
+        ++idx;
+    } while (getline(inFile, line));
+
+    // Check data
+    if (idx < S.nnz) {
+        std::cerr << "Error, file " << file << " nnz is not enough!" << std::endl;
+    }
+    for (int idx = 0; idx < S.nnz; ++idx) {
+        const int row = rowIndices[idx];
+        const int col = colIndices[idx];
+        if (row >= S.n_rows || col >= S.n_cols) {
+            std::cerr << "Error, file " << file << " row or col is too big!" << std::endl;
+            return false;
+        }
+        std::pair<int, int> rowColPair(row, col);
+        std::set<std::pair<int, int>> rowColSet;
+        if (rowColSet.find(rowColPair) != rowColSet.end()) {
+            std::cerr << "Error, matrix has duplicate data!" << std::endl;
+            return false;
+        }
+        rowColSet.insert(rowColPair);
+    }
+
+    S.rows = rowIndices;
+    S.cols = colIndices;
+    S.vals = values;
+
+    inFile.close();
+
+    return true;
+}
+
 std::string getFileSuffix(const std::string &filename) {
     size_t pos = filename.find_last_of("."); // 查找最后一个 '.'
     if (pos != std::string::npos) {
@@ -190,14 +303,16 @@ std::string getFileSuffix(const std::string &filename) {
     return ""; // 如果没有找到，则返回空字符串
 }
 
-bool intialize_matrix(const std::string &matrixFile, Matrix &S) {
-    const std::string fileSuffix = getFileSuffix(matrixFile);
-    if (fileSuffix == ".mtx") {
-        return initializeFromMatrixMarketFile(matrixFile, S);
+bool intialize_matrix(const std::string &file, Matrix &S) {
+    const std::string fileSuffix = getFileSuffix(file);
+    if (fileSuffix == ".mtx" || fileSuffix == ".mmio") {
+        return initializeFromMtxFile(file, S);
     } else if (fileSuffix == ".smtx") {
-        return initializeFromSmtxFile(matrixFile, S);
+        return initializeFromSmtxFile(file, S);
+    } else if (fileSuffix == ".txt") {
+        return initializeFromGraphDataset(file, S);
     } else {
-        std::cerr << "Error, file format is not supported : " << matrixFile << std::endl;
+        std::cerr << "Error, file format is not supported : " << file << std::endl;
     }
 
     return false;

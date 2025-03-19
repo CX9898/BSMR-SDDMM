@@ -11,7 +11,7 @@ const std::string folderPath("../../../dataset/test/matrix_20000_20000_/");
 const std::string fileName = ("matrix_20000_20000_4000000");
 const std::string fileFormat(".mtx");
 //const std::string filePath = folderPath + fileName + fileFormat;
-const std::string filePath = "./../../../dataset/ssgetpy/1138_bus/1138_bus.mtx";
+const std::string filePath("./../../../autoTestTool/dataset_of_isratnisa_paper_results/dataset/web-NotreDame.txt");
 
 class Options {
  public:
