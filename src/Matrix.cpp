@@ -289,6 +289,19 @@ bool sparseMatrix::CSR<T>::initializeFromMatrixFile(const std::string &matrixFil
         std::cerr << "Error, file format is not supported : " << matrixFile << std::endl;
     }
 
+    // Check data
+    for (int row = 0; row < row_; ++row) {
+        std::unordered_set<UIN> colSet;
+        for (int idx = rowOffsets()[row]; idx < rowOffsets()[row + 1]; ++idx) {
+            const UIN col = colIndices()[idx];
+            if (colSet.find(col) != colSet.end()) {
+                std::cerr << "Error, matrix has duplicate data!" << std::endl;
+                return false;
+            }
+            colSet.insert(col);
+        }
+    }
+
     return false;
 }
 
@@ -341,7 +354,7 @@ bool sparseMatrix::CSR<T>::initializeFromSmtxFile(const std::string &matrixFile)
             values_[idx] = static_cast<T>(1);
         }
         if (idx < nnz_) {
-            std::cerr << "Error, txt file " << matrixFile << " nnz is not enough!" << std::endl;
+            std::cerr << "Error, smtx file " << matrixFile << " nnz is not enough!" << std::endl;
         }
     }
 
@@ -412,7 +425,7 @@ bool sparseMatrix::CSR<T>::initializeFromMtxFile(const std::string &matrixFile) 
     }
 
     if (idx < nnz_) {
-        std::cerr << "Error, txt file " << matrixFile << " nnz is not enough!" << std::endl;
+        std::cerr << "Error, mtx file " << matrixFile << " nnz is not enough!" << std::endl;
     }
 
     host::sort_by_key_for_multiple_vectors(rowIndices.data(),
@@ -541,8 +554,20 @@ bool sparseMatrix::COO<T>::initializeFromMatrixMarketFile(const std::string &mat
         ++idx;
     }
 
+    // Check data
     if (idx < nnz_) {
-        std::cerr << "Error, txt file " << matrixFile << " nnz is not enough!" << std::endl;
+        std::cerr << "Error, mtx file " << matrixFile << " nnz is not enough!" << std::endl;
+    }
+    std::set<std::pair<UIN, UIN>> rowColSet;
+    for (int idx = 0; idx < nnz_; ++idx) {
+        const UIN row = rowIndices_[idx];
+        const UIN col = colIndices_[idx];
+        std::pair<UIN, UIN> rowColPair(row, col);
+        if (rowColSet.find(rowColPair) != rowColSet.end()) {
+            std::cerr << "Error, mtx file " << matrixFile << " has duplicate data!" << std::endl;
+            return false;
+        }
+        rowColSet.insert(rowColPair);
     }
 
     inFile.close();
