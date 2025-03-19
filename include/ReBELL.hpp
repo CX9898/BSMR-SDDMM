@@ -85,6 +85,8 @@ class ReBELL {
   UIN dense_column_segment_threshold_;
 };
 
+void noReorderRow(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &reorderedRows, float &time);
+
 /**
  * @funcitonName: rowReordering_cpu
  * @functionInterpretation: Sort rows by row similarity

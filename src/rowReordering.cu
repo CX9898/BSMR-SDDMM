@@ -11,6 +11,35 @@
 
 #define COL_BLOCK_SIZE 32
 
+void noReorderRow(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &reorderedRows, float &time) {
+    CudaTimeCalculator timeCalculator;
+    timeCalculator.startClock();
+    reorderedRows.resize(matrix.row());
+    iota(reorderedRows.begin(), reorderedRows.end(), 0);
+
+    std::vector<UIN> numColIndices(matrix.row());
+#pragma omp parallel for
+    for (int row = 0; row < matrix.row(); ++row) {
+        numColIndices[row] = matrix.rowOffsets()[row + 1] - matrix.rowOffsets()[row];
+    }
+
+    host::sort_by_key(numColIndices.data(), numColIndices.data() + numColIndices.size(),
+                      reorderedRows.data());
+
+    // Remove zero rows
+    {
+        UIN startIndexOfNonZeroRow = 0;
+        while (startIndexOfNonZeroRow < reorderedRows.size()
+            && matrix.rowOffsets()[reorderedRows[startIndexOfNonZeroRow] + 1]
+                - matrix.rowOffsets()[reorderedRows[startIndexOfNonZeroRow]] == 0) {
+            ++startIndexOfNonZeroRow;
+        }
+        reorderedRows.erase(reorderedRows.begin(), reorderedRows.begin() + startIndexOfNonZeroRow);
+    }
+    timeCalculator.endClock();
+    time = timeCalculator.getTime();
+}
+
 void encoding(const sparseMatrix::CSR<float> &matrix, std::vector<std::vector<UIN>> &encodings) {
     const int colBlock = std::ceil(static_cast<float>(matrix.col()) / COL_BLOCK_SIZE);
     encodings.resize(matrix.row());
