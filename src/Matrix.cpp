@@ -334,16 +334,41 @@ bool sparseMatrix::CSR<T>::initializeFromSmtxFile(const std::string &matrixFile)
     {
         getline(inFile, line);
         wordIter = 0;
-        for (int idx = 0; idx < colIndices_.size(); ++idx) {
+        int idx = 0;
+        for (; idx < colIndices_.size(); ++idx) {
             const UIN col = std::stoi(util::iterateOneWordFromLine(line, wordIter));
             colIndices_[idx] = col;
             values_[idx] = static_cast<T>(1);
+        }
+        if (idx < nnz_) {
+            std::cerr << "Error, txt file " << matrixFile << " nnz is not enough!" << std::endl;
         }
     }
 
     inFile.close();
 
     return true;
+}
+
+template<typename T>
+void getOneLineThreeData(const std::string &line, UIN &first, UIN &second, T &third) {
+    first = NULL_VALUE;
+    second = NULL_VALUE;
+    third = NULL_VALUE;
+
+    if (line.empty()) {
+        return;
+    }
+
+    int wordIter = 0;
+    first = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
+    second = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
+    const std::string valueStr = util::iterateOneWordFromLine(line, wordIter);
+    third = valueStr.empty() ? static_cast<T>(1) : static_cast<T>(std::stof(valueStr));
+
+    if (wordIter < line.size()) {
+        std::cerr << "Error, file \"" << line << "\" line format is incorrect!" << std::endl;
+    }
 }
 
 template<typename T>
@@ -360,18 +385,9 @@ bool sparseMatrix::CSR<T>::initializeFromMtxFile(const std::string &matrixFile) 
     std::string line; // Store the data for each line
     while (getline(inFile, line) && line[0] == '%') {} // Skip comments
 
-    int wordIter = 0;
-    row_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
-    col_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
-    nnz_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
-
-    if (nnz_ == 0) {
-        std::cerr << "Error, mtx file " << matrixFile << " nnz is 0!" << std::endl;
-        return false;
-    }
-
-    if (wordIter < line.size()) {
-        std::cerr << "Error, mtx file " << line << " line format is incorrect!" << std::endl;
+    getOneLineThreeData(line, row_, col_, nnz_);
+    if (row_ == NULL_VALUE || col_ == NULL_VALUE || nnz_ == NULL_VALUE) {
+        std::cerr << "Error, mtx file " << matrixFile << " format is incorrect!" << std::endl;
         return false;
     }
 
@@ -381,14 +397,11 @@ bool sparseMatrix::CSR<T>::initializeFromMtxFile(const std::string &matrixFile) 
 
     UIN idx = 0;
     while (getline(inFile, line)) {
-        wordIter = 0;
-        const UIN row = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
-        const UIN col = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
-        const std::string valueStr = util::iterateOneWordFromLine(line, wordIter);
-        const T val = valueStr.empty() ? static_cast<T>(1) : static_cast<T>(std::stod(valueStr));
-
-        if (wordIter < line.size()) {
-            std::cerr << "Error, mtx file " << line << " line format is incorrect!" << std::endl;
+        UIN row = NULL_VALUE, col = NULL_VALUE;
+        T val;
+        getOneLineThreeData(line, row, col, val);
+        if (row == NULL_VALUE || col == NULL_VALUE) {
+            continue;
         }
 
         rowIndices[idx] = row;
@@ -396,6 +409,10 @@ bool sparseMatrix::CSR<T>::initializeFromMtxFile(const std::string &matrixFile) 
         values[idx] = val;
 
         ++idx;
+    }
+
+    if (idx < nnz_) {
+        std::cerr << "Error, txt file " << matrixFile << " nnz is not enough!" << std::endl;
     }
 
     host::sort_by_key_for_multiple_vectors(rowIndices.data(),
@@ -445,20 +462,17 @@ bool sparseMatrix::CSR<T>::initializeFromTxtFile(const std::string &matrixFile) 
         std::cerr << "Error, txt file " << matrixFile << " row or col or nnz not initialized!" << std::endl;
     }
 
-    std::vector<UIN> rowIndices(nnz_);
-    std::vector<UIN> colIndices(nnz_);
-    std::vector<T> values(nnz_);
+    std::vector<UIN> rowIndices(nnz_, -1);
+    std::vector<UIN> colIndices(nnz_, -1);
+    std::vector<T> values(nnz_, 0);
 
     UIN idx = 0;
-    while (getline(inFile, line)) {
-        wordIter = 0;
-        const UIN row = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
-        const UIN col = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
-        const std::string valueStr = util::iterateOneWordFromLine(line, wordIter);
-        const T val = valueStr.empty() ? static_cast<T>(1) : static_cast<T>(std::stod(valueStr));
-
-        if (wordIter < line.size()) {
-            std::cerr << "Error, txt file " << line << " line format is incorrect!" << std::endl;
+    do {
+        UIN row = NULL_VALUE, col = NULL_VALUE;
+        T val;
+        getOneLineThreeData(line, row, col, val);
+        if (row == NULL_VALUE || col == NULL_VALUE) {
+            continue;
         }
 
         rowIndices[idx] = row;
@@ -466,6 +480,10 @@ bool sparseMatrix::CSR<T>::initializeFromTxtFile(const std::string &matrixFile) 
         values[idx] = val;
 
         ++idx;
+    } while (getline(inFile, line));
+
+    if (idx < nnz_) {
+        std::cerr << "Error, txt file " << matrixFile << " nnz is not enough!" << std::endl;
     }
 
     host::sort_by_key_for_multiple_vectors(rowIndices.data(),
@@ -484,26 +502,23 @@ bool sparseMatrix::CSR<T>::initializeFromTxtFile(const std::string &matrixFile) 
 }
 
 template<typename T>
-bool sparseMatrix::COO<T>::initializeFromMatrixMarketFile(const std::string &filePath) {
+bool sparseMatrix::COO<T>::initializeFromMatrixMarketFile(const std::string &matrixFile) {
     std::ifstream inFile;
-    inFile.open(filePath, std::ios::in); // open file
+    inFile.open(matrixFile, std::ios::in); // open file
     if (!inFile.is_open()) {
-        std::cerr << "Error, mtx file cannot be opened : " << filePath << std::endl;
+        std::cerr << "Error, mtx file cannot be opened : " << matrixFile << std::endl;
         return false;
     }
 
-    std::cout << "sparseMatrix::COO initialize from mtx file : " << filePath << std::endl;
+    std::cout << "sparseMatrix::COO initialize from mtx file : " << matrixFile << std::endl;
 
     std::string line; // Store the data for each line
     while (getline(inFile, line) && line[0] == '%') {} // Skip comments
 
-    int wordIter = 0;
-    row_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
-    col_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
-    nnz_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
-
-    if (wordIter < line.size()) {
-        std::cerr << "Error, mtx file " << line << " line format is incorrect!" << std::endl;
+    getOneLineThreeData(line, row_, col_, nnz_);
+    if (row_ == NULL_VALUE || col_ == NULL_VALUE || nnz_ == NULL_VALUE) {
+        std::cerr << "Error, mtx file " << matrixFile << " format is incorrect!" << std::endl;
+        return false;
     }
 
     rowIndices_.resize(nnz_);
@@ -512,14 +527,11 @@ bool sparseMatrix::COO<T>::initializeFromMatrixMarketFile(const std::string &fil
 
     UIN idx = 0;
     while (getline(inFile, line)) {
-        wordIter = 0;
-        const UIN row = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
-        const UIN col = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
-        const std::string valueStr = util::iterateOneWordFromLine(line, wordIter);
-        const T val = valueStr.empty() ? static_cast<T>(0) : static_cast<T>(std::stod(valueStr));
-
-        if (wordIter < line.size()) {
-            std::cerr << "Error, mtx file " << line << " line format is incorrect!" << std::endl;
+        UIN row = NULL_VALUE, col = NULL_VALUE;
+        T val;
+        getOneLineThreeData(line, row, col, val);
+        if (row == NULL_VALUE || col == NULL_VALUE) {
+            continue;
         }
 
         rowIndices_[idx] = row;
@@ -527,6 +539,10 @@ bool sparseMatrix::COO<T>::initializeFromMatrixMarketFile(const std::string &fil
         values_[idx] = val;
 
         ++idx;
+    }
+
+    if (idx < nnz_) {
+        std::cerr << "Error, txt file " << matrixFile << " nnz is not enough!" << std::endl;
     }
 
     inFile.close();

@@ -8,8 +8,6 @@ constexpr UIN ROW_PANEL_SIZE = WMMA_M;
 constexpr UIN BLOCK_COL_SIZE = WMMA_N;
 constexpr UIN BLOCK_SIZE = ROW_PANEL_SIZE * BLOCK_COL_SIZE;
 
-constexpr UIN NULL_VALUE = MAX_UIN;
-
 /**
  * @className: ReBELL
  * @classInterpretation: Reorder the rows and columns of a sparse matrix and store it in BELL format

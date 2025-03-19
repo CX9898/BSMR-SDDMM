@@ -249,7 +249,7 @@ class COO : public DataBase {
    *    2) By three numbers separated by a space: number of rows, number of columns, and number of non-zeros.
    *    3) Each after line has three numbers separated by a space: current row, current column, and value.
    **/
-  bool initializeFromMatrixMarketFile(const std::string &filePath);
+  bool initializeFromMatrixMarketFile(const std::string &matrixFile);
 
   /**
     * Used as a test comparison result
