@@ -374,8 +374,8 @@ void getOneLineThreeData(const std::string &line, UIN &first, UIN &second, T &th
     }
 
     int wordIter = 0;
-    first = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
-    second = std::stoi(util::iterateOneWordFromLine(line, wordIter)) - 1;
+    first = std::stoi(util::iterateOneWordFromLine(line, wordIter));
+    second = std::stoi(util::iterateOneWordFromLine(line, wordIter));
     const std::string valueStr = util::iterateOneWordFromLine(line, wordIter);
     third = valueStr.empty() ? static_cast<T>(1) : static_cast<T>(std::stof(valueStr));
 
@@ -417,8 +417,8 @@ bool sparseMatrix::CSR<T>::initializeFromMtxFile(const std::string &matrixFile) 
             continue;
         }
 
-        rowIndices[idx] = row;
-        colIndices[idx] = col;
+        rowIndices[idx] = row - 1;
+        colIndices[idx] = col - 1;
         values[idx] = val;
 
         ++idx;
@@ -475,8 +475,8 @@ bool sparseMatrix::CSR<T>::initializeFromTxtFile(const std::string &matrixFile) 
         std::cerr << "Error, txt file " << matrixFile << " row or col or nnz not initialized!" << std::endl;
     }
 
-    std::vector<UIN> rowIndices(nnz_, -1);
-    std::vector<UIN> colIndices(nnz_, -1);
+    std::vector<UIN> rowIndices(nnz_);
+    std::vector<UIN> colIndices(nnz_);
     std::vector<T> values(nnz_, 0);
 
     UIN idx = 0;
@@ -488,8 +488,8 @@ bool sparseMatrix::CSR<T>::initializeFromTxtFile(const std::string &matrixFile) 
             continue;
         }
 
-        rowIndices[idx] = row;
-        colIndices[idx] = col;
+        rowIndices[idx] = row - 1;
+        colIndices[idx] = col - 1;
         values[idx] = val;
 
         ++idx;
@@ -547,8 +547,8 @@ bool sparseMatrix::COO<T>::initializeFromMatrixMarketFile(const std::string &mat
             continue;
         }
 
-        rowIndices_[idx] = row;
-        colIndices_[idx] = col;
+        rowIndices_[idx] = row - 1;
+        colIndices_[idx] = col - 1;
         values_[idx] = val;
 
         ++idx;
