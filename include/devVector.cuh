@@ -59,7 +59,7 @@ inline vector<T>::vector(const size_t size) : vector() {
     }
     cudaMalloc(reinterpret_cast<void **> (&data_), size * sizeof(T));
     if (!data_) {
-        fprintf(stderr, "Device out of memory, memory allocation failed\n");
+        fprintf(stderr, "Device memory allocation failed\n");
     }
 }
 
@@ -71,7 +71,7 @@ inline vector<T>::vector(size_t size, T value) {
     }
     cudaMalloc(reinterpret_cast<void **> (&data_), size * sizeof(T));
     if (!data_) {
-        fprintf(stderr, "Device out of memory, memory allocation failed\n");
+        fprintf(stderr, "Device memory allocation failed\n");
     }
     cudaMemset(data_, value, sizeof(T) * size_);
 }
@@ -84,7 +84,7 @@ inline vector<T>::vector(const vector<T> &src) {
     }
     cudaMalloc(reinterpret_cast<void **> (&data_), src.size_ * sizeof(T));
     if (!data_) {
-        fprintf(stderr, "Device out of memory, memory allocation failed\n");
+        fprintf(stderr, "Device memory allocation failed\n");
     }
     cudaMemcpy(data_, src.data_, size_ * sizeof(T), cudaMemcpyDeviceToDevice);
 }
@@ -97,7 +97,7 @@ inline vector<T>::vector(const std::vector<T> &src) {
         return;
     }
     if (!data_) {
-        fprintf(stderr, "Device out of memory, memory allocation failed\n");
+        fprintf(stderr, "Device memory allocation failed\n");
     }
     cudaMemcpy(data_, src.data(), src.size() * sizeof(T), cudaMemcpyHostToDevice);
 }
@@ -113,7 +113,7 @@ inline void vector<T>::resize(size_t size) {
     }
     cudaMalloc(reinterpret_cast<void **> (&data_), size * sizeof(T));
     if (!data_) {
-        fprintf(stderr, "Device out of memory, memory allocation failed\n");
+        fprintf(stderr, "Device memory allocation failed\n");
     }
 }
 
