@@ -276,32 +276,32 @@ template
 class sparseMatrix::COO<double>;
 
 template<typename T>
-bool sparseMatrix::CSR<T>::initializeFromMatrixFile(const std::string &matrixFile) {
+bool sparseMatrix::CSR<T>::initializeFromMatrixFile(const std::string &file) {
 
-    const std::string fileSuffix = util::getFileSuffix(matrixFile);
+    const std::string fileSuffix = util::getFileSuffix(file);
     if (fileSuffix == ".mtx" || fileSuffix == ".mmio") {
-        return initializeFromMtxFile(matrixFile);
+        return initializeFromMtxFile(file);
     } else if (fileSuffix == ".smtx") {
-        return initializeFromSmtxFile(matrixFile);
+        return initializeFromSmtxFile(file);
     } else if (fileSuffix == ".txt") {
-        return initializeFromTxtFile(matrixFile);
+        return initializeFromGraphDataset(file);
     } else {
-        std::cerr << "Error, file format is not supported : " << matrixFile << std::endl;
+        std::cerr << "Error, file format is not supported : " << file << std::endl;
     }
 
     return false;
 }
 
 template<typename T>
-bool sparseMatrix::CSR<T>::initializeFromSmtxFile(const std::string &matrixFile) {
+bool sparseMatrix::CSR<T>::initializeFromSmtxFile(const std::string &file) {
     std::ifstream inFile;
-    inFile.open(matrixFile, std::ios::in); // open file
+    inFile.open(file, std::ios::in); // open file
     if (!inFile.is_open()) {
-        std::cerr << "Error, matrix file cannot be opened : " << matrixFile << std::endl;
+        std::cerr << "Error, file cannot be opened : " << file << std::endl;
         return false;
     }
 
-    std::cout << "sparseMatrix::CSR initialize From matrix file : " << matrixFile << std::endl;
+    std::cout << "sparseMatrix::CSR initialize From file : " << file << std::endl;
 
     std::string line; // Store the data for each line
     while (getline(inFile, line) && line[0] == '%') {} // Skip comments
@@ -312,7 +312,7 @@ bool sparseMatrix::CSR<T>::initializeFromSmtxFile(const std::string &matrixFile)
     nnz_ = std::stoi(util::iterateOneWordFromLine(line, wordIter));
 
     if (nnz_ == 0) {
-        std::cerr << "Error, matrix file " << matrixFile << " nnz is 0!" << std::endl;
+        std::cerr << "Error, file " << file << " nnz is 0!" << std::endl;
         return false;
     }
 
@@ -330,7 +330,7 @@ bool sparseMatrix::CSR<T>::initializeFromSmtxFile(const std::string &matrixFile)
             rowOffsets_[idx] = rowOffset;
         }
         if (idx < rowOffsets_.size()) {
-            std::cerr << "Error, matrix file " << matrixFile << " rowOffsets is not enough!" << std::endl;
+            std::cerr << "Error, file " << file << " rowOffsets is not enough!" << std::endl;
         }
     }
 
@@ -345,7 +345,7 @@ bool sparseMatrix::CSR<T>::initializeFromSmtxFile(const std::string &matrixFile)
             values_[idx] = static_cast<T>(1);
         }
         if (idx < nnz_) {
-            std::cerr << "Error, matrix file " << matrixFile << " nnz is not enough!" << std::endl;
+            std::cerr << "Error, file " << file << " nnz is not enough!" << std::endl;
         }
     }
 
@@ -389,22 +389,22 @@ void getOneLineThreeData(const std::string &line, UIN &first, UIN &second, T &th
 }
 
 template<typename T>
-bool sparseMatrix::CSR<T>::initializeFromMtxFile(const std::string &matrixFile) {
+bool sparseMatrix::CSR<T>::initializeFromMtxFile(const std::string &file) {
     std::ifstream inFile;
-    inFile.open(matrixFile, std::ios::in); // open file
+    inFile.open(file, std::ios::in); // open file
     if (!inFile.is_open()) {
-        std::cerr << "Error, matrix file cannot be opened : " << matrixFile << std::endl;
+        std::cerr << "Error, file cannot be opened : " << file << std::endl;
         return false;
     }
 
-    std::cout << "sparseMatrix::CSR initialize from matrix file : " << matrixFile << std::endl;
+    std::cout << "sparseMatrix::CSR initialize from file : " << file << std::endl;
 
     std::string line; // Store the data for each line
     while (getline(inFile, line) && line[0] == '%') {} // Skip comments
 
     getOneLineThreeData(line, row_, col_, nnz_);
     if (row_ == NULL_VALUE || col_ == NULL_VALUE || nnz_ == NULL_VALUE) {
-        std::cerr << "Error, matrix file " << matrixFile << " format is incorrect!" << std::endl;
+        std::cerr << "Error, file " << file << " format is incorrect!" << std::endl;
         return false;
     }
 
@@ -430,13 +430,13 @@ bool sparseMatrix::CSR<T>::initializeFromMtxFile(const std::string &matrixFile) 
 
     // Check data
     if (idx < nnz_) {
-        std::cerr << "Error, matrix file " << matrixFile << " nnz is not enough!" << std::endl;
+        std::cerr << "Error, file " << file << " nnz is not enough!" << std::endl;
     }
     for (int idx = 0; idx < nnz_; ++idx) {
         const UIN row = rowIndices[idx];
         const UIN col = colIndices[idx];
         if (row >= row_ || col >= col_) {
-            std::cerr << "Error, matrix file " << matrixFile << " row or col is too big!" << std::endl;
+            std::cerr << "Error, file " << file << " row or col is too big!" << std::endl;
             return false;
         }
         std::pair<UIN, UIN> rowColPair(row, col);
@@ -464,15 +464,16 @@ bool sparseMatrix::CSR<T>::initializeFromMtxFile(const std::string &matrixFile) 
 }
 
 template<typename T>
-bool sparseMatrix::CSR<T>::initializeFromTxtFile(const std::string &matrixFile) {
+bool sparseMatrix::CSR<T>::initializeFromGraphDataset(const std::string &file) {
     std::ifstream inFile;
-    inFile.open(matrixFile, std::ios::in); // open file
+    inFile.open(file, std::ios::in); // open file
     if (!inFile.is_open()) {
-        std::cerr << "Error, matrix file cannot be opened : " << matrixFile << std::endl;
+        std::cerr << "Error, file cannot be opened : " << file << std::endl;
         return false;
     }
 
-    std::cout << "sparseMatrix::CSR initialize From matrix file : " << matrixFile << std::endl;
+    std::cout << "sparseMatrix::CSR initialize From file : " << file << std::endl;
+
     std::string line; // Store the data for each line
     int wordIter = 0;
     while (getline(inFile, line) && line[0] == '#') {
@@ -492,7 +493,7 @@ bool sparseMatrix::CSR<T>::initializeFromTxtFile(const std::string &matrixFile) 
     }
 
     if (!row_ || !col_ || !nnz_) {
-        std::cerr << "Error, matrix file " << matrixFile << " row or col or nnz not initialized!" << std::endl;
+        std::cerr << "Error, file " << file << " row or col or nnz not initialized!" << std::endl;
     }
 
     std::vector<UIN> rowIndices(nnz_);
@@ -500,30 +501,40 @@ bool sparseMatrix::CSR<T>::initializeFromTxtFile(const std::string &matrixFile) 
     std::vector<T> values(nnz_, 0);
 
     UIN idx = 0;
+    std::unordered_map<UIN, UIN> nodeToIdMap;
+    UIN nodeCount = 0;
     do {
-        UIN row = NULL_VALUE, col = NULL_VALUE;
-        T val;
-        getOneLineThreeData(line, row, col, val);
-        if (row == NULL_VALUE || col == NULL_VALUE) {
+        UIN node, node2;
+        T third;
+        getOneLineThreeData(line, node, node2, third);
+        if (node == NULL_VALUE || node2 == NULL_VALUE) {
             continue;
         }
+        if (nodeToIdMap.find(node) == nodeToIdMap.end() && idx > 0) {
+            ++nodeCount;
+            nodeToIdMap[node] = nodeCount;
+        }
+        if (nodeToIdMap.find(node2) == nodeToIdMap.end() && idx > 0) {
+            ++nodeCount;
+            nodeToIdMap[node2] = nodeCount;
+        }
 
-        rowIndices[idx] = row - 1;
-        colIndices[idx] = col - 1;
-        values[idx] = val;
+        rowIndices[idx] = nodeToIdMap[node];
+        colIndices[idx] = nodeToIdMap[node2];
+        values[idx] = third;
 
         ++idx;
     } while (getline(inFile, line));
 
     // Check data
     if (idx < nnz_) {
-        std::cerr << "Error, matrix file " << matrixFile << " nnz is not enough!" << std::endl;
+        std::cerr << "Error, file " << file << " nnz is not enough!" << std::endl;
     }
     for (int idx = 0; idx < nnz_; ++idx) {
         const UIN row = rowIndices[idx];
         const UIN col = colIndices[idx];
         if (row >= row_ || col >= col_) {
-            std::cerr << "Error, file " << matrixFile << " row or col is too big!" << std::endl;
+            std::cerr << "Error, file " << file << " row or col is too big!" << std::endl;
             return false;
         }
         std::pair<UIN, UIN> rowColPair(row, col);
@@ -551,22 +562,22 @@ bool sparseMatrix::CSR<T>::initializeFromTxtFile(const std::string &matrixFile) 
 }
 
 template<typename T>
-bool sparseMatrix::COO<T>::initializeFromMatrixMarketFile(const std::string &matrixFile) {
+bool sparseMatrix::COO<T>::initializeFromMatrixMarketFile(const std::string &file) {
     std::ifstream inFile;
-    inFile.open(matrixFile, std::ios::in); // open file
+    inFile.open(file, std::ios::in); // open file
     if (!inFile.is_open()) {
-        std::cerr << "Error, matrix file cannot be opened : " << matrixFile << std::endl;
+        std::cerr << "Error, file cannot be opened : " << file << std::endl;
         return false;
     }
 
-    std::cout << "sparseMatrix::COO initialize from matrix file : " << matrixFile << std::endl;
+    std::cout << "sparseMatrix::COO initialize from file : " << file << std::endl;
 
     std::string line; // Store the data for each line
     while (getline(inFile, line) && line[0] == '%') {} // Skip comments
 
     getOneLineThreeData(line, row_, col_, nnz_);
     if (row_ == NULL_VALUE || col_ == NULL_VALUE || nnz_ == NULL_VALUE) {
-        std::cerr << "Error, matrix file " << matrixFile << " format is incorrect!" << std::endl;
+        std::cerr << "Error, file " << file << " format is incorrect!" << std::endl;
         return false;
     }
 
@@ -592,13 +603,13 @@ bool sparseMatrix::COO<T>::initializeFromMatrixMarketFile(const std::string &mat
 
     // Check data
     if (idx < nnz_) {
-        std::cerr << "Error, matrix file " << matrixFile << " nnz is not enough!" << std::endl;
+        std::cerr << "Error, file " << file << " nnz is not enough!" << std::endl;
     }
     for (int idx = 0; idx < nnz_; ++idx) {
         const UIN row = rowIndices_[idx];
         const UIN col = colIndices_[idx];
         if (row >= row_ || col >= col_) {
-            std::cerr << "Error, matrix file " << matrixFile << " row or col is too big!" << std::endl;
+            std::cerr << "Error, file " << file << " row or col is too big!" << std::endl;
             return false;
         }
         std::pair<UIN, UIN> rowColPair(row, col);

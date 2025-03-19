@@ -178,7 +178,7 @@ class CSR : public DataBase {
       nnz_ = nnz;
   }
 
-  bool initializeFromMatrixFile(const std::string &matrixFile);
+  bool initializeFromMatrixFile(const std::string &file);
 
   /**
    * Initialize from smtx file.
@@ -188,7 +188,7 @@ class CSR : public DataBase {
    *    2) The storage format starts with a 3-integer header "nrows, ncols, nnz" that describes the number of rows in the matrix, the number of columns in the matrix, and the number of nonzeros in the matrix.
    *    3) The two rows represent rowOffset, and colIndex respectively
    **/
-  bool initializeFromSmtxFile(const std::string &matrixFile);
+  bool initializeFromSmtxFile(const std::string &file);
 
   /**
    * Initialize from txt file.
@@ -196,7 +196,7 @@ class CSR : public DataBase {
    * txt file(CSR):
    *
    **/
-  bool initializeFromTxtFile(const std::string &matrixFile);
+  bool initializeFromGraphDataset(const std::string &file);
 
   /**
   * Initialize from mtx file.
@@ -206,7 +206,7 @@ class CSR : public DataBase {
   *    2) By three numbers separated by a space: number of rows, number of columns, and number of non-zeros.
   *    3) Each after line has three numbers separated by a space: current row, current column, and value.
   **/
-  bool initializeFromMtxFile(const std::string &matrixFile);
+  bool initializeFromMtxFile(const std::string &file);
 
   const std::vector<UIN> &rowOffsets() const { return rowOffsets_; }
   const std::vector<UIN> &colIndices() const { return colIndices_; }
@@ -249,7 +249,7 @@ class COO : public DataBase {
    *    2) By three numbers separated by a space: number of rows, number of columns, and number of non-zeros.
    *    3) Each after line has three numbers separated by a space: current row, current column, and value.
    **/
-  bool initializeFromMatrixMarketFile(const std::string &matrixFile);
+  bool initializeFromMatrixMarketFile(const std::string &file);
 
   /**
     * Used as a test comparison result
