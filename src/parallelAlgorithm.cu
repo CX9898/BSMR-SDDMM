@@ -110,7 +110,7 @@ void inclusive_scan(size_t *first, size_t *last, size_t *result) {
 void inclusive_scan(uint32_t *first, uint32_t *last, uint32_t *result) {
     thrust::inclusive_scan(thrust::device, first, last, result);
 }
-void sequence(uint32_t *first, uint32_t *last, uint32_t start_value, uint32_t step = 1) {
+void sequence(uint32_t *first, uint32_t *last, uint32_t start_value, uint32_t step) {
     thrust::sequence(thrust::device, first, last, start_value, step);
 }
 void sort_by_key_descending_order(uint32_t *key_first, uint32_t *key_last, uint32_t *value_first) {
