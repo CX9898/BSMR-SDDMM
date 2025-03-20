@@ -432,6 +432,7 @@ bool sparseMatrix::CSR<T>::initializeFromMtxFile(const std::string &file) {
     if (idx < nnz_) {
         std::cerr << "Error, file " << file << " nnz is not enough!" << std::endl;
     }
+    std::set<std::pair<UIN, UIN>> rowColSet;
     for (int idx = 0; idx < nnz_; ++idx) {
         const UIN row = rowIndices[idx];
         const UIN col = colIndices[idx];
@@ -440,7 +441,6 @@ bool sparseMatrix::CSR<T>::initializeFromMtxFile(const std::string &file) {
             return false;
         }
         std::pair<UIN, UIN> rowColPair(row, col);
-        std::set<std::pair<UIN, UIN>> rowColSet;
         if (rowColSet.find(rowColPair) != rowColSet.end()) {
             std::cerr << "Error, matrix has duplicate data!" << std::endl;
             return false;
@@ -475,8 +475,8 @@ bool sparseMatrix::CSR<T>::initializeFromGraphDataset(const std::string &file) {
     std::cout << "sparseMatrix::CSR initialize From file : " << file << std::endl;
 
     std::string line; // Store the data for each line
-    int wordIter = 0;
     while (getline(inFile, line) && line[0] == '#') {
+        int wordIter = 0;
         const std::string nodesStr("Nodes: ");
         const std::string edgesStr("Edges: ");
         if (line.find(nodesStr) != std::string::npos) {
@@ -510,13 +510,13 @@ bool sparseMatrix::CSR<T>::initializeFromGraphDataset(const std::string &file) {
         if (node == NULL_VALUE || node2 == NULL_VALUE) {
             continue;
         }
-        if (nodeToIdMap.find(node) == nodeToIdMap.end() && idx > 0) {
-            ++nodeCount;
+        if (nodeToIdMap.find(node) == nodeToIdMap.end()) {
             nodeToIdMap[node] = nodeCount;
-        }
-        if (nodeToIdMap.find(node2) == nodeToIdMap.end() && idx > 0) {
             ++nodeCount;
+        }
+        if (nodeToIdMap.find(node2) == nodeToIdMap.end()) {
             nodeToIdMap[node2] = nodeCount;
+            ++nodeCount;
         }
 
         rowIndices[idx] = nodeToIdMap[node];
@@ -530,6 +530,7 @@ bool sparseMatrix::CSR<T>::initializeFromGraphDataset(const std::string &file) {
     if (idx < nnz_) {
         std::cerr << "Error, file " << file << " nnz is not enough!" << std::endl;
     }
+    std::set<std::pair<UIN, UIN>> rowColSet;
     for (int idx = 0; idx < nnz_; ++idx) {
         const UIN row = rowIndices[idx];
         const UIN col = colIndices[idx];
@@ -538,9 +539,9 @@ bool sparseMatrix::CSR<T>::initializeFromGraphDataset(const std::string &file) {
             return false;
         }
         std::pair<UIN, UIN> rowColPair(row, col);
-        std::set<std::pair<UIN, UIN>> rowColSet;
         if (rowColSet.find(rowColPair) != rowColSet.end()) {
-            std::cerr << "Error, matrix has duplicate data!" << std::endl;
+            fprintf(stderr, "Error, matrix has duplicate data! row:%d, col:%d\n",
+                    row, col);
             return false;
         }
         rowColSet.insert(rowColPair);
@@ -605,6 +606,7 @@ bool sparseMatrix::COO<T>::initializeFromMatrixMarketFile(const std::string &fil
     if (idx < nnz_) {
         std::cerr << "Error, file " << file << " nnz is not enough!" << std::endl;
     }
+    std::set<std::pair<UIN, UIN>> rowColSet;
     for (int idx = 0; idx < nnz_; ++idx) {
         const UIN row = rowIndices_[idx];
         const UIN col = colIndices_[idx];
@@ -613,7 +615,6 @@ bool sparseMatrix::COO<T>::initializeFromMatrixMarketFile(const std::string &fil
             return false;
         }
         std::pair<UIN, UIN> rowColPair(row, col);
-        std::set<std::pair<UIN, UIN>> rowColSet;
         if (rowColSet.find(rowColPair) != rowColSet.end()) {
             std::cerr << "Error, matrix has duplicate data!" << std::endl;
             return false;
