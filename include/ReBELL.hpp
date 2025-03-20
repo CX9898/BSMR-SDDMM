@@ -127,15 +127,27 @@ void colReordering(const sparseMatrix::CSR<float> &matrix,
  * `reorderedRows` : Reordered row index array.
  * @output:
  **/
-void colReordering(const sparseMatrix::CSR<float> &matrix,
-                   const UIN numRowPanels,
-                   const std::vector<UIN> &reorderedRows,
-                   const UIN dense_column_segment_threshold,
-                   std::vector<UIN> &denseCols,
-                   std::vector<UIN> &denseColOffsets,
-                   std::vector<UIN> &sparseCols,
-                   std::vector<UIN> &sparseColOffsets,
-                   std::vector<UIN> &sparsePartDataOffsets);
+void colReordering_cpu(const sparseMatrix::CSR<float> &matrix,
+                       const UIN numRowPanels,
+                       const std::vector<UIN> &reorderedRows,
+                       const UIN dense_column_segment_threshold,
+                       std::vector<UIN> &denseCols,
+                       std::vector<UIN> &denseColOffsets,
+                       std::vector<UIN> &sparseCols,
+                       std::vector<UIN> &sparseColOffsets,
+                       std::vector<UIN> &sparseDataOffsets,
+                       float &time);
+
+void colReordering_gpu(const sparseMatrix::CSR<float> &matrix,
+                       const UIN numRowPanels,
+                       const std::vector<UIN> &reorderedRows,
+                       const UIN dense_column_segment_threshold,
+                       std::vector<UIN> &denseCols,
+                       std::vector<UIN> &denseColOffsets,
+                       std::vector<UIN> &sparseCols,
+                       std::vector<UIN> &sparseColOffsets,
+                       std::vector<UIN> &sparseDataOffsets,
+                       float &time);
 
 // Error checking
 bool check_rebell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &rebell);

@@ -27,27 +27,36 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
                                            row_similarity_threshold_alpha,
                                            32,
                                            rowReordering_time);
+//    std::vector<int> rows = bsa_rowReordering_cpu(matrix,
+//                                                  row_similarity_threshold_alpha,
+//                                                  32,
+//                                                  rowReordering_time);
+//    reorderedRows_.resize(rows.size());
+//    for(int i =0; i< rows.size();++i){
+//        reorderedRows_[i] = rows[i];
+//    }
+//    rowReordering_cpu(matrix, reorderedRows_, rowReordering_time);
+//    noReorderRow(matrix, reorderedRows_, rowReordering_time);
 
     printf("rowReordering time : %f ms\n", rowReordering_time);
 
     numRowPanels_ = std::ceil(static_cast<float>(reorderedRows_.size()) / ROW_PANEL_SIZE);
+    printf("numRowPanels : %d\n", numRowPanels_);
 
-    CudaTimeCalculator timeCalculator;
-    timeCalculator.startClock();
     // Column reordering
     std::vector<UIN> sparseCols;
     std::vector<UIN> sparseColOffsets;
-    colReordering(matrix,
-                  numRowPanels_,
-                  reorderedRows(),
-                  dense_column_segment_threshold_,
-                  denseCols_,
-                  denseColOffsets_,
-                  sparseCols,
-                  sparseColOffsets,
-                  sparseDataOffsets_);
-    timeCalculator.endClock();
-    float colReordering_time = timeCalculator.getTime();
+    float colReordering_time;
+    colReordering_cpu(matrix,
+                      numRowPanels_,
+                      reorderedRows(),
+                      dense_column_segment_threshold_,
+                      denseCols_,
+                      denseColOffsets_,
+                      sparseCols,
+                      sparseColOffsets,
+                      sparseDataOffsets_,
+                      colReordering_time);
     printf("colReordering time : %f ms\n", colReordering_time);
 
     // Calculate the maximum number of dense column blocks in a row panel
@@ -60,6 +69,7 @@ ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
         maxNumDenseColBlocks_ = std::max(maxNumDenseColBlocks_, numBlocksCurrentRowPanel);
     }
 
+    CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
 
     // initialize blockRowOffsets_
