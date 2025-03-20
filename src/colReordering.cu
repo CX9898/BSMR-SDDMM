@@ -52,6 +52,24 @@ __global__ void calculateNumNonZeroColSegmentsPerRowPanel(const UIN numCols,
                                                           const UIN *__restrict__ reorderedRows,
                                                           UIN *__restrict__ numNonZeroColSegmentsPerRowPanel) {
 
+    const UIN rowPanelId = blockIdx.x;
+
+    const UIN warpId = threadIdx.x >> 5;
+
+    const UIN indexOfReorderedRows = rowPanelId * ROW_PANEL_SIZE + warpId;
+    if (indexOfReorderedRows >= numNonZeroRow) {
+        return;
+    }
+
+    const UIN row = reorderedRows[indexOfReorderedRows + warpId];
+    const UIN endIdx = rowOffsets[row + 1];
+
+    const UIN laneId = threadIdx.x & 31;
+
+    for (int idx = rowOffsets[row] + laneId; idx < endIdx; idx += WARP_SIZE) {
+        const UIN col = colIndices[idx];
+    }
+
 }
 
 // blockDim:[512,1,1]
@@ -288,12 +306,12 @@ void colReordering_cpu(const sparseMatrix::CSR<float> &matrix,
                        float &time) {
     std::vector<UIN> numOfDenseColSegmentInEachRowPanel(numRowPanels, 0);
     std::vector<UIN> numOfSparseColSegmentInEachRowPanel(numRowPanels, 0);
-    std::vector<std::vector<UIN>> colsInEachRowPanel(
-        numRowPanels, std::vector<UIN>(matrix.col())); // Containing empty columns
+    std::vector<std::vector<UIN>> nonZeroColsInEachRowPanel(numRowPanels);
     std::vector<UIN> numOfSparsePartDataInEachRowPanel(numRowPanels, 0);
 
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
+
 #pragma omp parallel for schedule(dynamic)
     for (int rowPanelId = 0; rowPanelId < numRowPanels; ++rowPanelId) {
         const UIN startIdxOfReorderedRowsCurrentRowPanel = rowPanelId * ROW_PANEL_SIZE;
@@ -314,18 +332,38 @@ void colReordering_cpu(const sparseMatrix::CSR<float> &matrix,
             }
         }
 
-        std::vector<UIN> &colIndices = colsInEachRowPanel[rowPanelId];
-        std::iota(colIndices.begin(), colIndices.end(), 0);
-        host::sort_by_key_descending_order(numOfNonZeroInEachColSegment.data(),
-                                           numOfNonZeroInEachColSegment.data() + numOfNonZeroInEachColSegment.size(),
-                                           colIndices.data());
+        std::vector<UIN> ascendingOrder(numOfNonZeroInEachColSegment.size());
+        host::sequence(ascendingOrder.data(), ascendingOrder.data() + ascendingOrder.size(), 0);
+
+        // 计算具有非零元素的列的数量
+        size_t numNonZeroCols = host::count_if_positive(numOfNonZeroInEachColSegment.data(),
+                                                        numOfNonZeroInEachColSegment.data()
+                                                            + numOfNonZeroInEachColSegment.size());
+        std::vector<UIN> numOfNonZeroInEachColSegment_dense(numNonZeroCols);
+        std::vector<UIN> colIndices_dense(numNonZeroCols);
+
+        host::copy_if_positive(numOfNonZeroInEachColSegment.data(),
+                               numOfNonZeroInEachColSegment.data() + numOfNonZeroInEachColSegment.size(),
+                               numOfNonZeroInEachColSegment.data(),
+                               numOfNonZeroInEachColSegment_dense.data());
+        host::copy_if_positive(ascendingOrder.data(),
+                               ascendingOrder.data() + ascendingOrder.size(),
+                               numOfNonZeroInEachColSegment.data(),
+                               colIndices_dense.data());
+
+        host::sort_by_key_descending_order(numOfNonZeroInEachColSegment_dense.data(),
+                                           numOfNonZeroInEachColSegment_dense.data()
+                                               + numOfNonZeroInEachColSegment_dense.size(),
+                                           colIndices_dense.data());
+
+        nonZeroColsInEachRowPanel[rowPanelId] = colIndices_dense;
 
         const auto [numDenseColSegment, numSparseColSegment] =
-            analysisDescendingOrderColSegment(dense_column_segment_threshold, numOfNonZeroInEachColSegment);
+            analysisDescendingOrderColSegment(dense_column_segment_threshold, numOfNonZeroInEachColSegment_dense);
 
         UIN numSparsePartData = 0;
         for (int i = numDenseColSegment; i < numDenseColSegment + numSparseColSegment; ++i) {
-            numSparsePartData += numOfNonZeroInEachColSegment[i];
+            numSparsePartData += colIndices_dense[i];
         }
         numOfDenseColSegmentInEachRowPanel[rowPanelId] = numDenseColSegment;
         numOfSparseColSegmentInEachRowPanel[rowPanelId] = numSparseColSegment;
@@ -358,14 +396,19 @@ void colReordering_cpu(const sparseMatrix::CSR<float> &matrix,
     sparseCols.resize(sparseColOffsets[numRowPanels]);
 #pragma omp parallel for
     for (int rowPanelId = 0; rowPanelId < numRowPanels; ++rowPanelId) {
-        std::copy(colsInEachRowPanel[rowPanelId].begin(),
-                  colsInEachRowPanel[rowPanelId].begin() + numOfDenseColSegmentInEachRowPanel[rowPanelId],
+        UIN *colsCurrentRowPanelPtr = nonZeroColsInEachRowPanel[rowPanelId].data();
+        UIN *colsCurrentRowPanelEndPtr = nonZeroColsInEachRowPanel[rowPanelId].data() + nonZeroColsInEachRowPanel[rowPanelId].size();
+
+        UIN *denseColsCurrentRowPanelPtr = colsCurrentRowPanelPtr;
+        UIN *denseColsCurrentRowPanelEndPtr = colsCurrentRowPanelPtr + numOfDenseColSegmentInEachRowPanel[rowPanelId];
+        std::copy(denseColsCurrentRowPanelPtr,
+                  denseColsCurrentRowPanelEndPtr,
                   denseCols.begin() + denseColOffsets[rowPanelId]);
 
-        std::copy(colsInEachRowPanel[rowPanelId].begin() + numOfDenseColSegmentInEachRowPanel[rowPanelId],
-                  colsInEachRowPanel[rowPanelId].begin()
-                      + numOfDenseColSegmentInEachRowPanel[rowPanelId]
-                      + numOfSparseColSegmentInEachRowPanel[rowPanelId],
+        UIN *sparseColsCurrentRowPanelPtr = denseColsCurrentRowPanelEndPtr;
+        UIN *sparseColsCurrentRowPanelEndPtr = colsCurrentRowPanelEndPtr;
+        std::copy(sparseColsCurrentRowPanelPtr,
+                  sparseColsCurrentRowPanelEndPtr,
                   sparseCols.begin() + sparseColOffsets[rowPanelId]);
     }
 
