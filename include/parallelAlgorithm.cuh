@@ -54,4 +54,6 @@ void sort_by_key(uint64_t *key_first, uint64_t *key_last, uint64_t *value_first)
 void sort_by_key(uint64_t *key_first, uint64_t *key_last, float *value_first);
 void inclusive_scan(size_t *first, size_t *last, size_t *result);
 void inclusive_scan(uint32_t *first, uint32_t *last, uint32_t *result);
+void sequence(uint32_t *first, uint32_t *last, uint32_t start_value, uint32_t step = 1);
+void sort_by_key_descending_order(uint32_t *key_first, uint32_t *key_last, uint32_t *value_first);
 } // namespace dev
