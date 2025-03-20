@@ -251,12 +251,12 @@ bool initializeFromGraphDataset(const std::string &file, Matrix &S) {
             continue;
         }
         if (nodeToIdMap.find(node) == nodeToIdMap.end() && idx > 0) {
-            ++nodeCount;
             nodeToIdMap[node] = nodeCount;
+            ++nodeCount;
         }
         if (nodeToIdMap.find(node2) == nodeToIdMap.end() && idx > 0) {
-            ++nodeCount;
             nodeToIdMap[node2] = nodeCount;
+            ++nodeCount;
         }
 
         rowIndices[idx] = nodeToIdMap[node];
@@ -270,6 +270,7 @@ bool initializeFromGraphDataset(const std::string &file, Matrix &S) {
     if (idx < S.nnz) {
         std::cerr << "Error, file " << file << " nnz is not enough!" << std::endl;
     }
+    std::set<std::pair<int, int>> rowColSet;
     for (int idx = 0; idx < S.nnz; ++idx) {
         const int row = rowIndices[idx];
         const int col = colIndices[idx];
@@ -278,7 +279,6 @@ bool initializeFromGraphDataset(const std::string &file, Matrix &S) {
             return false;
         }
         std::pair<int, int> rowColPair(row, col);
-        std::set<std::pair<int, int>> rowColSet;
         if (rowColSet.find(rowColPair) != rowColSet.end()) {
             std::cerr << "Error, matrix has duplicate data!" << std::endl;
             return false;
