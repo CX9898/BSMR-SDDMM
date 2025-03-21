@@ -43,6 +43,10 @@ void sort_by_key_for_multiple_vectors(uint32_t *key_first,
                                       double *value2_first);
 void inclusive_scan(size_t *first, size_t *last, size_t *result);
 void inclusive_scan(uint32_t *first, uint32_t *last, uint32_t *result);
+void sequence(uint32_t *first, uint32_t *last, uint32_t start_value, uint32_t step = 1);
+size_t count_if_positive(uint32_t *first, uint32_t *last);
+void copy_if_positive(uint32_t *first, uint32_t *last, uint32_t *result);
+void copy_if_positive(uint32_t *first, uint32_t *last, uint32_t *stencil, uint32_t *result);
 } // namespace host
 
 namespace dev {

@@ -2,6 +2,7 @@
 #include <thrust/execution_policy.h>
 #include <thrust/iterator/zip_iterator.h>
 #include <thrust/functional.h>
+#include <thrust/count.h>
 
 #include "parallelAlgorithm.cuh"
 
@@ -82,6 +83,24 @@ void inclusive_scan(size_t *first, size_t *last, size_t *result) {
 }
 void inclusive_scan(uint32_t *first, uint32_t *last, uint32_t *result) {
     thrust::inclusive_scan(thrust::host, first, last, result);
+}
+void sequence(uint32_t *first, uint32_t *last, uint32_t start_value, uint32_t step) {
+    thrust::sequence(thrust::host, first, last, start_value, step);
+}
+struct IsPositive {
+  __host__ __device__
+  bool operator()(int x) {
+      return x > 0;
+  }
+};
+size_t count_if_positive(uint32_t *first, uint32_t *last) {
+    return thrust::count_if(thrust::host, first, last, IsPositive());
+}
+void copy_if_positive(uint32_t *first, uint32_t *last, uint32_t *result) {
+    thrust::copy_if(first, last, result, IsPositive());
+}
+void copy_if_positive(uint32_t *first, uint32_t *last, uint32_t *stencil, uint32_t *result) {
+    thrust::copy_if(first, last, stencil, result, IsPositive());
 }
 } // namespace host
 
