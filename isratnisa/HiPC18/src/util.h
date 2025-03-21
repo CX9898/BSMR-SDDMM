@@ -220,8 +220,8 @@ bool initializeFromGraphDataset(const std::string &file, Matrix &S) {
     std::cout << "sparseMatrix::CSR initialize From file : " << file << std::endl;
 
     std::string line; // Store the data for each line
-    int wordIter = 0;
     while (getline(inFile, line) && line[0] == '#') {
+        int wordIter = 0;
         const std::string nodesStr("Nodes: ");
         const std::string edgesStr("Edges: ");
         if (line.find(nodesStr) != std::string::npos) {
@@ -255,11 +255,11 @@ bool initializeFromGraphDataset(const std::string &file, Matrix &S) {
         if (node == -1 || node2 == -1) {
             continue;
         }
-        if (nodeToIdMap.find(node) == nodeToIdMap.end() && idx > 0) {
+        if (nodeToIdMap.find(node) == nodeToIdMap.end()) {
             nodeToIdMap[node] = nodeCount;
             ++nodeCount;
         }
-        if (nodeToIdMap.find(node2) == nodeToIdMap.end() && idx > 0) {
+        if (nodeToIdMap.find(node2) == nodeToIdMap.end()) {
             nodeToIdMap[node2] = nodeCount;
             ++nodeCount;
         }
@@ -285,7 +285,8 @@ bool initializeFromGraphDataset(const std::string &file, Matrix &S) {
         }
         std::pair<int, int> rowColPair(row, col);
         if (rowColSet.find(rowColPair) != rowColSet.end()) {
-            std::cerr << "Error, matrix has duplicate data!" << std::endl;
+            fprintf(stderr, "Error, matrix has duplicate data! row:%d, col:%d\n",
+                    row, col);
             return false;
         }
         rowColSet.insert(rowColPair);
