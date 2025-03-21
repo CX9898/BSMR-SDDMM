@@ -320,9 +320,12 @@ void preprocessing(const Matrix S) {
     float other_time = make_CSR_time + rewrite_matrix_1D_time;
     float sum_time = make_CSR_time + rewrite_matrix_1D_time + *comp_kernel_COO_time;
 
+    float flops = 2 * S.nnz * k;
+    float gflops = flops / ( *comp_kernel_COO_time * 1e6);
     printf("[isratnisa_sddmm : %.2f ]\n", *comp_kernel_COO_time);
     printf("[isratnisa_other : %.2f ]\n", other_time);
     printf("[isratnisa : %.2f ]\n", sum_time);
+    printf("[isratnisa_gflops : %.2f ]\n", gflops);
 
     std::cout << "sddmm_time = " << *comp_kernel_COO_time << " ms" << std::endl;
     std::cout << "other_time = " << other_time << " ms" << std::endl;
