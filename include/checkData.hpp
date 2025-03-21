@@ -67,8 +67,11 @@ inline bool checkDataFunction(const size_t num, const T *data1, const T *data2, 
         if (!checkOneData(oneData1, oneData2)) {
             ++errors;
             if (errors < 10) {
-                printf("| Error : idx = %d, data1 = %f, data2 = %f\n",
-                       idx, static_cast<float>(oneData1), static_cast<float>(oneData2));
+                printf("| Error : idx = %d, data1 = %f, data2 = %f, difference = %f\n",
+                       idx,
+                       static_cast<float>(oneData1),
+                       static_cast<float>(oneData2),
+                       static_cast<float>(oneData1 - oneData2));
             }
         }
     }
