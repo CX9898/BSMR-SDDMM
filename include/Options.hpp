@@ -17,7 +17,7 @@ const std::string folderPath("../dataset/test/matrix_15000_15000_/");
 const std::string fileName("matrix_15000_15000_11250000");
 const std::string fileFormat(".mtx");
 //const std::string filePath = folderPath + fileName + fileFormat;
-const std::string filePath("./../autoTestTool/dataset_of_isratnisa_paper_results/dataset/email-Eu-core.txt");
+const std::string filePath("./../autoTestTool/dataset_of_isratnisa_paper_results/dataset/com-amazon.ungraph.txt");
 
 class Options {
  public:
@@ -34,7 +34,7 @@ class Options {
   std::string programPath_;
   std::string programName_;
   std::string inputFile_ = filePath;
-  size_t K_ = 320;
+  size_t K_ = 32;
   float alpha_ = 1.0f;
   float beta_ = 0.0f;
 

@@ -188,7 +188,13 @@ void SettingInformation::printInformation() const {
 struct OneTimeData {
   void initInformation(const std::vector<std::string> &oneTimeResults);
   bool isEffective() const;
+
+  std::string isratnisa_gflops_;
+  std::string cuSparse_gflops_;
+  std::string zcx_gflops_;
+
   std::string isratnisa_sddmm_;
+  std::string cuSparse_sddmm_;
   std::string zcx_sddmm_;
 
   std::string isratnisa_other_;
@@ -196,7 +202,6 @@ struct OneTimeData {
 
   std::string isratnisa_;
   std::string zcx_;
-  std::string cuSparse_;
 
   std::string checkResults_;
 };
@@ -222,7 +227,7 @@ bool OneTimeData::isEffective() const {
     if (zcx_.empty()) {
         return false;
     }
-    if (cuSparse_.empty()) {
+    if (cuSparse_sddmm_.empty()) {
         return false;
     }
 
@@ -231,13 +236,16 @@ bool OneTimeData::isEffective() const {
 
 void OneTimeData::initInformation(const std::vector<std::string> &oneTimeResults) {
     for (const std::string &line : oneTimeResults) {
+        isratnisa_gflops_ = isratnisa_gflops_.empty() ? getValue(line, "isratnisa_gflops : ") : isratnisa_gflops_;
+        cuSparse_gflops_ = cuSparse_gflops_.empty() ? getValue(line, "[cuSparse_gflops : ") : cuSparse_gflops_;
+        zcx_gflops_ = zcx_gflops_.empty() ? getValue(line, "[zcx_gflops : ") : zcx_gflops_;
         isratnisa_sddmm_ = isratnisa_sddmm_.empty() ? getValue(line, "[isratnisa_sddmm : ") : isratnisa_sddmm_;
+        cuSparse_sddmm_ = cuSparse_sddmm_.empty() ? getValue(line, "[cuSparse_sddmm : ") : cuSparse_sddmm_;
         zcx_sddmm_ = zcx_sddmm_.empty() ? getValue(line, "[zcx_sddmm : ") : zcx_sddmm_;
         isratnisa_other_ = isratnisa_other_.empty() ? getValue(line, "[isratnisa_other : ") : isratnisa_other_;
         zcx_other_ = zcx_other_.empty() ? getValue(line, "[zcx_other : ") : zcx_other_;
         isratnisa_ = isratnisa_.empty() ? getValue(line, "[isratnisa : ") : isratnisa_;
         zcx_ = zcx_.empty() ? getValue(line, "[zcx : ") : zcx_;
-        cuSparse_ = cuSparse_.empty() ? getValue(line, "[cuSparse : ") : cuSparse_;
         checkResults_ = checkResults_.empty() ? getValue(line, "[checkResults : ") : checkResults_;
     }
 }
@@ -312,7 +320,7 @@ void ResultsInformation::printInformation() const {
     printf("## M : %s, N: %s, sparsity: %s, file: %s\n",
            M_.c_str(), N_.c_str(), sparsity_.c_str(), file_.c_str());
 
-    const int numColAttributes = 11;
+    const int numColAttributes = 14;
 
     // print the head of the list
     printf("\n");
@@ -321,13 +329,17 @@ void ResultsInformation::printInformation() const {
     printf(" N |");
     printf(" sparsity |");
     printf(" K |");
+    printf(" isratnisa_gflops |");
+    printf(" cuSparse_gflops |");
+    printf(" zcx_gflops |");
     printf(" isratnisa_sddmm |");
+    printf(" cuSparse_sddmm |");
     printf(" zcx_sddmm |");
     printf(" isratnisa_other |");
     printf(" zcx_other |");
     printf(" isratnisa |");
     printf(" zcx |");
-    printf(" cuSparse |");
+
     printf("\n");
 
     // print the split line
@@ -349,13 +361,17 @@ void ResultsInformation::printInformation() const {
         printOneLineInformation(N_);
         printOneLineInformation(sparsity_);
         std::cout << iter.first << "|"; // K value
+        printOneLineInformation(iter.second.isratnisa_gflops_);
+        printOneLineInformation(iter.second.cuSparse_gflops_);
+        printOneLineInformation(iter.second.zcx_gflops_);
         printOneLineInformation(iter.second.isratnisa_sddmm_);
+        printOneLineInformation(iter.second.cuSparse_sddmm_);
         printOneLineInformation(iter.second.zcx_sddmm_);
         printOneLineInformation(iter.second.isratnisa_other_);
         printOneLineInformation(iter.second.zcx_other_);
         printOneLineInformation(iter.second.isratnisa_);
         printOneLineInformation(iter.second.zcx_);
-        printOneLineInformation(iter.second.cuSparse_);
+
         std::cout << iter.second.checkResults_;
         printf("\n");
     }
@@ -412,8 +428,8 @@ std::unordered_map<std::string, ResultsInformation> pickTheBadResults(
             const int k = kToOneTimeData.first;
             const float zcx_sddmm = getFloatValue(kToOneTimeData.second.zcx_sddmm_);
             const float isratnisa_sddmm = getFloatValue(kToOneTimeData.second.isratnisa_sddmm_);
-            const float cuSparse = getFloatValue(kToOneTimeData.second.cuSparse_);
-            if(zcx_sddmm > 1e-6 && isratnisa_sddmm > 1e-6 && cuSparse > 1e-6){
+            const float cuSparse = getFloatValue(kToOneTimeData.second.cuSparse_sddmm_);
+            if (zcx_sddmm > 1e-6 && isratnisa_sddmm > 1e-6 && cuSparse > 1e-6) {
                 if (zcx_sddmm > isratnisa_sddmm || zcx_sddmm > cuSparse) {
                     OneTimeData oneTimeData = kToOneTimeData.second;
                     badResultsInformation.kToOneTimeData_[k] = oneTimeData;
@@ -521,7 +537,7 @@ std::pair<float, float> calculateAverageAndMaxSpeedup2(
     for (const auto &iter : matrixFileToResultsInformationMap) {
         for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
             const float zcx_sddmm = getFloatValue(kToOneTimeData.second.zcx_sddmm_);
-            const float cuSparse_sddmm = getFloatValue(kToOneTimeData.second.cuSparse_);
+            const float cuSparse_sddmm = getFloatValue(kToOneTimeData.second.cuSparse_sddmm_);
 
             if (zcx_sddmm <= 1e-6 || cuSparse_sddmm <= 1e-6) {
                 continue;
@@ -537,7 +553,6 @@ std::pair<float, float> calculateAverageAndMaxSpeedup2(
 
     return std::make_pair(averageSpeedup, maxSpeedup);
 }
-
 
 // return the maximum sparsity and minimum sparsity
 std::pair<float, float> getMaxAndMinSparsity(
