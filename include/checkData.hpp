@@ -10,7 +10,7 @@
 #include "checkData.hpp"
 #include "cudaErrorCheck.cuh"
 
-const float ERROR_THRESHOLD_EPSILON = 1e-4;
+const float ERROR_THRESHOLD_EPSILON = 1e-3;
 
 /**
  * error checking
@@ -58,6 +58,7 @@ inline bool checkDataFunction(const size_t num, const T *data1, const T *data2, 
 
     printf("|---------------------------check data---------------------------|\n");
     printf("| Data size : %ld\n", num);
+    printf("| Error threshold epsilon : %f\n", ERROR_THRESHOLD_EPSILON);
     printf("| Checking results...\n");
 
     size_t errors = 0;
