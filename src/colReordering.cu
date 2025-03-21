@@ -362,7 +362,7 @@ void colReordering_cpu(const sparseMatrix::CSR<float> &matrix,
 
         UIN numSparsePartData = 0;
         for (int i = numDenseColSegment; i < numDenseColSegment + numSparseColSegment; ++i) {
-            numSparsePartData += colIndices_dense[i];
+            numSparsePartData += numOfNonZeroInEachColSegment_dense[i];
         }
         numOfDenseColSegmentInEachRowPanel[rowPanelId] = numDenseColSegment;
         numOfSparseColSegmentInEachRowPanel[rowPanelId] = numSparseColSegment;
