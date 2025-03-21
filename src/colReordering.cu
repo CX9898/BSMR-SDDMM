@@ -282,11 +282,10 @@ std::pair<UIN, UIN> analysisDescendingOrderColSegment(const UIN dense_column_seg
     }
 
     const UIN remainderNumber = numDenseColSegment % each_thread_block_counts_the_number_Of_cols;
+    numDenseColSegment -= remainderNumber;
     if (remainderNumber > each_thread_block_counts_the_number_Of_cols / 2) {
         numDenseColSegment = std::min(static_cast<UIN>(numOfNonZeroInEachColSegment.size()),
-                                      numDenseColSegment - remainderNumber + BLOCK_COL_SIZE);
-    } else {
-        numDenseColSegment -= remainderNumber;
+                                      numDenseColSegment + each_thread_block_counts_the_number_Of_cols);
     }
 
     const UIN numSparseColSegment = numNonZeroColSegment - numDenseColSegment;
@@ -332,8 +331,8 @@ void colReordering_cpu(const sparseMatrix::CSR<float> &matrix,
             }
         }
 
-        std::vector<UIN> ascendingOrder(numOfNonZeroInEachColSegment.size());
-        host::sequence(ascendingOrder.data(), ascendingOrder.data() + ascendingOrder.size(), 0);
+        std::vector<UIN> colIndices_sparse(numOfNonZeroInEachColSegment.size()); // Containing empty columns
+        host::sequence(colIndices_sparse.data(), colIndices_sparse.data() + colIndices_sparse.size(), 0);
 
         // 计算具有非零元素的列的数量
         size_t numNonZeroCols = host::count_if_positive(numOfNonZeroInEachColSegment.data(),
@@ -346,8 +345,8 @@ void colReordering_cpu(const sparseMatrix::CSR<float> &matrix,
                                numOfNonZeroInEachColSegment.data() + numOfNonZeroInEachColSegment.size(),
                                numOfNonZeroInEachColSegment.data(),
                                numOfNonZeroInEachColSegment_dense.data());
-        host::copy_if_positive(ascendingOrder.data(),
-                               ascendingOrder.data() + ascendingOrder.size(),
+        host::copy_if_positive(colIndices_sparse.data(),
+                               colIndices_sparse.data() + colIndices_sparse.size(),
                                numOfNonZeroInEachColSegment.data(),
                                colIndices_dense.data());
 
@@ -397,7 +396,8 @@ void colReordering_cpu(const sparseMatrix::CSR<float> &matrix,
 #pragma omp parallel for
     for (int rowPanelId = 0; rowPanelId < numRowPanels; ++rowPanelId) {
         UIN *colsCurrentRowPanelPtr = nonZeroColsInEachRowPanel[rowPanelId].data();
-        UIN *colsCurrentRowPanelEndPtr = nonZeroColsInEachRowPanel[rowPanelId].data() + nonZeroColsInEachRowPanel[rowPanelId].size();
+        UIN *colsCurrentRowPanelEndPtr =
+            nonZeroColsInEachRowPanel[rowPanelId].data() + nonZeroColsInEachRowPanel[rowPanelId].size();
 
         UIN *denseColsCurrentRowPanelPtr = colsCurrentRowPanelPtr;
         UIN *denseColsCurrentRowPanelEndPtr = colsCurrentRowPanelPtr + numOfDenseColSegmentInEachRowPanel[rowPanelId];
