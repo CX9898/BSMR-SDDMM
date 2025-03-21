@@ -39,7 +39,12 @@ inline std::string iterateOneWordFromLine(const std::string &line, int &wordIter
         ++wordIter;
     }
     const int end = wordIter;
-    ++wordIter;
+
+    // Skip the space
+    while (wordIter < line.size() &&
+        (line[wordIter] == ' ' || line[wordIter] == '\t' || line[wordIter] == '\r')) {
+        ++wordIter;
+    }
 
     return end - begin > 0 ? line.substr(begin, end - begin) : "";
 }
