@@ -5,7 +5,6 @@
 #include <iostream>
 #include <typeinfo>
 
-#include "Options.hpp"
 #include "Matrix.hpp"
 #include "devVector.cuh"
 #include "CudaTimeCalculator.cuh"
@@ -25,8 +24,7 @@
     }                                                                          \
 }
 
-void cuSparseSDDMM(const Options &options,
-                   const Matrix<float> &matrixA,
+void cuSparseSDDMM(const Matrix<float> &matrixA,
                    const Matrix<float> &matrixB,
                    const sparseMatrix::CSR<float> &matrixS,
                    const float alpha,
@@ -129,24 +127,6 @@ void cuSparseSDDMM(const Options &options,
     timer.endClock();
 
     logger.cuSparse_sddmm_time_ = timer.getTime();
-
-    // Test mode, run multiple times and calculate the average time
-    if (options.testMode()) {
-        float sumTime = 0.0f;
-        for (int testId = 0; testId < options.numTests(); ++testId) {
-            timer.startClock();
-            CHECK_CUSPARSE(cusparseSDDMM(handle,
-                                         CUSPARSE_OPERATION_NON_TRANSPOSE,
-                                         CUSPARSE_OPERATION_NON_TRANSPOSE,
-                                         &alpha, _mtxA, _mtxB, &beta, _mtxS, CUDA_R_32F,
-                                         CUSPARSE_SDDMM_ALG_DEFAULT, dBuffer.data()))
-            timer.endClock();
-            const float currentTime = timer.getTime();
-            sumTime += currentTime;
-            printf("cuSparseSDDMM No.%d test time : %f ms\n", testId + 1, currentTime);
-        }
-        logger.cuSparse_sddmm_time_ = sumTime / options.numTests();
-    }
 
     matrixP.setValues() = d2h(mtxS_values_dev);
 

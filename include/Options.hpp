@@ -29,18 +29,14 @@ class Options {
   size_t K() const { return K_; }
   float alpha() const { return alpha_; }
   float beta() const { return beta_; }
-  bool testMode() const { return testMode_; }
-  int numTests() const { return numTests_; }
 
  private:
   std::string programPath_;
   std::string programName_;
   std::string inputFile_ = filePath;
-  size_t K_ = 32;
+  size_t K_ = 320;
   float alpha_ = 1.0f;
   float beta_ = 0.0f;
-  bool testMode_ = true;
-  int numTests_ = 10;
 
   std::unordered_set<std::string> shortOptions_ = {
       "-A", "-a",
@@ -65,9 +61,6 @@ inline void Options::parsingOptionAndParameters(const std::string &option, const
         }
         if (option == "-K" || option == "-k") {
             K_ = std::stoi(value);
-        }
-        if (option == "-T" || option == "-t") {
-            numTests_ = std::stoi(value);
         }
     } catch (const std::invalid_argument &e) {
         std::cerr << "Invalid argument: " << e.what() << std::endl;
