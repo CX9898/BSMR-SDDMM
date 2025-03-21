@@ -76,7 +76,7 @@ struct Logger {
   float zcx_other_time_;
   float zcx_time_;
 
-  float cuSparse_time_;
+  float cuSparse_sddmm_time_;
 };
 
 void Logger::getInformation(const sparseMatrix::DataBase &matrix) {
@@ -114,8 +114,12 @@ void Logger::printLogInformation() {
     printf("[gridDim_sparse : %d, %d, %d]\n", gridDim_sparse_.x, gridDim_sparse_.y, gridDim_sparse_.z);
     printf("[blockDim_sparse : %d, %d, %d]\n", blockDim_sparse_.x, blockDim_sparse_.y, blockDim_sparse_.z);
 
-    printf("[cuSparse : %.2f]\n", cuSparse_time_);
+    const size_t flops = 2 * NNZ_ * K_;
 
+    printf("[cuSparse_gflops : %.2f]\n", (flops / (cuSparse_sddmm_time_ * 1e6)));
+    printf("[cuSparse_sddmm : %.2f]\n", cuSparse_sddmm_time_);
+
+    printf("[zcx_gflops : %.2f]\n", (flops / (zcx_sddmm_time_ * 1e6)));
     printf("[zcx_sddmm : %.2f]\n", zcx_sddmm_time_);
     printf("[zcx_other : %.2f]\n", zcx_other_time_);
     zcx_time_ = zcx_other_time_ + zcx_sddmm_time_;

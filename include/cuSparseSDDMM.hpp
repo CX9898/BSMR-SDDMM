@@ -98,9 +98,6 @@ void cuSparseSDDMM(const Matrix<float> &matrixA,
                                      CUSPARSE_INDEX_TYPE, CUSPARSE_INDEX_TYPE,
                                      CUSPARSE_INDEX_BASE_ZERO, CUDA_R_32F))
 
-    CudaTimeCalculator timer;
-    timer.startClock();
-
     size_t bufferSize = 0;
     CHECK_CUSPARSE(cusparseSDDMM_bufferSize(handle,
                                             CUSPARSE_OPERATION_NON_TRANSPOSE,
@@ -117,6 +114,9 @@ void cuSparseSDDMM(const Matrix<float> &matrixA,
                                             &alpha, _mtxA, _mtxB, &beta, _mtxS, CUDA_R_32F,
                                             CUSPARSE_SDDMM_ALG_DEFAULT, dBuffer.data()))
 
+    CudaTimeCalculator timer;
+    timer.startClock();
+
     // execute SDDMM
     CHECK_CUSPARSE(cusparseSDDMM(handle,
                                  CUSPARSE_OPERATION_NON_TRANSPOSE,
@@ -126,7 +126,7 @@ void cuSparseSDDMM(const Matrix<float> &matrixA,
 
     timer.endClock();
 
-    logger.cuSparse_time_ = timer.getTime();
+    logger.cuSparse_sddmm_time_ = timer.getTime();
 
     matrixP.setValues() = d2h(mtxS_values_dev);
 

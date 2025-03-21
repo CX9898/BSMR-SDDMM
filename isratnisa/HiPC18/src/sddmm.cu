@@ -322,10 +322,10 @@ void preprocessing(const Matrix S) {
 
     float flops = 2 * S.nnz * k;
     float gflops = flops / ( *comp_kernel_COO_time * 1e6);
+    printf("[isratnisa_gflops : %.2f ]\n", gflops);
     printf("[isratnisa_sddmm : %.2f ]\n", *comp_kernel_COO_time);
     printf("[isratnisa_other : %.2f ]\n", other_time);
     printf("[isratnisa : %.2f ]\n", sum_time);
-    printf("[isratnisa_gflops : %.2f ]\n", gflops);
 
     std::cout << "sddmm_time = " << *comp_kernel_COO_time << " ms" << std::endl;
     std::cout << "other_time = " << other_time << " ms" << std::endl;
