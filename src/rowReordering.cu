@@ -5,6 +5,7 @@
 #include <set>
 #include <queue>
 
+#include "cudaUtil.cuh"
 #include "ReBELL.hpp"
 #include "parallelAlgorithm.cuh"
 #include "CudaTimeCalculator.cuh"
@@ -582,14 +583,14 @@ static __global__ void bsa_clustering(const int *weighted_partitions,
 
 void calculateDispersion(const sparseMatrix::CSR<float> &matrix,
                          dev::vector<int> &Encodings_gpu,
-                         std::vector<int> &Dispersions,
-                         dev::vector<int> Dispersions_gpu,
-                         const dev::vector<UIN> &rowptr_gpu,
-                         const dev::vector<UIN> &colidx_gpu,
+                         dev::vector<int> &Dispersions_gpu,
                          int num_blocks_per_row,
                          UIN block_size) {
     int blockdim = WARP_SIZE * 4;
     int grid = matrix.row();
+
+    dev::vector<UIN> rowptr_gpu(matrix.rowOffsets());
+    dev::vector<UIN> colidx_gpu(matrix.colIndices());
 
     size_t shm_size = num_blocks_per_row * sizeof(UIN) + (blockdim * sizeof(UIN) / WARP_SIZE);
     kernel::calculateDispersion<<<grid, blockdim, shm_size>>>(colidx_gpu.data(), rowptr_gpu.data(),
@@ -597,8 +598,6 @@ void calculateDispersion(const sparseMatrix::CSR<float> &matrix,
         Dispersions_gpu.data(),
         num_blocks_per_row, block_size);
     cudaDeviceSynchronize();
-
-    Dispersions = d2h(Dispersions_gpu);
 }
 
 std::vector<UIN> get_permutation_gpu(const sparseMatrix::CSR<float> &mat,
@@ -726,23 +725,21 @@ std::vector<UIN> bsa_rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
     timeCalculator.startClock();
 
     /*prepare resources -start*/
-    std::vector<int> Dispersions;
     dev::vector<int> Encodings_gpu(num_blocks_per_row * matrix.row(), 0);
     dev::vector<int> Dispersions_gpu(matrix.row(), 0);
-    dev::vector<UIN> rowptr_gpu(matrix.rowOffsets());
-    dev::vector<UIN> colidx_gpu(matrix.colIndices());
     /*prepare resources -done*/
+    cuUtil::printCudaErrorStringSync();
 
     /*Preprocessing: calculate Encodings and dispersions -start*/
     calculateDispersion(matrix,
                         Encodings_gpu,
-                        Dispersions,
                         Dispersions_gpu,
-                        rowptr_gpu,
-                        colidx_gpu,
                         num_blocks_per_row,
                         block_size);
     /*Preprocessing: calculate Encodings and dispersions -done*/
+    std::vector<int> Dispersions = d2h(Dispersions_gpu);
+
+    cuUtil::printCudaErrorStringSync();
 
     /*Prepare Clustering -start*/
     std::vector<int> ascending(matrix.row());

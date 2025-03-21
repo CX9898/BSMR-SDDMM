@@ -7,6 +7,7 @@
 #include "TensorCoreConfig.cuh"
 #include "ReBELL.hpp"
 #include "Logger.hpp"
+#include "Options.hpp"
 
 constexpr int each_thread_block_counts_the_number_Of_col_blocks = 8;
 constexpr int each_thread_block_counts_the_number_Of_cols =
@@ -23,7 +24,8 @@ __global__ void convertDataType(const UIN n, const float *in, T *out);
 
 } // namespace kernel
 
-void sddmm_gpu_rebell(const Matrix<float> &matrixA,
+void sddmm_gpu_rebell(const Options &options,
+                      const Matrix<float> &matrixA,
                       const Matrix<float> &matrixB,
                       const float alpha, const float beta,
                       const sparseMatrix::CSR<float> &matrixS,

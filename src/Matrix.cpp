@@ -368,13 +368,9 @@ bool sparseMatrix::CSR<T>::initializeFromSmtxFile(const std::string &file) {
 }
 
 template<typename T>
-void getOneLineThreeData(const std::string &line, UIN &first, UIN &second, T &third) {
-    first = NULL_VALUE;
-    second = NULL_VALUE;
-    third = NULL_VALUE;
-
+bool getOneLineThreeData(const std::string &line, UIN &first, UIN &second, T &third) {
     if (line.empty()) {
-        return;
+        return false;
     }
 
     int wordIter = 0;
@@ -385,7 +381,10 @@ void getOneLineThreeData(const std::string &line, UIN &first, UIN &second, T &th
 
     if (wordIter < line.size()) {
         std::cerr << "Error, file \"" << line << "\" line format is incorrect!" << std::endl;
+        return false;
     }
+
+    return true;
 }
 
 template<typename T>
@@ -416,8 +415,7 @@ bool sparseMatrix::CSR<T>::initializeFromMtxFile(const std::string &file) {
     while (getline(inFile, line)) {
         UIN row = NULL_VALUE, col = NULL_VALUE;
         T val;
-        getOneLineThreeData(line, row, col, val);
-        if (row == NULL_VALUE || col == NULL_VALUE) {
+        if (!getOneLineThreeData(line, row, col, val)) {
             continue;
         }
 
@@ -506,8 +504,7 @@ bool sparseMatrix::CSR<T>::initializeFromGraphDataset(const std::string &file) {
     do {
         UIN node, node2;
         T third;
-        getOneLineThreeData(line, node, node2, third);
-        if (node == NULL_VALUE || node2 == NULL_VALUE) {
+        if (!getOneLineThreeData(line, node, node2, third)) {
             continue;
         }
         if (nodeToIdMap.find(node) == nodeToIdMap.end()) {
@@ -590,8 +587,7 @@ bool sparseMatrix::COO<T>::initializeFromMatrixMarketFile(const std::string &fil
     while (getline(inFile, line)) {
         UIN row = NULL_VALUE, col = NULL_VALUE;
         T val;
-        getOneLineThreeData(line, row, col, val);
-        if (row == NULL_VALUE || col == NULL_VALUE) {
+        if (!getOneLineThreeData(line, row, col, val)) {
             continue;
         }
 

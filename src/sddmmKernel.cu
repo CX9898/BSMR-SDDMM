@@ -1578,20 +1578,20 @@ __global__ void sddmm_gpu_sparse_residue_block512_matrixA_rowMaj_matrixB_colMaj(
 }
 
 // blockDim: [512,1,1]
-__global__ void sddmm_gpu_sparse_residue_block512_shuffle_matrixA_rowMaj_matrixB_colMaj(const UIN M,
-                                                                                        const UIN N,
-                                                                                        const UIN K,
-                                                                                        const float *__restrict__ matrixA,
-                                                                                        const float *__restrict__ matrixB,
-                                                                                        const float alpha,
-                                                                                        const float beta,
-                                                                                        const UIN numNonZeroRow,
-                                                                                        const UIN *__restrict__ reorderedRows,
-                                                                                        const UIN *__restrict__ sparseDataOffsets,
-                                                                                        const UIN *__restrict__ sparseData,
-                                                                                        const UIN *__restrict__ relativeRows,
-                                                                                        const UIN *__restrict__ sparseColIndices,
-                                                                                        float *matrixP) {
+__global__ void sddmm_gpu_sparse_block_block512_shuffle_matrixA_rowMaj_matrixB_colMaj(const UIN M,
+                                                                                      const UIN N,
+                                                                                      const UIN K,
+                                                                                      const float *__restrict__ matrixA,
+                                                                                      const float *__restrict__ matrixB,
+                                                                                      const float alpha,
+                                                                                      const float beta,
+                                                                                      const UIN numNonZeroRow,
+                                                                                      const UIN *__restrict__ reorderedRows,
+                                                                                      const UIN *__restrict__ sparseDataOffsets,
+                                                                                      const UIN *__restrict__ sparseData,
+                                                                                      const UIN *__restrict__ relativeRows,
+                                                                                      const UIN *__restrict__ sparseColIndices,
+                                                                                      float *matrixP) {
     // 线程块中线程数量
     constexpr int numWarpsPerBlock = 16;
     constexpr int numThreadsPerBlock = numWarpsPerBlock * WARP_SIZE; // 512
@@ -1680,7 +1680,8 @@ __global__ void sddmm_gpu_sparse_residue_block512_shuffle_matrixA_rowMaj_matrixB
 
 } // namespace kernel
 
-void sddmm_gpu_rebell(const Matrix<float> &matrixA,
+void sddmm_gpu_rebell(const Options &options,
+                      const Matrix<float> &matrixA,
                       const Matrix<float> &matrixB,
                       const float alpha, const float beta,
                       const sparseMatrix::CSR<float> &matrixS,
@@ -1731,7 +1732,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
 //    cudaStreamCreate(&denseBlockStream);
 //    cudaStreamCreate(&sparseRemainderStream);
 
-    CudaTimeCalculator timeCalculator_denseBlock, timeCalculator_sparseRemainder;
+    CudaTimeCalculator timeCalculator_denseBlock, timeCalculator_sparseBlock;
 
     timeCalculator_denseBlock.startClock();
 
@@ -1764,6 +1765,49 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
 #endif // WMMA_16_16_8
 
     timeCalculator_denseBlock.endClock();
+    float densePartTime = timeCalculator_denseBlock.getTime();
+
+    // Test mode, run multiple times and calculate the average time
+    if (options.testMode()) {
+        float sumTime = 0.0f;
+        for (int testId = 0; testId < options.numTests(); ++testId) {
+            timeCalculator_denseBlock.startClock();
+
+#ifdef WMMA_16_16_16
+            kernel::sddmm_gpu_dense_block_m16n16k16_block256_matrixA_rowMaj_matrixB_colMaj<<<grid_rebell, block_rebell>>>(matrixS.row(), matrixS.col(), matrixA.col(),
+        matrixA_values_convertedType_dev.data(),
+        matrixB_values_convertedType_dev.data(),
+        alpha, beta,
+        rebell.reorderedRows().size(),
+        reorderedRowIndices_dev.data(),
+        reorderedColIndices_dev.data(),
+        reorderedColIndicesOffset_dev.data(),
+        blockRowOffsets_dev.data(),
+        blockValues_dev.data(),
+        matrixP_dev.data());
+#endif // WMMA_16_16_16
+
+#ifdef WMMA_16_16_8
+            kernel::sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj<<<grid_dense, block_dense>>>(matrixS.row(), matrixS.col(), matrixA.col(),
+                matrixA_values_convertedType_dev.data(),
+                matrixB_values_convertedType_dev.data(),
+                alpha, beta,
+                rebell.reorderedRows().size(),
+                reorderedRowIndices_dev.data(),
+                denseCols_dev.data(),
+                denseColOffsets_dev.data(),
+                blockRowOffsets_dev.data(),
+                blockValues_dev.data(),
+                matrixP_dev.data());
+#endif // WMMA_16_16_8
+
+            timeCalculator_denseBlock.endClock();
+            const float currentTime = timeCalculator_denseBlock.getTime();
+            sumTime += currentTime;
+            printf("sddmm_gpu_dense_block No.%d test time : %f ms\n", testId + 1, currentTime);
+        }
+        densePartTime = sumTime / options.numTests();
+    }
 
     dim3 grid_sparse, block_sparse;
     block_sparse.x = sddmm_sparse_remainder_number_of_thread_per_thread_block;
@@ -1773,9 +1817,9 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
     logger.gridDim_sparse_ = grid_sparse;
     logger.blockDim_sparse_ = block_sparse;
 
-    timeCalculator_sparseRemainder.startClock();
+    timeCalculator_sparseBlock.startClock();
 
-    kernel::sddmm_gpu_sparse_residue_block512_shuffle_matrixA_rowMaj_matrixB_colMaj<<<grid_sparse, block_sparse>>>(matrixS.row(), matrixS.col(), matrixA.col(),
+    kernel::sddmm_gpu_sparse_block_block512_shuffle_matrixA_rowMaj_matrixB_colMaj<<<grid_sparse, block_sparse>>>(matrixS.row(), matrixS.col(), matrixA.col(),
         matrixA_values_convertedType_dev.data(),
         matrixB_values_convertedType_dev.data(),
         alpha, beta,
@@ -1787,10 +1831,33 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
         sparseColIndices_dev.data(),
         matrixP_dev.data());
 
-    timeCalculator_sparseRemainder.endClock();
+    timeCalculator_sparseBlock.endClock();
 
-    const float densePartTime = timeCalculator_denseBlock.getTime();
-    const float sparsePartTime = timeCalculator_sparseRemainder.getTime();
+    float sparsePartTime = timeCalculator_sparseBlock.getTime();
+
+    // Test mode, run multiple times and calculate the average time
+    if (options.testMode()) {
+        float sumTime = 0.0f;
+        for (int testId = 0; testId < options.numTests(); ++testId) {
+            timeCalculator_sparseBlock.startClock();
+            kernel::sddmm_gpu_sparse_block_block512_shuffle_matrixA_rowMaj_matrixB_colMaj<<<grid_sparse, block_sparse>>>(matrixS.row(), matrixS.col(), matrixA.col(),
+                matrixA_values_convertedType_dev.data(),
+                matrixB_values_convertedType_dev.data(),
+                alpha, beta,
+                rebell.reorderedRows().size(),
+                reorderedRowIndices_dev.data(),
+                sparseDataOffsets_dev.data(),
+                sparseData_dev.data(),
+                relativeRows_dev.data(),
+                sparseColIndices_dev.data(),
+                matrixP_dev.data());
+            timeCalculator_sparseBlock.endClock();
+            const float currentTime = timeCalculator_sparseBlock.getTime();
+            sumTime += currentTime;
+            printf("sddmm_gpu_sparse_block No.%d test time : %f ms\n", testId + 1, currentTime);
+        }
+        sparsePartTime = sumTime / options.numTests();
+    }
 
     printf("denseBlockTime: %f ms, sparseRemainderTime: %f ms\n", densePartTime, sparsePartTime);
 

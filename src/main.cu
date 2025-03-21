@@ -63,11 +63,11 @@ int main(int argc, char *argv[]) {
 
     // cuSparse library
     sparseMatrix::CSR<float> matrixP_cuSparse(matrixS);
-    cuSparseSDDMM(matrixA, matrixB, matrixS, alpha, beta, matrixP_cuSparse, logger);
+    cuSparseSDDMM(options, matrixA, matrixB, matrixS, alpha, beta, matrixP_cuSparse, logger);
 
     // sddmm
     sparseMatrix::CSR<float> matrixP(matrixS);
-    sddmm(matrixA, matrixB, alpha, beta, matrixS, matrixP, logger);
+    sddmm(options, matrixA, matrixB, alpha, beta, matrixS, matrixP, logger);
 
     // Error check
     printf("check cuSparseSDDMM and sddmm : \n");

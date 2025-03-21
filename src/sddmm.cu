@@ -6,7 +6,8 @@
 #include "ReBELL.hpp"
 
 // Reordering method
-void sddmm(const Matrix<float> &matrixA,
+void sddmm(const Options &options,
+           const Matrix<float> &matrixA,
            const Matrix<float> &matrixB,
            const float alpha, const float beta,
            const sparseMatrix::CSR<float> &matrixS,
@@ -35,7 +36,7 @@ void sddmm(const Matrix<float> &matrixA,
     logger.zcx_other_time_ = rebell_time;
 
     // sddmm comp by gpu
-    sddmm_gpu_rebell(matrixA, matrixB, alpha, beta, matrixS, rebell, matrixP, logger);
+    sddmm_gpu_rebell(options, matrixA, matrixB, alpha, beta, matrixS, rebell, matrixP, logger);
 
     // Error check
 //    check_rebell(matrixS, rebell);

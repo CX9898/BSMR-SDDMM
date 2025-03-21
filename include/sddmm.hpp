@@ -2,9 +2,11 @@
 
 #include "Matrix.hpp"
 #include "Logger.hpp"
+#include "Options.hpp"
 
 // Reordering method
-void sddmm(const Matrix<float> &matrixA,
+void sddmm(const Options &options,
+           const Matrix<float> &matrixA,
            const Matrix<float> &matrixB,
            const float alpha, const float beta,
            const sparseMatrix::CSR<float> &matrixS,
