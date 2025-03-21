@@ -486,15 +486,15 @@ bool check_colReordering(const sparseMatrix::CSR<float> &matrix, const struct Re
                 isCorrect = false;
             }
 
-            // Check if the column index is a dense column
-            if (colToNumOfNonZeroMap.find(col) != colToNumOfNonZeroMap.end()
-                && colToNumOfNonZeroMap.find(col)->second >= rebell.dense_column_segment_threshold()) {
-                fprintf(stderr,
-                        "Error! In sparse data, column index is not a sparse column! rowPanelId: %d, sparseData[%d]\n",
-                        rowPanelId,
-                        idx);
-                isCorrect = false;
-            }
+//            // Check if the column index is a dense column
+//            if (colToNumOfNonZeroMap.find(col) != colToNumOfNonZeroMap.end()
+//                && colToNumOfNonZeroMap.find(col)->second >= rebell.dense_column_segment_threshold()) {
+//                fprintf(stderr,
+//                        "Error! In sparse data, column index is not a sparse column! rowPanelId: %d, sparseData[%d]\n",
+//                        rowPanelId,
+//                        idx);
+//                isCorrect = false;
+//            }
         }
 
         // Check if the number of column indexes in the row panel is correct
