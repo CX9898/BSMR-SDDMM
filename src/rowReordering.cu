@@ -473,17 +473,17 @@ static __device__ float calculate_similarity_norm_weighted_jaccard(const UIN *en
 }
 
 static __global__ void bsa_clustering(const UIN *weighted_partitions,
-                                      const int cluster_id,
+                                      const UIN cluster_id,
                                       int *ascending_idx,
-                                      volatile int *cluster_ids,
+                                      volatile UIN *cluster_ids,
                                       UIN start_idx,
                                       UIN num_rows,
                                       UIN num_blocks_per_row,
                                       float alpha,
                                       size_t shm_size,
                                       unsigned int *mutexes,
-                                      int *cluster_id_to_launch,
-                                      int *start_idx_to_launch) {
+                                      UIN *cluster_id_to_launch,
+                                      UIN *start_idx_to_launch) {
     extern __shared__ UIN shm[];
     __shared__ UIN *encoding_rep;
     __shared__ UIN *scratch;
@@ -503,12 +503,12 @@ static __global__ void bsa_clustering(const UIN *weighted_partitions,
 
     mutex_unlock(&mutexes[start_idx]);
     mutex_lock(&mutexes[start_idx + 1]);
-    cluster_id_to_launch[0] = -1;
-    start_idx_to_launch[0] = -1;
+    cluster_id_to_launch[0] = NULL_VALUE;
+    start_idx_to_launch[0] = NULL_VALUE;
 
     for (int idx = start_idx + 1; idx < num_rows; idx++) {
-        volatile int cluster_tmp = cluster_ids[idx];
-        if (cluster_tmp != -1) {
+        volatile UIN cluster_tmp = cluster_ids[idx];
+        if (cluster_tmp != NULL_VALUE) {
             if (idx < num_rows - 1) {
                 mutex_lock(&mutexes[idx + 1]);
             }
@@ -610,12 +610,12 @@ std::vector<UIN> get_permutation_gpu(const sparseMatrix::CSR<float> &mat,
                                      float alpha,
                                      int &cluster_cnt) {
 
-    std::vector<int> cluster_ids(mat.row(), -1);
+    std::vector<UIN> cluster_ids(mat.row(), NULL_VALUE);
     dev::vector<unsigned int> mutexes(mat.row(), 0);
-    int *cluster_id_to_launch, *start_idx_to_launch;
+    UIN *cluster_id_to_launch, *start_idx_to_launch;
 
-    cudaMallocHost((void **) &cluster_id_to_launch, sizeof(int), cudaHostAllocMapped);
-    cudaMallocHost((void **) &start_idx_to_launch, sizeof(int), cudaHostAllocMapped);
+    cudaMallocHost((void **) &cluster_id_to_launch, sizeof(UIN), cudaHostAllocMapped);
+    cudaMallocHost((void **) &start_idx_to_launch, sizeof(UIN), cudaHostAllocMapped);
 
     cudaDeviceSynchronize();
 
@@ -654,7 +654,7 @@ std::vector<UIN> get_permutation_gpu(const sparseMatrix::CSR<float> &mat,
             break;
     }
 
-    dev::vector<int> cluster_ids_gpu(cluster_ids);
+    dev::vector<UIN> cluster_ids_gpu(cluster_ids);
 
     cudaDeviceSetLimit(cudaLimitDevRuntimePendingLaunchCount, 32768);
 
@@ -691,17 +691,15 @@ std::vector<UIN> get_permutation_gpu(const sparseMatrix::CSR<float> &mat,
 
     cluster_ids = d2h(cluster_ids_gpu);
 
-    auto compare_by_cluster_id = [&cluster_ids](int i, int j) {
-      return cluster_ids[i] < cluster_ids[j];
-    };
-    std::vector<int> indices(mat.row());
-    std::iota(indices.begin(), indices.end(), 0);
-    std::stable_sort(indices.begin(), indices.end(), compare_by_cluster_id);
+    std::vector<UIN> indices(mat.row());
+    host::sequence(indices.data(), indices.data() + indices.size(), 0);
+    host::sort_by_key(cluster_ids.data(), cluster_ids.data() + cluster_ids.size(), indices.data());
+
     std::vector<UIN> permutation(mat.row());
     for (int i = 0; i < mat.row(); i++) {
         permutation[i] = ascending_idx_head[indices[i]];
     }
-    cluster_cnt = cluster_ids[indices[mat.row() - 1]] + (int) (zero_row_idx != 0);
+//    cluster_cnt = cluster_ids[indices[mat.row() - 1]] + (int) (zero_row_idx != 0);
     // cluster_cnt = cluster_ids[mat.row() - 1];
 
     cudaStreamDestroy(initial_stream);
@@ -723,32 +721,35 @@ std::vector<UIN> bsa_rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
     // int num_blocks_per_row = (lhs.cols + block_size - 1) / block_size;
     int num_blocks_per_row = ceil((float) matrix.col() / (float) block_size);
 
-    CudaTimeCalculator timeCalculator;
-    timeCalculator.startClock();
-
     /*prepare resources -start*/
     dev::vector<UIN> Encodings_gpu(static_cast<size_t>(num_blocks_per_row * matrix.row()), 0);
     dev::vector<UIN> Dispersions_gpu(matrix.row(), 0);
     /*prepare resources -done*/
 
-    /*Preprocessing: calculate Encodings and dispersions -start*/
+    CudaTimeCalculator timeCalculator;
+
+    timeCalculator.startClock();
     calculateDispersion(matrix,
                         Encodings_gpu,
                         Dispersions_gpu,
                         num_blocks_per_row,
                         block_size);
-    /*Preprocessing: calculate Encodings and dispersions -done*/
+    timeCalculator.endClock();
+    float calculateDispersion_time = timeCalculator.getTime();
+    printf("calculateDispersion_time = %f ms\n", calculateDispersion_time);
+
     std::vector<UIN> Dispersions = d2h(Dispersions_gpu);
 
-    /*Prepare Clustering -start*/
+    timeCalculator.startClock();
     std::vector<int> ascending(matrix.row());
-    iota(ascending.begin(), ascending.end(), 0); // ascending = {0, 1, 2, 3, ... lhs.rows-1}
-    stable_sort(ascending.begin(),
-                ascending.end(),
-                [Dispersions](size_t i, size_t j) { return Dispersions[i] < Dispersions[j]; });
-    /*Prepare Clustering -done*/
+    host::sequence(ascending.data(), ascending.data() + ascending.size(), 0);
+    host::sort_by_key(Dispersions.data(), Dispersions.data() + Dispersions.size(), ascending.data());
+    timeCalculator.endClock();
+    float sort_ascending_time = timeCalculator.getTime();
+    printf("sort_ascending_time = %f ms\n", sort_ascending_time);
 
-    /*Perform BSA-reordering via gpu -start*/
+    timeCalculator.startClock();
+
     int cluster_cnt = 0;
     row_permutation = get_permutation_gpu(matrix,
                                           ascending,
@@ -757,7 +758,10 @@ std::vector<UIN> bsa_rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
                                           num_blocks_per_row,
                                           alpha,
                                           cluster_cnt);
-    /*Perform BSA-reordering via gpu -done*/
+
+    timeCalculator.endClock();
+    float get_permutation_gpu_time = timeCalculator.getTime();
+    printf("get_permutation_gpu_time = %f ms\n", get_permutation_gpu_time);
 
     // Remove zero rows
     {
@@ -770,9 +774,7 @@ std::vector<UIN> bsa_rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
         row_permutation.erase(row_permutation.begin(), row_permutation.begin() + startIndexOfNonZeroRow);
     }
 
-    timeCalculator.endClock();
-    reordering_time = timeCalculator.getTime();
-    // cout << reordering_time << "ms" << endl;
+    reordering_time = calculateDispersion_time + sort_ascending_time + get_permutation_gpu_time;
 
     return row_permutation;
 }
