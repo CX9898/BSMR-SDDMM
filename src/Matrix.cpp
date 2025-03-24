@@ -331,6 +331,7 @@ bool sparseMatrix::CSR<T>::initializeFromSmtxFile(const std::string &file) {
         }
         if (idx < rowOffsets_.size()) {
             std::cerr << "Error, file " << file << " rowOffsets is not enough!" << std::endl;
+            return false;
         }
     }
 
@@ -346,6 +347,7 @@ bool sparseMatrix::CSR<T>::initializeFromSmtxFile(const std::string &file) {
         }
         if (idx < nnz_) {
             std::cerr << "Error, file " << file << " nnz is not enough!" << std::endl;
+            return false;
         }
     }
 
@@ -419,6 +421,11 @@ bool sparseMatrix::CSR<T>::initializeFromMtxFile(const std::string &file) {
             continue;
         }
 
+        if (idx >= nnz_) {
+            std::cerr << "Error, file " << file << " too many elements, exceeding the number nnz!" << std::endl;
+            return false;
+        }
+
         rowIndices[idx] = row - 1;
         colIndices[idx] = col - 1;
         values[idx] = val;
@@ -428,7 +435,8 @@ bool sparseMatrix::CSR<T>::initializeFromMtxFile(const std::string &file) {
 
     // Check data
     if (idx < nnz_) {
-        std::cerr << "Error, file " << file << " nnz is not enough!" << std::endl;
+        std::cerr << "Error, file " << file << " elements is not enough!" << std::endl;
+        return false;
     }
     std::set<std::pair<UIN, UIN>> rowColSet;
     for (int idx = 0; idx < nnz_; ++idx) {
@@ -492,6 +500,7 @@ bool sparseMatrix::CSR<T>::initializeFromGraphDataset(const std::string &file) {
 
     if (!row_ || !col_ || !nnz_) {
         std::cerr << "Error, file " << file << " row or col or nnz not initialized!" << std::endl;
+        return false;
     }
 
     std::vector<UIN> rowIndices(nnz_);
@@ -516,6 +525,11 @@ bool sparseMatrix::CSR<T>::initializeFromGraphDataset(const std::string &file) {
             ++nodeCount;
         }
 
+        if (idx >= nnz_) {
+            std::cerr << "Error, file " << file << " too many elements, exceeding the number nnz!" << std::endl;
+            return false;
+        }
+
         rowIndices[idx] = nodeToIdMap[node];
         colIndices[idx] = nodeToIdMap[node2];
         values[idx] = third;
@@ -525,7 +539,8 @@ bool sparseMatrix::CSR<T>::initializeFromGraphDataset(const std::string &file) {
 
     // Check data
     if (idx < nnz_) {
-        std::cerr << "Error, file " << file << " nnz is not enough!" << std::endl;
+        std::cerr << "Error, file " << file << " elements is not enough!" << std::endl;
+        return false;
     }
     std::set<std::pair<UIN, UIN>> rowColSet;
     for (int idx = 0; idx < nnz_; ++idx) {
@@ -601,6 +616,7 @@ bool sparseMatrix::COO<T>::initializeFromMatrixMarketFile(const std::string &fil
     // Check data
     if (idx < nnz_) {
         std::cerr << "Error, file " << file << " nnz is not enough!" << std::endl;
+        return false;
     }
     std::set<std::pair<UIN, UIN>> rowColSet;
     for (int idx = 0; idx < nnz_; ++idx) {
