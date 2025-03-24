@@ -22,6 +22,7 @@ void sort_by_key(uint32_t *key_first, uint32_t *key_last, uint32_t *value_first)
 void sort_by_key(uint32_t *key_first, uint32_t *key_last, int *value_first);
 void sort_by_key(uint32_t *key_first, uint32_t *key_last, float *value_first);
 void sort_by_key(uint32_t *key_first, uint32_t *key_last, double *value_first);
+void sort_by_key(int *key_first, int *key_last, uint32_t *value_first);
 void sort_by_key(uint64_t *key_first, uint64_t *key_last, uint64_t *value_first);
 void sort_by_key(uint64_t *key_first, uint64_t *key_last, float *value_first);
 void sort_by_key_descending_order(uint32_t *key_first, uint32_t *key_last, uint32_t *value_first);
@@ -43,6 +44,7 @@ void sort_by_key_for_multiple_vectors(uint32_t *key_first,
                                       double *value2_first);
 void inclusive_scan(size_t *first, size_t *last, size_t *result);
 void inclusive_scan(uint32_t *first, uint32_t *last, uint32_t *result);
+void sequence(int *first, int *last, int start_value, int step = 1);
 void sequence(uint32_t *first, uint32_t *last, uint32_t start_value, uint32_t step = 1);
 size_t count_if_positive(uint32_t *first, uint32_t *last);
 void copy_if_positive(uint32_t *first, uint32_t *last, uint32_t *result);
