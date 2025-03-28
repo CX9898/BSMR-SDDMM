@@ -10,13 +10,17 @@ constexpr UIN BLOCK_SIZE = ROW_PANEL_SIZE * BLOCK_COL_SIZE;
 
 /**
  * @className: ReBELL
- * @classInterpretation: Reorder the rows and columns of a sparse matrix and store it in BELL format
+ * @classInterpretation: Reorder the rows and columns of a sparse matrix and divide it into dense tiled and sparse tiled. Store dense tiled in BELL format, and sparse tiled in COO format.
  * @MemberVariables:
  * `reorderedRows_`: Store the reordered row indexes.
- * `reorderedCols_`: Store the reordered column indexes for each row panel in order.
- * `reorderedColOffsets_`: Offset array of reordered  column array in each row panel.
+ * `denseCols_`: Store the reordered dense column indexes for each row panel in order.
+ * `denseColOffsets_`: Offset array of reordered dense column array in each row panel.
  * `blockValues_`: BELL format. Stores the index of the original matrix element.
- * `blockRowOffsets_`: BELL format. Stores the number of column blocks in each row panel
+ * `blockRowOffsets_`: BELL format. Stores the number of column blocks in each row panel.
+ * `sparseDataOffsets_`: size of the number of row panels + 1. Stores the number of data in each row panel.
+ * `sparseData_`: values in COO format.
+ * `sparseRelativeRows_`: row indices in COO format, but relative to the row panel.
+ * `sparseColIndices_`: column indices in COO format.
  **/
 class ReBELL {
  public:
@@ -69,14 +73,14 @@ class ReBELL {
   UIN maxNumDenseColBlocks_;
   UIN maxNumSparseColBlocks_;
 
-  // Dense part data
+  // Dense block data
   std::vector<UIN> reorderedRows_;
   std::vector<UIN> denseColOffsets_;
   std::vector<UIN> denseCols_;
   std::vector<UIN> blockRowOffsets_;
   std::vector<UIN> blockValues_;
 
-  // Sparse part data
+  // Sparse block data
   std::vector<UIN> sparseDataOffsets_;
   std::vector<UIN> sparseData_;
   std::vector<UIN> sparseRelativeRows_;

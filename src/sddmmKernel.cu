@@ -973,7 +973,8 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_c
                                                                                       const UIN *__restrict__ blockRowOffsets,
                                                                                       const UIN *__restrict__ blockValues,
                                                                                       MATRIX_C_TYPE *matrixP) {
-    constexpr int number_of_tiles_loaded_in_one_cycle = 32 / WMMA_K;
+    constexpr int kStep = 32;
+    constexpr int number_of_tiles_loaded_in_one_cycle = kStep / WMMA_K;
 
     constexpr int aTileSMEMSize = (WMMA_M * WMMA_K) * number_of_tiles_loaded_in_one_cycle;
     constexpr int bTileSMEMSize = (WMMA_K * WMMA_N * each_thread_block_counts_the_number_Of_col_blocks)
@@ -1011,7 +1012,7 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_c
 
     // Loop over K, one iteration 32
 #pragma unroll 2
-    for (int kIter = 0; kIter < K; kIter += 32) {
+    for (int kIter = 0; kIter < K; kIter += kStep) {
         // Load matrix A into shared memory, each thread loads 2 elements, conflict-free access
 #pragma unroll
         for (int iter = 0; iter < 2; ++iter) {
@@ -1623,18 +1624,6 @@ __global__ void sddmm_gpu_sparse_block_block512_shuffle_matrixA_rowMaj_matrixB_c
     const UIN relativeRow = relativeRows[index];
     const UIN col = sparseColIndices[index];
 
-//    if (rowPanelId == 0 && blockIdx.y == 0 && warpId == 0) {
-//        printf("relativeRow = %d, col = %d, index = %d, rowPanelId = %d, blockId = %d, warpId = %d, tId = %d, laneId = %d\n",
-//               relativeRow,
-//               col,
-//               index,
-//               rowPanelId,
-//               blockIdx.y,
-//               warpId,
-//               tId,
-//               laneId);
-//    }
-
     __shared__ float aTileSMEM[aTileSMEMSize];
     __shared__ float pSMEM[pSMEMSize];
 
@@ -1666,10 +1655,13 @@ __global__ void sddmm_gpu_sparse_block_block512_shuffle_matrixA_rowMaj_matrixB_c
             }
         }
 
+        // Use the shuffle instruction to merge the results of two adjacent threads.
         const unsigned mask = (1 << tId) | (1 << (tId ^ 1)); // 只同步相邻线程
         c += __shfl_xor_sync(mask, c, 1); // 使用shuffle指令. 使线程0的sm1加到线程1的sm1上, 线程1的sm1加到线程0的sm1上
 
-        pSMEM[threadIdx.x >> 1] += (c); // 将分来计算的两个元素加在一起储存到结果矩阵}
+//        if (oddOrEven == 0) {
+            pSMEM[threadIdx.x >> 1] += c; // 将分来计算的两个元素加在一起储存到结果矩阵
+//        }
 
         __syncthreads();
     }
