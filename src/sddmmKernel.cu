@@ -956,7 +956,7 @@ __global__ void sddmm_gpu_dense_block_m16n16k16_block256_matrixA_rowMaj_matrixB_
     }
 }
 
-// m16n16k16
+// m16n16k8
 // blockDim: [256, 1, 1]
 // 一个thread block负责一个row panel中的8个col block
 __global__ void sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj(const UIN M,
@@ -1007,9 +1007,6 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_c
     const UIN startIndexOfReorderedColsCurrentColBlock = reorderedColOffset[rowPanelId] + BLOCK_COL_SIZE * colBlockId;
     const UIN endIndexOfReorderedColsCurrentPanel = reorderedColOffset[rowPanelId + 1];
 
-    const UIN lda = K;
-    const UIN ldb = K;
-
     // Loop over K, one iteration 32
 #pragma unroll 2
     for (int kIter = 0; kIter < K; kIter += kStep) {
@@ -1021,7 +1018,7 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_c
             const UIN aColId = kIter + laneId;
 
             aTileSMEM[warpId * 64 + iter * 32 + laneId] =
-                (aRowId < M && aColId < K) ? (matrixA[aRowId * lda + aColId]) : static_cast<MATRIX_A_TYPE>(0.0f);
+                (aRowId < M && aColId < K) ? (matrixA[aRowId * K + aColId]) : static_cast<MATRIX_A_TYPE>(0.0f);
         }
 
         __syncthreads();
@@ -1035,7 +1032,7 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_c
                 reorderedCols[reorderedColIndex] : N;
 
             bTileSMEM[warpId * 512 + iter * 32 + laneId] =
-                (bRowId < K && bColId < N) ? matrixB[bRowId + bColId * ldb] : static_cast<MATRIX_B_TYPE>(0.0f);
+                (bRowId < K && bColId < N) ? matrixB[bRowId + bColId * K] : static_cast<MATRIX_B_TYPE>(0.0f);
         }
 
         __syncwarp();
@@ -1081,7 +1078,7 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_c
     }
 }
 
-// m16n16k16
+// m16n16k8
 // blockDim: [256, 1, 1]
 // 一个thread block负责一个row panel中的8个col block
 __global__ void sddmm_gpu_dense_block_m16n16k8_block256_noSMEM_matrixA_rowMaj_matrixB_colMaj(const UIN M,
@@ -1228,7 +1225,7 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_block256_noSMEM_matrixA_rowMaj_ma
     }
 }
 
-// m16n16k16
+// m16n16k8
 // blockDim: [512, 1, 1]
 // 一个thread block负责一个row panel中的16个col block
 __global__ void sddmm_gpu_dense_block_m16n16k16_block512_matrixA_rowMaj_matrixB_colMaj(const UIN M,
@@ -1660,7 +1657,7 @@ __global__ void sddmm_gpu_sparse_block_block512_shuffle_matrixA_rowMaj_matrixB_c
         c += __shfl_xor_sync(mask, c, 1); // 使用shuffle指令. 使线程0的sm1加到线程1的sm1上, 线程1的sm1加到线程0的sm1上
 
 //        if (oddOrEven == 0) {
-            pSMEM[threadIdx.x >> 1] += c; // 将分来计算的两个元素加在一起储存到结果矩阵
+        pSMEM[threadIdx.x >> 1] += c; // 将分来计算的两个元素加在一起储存到结果矩阵
 //        }
 
         __syncthreads();
