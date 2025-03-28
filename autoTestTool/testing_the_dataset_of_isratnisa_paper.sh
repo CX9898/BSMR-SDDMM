@@ -26,13 +26,13 @@ download_decompressing_move(){
 #download_decompressing_move "https://snap.stanford.edu/data/web-Google.txt.gz"
 #download_decompressing_move "https://snap.stanford.edu/data/web-NotreDame.txt.gz"
 #download_decompressing_move "https://snap.stanford.edu/data/loc-gowalla_edges.txt.gz"
-#
+
 #wget "https://graphchallenge.s3.amazonaws.com/snap/facebook_combined/facebook_combined_adj.mmio"
 #mv facebook_combined_adj.mmio ${dataset_path}
 
 # 在没有头部信息的文件中添加头部信息
 #sed -i '1i # Nodes: 1005 Edges: 25571' ${dataset_path}email-Eu-core.txt
-#sed -i '1i # Nodes: 196591 Edges: 950327' ${dataset_path}loc-gowalla_edges.txt
+#sed -i '1i # Nodes: 196591 Edges: 1900654' ${dataset_path}loc-gowalla_edges.txt
 
 # 生成矩阵文件列表
 matrix_list_file="${results_path}matrix_file_list.txt"
