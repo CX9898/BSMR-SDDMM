@@ -14,13 +14,15 @@
 #include "parallelAlgorithm.cuh"
 #include "sddmmKernel.cuh"
 
-ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float &time) {
+ReBELL::ReBELL(const int K, const sparseMatrix::CSR<float> &matrix, float &time) {
 
     // Calculate the dense column segment threshold
-    const UIN minNumNonZeroCurrentSparsity =
-        std::ceil(BLOCK_SIZE * (1 - matrix.getSparsity()) / static_cast<float>(BLOCK_COL_SIZE));
-    // TODO: 考虑K值的影响
-    dense_column_segment_threshold_ = minNumNonZeroCurrentSparsity > 4 ? minNumNonZeroCurrentSparsity : 4;
+    const float sparsityThreshold = (0.00219 * K + 79.81) / 100;
+    const UIN minNumNonZeroPerColSegment =
+        std::ceil(BLOCK_SIZE * (1 - sparsityThreshold) / static_cast<float>(BLOCK_COL_SIZE));
+    printf("sparsityThreshold = %f, minNumNonZeroCurrentSparsity : %d\n",
+           sparsityThreshold, minNumNonZeroPerColSegment);
+    dense_column_segment_threshold_ = minNumNonZeroPerColSegment > 0 ? minNumNonZeroPerColSegment : 1;
 
     // Row reordering
     float rowReordering_time;

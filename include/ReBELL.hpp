@@ -24,7 +24,7 @@ constexpr UIN BLOCK_SIZE = ROW_PANEL_SIZE * BLOCK_COL_SIZE;
  **/
 class ReBELL {
  public:
-  ReBELL(const sparseMatrix::CSR<float> &matrix, float &time);
+  ReBELL(const int K, const sparseMatrix::CSR<float> &matrix, float &time);
 
   UIN numRowPanels() const { return numRowPanels_; }
   UIN maxNumDenseColBlocks() const { return maxNumDenseColBlocks_; }
