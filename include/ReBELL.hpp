@@ -60,13 +60,13 @@ class ReBELL {
   UIN getNumSparseBlocks() const;
 
   // Calculate the average density of all blocks
-  float calculateAverageDensity();
+  float calculateAverageDensity() const;
 
   // Calculate the maximum and minimum density of all blocks
-  std::pair<float, float> calculateMaxMinDensity();
+  std::pair<float, float> calculateMaxMinDensity() const;
 
   // Calculate the mode density and its frequency among all blocks.
-  std::pair<float, UIN> calculateDensityMode();
+  std::pair<float, UIN> calculateDensityMode() const;
 
  private:
   UIN numRowPanels_;
@@ -154,7 +154,7 @@ void colReordering_gpu(const sparseMatrix::CSR<float> &matrix,
                        float &time);
 
 // Error checking
-bool check_rebell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &rebell);
+bool check_rebell(const sparseMatrix::CSR<float> &matrix, const ReBELL &rebell);
 
 // Calculate the number of tiles and average density in the original matrix
 std::pair<UIN, float> calculateNumTilesAndAverageDensityInOriginalMatrix(const sparseMatrix::CSR<float> &matrix);
