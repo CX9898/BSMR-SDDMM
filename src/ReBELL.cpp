@@ -26,10 +26,10 @@ ReBELL::ReBELL(const int K, const sparseMatrix::CSR<float> &matrix, float &time)
 
     // Row reordering
     float rowReordering_time;
-//    reorderedRows_ = bsa_rowReordering_gpu(matrix,
-//                                           row_similarity_threshold_alpha,
-//                                           32,
-//                                           rowReordering_time);
+    reorderedRows_ = bsa_rowReordering_gpu(matrix,
+                                           row_similarity_threshold_alpha,
+                                           32,
+                                           rowReordering_time);
 //    std::vector<int> rows = bsa_rowReordering_cpu(matrix,
 //                                                  row_similarity_threshold_alpha,
 //                                                  32,
@@ -39,7 +39,7 @@ ReBELL::ReBELL(const int K, const sparseMatrix::CSR<float> &matrix, float &time)
 //        reorderedRows_[i] = rows[i];
 //    }
 //    rowReordering_cpu(matrix, reorderedRows_, rowReordering_time);
-    noReorderRow(matrix, reorderedRows_, rowReordering_time);
+//    noReorderRow(matrix, reorderedRows_, rowReordering_time);
 
     printf("rowReordering time : %f ms\n", rowReordering_time);
 
@@ -695,17 +695,17 @@ bool check_rebell(const sparseMatrix::CSR<float> &matrix, const ReBELL &rebell) 
     const auto [maxDensity, minDensity] = rebell.calculateMaxMinDensity();
     printf("rebell : numDenseBlock = %d, average density = %f%%, max average = %f%%, min average = %f%%\n",
            rebell.getNumDenseBlocks(),
-           rebell.calculateAverageDensity(),
-           maxDensity,
-           minDensity);
+           rebell.calculateAverageDensity() * 100,
+           maxDensity * 100,
+           minDensity * 100);
     printf("rebell: numSparseBlock = %d\n", rebell.getNumSparseBlocks());
 
     const auto [modeDensity, frequency] = rebell.calculateDensityMode();
-    printf("rebell : mode density = %f%%, frequency = %d\n", modeDensity, frequency);
+    printf("rebell : mode density = %f%%, frequency = %d\n", modeDensity * 100, frequency);
 
     const auto [numTiles, averageDensity] = calculateNumTilesAndAverageDensityInOriginalMatrix(matrix);
     printf("Number of tiles before reorder: %d, average density : %f%%\n",
-           numTiles, averageDensity);
+           numTiles, averageDensity * 100);
 
     bool isCorrect = true;
     if (!check_rowReordering(matrix, rebell)) {
