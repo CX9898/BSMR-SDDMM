@@ -179,7 +179,7 @@ inline void h2d(T *dev, const std::vector<T> &host) {
 
 template<typename T>
 inline void h2d(dev::vector<T> &dev, const std::vector<T> &host) {
-    dev.resize(dev);
+    dev.resize(host.size());
     cudaMemcpy(dev.data(), host.data(), host.size() * sizeof(T), cudaMemcpyHostToDevice);
 }
 
