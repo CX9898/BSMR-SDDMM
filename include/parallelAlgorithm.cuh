@@ -66,4 +66,5 @@ void sort_by_key_descending_order(uint32_t *key_first, uint32_t *key_last, uint3
 size_t count_if_positive(uint32_t *first, uint32_t *last);
 size_t count_if_equal(uint32_t *first, uint32_t *last, uint32_t value);
 void copy(uint32_t *first, uint32_t *last, uint32_t* result);
+void copy_if_positive(uint32_t *first, uint32_t *last, uint32_t *stencil, uint32_t *result);
 } // namespace dev

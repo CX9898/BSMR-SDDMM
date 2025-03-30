@@ -166,4 +166,7 @@ size_t count_if_equal(uint32_t *first, uint32_t *last, uint32_t value) {
 void copy(uint32_t *first, uint32_t *last, uint32_t *result) {
     thrust::copy(thrust::device, first, last, result);
 }
+void copy_if_positive(uint32_t *first, uint32_t *last, uint32_t *stencil, uint32_t *result) {
+    thrust::copy_if(thrust::device, first, last, stencil, result, IsPositive());
+}
 } // namespace dev
