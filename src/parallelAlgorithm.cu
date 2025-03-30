@@ -6,6 +6,24 @@
 
 #include "parallelAlgorithm.cuh"
 
+struct IsPositive {
+  __host__ __device__
+  bool operator()(int x) {
+      return x > 0;
+  }
+};
+
+struct is_equal {
+  int value;
+
+  is_equal(int v) : value(v) {}
+
+  __host__ __device__
+  bool operator()(int x) const {
+      return x == value;
+  }
+};
+
 namespace host {
 void fill_n(uint32_t *first, size_t size, uint32_t val) {
     thrust::fill_n(thrust::host, first, size, val);
@@ -93,20 +111,17 @@ void sequence(int *first, int *last, int start_value, int step) {
 void sequence(uint32_t *first, uint32_t *last, uint32_t start_value, uint32_t step) {
     thrust::sequence(thrust::host, first, last, start_value, step);
 }
-struct IsPositive {
-  __host__ __device__
-  bool operator()(int x) {
-      return x > 0;
-  }
-};
 size_t count_if_positive(uint32_t *first, uint32_t *last) {
     return thrust::count_if(thrust::host, first, last, IsPositive());
 }
 void copy_if_positive(uint32_t *first, uint32_t *last, uint32_t *result) {
-    thrust::copy_if(first, last, result, IsPositive());
+    thrust::copy_if(thrust::host, first, last, result, IsPositive());
 }
 void copy_if_positive(uint32_t *first, uint32_t *last, uint32_t *stencil, uint32_t *result) {
-    thrust::copy_if(first, last, stencil, result, IsPositive());
+    thrust::copy_if(thrust::host, first, last, stencil, result, IsPositive());
+}
+void computeRowNNZCountsFromOffsets(size_t num, uint32_t *offsets, uint32_t *result) {
+    thrust::transform(thrust::host, offsets + 1, offsets + num + 1, offsets, result, thrust::minus<int>());
 }
 } // namespace host
 
@@ -141,5 +156,14 @@ void sequence(uint32_t *first, uint32_t *last, uint32_t start_value, uint32_t st
 void sort_by_key_descending_order(uint32_t *key_first, uint32_t *key_last, uint32_t *value_first) {
     auto descending = thrust::greater<int>();
     thrust::sort_by_key(thrust::device, key_first, key_last, value_first, descending);
+}
+size_t count_if_positive(uint32_t *first, uint32_t *last) {
+    return thrust::count_if(thrust::device, first, last, IsPositive());
+}
+size_t count_if_equal(uint32_t *first, uint32_t *last, uint32_t value) {
+    return thrust::count_if(thrust::device, first, last, is_equal(value));
+}
+void copy(uint32_t *first, uint32_t *last, uint32_t *result) {
+    thrust::copy(thrust::device, first, last, result);
 }
 } // namespace dev

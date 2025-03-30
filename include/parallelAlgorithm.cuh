@@ -49,6 +49,7 @@ void sequence(uint32_t *first, uint32_t *last, uint32_t start_value, uint32_t st
 size_t count_if_positive(uint32_t *first, uint32_t *last);
 void copy_if_positive(uint32_t *first, uint32_t *last, uint32_t *result);
 void copy_if_positive(uint32_t *first, uint32_t *last, uint32_t *stencil, uint32_t *result);
+void computeRowNNZCountsFromOffsets(size_t num, uint32_t *offsets, uint32_t *result);
 } // namespace host
 
 namespace dev {
@@ -62,4 +63,7 @@ void inclusive_scan(size_t *first, size_t *last, size_t *result);
 void inclusive_scan(uint32_t *first, uint32_t *last, uint32_t *result);
 void sequence(uint32_t *first, uint32_t *last, uint32_t start_value, uint32_t step = 1);
 void sort_by_key_descending_order(uint32_t *key_first, uint32_t *key_last, uint32_t *value_first);
+size_t count_if_positive(uint32_t *first, uint32_t *last);
+size_t count_if_equal(uint32_t *first, uint32_t *last, uint32_t value);
+void copy(uint32_t *first, uint32_t *last, uint32_t* result);
 } // namespace dev
