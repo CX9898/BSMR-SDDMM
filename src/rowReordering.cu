@@ -41,6 +41,499 @@ void noReorderRow(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &reor
     time = timeCalculator.getTime();
 }
 
+namespace kernel {
+
+template<typename T>
+static __inline__ __device__ T warp_reduce_sum(T value) {
+    /* aggregate all value that each thread within a warp holding.*/
+    T ret = value;
+
+    for (int w = 1; w < warpSize; w = w << 1) {
+        T tmp = __shfl_xor_sync(0xffffffff, ret, w);
+        ret += tmp;
+    }
+    return ret;
+}
+
+// Only supports 1D blocks
+template<typename T>
+static __inline__ __device__ T reduce_sum(T value, T *shm) {
+    unsigned int stride;
+    T tmp = warp_reduce_sum(value); // perform warp shuffle first for less utilized shared memory
+
+    const unsigned int warpId = threadIdx.x >> 5;
+    const unsigned int laneId = threadIdx.x & 31;
+    if (laneId == 0) {
+        shm[warpId] = tmp;
+    }
+    __syncthreads();
+    for (stride = blockDim.x / (2 * warpSize); stride >= 1; stride = stride >> 1) {
+        if (warpId < stride && laneId == 0) {
+            shm[warpId] += shm[warpId + stride];
+        }
+
+        __syncthreads();
+    }
+    return shm[0];
+}
+
+__global__ void calculateDispersion(const UIN *__restrict__ colIndices,
+                                    const UIN *__restrict__ rowPtr,
+                                    UIN *weighted_partitions,
+                                    UIN *dispersion_score,
+                                    int num_blocks_per_row,
+                                    int col_block_size) {
+    extern __shared__ UIN shm[];
+    __shared__ UIN *encoding;
+    __shared__ UIN *local_result;
+    encoding = (UIN *) &shm[0];
+    local_result = (UIN *) &shm[num_blocks_per_row];
+    const UIN row = blockIdx.x;
+    const UIN row_start_index = rowPtr[row];
+    const int row_nz_count = rowPtr[row + 1] - row_start_index;
+    if (row_nz_count == 0) {
+        return;
+    }
+
+    for (int i = threadIdx.x; i < num_blocks_per_row; i += blockDim.x) {
+        encoding[i] = 0;
+    }
+    __syncthreads();
+
+    for (int i = threadIdx.x; i < row_nz_count; i += blockDim.x) {
+        int col = colIndices[row_start_index + i];
+        atomicAdd(&encoding[col / col_block_size], 1);
+    }
+    __syncthreads();
+
+    const UIN store_offset = row * num_blocks_per_row;
+    UIN result_tmp = 0;
+    UIN dense_partition_size = 0;
+    for (int i = threadIdx.x; i < num_blocks_per_row; i += blockDim.x) {
+        UIN value = encoding[i];
+        weighted_partitions[store_offset + i] = value;
+        int is_dense_partition = (value != 0);
+        dense_partition_size += is_dense_partition;
+        result_tmp += is_dense_partition * (col_block_size - value);
+    }
+    UIN result = reduce_sum(result_tmp + row_nz_count * dense_partition_size, local_result);
+
+    if (threadIdx.x == 0) {
+        dispersion_score[row] = result;
+    }
+}
+
+__device__ void normalizeEncoding(int num_blocks_per_row, float *encoding, UIN *scratch) {
+    UIN sum_of_squares_rep = 0;
+
+    for (int i = threadIdx.x; i < num_blocks_per_row; i += blockDim.x) {
+        int e_rep_i = encoding[i];
+
+        sum_of_squares_rep += e_rep_i * e_rep_i;
+    }
+    sum_of_squares_rep = reduce_sum(sum_of_squares_rep, scratch);
+
+    if (threadIdx.x == 0) {
+        scratch[0] = sum_of_squares_rep;
+    }
+    __syncthreads();
+
+    sum_of_squares_rep = scratch[0];
+
+    __syncthreads();
+
+    float norm_rep = sqrt((float) sum_of_squares_rep);
+
+    for (int i = threadIdx.x; i < num_blocks_per_row; i += blockDim.x) {
+        encoding[i] = norm_rep == 0 ? 0 : static_cast<float>(encoding[i]) / norm_rep;
+    }
+
+}
+
+__global__ void calculateDispersion(const UIN *__restrict__ colIndices,
+                                    const UIN *__restrict__ rowPtr,
+                                    float *weighted_partitions,
+                                    UIN *dispersion_score,
+                                    int num_blocks_per_row,
+                                    int col_block_size) {
+    extern __shared__ UIN shm[];
+    __shared__ UIN *encoding;
+    __shared__ UIN *local_result;
+    encoding = (UIN *) &shm[0];
+    local_result = (UIN *) &shm[num_blocks_per_row];
+    const UIN row = blockIdx.x;
+    const UIN row_start_index = rowPtr[row];
+    const int row_nz_count = rowPtr[row + 1] - row_start_index;
+    if (row_nz_count == 0) {
+        return;
+    }
+
+    for (int i = threadIdx.x; i < num_blocks_per_row; i += blockDim.x) {
+        encoding[i] = 0;
+    }
+    __syncthreads();
+
+    for (int i = threadIdx.x; i < row_nz_count; i += blockDim.x) {
+        int col = colIndices[row_start_index + i];
+        atomicAdd(&encoding[col / col_block_size], 1);
+    }
+    __syncthreads();
+
+    const UIN store_offset = row * num_blocks_per_row;
+    UIN result_tmp = 0;
+    UIN dense_partition_size = 0;
+    for (int i = threadIdx.x; i < num_blocks_per_row; i += blockDim.x) {
+        const UIN value = encoding[i];
+        int is_dense_partition = (value != 0);
+        dense_partition_size += is_dense_partition;
+        result_tmp += is_dense_partition * (col_block_size - value);
+    }
+    UIN result = reduce_sum(result_tmp + row_nz_count * dense_partition_size, local_result);
+
+    if (threadIdx.x == 0) {
+        dispersion_score[row] = result;
+    }
+
+    // normalize the encoding
+    __shared__ float *float_encoding;
+    float_encoding = (float *) &shm[0];
+    normalizeEncoding(num_blocks_per_row, float_encoding, local_result);
+    for (int i = threadIdx.x; i < num_blocks_per_row; i += blockDim.x) {
+        weighted_partitions[store_offset + i] = float_encoding[i];
+    }
+}
+
+__global__ void calculateDispersionNoSMEM(const UIN *__restrict__ colidx,
+                                          const UIN *__restrict__ rowPtr,
+                                          UIN *weighted_partitions,
+                                          UIN *dispersion_score,
+                                          int num_blocks_per_row,
+                                          int col_block_size) {
+    extern __shared__ UIN shm[];
+    __shared__ UIN *local_result;
+
+    local_result = (UIN *) &shm[0];
+    const UIN row = blockIdx.x;
+    const UIN row_start_index = rowPtr[row];
+    const int row_nz_count = rowPtr[row + 1] - row_start_index;
+    if (row_nz_count == 0) {
+        return;
+    }
+
+    const UIN store_offset = row * num_blocks_per_row;
+    UIN *encoding = weighted_partitions + store_offset;
+
+    for (int i = threadIdx.x; i < row_nz_count; i += blockDim.x) {
+        UIN col = colidx[row_start_index + i];
+        atomicAdd(&encoding[col / col_block_size], 1);
+    }
+
+    UIN result_tmp = 0;
+    UIN dense_partition_size = 0;
+    for (int i = threadIdx.x; i < num_blocks_per_row; i += blockDim.x) {
+        int value = encoding[i];
+        weighted_partitions[store_offset + i] = value;
+        int is_dense_partition = (value != 0);
+        dense_partition_size += is_dense_partition;
+        result_tmp += is_dense_partition * (col_block_size - value);
+    }
+    UIN result = reduce_sum(result_tmp + row_nz_count * dense_partition_size, local_result);
+
+    if (threadIdx.x == 0) {
+        dispersion_score[row] = result;
+    }
+}
+
+static __device__ void mutex_lock(unsigned int *mutex) {
+
+    if (threadIdx.x == 0) {
+        unsigned int ns = 8;
+        while (atomicCAS(mutex, 0, 1) == 1) {
+            __nanosleep(ns);
+            if (ns < 256) {
+                ns *= 2;
+            }
+        }
+    }
+    __syncthreads();
+}
+
+static __device__ void mutex_unlock(unsigned int *mutex) {
+    if (threadIdx.x == 0) {
+        atomicExch(mutex, 0);
+    }
+    __syncthreads();
+}
+
+static __device__ float calculate_similarity_norm_weighted_jaccard(const UIN *encoding_rep,
+                                                                   const UIN *encoding_cmp,
+                                                                   UIN num_blocks_per_row,
+                                                                   UIN *scratch,
+                                                                   float *float_scratch) {
+
+    float similarity;
+    UIN sum_of_squares_rep = 0;
+    UIN sum_of_squares_cmp = 0;
+
+    for (int i = threadIdx.x; i < num_blocks_per_row; i += blockDim.x) {
+        int e_rep_i = encoding_rep[i];
+        int e_cmp_i = encoding_cmp[i];
+
+        sum_of_squares_rep += e_rep_i * e_rep_i;
+        sum_of_squares_cmp += e_cmp_i * e_cmp_i;
+    }
+    sum_of_squares_rep = reduce_sum(sum_of_squares_rep, scratch);
+    sum_of_squares_cmp = reduce_sum(sum_of_squares_cmp, scratch);
+
+    if (threadIdx.x == 0) {
+        scratch[0] = sum_of_squares_rep;
+        scratch[1] = sum_of_squares_cmp;
+    }
+    __syncthreads();
+    sum_of_squares_rep = scratch[0];
+    sum_of_squares_cmp = scratch[1];
+
+    if (sum_of_squares_rep == 0 && sum_of_squares_cmp == 0) {
+        return 1.0f;
+    } else if ((sum_of_squares_rep == 0 || sum_of_squares_cmp == 0)) {
+        return 0.0f;
+    }
+    __syncthreads();
+
+    float norm_rep = sqrt((float) sum_of_squares_rep);
+    float norm_cmp = sqrt((float) sum_of_squares_cmp);
+    float min_sum = 0.0f;
+    float max_sum = 0.0f;
+
+    for (int i = threadIdx.x; i < num_blocks_per_row; i += blockDim.x) {
+        float sim_rep = ((float) encoding_rep[i]) / norm_rep;
+        float sim_cmp = ((float) encoding_cmp[i]) / norm_cmp;
+        min_sum += fminf(sim_rep, sim_cmp);
+        max_sum += fmaxf(sim_rep, sim_cmp);
+    }
+    min_sum = reduce_sum(min_sum, float_scratch);
+    max_sum = reduce_sum(max_sum, float_scratch);
+    __syncthreads();
+
+    if (threadIdx.x == 0) // only the first warp holds valid values, and use only one thread for simple write
+    {
+        float sim = min_sum / max_sum;
+        float_scratch[0] = sim;
+    }
+    __syncthreads();
+    similarity = float_scratch[0];
+    return similarity;
+}
+
+static __device__ float calculate_similarity_norm_weighted_jaccard(const float *encoding_rep,
+                                                                   const float *encoding_cmp,
+                                                                   UIN num_blocks_per_row,
+                                                                   UIN *scratch,
+                                                                   float *float_scratch) {
+    float similarity;
+
+    float min_sum = 0.0f;
+    float max_sum = 0.0f;
+
+    for (int i = threadIdx.x; i < num_blocks_per_row; i += blockDim.x) {
+        float sim_rep = ((float) encoding_rep[i]);
+        float sim_cmp = ((float) encoding_cmp[i]);
+        min_sum += fminf(sim_rep, sim_cmp);
+        max_sum += fmaxf(sim_rep, sim_cmp);
+    }
+    min_sum = reduce_sum(min_sum, float_scratch);
+    max_sum = reduce_sum(max_sum, float_scratch);
+    __syncthreads();
+
+    if (threadIdx.x == 0) // only the first warp holds valid values, and use only one thread for simple write
+    {
+        float sim = min_sum / max_sum;
+        float_scratch[0] = sim;
+    }
+    __syncthreads();
+    similarity = float_scratch[0];
+    return similarity;
+}
+
+static __global__ void bsa_clustering(const UIN *weighted_partitions,
+                                      const UIN cluster_id,
+                                      int *ascending_idx,
+                                      volatile UIN *cluster_ids,
+                                      UIN start_idx,
+                                      UIN num_rows,
+                                      UIN num_blocks_per_row,
+                                      float alpha,
+                                      size_t shm_size,
+                                      unsigned int *mutexes,
+                                      UIN *cluster_id_to_launch,
+                                      UIN *start_idx_to_launch) {
+    extern __shared__ UIN shm[];
+    __shared__ UIN *encoding_rep;
+    __shared__ UIN *scratch;
+    __shared__ float *float_scratch;
+    encoding_rep = shm;
+    scratch = &encoding_rep[num_blocks_per_row];
+    float_scratch = (float *) &scratch[blockDim.x / warpSize];
+
+    bool next_cluster_created = false;
+
+    mutex_lock(&mutexes[start_idx]);
+    cluster_ids[start_idx] = cluster_id;
+    for (int i = threadIdx.x; i < num_blocks_per_row; i += blockDim.x) {
+        encoding_rep[i] = weighted_partitions[ascending_idx[start_idx] * num_blocks_per_row + i];
+    }
+    __syncthreads();
+
+    mutex_unlock(&mutexes[start_idx]);
+    mutex_lock(&mutexes[start_idx + 1]);
+    cluster_id_to_launch[0] = NULL_VALUE;
+    start_idx_to_launch[0] = NULL_VALUE;
+
+    for (int idx = start_idx + 1; idx < num_rows; idx++) {
+        volatile UIN cluster_tmp = cluster_ids[idx];
+        if (cluster_tmp != NULL_VALUE) {
+            if (idx < num_rows - 1) {
+                mutex_lock(&mutexes[idx + 1]);
+            }
+            mutex_unlock(&mutexes[idx]);
+            continue;
+        }
+
+        int row = ascending_idx[idx]; // ascending_idx[idx];
+        const UIN *encoding_cmp = &weighted_partitions[row * num_blocks_per_row];
+        float similarity;
+
+        similarity = calculate_similarity_norm_weighted_jaccard(encoding_rep,
+                                                                encoding_cmp,
+                                                                num_blocks_per_row,
+                                                                scratch,
+                                                                float_scratch);
+
+        if (threadIdx.x == 0) {
+            float_scratch[0] = similarity;
+        }
+
+        __syncthreads();
+        similarity = float_scratch[0];
+
+        if (similarity > alpha) {
+
+            if (threadIdx.x == 0) {
+                cluster_ids[idx] = cluster_id;
+            }
+
+            for (int i = threadIdx.x; i < num_blocks_per_row; i += blockDim.x) {
+                encoding_rep[i] += encoding_cmp[i];
+            }
+
+            __syncthreads();
+        } else {
+            if (!next_cluster_created) {
+                if (threadIdx.x == 0) {
+
+                    bsa_clustering<<<1, blockDim.x, shm_size, cudaStreamFireAndForget>>>(weighted_partitions,
+                                                                                         cluster_id + 1,
+                                                                                         ascending_idx,
+                                                                                         cluster_ids,
+                                                                                         idx,
+                                                                                         num_rows,
+                                                                                         num_blocks_per_row,
+                                                                                         alpha,
+                                                                                         shm_size,
+                                                                                         mutexes,
+                                                                                         cluster_id_to_launch,
+                                                                                         start_idx_to_launch);
+
+                    cudaError_t err = cudaGetLastError();
+                    scratch[0] = (int) cudaGetLastError();
+                    if (err == cudaErrorLaunchPendingCountExceeded) {
+                        cluster_id_to_launch[0] = cluster_id + 1;
+                        start_idx_to_launch[0] = idx;
+                    }
+                }
+            }
+
+            next_cluster_created = true;
+        }
+
+        if (idx < num_rows - 1) {
+            mutex_lock(&mutexes[idx + 1]);
+        }
+        mutex_unlock(&mutexes[idx]);
+    }
+}
+
+__global__ void clustering(const UIN *__restrict__ weightedPartitions,
+                           const UIN num_blocks_per_row,
+                           const UIN *__restrict__ rowIndices,
+                           const UIN startIndex,
+                           const UIN numRow,
+                           const UIN clusterId,
+                           float alpha,
+                           UIN *clusterIds) {
+
+    extern __shared__ UIN shm[];
+    __shared__ UIN *encoding_rep;
+    __shared__ UIN *scratch;
+    __shared__ float *float_scratch;
+    encoding_rep = shm;
+    scratch = &encoding_rep[num_blocks_per_row];
+    float_scratch = (float *) &scratch[blockDim.x / WARP_SIZE];
+
+    const UIN row = rowIndices[startIndex];
+    for (int idx = threadIdx.x; idx < num_blocks_per_row; idx += blockDim.x) {
+        encoding_rep[idx] = weightedPartitions[row * num_blocks_per_row + idx];
+    }
+    __syncthreads();
+
+    const UIN idx_cmp = startIndex + blockIdx.x + 1;
+    if (idx_cmp >= numRow) {
+        return;
+    }
+
+    const UIN row_cmp = rowIndices[idx_cmp];
+    const UIN *encoding_cmp = &weightedPartitions[row_cmp * num_blocks_per_row];
+    float similarity;
+
+    // TODO : 归一化的计算可以提前计算
+    similarity = calculate_similarity_norm_weighted_jaccard(encoding_rep,
+                                                            encoding_cmp,
+                                                            num_blocks_per_row,
+                                                            scratch,
+                                                            float_scratch);
+//    printf("row = %d, similarity = %f", row, similarity);
+    if (similarity > alpha) {
+        clusterIds[idx_cmp] = clusterId;
+    }
+}
+
+} // namespace kernel
+
+void calculateDispersion(const sparseMatrix::CSR<float> &matrix,
+                         dev::vector<UIN> &Encodings_gpu,
+                         dev::vector<UIN> &Dispersions_gpu,
+                         int num_blocks_per_row,
+                         UIN block_size) {
+    int blockdim = WARP_SIZE * 4;
+    int grid = matrix.row();
+
+    dev::vector<UIN> rowptr_gpu(matrix.rowOffsets());
+    dev::vector<UIN> colidx_gpu(matrix.colIndices());
+
+    const size_t shm_size = num_blocks_per_row * sizeof(UIN) + (blockdim / WARP_SIZE) * sizeof(UIN);
+    printf("calculateDispersion shm_size = %lu\n", shm_size);
+    if (shm_size > maxSharedMemoryPerBlock) {
+        printf("Warning! Shared memory size exceeds the limit. shm_size = %zu\n", shm_size);
+    }
+
+    kernel::calculateDispersion<<<grid, blockdim, shm_size>>>(colidx_gpu.data(), rowptr_gpu.data(),
+        Encodings_gpu.data(),
+        Dispersions_gpu.data(),
+        num_blocks_per_row, block_size);
+
+    cudaDeviceSynchronize();
+}
+
 void encoding(const sparseMatrix::CSR<float> &matrix, std::vector<std::vector<UIN>> &encodings) {
     const int colBlock = std::ceil(static_cast<float>(matrix.col()) / COL_BLOCK_SIZE);
     encodings.resize(matrix.row());
@@ -170,6 +663,122 @@ void rowReordering_cpu(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> 
 
     timeCalculator.endClock();
     time = timeCalculator.getTime();
+}
+
+void rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
+                       const float similarity_threshold_alpha,
+                       const int blockSize,
+                       std::vector<UIN> &reorderedRows,
+                       float &time) {
+    printf("start rowReordering_gpu. Number of rows: %u\n", matrix.row());
+
+    CudaTimeCalculator timeCalculator;
+    timeCalculator.startClock();
+
+    const UIN numBlocksPerRow = std::ceil(static_cast<float>(matrix.col()) / blockSize);
+
+    std::vector<UIN> nnz(matrix.row(), 0);
+
+#pragma omp parallel for
+    for (int i = 0; i < nnz.size(); ++i) {
+        nnz[i] = matrix.rowOffsets()[i + 1] - matrix.rowOffsets()[i];
+    }
+
+    const UIN numNonZeroRow = host::count_if_positive(nnz.data(), nnz.data() + nnz.size());
+
+    printf("Number of non-zero rows: %u\n", numNonZeroRow);
+
+    dev::vector<UIN> rowIndices_dev; // Store the original row id
+    {
+        std::vector<UIN> rowIndices(numNonZeroRow);
+        std::vector<UIN> ascendingRow(matrix.row());
+        host::sequence(ascendingRow.data(),
+                       ascendingRow.data() + ascendingRow.size(),
+                       0); // ascending = {0, 1, 2, 3, ... rows-1}
+
+        host::copy_if_positive(ascendingRow.data(),
+                               ascendingRow.data() + ascendingRow.size(),
+                               nnz.data(),
+                               rowIndices.data());
+        h2d(rowIndices_dev, rowIndices);
+    }
+
+    dev::vector<UIN> encodings_dev(static_cast<size_t>(numBlocksPerRow) * matrix.row(), 0);
+    dev::vector<UIN> dispersions_dev(matrix.row());
+
+    calculateDispersion(matrix, encodings_dev, dispersions_dev, numBlocksPerRow, blockSize);
+
+    dev::sort_by_key(dispersions_dev.data(),
+                     dispersions_dev.data() + dispersions_dev.size(),
+                     rowIndices_dev.data());
+
+    const UIN numZeroRow = dispersions_dev.size() - numNonZeroRow;
+
+    int block;
+    if (numBlocksPerRow < 32) {
+        block = 32;
+    } else {
+        int num_scan_iterate = 4;
+        int blockdim_candidate = WARP_SIZE * ceil((float) (numBlocksPerRow / num_scan_iterate) / (float) WARP_SIZE);
+        blockdim_candidate = blockdim_candidate > 32 ? blockdim_candidate : 32;
+        block = 1024 < blockdim_candidate ? 1024 : blockdim_candidate;
+    }
+
+    CudaTimeCalculator clusteringTimer;
+    float clustering_time = 0.0f;
+    float sort_time = 0.0f;
+
+    const size_t smemSize = (block * sizeof(UIN) + block * sizeof(float)) / WARP_SIZE + sizeof(UIN) * numBlocksPerRow;
+
+    dev::vector<UIN> clusterIds_dev(numNonZeroRow, NULL_VALUE);
+    std::vector<UIN> numRowPerCluster(numNonZeroRow);
+    UIN clusterCount = 0;
+    UIN startIndex = 0;
+    UIN numRemainingRows = numNonZeroRow;
+    while (startIndex < rowIndices_dev.size()) {
+        dev::fill_n(clusterIds_dev.data() + startIndex, 1, clusterCount);
+
+        clusteringTimer.startClock();
+        kernel::clustering<<<numRemainingRows - 1, block, smemSize>>>(encodings_dev.data(),
+            numBlocksPerRow,
+            rowIndices_dev.data(), startIndex,
+            rowIndices_dev.size(),
+            clusterCount,
+            similarity_threshold_alpha,
+            clusterIds_dev.data());
+        cudaDeviceSynchronize();
+
+        clusteringTimer.endClock();
+        float clustering_onetime = clusteringTimer.getTime();
+
+        printf("clustering_onetime = %f, clusterCount = %d\n", clustering_onetime, clusterCount);
+
+        clustering_time += clustering_onetime;
+
+        clusteringTimer.startClock();
+        dev::sort_by_key(clusterIds_dev.data() + startIndex,
+                         clusterIds_dev.data() + clusterIds_dev.size(),
+                         rowIndices_dev.data() + startIndex);
+        clusteringTimer.endClock();
+        sort_time += clusteringTimer.getTime();
+
+        numRemainingRows = dev::count_if_equal(clusterIds_dev.data() + startIndex,
+                                               clusterIds_dev.data() + clusterIds_dev.size(),
+                                               NULL_VALUE);
+        const UIN newStartIndex = rowIndices_dev.size() - numRemainingRows;
+        numRowPerCluster[clusterCount] = newStartIndex - startIndex;
+
+        startIndex = newStartIndex;
+        ++clusterCount;
+    }
+    printf("Number of clusters: %u\n", clusterCount);
+
+    printf("clustering time: %f ms, sort time: %f ms\n", clustering_time, sort_time);
+
+    timeCalculator.endClock();
+    time = timeCalculator.getTime();
+
+    reorderedRows = d2h(rowIndices_dev);
 }
 
 float normalized_weighted_jaccard_sim(std::vector<int> A_pattern,
@@ -312,296 +921,6 @@ std::vector<int> bsa_rowReordering_cpu(const sparseMatrix::CSR<float> &matrix,
     return row_permutation;
 }
 
-namespace kernel {
-
-template<typename T>
-static __inline__ __device__ T warp_reduce_sum(T value) {
-    /* aggregate all value that each thread within a warp holding.*/
-    T ret = value;
-
-    for (int w = 1; w < warpSize; w = w << 1) {
-        T tmp = __shfl_xor_sync(0xffffffff, ret, w);
-        ret += tmp;
-    }
-    return ret;
-}
-
-template<typename T>
-static __inline__ __device__ T reduce_sum(T value, T *shm) {
-    unsigned int stride;
-    unsigned int tid = threadIdx.x;
-    T tmp = warp_reduce_sum(value); // perform warp shuffle first for less utilized shared memory
-
-    unsigned int block_warp_id = tid / warpSize;
-    unsigned int lane = tid % warpSize;
-    if (lane == 0) {
-        shm[block_warp_id] = tmp;
-    }
-    __syncthreads();
-    for (stride = blockDim.x / (2 * warpSize); stride >= 1; stride = stride >> 1) {
-        if (block_warp_id < stride && lane == 0) {
-            shm[block_warp_id] += shm[block_warp_id + stride];
-        }
-
-        __syncthreads();
-    }
-    return shm[0];
-}
-
-__global__ void calculateDispersion(const UIN *colidx, const UIN *rowPtr,
-                                    UIN *weighted_partitions, UIN *dispersion_score,
-                                    int num_blocks_per_row, int col_block_size) {
-    extern __shared__ UIN shm[];
-    __shared__ UIN *encoding;
-    __shared__ UIN *local_result;
-    encoding = (UIN *) &shm[0];
-    local_result = (UIN *) &shm[num_blocks_per_row];
-    const UIN row = blockIdx.x;
-    const UIN row_start_index = rowPtr[row];
-    const int row_nz_count = rowPtr[row + 1] - row_start_index;
-    if (row_nz_count == 0) {
-        return;
-    }
-
-    for (int i = threadIdx.x; i < num_blocks_per_row; i += blockDim.x) {
-        encoding[i] = 0;
-    }
-    __syncthreads();
-
-    for (int i = threadIdx.x; i < row_nz_count; i += blockDim.x) {
-        int col = colidx[row_start_index + i];
-        atomicAdd(&encoding[col / col_block_size], 1);
-    }
-    __syncthreads();
-
-    const UIN store_offset = row * num_blocks_per_row;
-    UIN result_tmp = 0;
-    UIN dense_partition_size = 0;
-    for (int i = threadIdx.x; i < num_blocks_per_row; i += blockDim.x) {
-        int value = encoding[i];
-        weighted_partitions[store_offset + i] = value;
-        int is_dense_partition = (value != 0);
-        dense_partition_size += is_dense_partition;
-        result_tmp += is_dense_partition * (col_block_size - value);
-    }
-    UIN result = reduce_sum(result_tmp + row_nz_count * dense_partition_size, local_result);
-
-    if (threadIdx.x == 0) {
-        dispersion_score[row] = result;
-    }
-}
-
-static __device__ void mutex_lock(unsigned int *mutex) {
-
-    if (threadIdx.x == 0) {
-        unsigned int ns = 8;
-        while (atomicCAS(mutex, 0, 1) == 1) {
-            __nanosleep(ns);
-            if (ns < 256) {
-                ns *= 2;
-            }
-        }
-    }
-    __syncthreads();
-}
-
-static __device__ void mutex_unlock(unsigned int *mutex) {
-    if (threadIdx.x == 0) {
-        atomicExch(mutex, 0);
-    }
-    __syncthreads();
-}
-
-static __device__ float calculate_similarity_norm_weighted_jaccard(const UIN *encoding_rep,
-                                                                   const UIN *encoding_cmp,
-                                                                   UIN num_blocks_per_row,
-                                                                   UIN *scratch,
-                                                                   float *float_scratch) {
-
-    float similarity;
-    UIN sum_of_squares_rep = 0;
-    UIN sum_of_squares_cmp = 0;
-
-    for (int i = threadIdx.x; i < num_blocks_per_row; i += blockDim.x) {
-        int e_rep_i = encoding_rep[i];
-        int e_cmp_i = encoding_cmp[i];
-
-        sum_of_squares_rep += e_rep_i * e_rep_i;
-        sum_of_squares_cmp += e_cmp_i * e_cmp_i;
-    }
-    sum_of_squares_rep = reduce_sum(sum_of_squares_rep, scratch);
-    sum_of_squares_cmp = reduce_sum(sum_of_squares_cmp, scratch);
-
-    if (threadIdx.x == 0) {
-        scratch[0] = sum_of_squares_rep;
-        scratch[1] = sum_of_squares_cmp;
-    }
-    __syncthreads();
-    sum_of_squares_rep = scratch[0];
-    sum_of_squares_cmp = scratch[1];
-
-    if (sum_of_squares_rep == 0 && sum_of_squares_cmp == 0) {
-        return 1.0f;
-    } else if ((sum_of_squares_rep == 0 || sum_of_squares_cmp == 0)) {
-        return 0.0f;
-    }
-    __syncthreads();
-
-    float norm_rep = sqrt((float) sum_of_squares_rep);
-    float norm_cmp = sqrt((float) sum_of_squares_cmp);
-    float min_sum = 0.0f;
-    float max_sum = 0.0f;
-
-    for (int i = threadIdx.x; i < num_blocks_per_row; i += blockDim.x) {
-        float sim_rep = ((float) encoding_rep[i]) / norm_rep;
-        float sim_cmp = ((float) encoding_cmp[i]) / norm_cmp;
-        min_sum += fminf(sim_rep, sim_cmp);
-        max_sum += fmaxf(sim_rep, sim_cmp);
-    }
-    min_sum = reduce_sum(min_sum, float_scratch);
-    max_sum = reduce_sum(max_sum, float_scratch);
-    __syncthreads();
-
-    if (threadIdx.x == 0) // only the first warp holds valid values, and use only one thread for simple write
-    {
-        float sim = min_sum / max_sum;
-        float_scratch[0] = sim;
-    }
-    __syncthreads();
-    similarity = float_scratch[0];
-    return similarity;
-}
-
-static __global__ void bsa_clustering(const UIN *weighted_partitions,
-                                      const UIN cluster_id,
-                                      int *ascending_idx,
-                                      volatile UIN *cluster_ids,
-                                      UIN start_idx,
-                                      UIN num_rows,
-                                      UIN num_blocks_per_row,
-                                      float alpha,
-                                      size_t shm_size,
-                                      unsigned int *mutexes,
-                                      UIN *cluster_id_to_launch,
-                                      UIN *start_idx_to_launch) {
-    extern __shared__ UIN shm[];
-    __shared__ UIN *encoding_rep;
-    __shared__ UIN *scratch;
-    __shared__ float *float_scratch;
-    encoding_rep = shm;
-    scratch = &encoding_rep[num_blocks_per_row];
-    float_scratch = (float *) &scratch[blockDim.x / warpSize];
-
-    bool next_cluster_created = false;
-
-    mutex_lock(&mutexes[start_idx]);
-    cluster_ids[start_idx] = cluster_id;
-    for (int i = threadIdx.x; i < num_blocks_per_row; i += blockDim.x) {
-        encoding_rep[i] = weighted_partitions[ascending_idx[start_idx] * num_blocks_per_row + i];
-    }
-    __syncthreads();
-
-    mutex_unlock(&mutexes[start_idx]);
-    mutex_lock(&mutexes[start_idx + 1]);
-    cluster_id_to_launch[0] = NULL_VALUE;
-    start_idx_to_launch[0] = NULL_VALUE;
-
-    for (int idx = start_idx + 1; idx < num_rows; idx++) {
-        volatile UIN cluster_tmp = cluster_ids[idx];
-        if (cluster_tmp != NULL_VALUE) {
-            if (idx < num_rows - 1) {
-                mutex_lock(&mutexes[idx + 1]);
-            }
-            mutex_unlock(&mutexes[idx]);
-            continue;
-        }
-
-        int row = ascending_idx[idx]; // ascending_idx[idx];
-        const UIN *encoding_cmp = &weighted_partitions[row * num_blocks_per_row];
-        float similarity;
-
-        similarity = calculate_similarity_norm_weighted_jaccard(encoding_rep,
-                                                                encoding_cmp,
-                                                                num_blocks_per_row,
-                                                                scratch,
-                                                                float_scratch);
-
-        if (threadIdx.x == 0) {
-            float_scratch[0] = similarity;
-        }
-
-        __syncthreads();
-        similarity = float_scratch[0];
-
-        if (similarity > alpha) {
-
-            if (threadIdx.x == 0) {
-                cluster_ids[idx] = cluster_id;
-            }
-
-            for (int i = threadIdx.x; i < num_blocks_per_row; i += blockDim.x) {
-                encoding_rep[i] += encoding_cmp[i];
-            }
-
-            __syncthreads();
-        } else {
-            if (!next_cluster_created) {
-                if (threadIdx.x == 0) {
-
-                    bsa_clustering<<<1, blockDim.x, shm_size, cudaStreamFireAndForget>>>(weighted_partitions,
-                                                                                         cluster_id + 1,
-                                                                                         ascending_idx,
-                                                                                         cluster_ids,
-                                                                                         idx,
-                                                                                         num_rows,
-                                                                                         num_blocks_per_row,
-                                                                                         alpha,
-                                                                                         shm_size,
-                                                                                         mutexes,
-                                                                                         cluster_id_to_launch,
-                                                                                         start_idx_to_launch);
-
-                    cudaError_t err = cudaGetLastError();
-                    scratch[0] = (int) cudaGetLastError();
-                    if (err == cudaErrorLaunchPendingCountExceeded) {
-                        cluster_id_to_launch[0] = cluster_id + 1;
-                        start_idx_to_launch[0] = idx;
-                    }
-                }
-            }
-
-            next_cluster_created = true;
-        }
-
-        if (idx < num_rows - 1) {
-            mutex_lock(&mutexes[idx + 1]);
-        }
-        mutex_unlock(&mutexes[idx]);
-    }
-}
-
-} // namespace kernel
-
-void calculateDispersion(const sparseMatrix::CSR<float> &matrix,
-                         dev::vector<UIN> &Encodings_gpu,
-                         dev::vector<UIN> &Dispersions_gpu,
-                         int num_blocks_per_row,
-                         UIN block_size) {
-    int blockdim = WARP_SIZE * 4;
-    int grid = matrix.row();
-
-    dev::vector<UIN> rowptr_gpu(matrix.rowOffsets());
-    dev::vector<UIN> colidx_gpu(matrix.colIndices());
-
-//    size_t shm_size = num_blocks_per_row * sizeof(UIN) + (blockdim * sizeof(UIN) / WARP_SIZE);
-    size_t shm_size = num_blocks_per_row * sizeof(UIN) + (blockdim / WARP_SIZE) * sizeof(UIN);
-    kernel::calculateDispersion<<<grid, blockdim, shm_size>>>(colidx_gpu.data(), rowptr_gpu.data(),
-        Encodings_gpu.data(),
-        Dispersions_gpu.data(),
-        num_blocks_per_row, block_size);
-    cudaDeviceSynchronize();
-}
-
 std::vector<UIN> get_permutation_gpu(const sparseMatrix::CSR<float> &mat,
                                      std::vector<int> ascending_idx,
                                      const dev::vector<UIN> &Encodings,
@@ -632,10 +951,14 @@ std::vector<UIN> get_permutation_gpu(const sparseMatrix::CSR<float> &mat,
     }
     // blockdim = 1024;
 
+    printf("bsa_clustering blockDim = %d\n", blockdim);
+
     int grid = 1;
 
     size_t
         shm_size = (blockdim * sizeof(int) + blockdim * sizeof(float)) / WARP_SIZE + sizeof(int) * num_blocks_per_row;
+
+    printf("bsa_clustering shm_size: %zu\n", shm_size);
 
     cudaStream_t initial_stream;
     cudaStreamCreateWithFlags(&initial_stream, cudaStreamNonBlocking);
@@ -712,17 +1035,34 @@ std::vector<UIN> get_permutation_gpu(const sparseMatrix::CSR<float> &mat,
     return permutation;
 }
 
+UIN calculateBlockSize(const sparseMatrix::CSR<float> &matrix) {
+    size_t freeMem = 0;
+    size_t totalMem = 0;
+    cudaMemGetInfo(&freeMem, &totalMem);
+
+    const UIN minBlockSizeDueToGMEM =
+        std::ceil((static_cast<size_t>(matrix.row()) * matrix.row()) * sizeof(UIN) / static_cast<float>(freeMem / 2));
+    const UIN minBlockSizeDueToSMEM =
+        std::ceil((static_cast<size_t>(matrix.col()) * sizeof(UIN)) / static_cast<float>(maxSharedMemoryPerBlock / 2));
+    printf("minBlockSizeDueToGMEM : %d, minBlockSizeDueToSMEM : %d\n", minBlockSizeDueToGMEM, minBlockSizeDueToSMEM);
+
+    UIN blockSize = std::max(minBlockSizeDueToGMEM, minBlockSizeDueToSMEM);
+
+    return blockSize > 32 ? blockSize : 32;
+}
+
 std::vector<UIN> bsa_rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
                                        float alpha,
                                        UIN block_size,
                                        float &reordering_time) {
-
+    printf("Start bsa_rowReordering_gpu. Number of rows: %u, block_size: %u\n", matrix.row(), block_size);
     std::vector<UIN> row_permutation;
     // int num_blocks_per_row = (lhs.cols + block_size - 1) / block_size;
     int num_blocks_per_row = ceil((float) matrix.col() / (float) block_size);
+    printf("num_blocks_per_row = %d\n", num_blocks_per_row);
 
     /*prepare resources -start*/
-    dev::vector<UIN> Encodings_gpu(static_cast<size_t>(num_blocks_per_row * matrix.row()), 0);
+    dev::vector<UIN> Encodings_gpu(static_cast<size_t>(num_blocks_per_row) * matrix.row(), 0);
     dev::vector<UIN> Dispersions_gpu(matrix.row(), 0);
     /*prepare resources -done*/
 
@@ -758,6 +1098,8 @@ std::vector<UIN> bsa_rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
                                           num_blocks_per_row,
                                           alpha,
                                           cluster_cnt);
+
+    printf("Number of clusters: %u\n", cluster_cnt);
 
     timeCalculator.endClock();
     float get_permutation_gpu_time = timeCalculator.getTime();

@@ -100,6 +100,14 @@ void noReorderRow(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &reor
  **/
 void rowReordering_cpu(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &rows, float &time);
 
+void rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
+                       const float similarity_threshold_alpha,
+                       const int blockSize,
+                       std::vector<UIN> &reorderedRows,
+                       float &time);
+
+UIN calculateBlockSize(const sparseMatrix::CSR<float> &matrix);
+
 std::vector<int> bsa_rowReordering_cpu(const sparseMatrix::CSR<float> &matrix,
                                        const float similarity_threshold_alpha,
                                        const int block_size,

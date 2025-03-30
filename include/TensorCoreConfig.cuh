@@ -11,6 +11,8 @@ using UIN = uint32_t;
 constexpr UIN MAX_UIN = std::numeric_limits<UIN>::max();
 constexpr UIN NULL_VALUE = MAX_UIN;
 
+constexpr UIN maxSharedMemoryPerBlock = 49152;
+
 // The dimension supported by WMMA
 //#define WMMA_16_16_16
 //#define WMMA_32_8_16
