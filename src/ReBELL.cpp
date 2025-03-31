@@ -27,10 +27,10 @@ ReBELL::ReBELL(const int K, const sparseMatrix::CSR<float> &matrix, float &time)
     // Row reordering
     float rowReordering_time;
     const UIN blockSize = calculateBlockSize(matrix);
-//    reorderedRows_ = bsa_rowReordering_gpu(matrix,
-//                                           row_similarity_threshold_alpha,
-//                                           blockSize,
-//                                           rowReordering_time);
+    reorderedRows_ = bsa_rowReordering_gpu(matrix,
+                                           row_similarity_threshold_alpha,
+                                           blockSize,
+                                           rowReordering_time);
 //    std::vector<int> rows = bsa_rowReordering_cpu(matrix,
 //                                                  row_similarity_threshold_alpha,
 //                                                  blockSize,
@@ -41,7 +41,7 @@ ReBELL::ReBELL(const int K, const sparseMatrix::CSR<float> &matrix, float &time)
 //    }
 //    rowReordering_cpu(matrix, reorderedRows_, rowReordering_time);
 //    noReorderRow(matrix, reorderedRows_, rowReordering_time);
-    rowReordering_gpu(matrix, row_similarity_threshold_alpha, blockSize, reorderedRows_, rowReordering_time);
+//    rowReordering_gpu(matrix, row_similarity_threshold_alpha, blockSize, reorderedRows_, rowReordering_time);
 
     printf("rowReordering time : %f ms\n", rowReordering_time);
 
