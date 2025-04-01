@@ -27,6 +27,7 @@ ReBELL::ReBELL(const int K, const sparseMatrix::CSR<float> &matrix, float &time)
     // Row reordering
     float rowReordering_time;
     const UIN blockSize = calculateBlockSize(matrix);
+//    noReorderRow(matrix, reorderedRows_, rowReordering_time);
     reorderedRows_ = bsa_rowReordering_gpu(matrix,
                                            row_similarity_threshold_alpha,
                                            blockSize,
@@ -40,7 +41,6 @@ ReBELL::ReBELL(const int K, const sparseMatrix::CSR<float> &matrix, float &time)
 //        reorderedRows_[i] = rows[i];
 //    }
 //    rowReordering_cpu(matrix, reorderedRows_, rowReordering_time);
-//    noReorderRow(matrix, reorderedRows_, rowReordering_time);
 //    rowReordering_gpu(matrix, row_similarity_threshold_alpha, blockSize, reorderedRows_, rowReordering_time);
 
     printf("rowReordering time : %f ms\n", rowReordering_time);
@@ -184,15 +184,16 @@ ReBELL::ReBELL(const int K, const sparseMatrix::CSR<float> &matrix, float &time)
         maxNumSparseColBlocks_ = std::max(maxNumSparseColBlocks_, numBlocksCurrentRowPanel);
     }
 
-//#pragma omp parallel for reduction(max : maxNumSparseColBlocks_)
+//    // Try to optimize
+//#pragma omp parallel for
 //    for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
-//        const UIN startIndex = sparsePartDataOffsets()[rowPanelId];
-//        const UIN endIndex = sparsePartDataOffsets()[rowPanelId + 1];
+//        const UIN startIndex = sparseDataOffsets()[rowPanelId];
+//        const UIN endIndex = sparseDataOffsets()[rowPanelId + 1];
 //
-//        host::sort_by_key_for_multiple_vectors(sparsePartRelativeRows_.data() + startIndex,
-//                                               sparsePartRelativeRows_.data() + endIndex,
-//                                               sparsePartColIndices_.data() + startIndex,
-//                                               sparsePartData_.data() + startIndex);
+//        host::sort_by_key_for_multiple_vectors(sparseColIndices_.data() + startIndex,
+//                                               sparseColIndices_.data() + endIndex,
+//                                               sparseRelativeRows_.data() + startIndex,
+//                                               sparseData_.data() + startIndex);
 //    }
 
     timeCalculator.endClock();
