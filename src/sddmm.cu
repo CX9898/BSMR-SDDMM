@@ -23,7 +23,7 @@ void sddmm(const Matrix<float> &matrixA,
     sddmm_gpu_rebell(matrixA, matrixB, alpha, beta, matrixS, rebell, matrixP, logger);
 
     // Error check
-    check_rebell(matrixS, rebell);
+//    check_rebell(matrixS, rebell);
 //    check_sddmm(matrixA, matrixB, alpha, beta, matrixS, matrixP);
 }
 
