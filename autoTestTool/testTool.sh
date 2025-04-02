@@ -27,7 +27,7 @@ test_done_symbol="\n---Test done---\n"
 script_file_path="$(dirname "$0")/"
 
 # 设置多个K
-k_list=(256 512 1024 2048 3072 4096)
+k_list=(32 128 512)
 
 log_file_suffix=".log"
 
@@ -133,6 +133,8 @@ done
 echo "${print_tag}test file list file: $test_file_list_file"
 echo "${print_tag}target program: $target_program"
 
+matrixPath="$(dirname "$test_file_list_file")/"
+
 # 检查列表文件是否存在, 并读取文件内容
 test_file_list=""
 if [ -f "$test_file_list_file" ]; then
@@ -141,7 +143,7 @@ if [ -f "$test_file_list_file" ]; then
 
     # 遍历数组, 将绝对路径添加到文件名
     for i in "${!test_file_list[@]}"; do
-        test_file_list[$i]="${script_file_path}${test_file_list[$i]}"
+        test_file_list[$i]="${script_file_path}${matrixPath}${test_file_list[$i]}"
     done
 else
     echo "Error: 文件 $test_file_list_file 不存在!请提供有效的列表文件."
