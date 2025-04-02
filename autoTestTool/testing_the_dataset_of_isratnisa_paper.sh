@@ -37,7 +37,7 @@ sed -i '1i # Nodes: 196591 Edges: 1900654' ${dataset_path}loc-gowalla_edges.txt
 # 生成矩阵文件列表
 matrix_list_file="${results_path}matrix_file_list.txt"
 > "${matrix_list_file}"
-find ${dataset_path} -type f > ${matrix_list_file}
+find "${dataset_path}" -type f | sed "s|^${results_path}||" > "${matrix_list_file}"
 
 bash build_program.sh
 program_zcx="./build_zcx/sddmm-gpu"
