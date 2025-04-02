@@ -2,6 +2,7 @@
 
 #include <mma.h>
 
+#include "cudaUtil.cuh"
 #include "sddmmKernel.cuh"
 #include "TensorCoreConfig.cuh"
 #include "ReBELL.hpp"
@@ -1775,12 +1776,12 @@ __global__ void sddmm_gpu_sparse_block_block512_shuffle_warpOneData_matrixA_rowM
     // 线程块中线程数量
     constexpr int numWarpsPerBlock = 16;
     constexpr int numThreadsPerBlock = numWarpsPerBlock * WARP_SIZE; // 512
+    constexpr UIN calculateDataPerThreadBlock = numWarpsPerBlock;
 
     constexpr int kStep = 32;
 
     constexpr int aTileSMEM_ld = kStep + 4; // 4 padding
     constexpr int aTileSMEMSize = WMMA_M * aTileSMEM_ld; // 512 actual data and 64 padding
-    constexpr int calculateDataPerThreadBlock = numWarpsPerBlock;
 
     const UIN tId = threadIdx.x;
 
@@ -1807,7 +1808,7 @@ __global__ void sddmm_gpu_sparse_block_block512_shuffle_warpOneData_matrixA_rowM
 
     float c = 0;
 
-    // Loop over K, one iteration 128 elements
+    // Loop over K
     for (int kIter = 0; kIter < K; kIter += kStep) {
 
         // Load matrix A into shared memory, conflict-free access
@@ -1828,8 +1829,93 @@ __global__ void sddmm_gpu_sparse_block_block512_shuffle_warpOneData_matrixA_rowM
         __syncthreads();
     }
 
-    if (index < indexBoundaryCurrentRowPanel) {
+    c = cuUtil::warp_reduce_sum(c);
+
+    if (index < indexBoundaryCurrentRowPanel && laneId == 0) {
         matrixP[sparseData[index]] = c;
+    }
+}
+
+// blockDim: [512,1,1]
+__global__ void sddmm_gpu_sparse_block_block512_shuffle_warpMutData_matrixA_rowMaj_matrixB_colMaj(const UIN M,
+                                                                                                  const UIN N,
+                                                                                                  const UIN K,
+                                                                                                  const float *__restrict__ matrixA,
+                                                                                                  const float *__restrict__ matrixB,
+                                                                                                  const float alpha,
+                                                                                                  const float beta,
+                                                                                                  const UIN numNonZeroRow,
+                                                                                                  const UIN *__restrict__ reorderedRows,
+                                                                                                  const UIN *__restrict__ sparseDataOffsets,
+                                                                                                  const UIN *__restrict__ sparseData,
+                                                                                                  const UIN *__restrict__ relativeRows,
+                                                                                                  const UIN *__restrict__ sparseColIndices,
+                                                                                                  float *matrixP) {
+    // 线程块中线程数量
+    constexpr int numWarpsPerBlock = 16;
+    constexpr int numThreadsPerBlock = numWarpsPerBlock * WARP_SIZE; // 512
+
+    constexpr int kStep = 32;
+
+    constexpr int aTileSMEM_ld = kStep + 4; // 4 padding
+    constexpr int aTileSMEMSize = WMMA_M * aTileSMEM_ld; // 512 actual data and 64 padding
+
+    const UIN tId = threadIdx.x;
+
+    const UIN laneId = tId & 31;
+    const UIN warpId = tId >> 5;
+
+    const UIN numWarps = (blockDim.x + 31) >> 5;
+
+    const UIN calculateDataPerThreadBlock = 256;
+    const UIN calculateDataPerWarp = calculateDataPerThreadBlock / WARP_SIZE;
+
+    const UIN rowPanelId = blockIdx.x;
+
+    const UIN startIndexOfSparseDataCurrentBlock =
+        sparseDataOffsets[rowPanelId] + blockIdx.y * calculateDataPerThreadBlock;
+    const UIN indexBoundaryCurrentRowPanel = sparseDataOffsets[rowPanelId + 1];
+
+    // If the current block is out of the boundary, return
+    if (startIndexOfSparseDataCurrentBlock >= indexBoundaryCurrentRowPanel) {
+        return;
+    }
+
+    __shared__ float aTileSMEM[aTileSMEMSize];
+    __shared__ float pSMEM[256];
+
+    // Loop over K, one iteration 128 elements
+    for (int kIter = 0; kIter < K; kIter += kStep) {
+
+        // Load matrix A into shared memory, conflict-free access
+        const UIN reorderedRowIndex = (rowPanelId * ROW_PANEL_SIZE) + warpId;
+        const UIN aRowId = reorderedRowIndex < numNonZeroRow ? reorderedRows[reorderedRowIndex] : M;
+        const UIN aColId = kIter + laneId;
+        aTileSMEM[warpId * aTileSMEM_ld + laneId] =
+            (aRowId < M && aColId < K) ? matrixA[aRowId * K + aColId] : static_cast<float>(0);
+        __syncthreads();
+
+        // Load matrix B and compute the matrix multiplication, 2 thread calculate one element
+        for (int iter = 0; iter < calculateDataPerWarp; ++iter) {
+            const UIN index = startIndexOfSparseDataCurrentBlock + warpId * calculateDataPerWarp + iter;
+            const UIN relativeRow = relativeRows[index];
+            const UIN col = sparseColIndices[index];
+            const float aData = aTileSMEM[relativeRow * aTileSMEM_ld + laneId];
+            const float bData = matrixB[col * K + kIter + laneId];
+            float c = aData * bData;
+
+            c = cuUtil::warp_reduce_sum(c);
+            if (laneId == 0) {
+                pSMEM[warpId * calculateDataPerWarp + iter] += c;
+            }
+        }
+
+        __syncthreads();
+    }
+
+    if (tId < calculateDataPerThreadBlock) {
+        const UIN index = startIndexOfSparseDataCurrentBlock + tId;
+        matrixP[sparseData[index]] = pSMEM[tId];
     }
 }
 
@@ -1918,7 +2004,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
     printf("denseBlockTime: %f ms\n", denseBlockTime);
 
     dim3 grid_sparse, block_sparse;
-    block_sparse.x = sddmm_sparse_remainder_number_of_thread_per_thread_block;
+    block_sparse.x = sddmm_sparse_block_number_of_thread_per_thread_block;
     grid_sparse.x = rebell.numRowPanels();
     grid_sparse.y = rebell.maxNumSparseColBlocks();
 

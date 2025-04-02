@@ -27,11 +27,11 @@ ReBELL::ReBELL(const int K, const sparseMatrix::CSR<float> &matrix, float &time)
     // Row reordering
     float rowReordering_time;
     const UIN blockSize = calculateBlockSize(matrix);
-//    noReorderRow(matrix, reorderedRows_, rowReordering_time);
-    reorderedRows_ = bsa_rowReordering_gpu(matrix,
-                                           row_similarity_threshold_alpha,
-                                           blockSize,
-                                           rowReordering_time);
+    noReorderRow(matrix, reorderedRows_, rowReordering_time);
+//    reorderedRows_ = bsa_rowReordering_gpu(matrix,
+//                                           row_similarity_threshold_alpha,
+//                                           blockSize,
+//                                           rowReordering_time);
 //    std::vector<int> rows = bsa_rowReordering_cpu(matrix,
 //                                                  row_similarity_threshold_alpha,
 //                                                  blockSize,
@@ -180,7 +180,7 @@ ReBELL::ReBELL(const int K, const sparseMatrix::CSR<float> &matrix, float &time)
     for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
         const UIN numSparseData = sparseDataOffsets()[rowPanelId + 1] - sparseDataOffsets()[rowPanelId];
         const UIN numBlocksCurrentRowPanel = std::ceil(
-            static_cast<float>(numSparseData) / sddmm_sparse_remainder_each_thread_block_counts_the_number_Of_cols);
+            static_cast<float>(numSparseData) / sddmm_sparse_block_each_thread_block_counts_the_number_Of_cols);
         maxNumSparseColBlocks_ = std::max(maxNumSparseColBlocks_, numBlocksCurrentRowPanel);
     }
 
@@ -205,7 +205,7 @@ ReBELL::ReBELL(const int K, const sparseMatrix::CSR<float> &matrix, float &time)
 
 UIN ReBELL::getNumSparseBlocks() const {
     return sparseDataOffsets().back()
-        / static_cast<float>(sddmm_sparse_remainder_each_thread_block_counts_the_number_Of_cols);
+        / static_cast<float>(sddmm_sparse_block_each_thread_block_counts_the_number_Of_cols);
 }
 
 UIN ReBELL::calculateRowPanelIdByBlockValuesIndex(UIN blockValueIndex) const {

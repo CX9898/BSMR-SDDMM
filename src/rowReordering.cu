@@ -43,40 +43,6 @@ void noReorderRow(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &reor
 
 namespace kernel {
 
-template<typename T>
-static __inline__ __device__ T warp_reduce_sum(T value) {
-    /* aggregate all value that each thread within a warp holding.*/
-    T ret = value;
-
-    for (int w = 1; w < warpSize; w = w << 1) {
-        T tmp = __shfl_xor_sync(0xffffffff, ret, w);
-        ret += tmp;
-    }
-    return ret;
-}
-
-// Only supports 1D blocks
-template<typename T>
-static __inline__ __device__ T reduce_sum(T value, T *shm) {
-    unsigned int stride;
-    T tmp = warp_reduce_sum(value); // perform warp shuffle first for less utilized shared memory
-
-    const unsigned int warpId = threadIdx.x >> 5;
-    const unsigned int laneId = threadIdx.x & 31;
-    if (laneId == 0) {
-        shm[warpId] = tmp;
-    }
-    __syncthreads();
-    for (stride = blockDim.x / (2 * warpSize); stride >= 1; stride = stride >> 1) {
-        if (warpId < stride && laneId == 0) {
-            shm[warpId] += shm[warpId + stride];
-        }
-
-        __syncthreads();
-    }
-    return shm[0];
-}
-
 __global__ void calculateDispersion(const UIN *__restrict__ colIndices,
                                     const UIN *__restrict__ rowPtr,
                                     UIN *weighted_partitions,
@@ -116,7 +82,7 @@ __global__ void calculateDispersion(const UIN *__restrict__ colIndices,
         dense_partition_size += is_dense_partition;
         result_tmp += is_dense_partition * (col_block_size - value);
     }
-    UIN result = reduce_sum(result_tmp + row_nz_count * dense_partition_size, local_result);
+    UIN result = cuUtil::reduce_sum(result_tmp + row_nz_count * dense_partition_size, local_result);
 
     if (threadIdx.x == 0) {
         dispersion_score[row] = result;
@@ -131,7 +97,7 @@ __device__ void normalizeEncoding(int num_blocks_per_row, float *encoding, UIN *
 
         sum_of_squares_rep += e_rep_i * e_rep_i;
     }
-    sum_of_squares_rep = reduce_sum(sum_of_squares_rep, scratch);
+    sum_of_squares_rep = cuUtil::reduce_sum(sum_of_squares_rep, scratch);
 
     if (threadIdx.x == 0) {
         scratch[0] = sum_of_squares_rep;
@@ -188,7 +154,7 @@ __global__ void calculateDispersion(const UIN *__restrict__ colIndices,
         dense_partition_size += is_dense_partition;
         result_tmp += is_dense_partition * (col_block_size - value);
     }
-    UIN result = reduce_sum(result_tmp + row_nz_count * dense_partition_size, local_result);
+    UIN result = cuUtil::reduce_sum(result_tmp + row_nz_count * dense_partition_size, local_result);
 
     if (threadIdx.x == 0) {
         dispersion_score[row] = result;
@@ -237,7 +203,7 @@ __global__ void calculateDispersionNoSMEM(const UIN *__restrict__ colidx,
         dense_partition_size += is_dense_partition;
         result_tmp += is_dense_partition * (col_block_size - value);
     }
-    UIN result = reduce_sum(result_tmp + row_nz_count * dense_partition_size, local_result);
+    UIN result = cuUtil::reduce_sum(result_tmp + row_nz_count * dense_partition_size, local_result);
 
     if (threadIdx.x == 0) {
         dispersion_score[row] = result;
@@ -282,8 +248,8 @@ static __device__ float calculate_similarity_norm_weighted_jaccard(const UIN *en
         sum_of_squares_rep += e_rep_i * e_rep_i;
         sum_of_squares_cmp += e_cmp_i * e_cmp_i;
     }
-    sum_of_squares_rep = reduce_sum(sum_of_squares_rep, scratch);
-    sum_of_squares_cmp = reduce_sum(sum_of_squares_cmp, scratch);
+    sum_of_squares_rep = cuUtil::reduce_sum(sum_of_squares_rep, scratch);
+    sum_of_squares_cmp = cuUtil::reduce_sum(sum_of_squares_cmp, scratch);
 
     if (threadIdx.x == 0) {
         scratch[0] = sum_of_squares_rep;
@@ -311,8 +277,8 @@ static __device__ float calculate_similarity_norm_weighted_jaccard(const UIN *en
         min_sum += fminf(sim_rep, sim_cmp);
         max_sum += fmaxf(sim_rep, sim_cmp);
     }
-    min_sum = reduce_sum(min_sum, float_scratch);
-    max_sum = reduce_sum(max_sum, float_scratch);
+    min_sum = cuUtil::reduce_sum(min_sum, float_scratch);
+    max_sum = cuUtil::reduce_sum(max_sum, float_scratch);
     __syncthreads();
 
     if (threadIdx.x == 0) // only the first warp holds valid values, and use only one thread for simple write
@@ -341,8 +307,8 @@ static __device__ float calculate_similarity_norm_weighted_jaccard(const float *
         min_sum += fminf(sim_rep, sim_cmp);
         max_sum += fmaxf(sim_rep, sim_cmp);
     }
-    min_sum = reduce_sum(min_sum, float_scratch);
-    max_sum = reduce_sum(max_sum, float_scratch);
+    min_sum = cuUtil::reduce_sum(min_sum, float_scratch);
+    max_sum = cuUtil::reduce_sum(max_sum, float_scratch);
     __syncthreads();
 
     if (threadIdx.x == 0) // only the first warp holds valid values, and use only one thread for simple write
