@@ -15,28 +15,29 @@
 void noReorderRow(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &reorderedRows, float &time) {
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
-    reorderedRows.resize(matrix.row());
-    iota(reorderedRows.begin(), reorderedRows.end(), 0);
 
-    std::vector<UIN> numColIndices(matrix.row());
+    // Delete the zero rows
+    std::vector<UIN> nnz(matrix.row(), 0);
 #pragma omp parallel for
-    for (int row = 0; row < matrix.row(); ++row) {
-        numColIndices[row] = matrix.rowOffsets()[row + 1] - matrix.rowOffsets()[row];
+    for (int i = 0; i < nnz.size(); ++i) {
+        nnz[i] = matrix.rowOffsets()[i + 1] - matrix.rowOffsets()[i];
     }
 
-    host::sort_by_key(numColIndices.data(), numColIndices.data() + numColIndices.size(),
-                      reorderedRows.data());
+    const UIN numNonZeroRow = host::count_if_positive(nnz.data(), nnz.data() + nnz.size());
 
-    // Remove zero rows
-    {
-        UIN startIndexOfNonZeroRow = 0;
-        while (startIndexOfNonZeroRow < reorderedRows.size()
-            && matrix.rowOffsets()[reorderedRows[startIndexOfNonZeroRow] + 1]
-                - matrix.rowOffsets()[reorderedRows[startIndexOfNonZeroRow]] == 0) {
-            ++startIndexOfNonZeroRow;
-        }
-        reorderedRows.erase(reorderedRows.begin(), reorderedRows.begin() + startIndexOfNonZeroRow);
-    }
+    printf("Number of non-zero rows: %u\n", numNonZeroRow);
+
+    reorderedRows.resize(numNonZeroRow);
+    std::vector<UIN> ascendingRow(matrix.row());
+    host::sequence(ascendingRow.data(),
+                   ascendingRow.data() + ascendingRow.size(),
+                   0); // ascending = {0, 1, 2, 3, ... rows-1}
+
+    host::copy_if_positive(ascendingRow.data(),
+                           ascendingRow.data() + ascendingRow.size(),
+                           nnz.data(),
+                           reorderedRows.data());
+
     timeCalculator.endClock();
     time = timeCalculator.getTime();
 }
@@ -641,10 +642,8 @@ void rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
     CudaTimeCalculator timeCalculator;
     timeCalculator.startClock();
 
-    const UIN numBlocksPerRow = std::ceil(static_cast<float>(matrix.col()) / blockSize);
-
+    // Delete the zero rows
     std::vector<UIN> nnz(matrix.row(), 0);
-
 #pragma omp parallel for
     for (int i = 0; i < nnz.size(); ++i) {
         nnz[i] = matrix.rowOffsets()[i + 1] - matrix.rowOffsets()[i];
@@ -668,6 +667,8 @@ void rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
                                rowIndices.data());
         h2d(rowIndices_dev, rowIndices);
     }
+
+    const UIN numBlocksPerRow = std::ceil(static_cast<float>(matrix.col()) / blockSize);
 
     dev::vector<UIN> encodings_dev(static_cast<size_t>(numBlocksPerRow) * matrix.row(), 0);
     dev::vector<UIN> dispersions_dev(matrix.row());
