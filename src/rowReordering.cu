@@ -38,6 +38,9 @@ void noReorderRow(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &reor
                            nnz.data(),
                            reorderedRows.data());
 
+//    reorderedRows.resize(matrix.row());
+//    host::sequence(reorderedRows.data(), reorderedRows.data() + reorderedRows.size(), 0);
+
     timeCalculator.endClock();
     time = timeCalculator.getTime();
 }
