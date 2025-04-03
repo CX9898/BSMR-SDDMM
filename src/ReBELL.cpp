@@ -180,7 +180,7 @@ ReBELL::ReBELL(const int K, const sparseMatrix::CSR<float> &matrix, float &time)
     for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
         const UIN numSparseData = sparseDataOffsets()[rowPanelId + 1] - sparseDataOffsets()[rowPanelId];
         const UIN numBlocksCurrentRowPanel = std::ceil(
-            static_cast<float>(numSparseData) / sddmm_sparse_block_each_thread_block_counts_the_number_Of_cols);
+            static_cast<float>(numSparseData) / sddmm_sparse_block_each_thread_block_counts_the_number_Of_data);
         maxNumSparseColBlocks_ = std::max(maxNumSparseColBlocks_, numBlocksCurrentRowPanel);
     }
 
@@ -205,7 +205,7 @@ ReBELL::ReBELL(const int K, const sparseMatrix::CSR<float> &matrix, float &time)
 
 UIN ReBELL::getNumSparseBlocks() const {
     return sparseDataOffsets().back()
-        / static_cast<float>(sddmm_sparse_block_each_thread_block_counts_the_number_Of_cols);
+        / static_cast<float>(sddmm_sparse_block_each_thread_block_counts_the_number_Of_data);
 }
 
 UIN ReBELL::calculateRowPanelIdByBlockValuesIndex(UIN blockValueIndex) const {
