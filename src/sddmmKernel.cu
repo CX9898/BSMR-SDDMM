@@ -2313,12 +2313,12 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
     dev::vector<UIN> reorderedRowIndices_dev(rebell.reorderedRows());
     dev::vector<UIN> denseCols_dev(rebell.denseCols());
     dev::vector<UIN> denseColOffsets_dev(rebell.denseColOffsets());
-    dev::vector<UIN> blockRowOffsets_dev(rebell.blockRowOffsets());
+    dev::vector<UIN> blockRowOffsets_dev(rebell.blockOffsets());
     dev::vector<UIN> blockValues_dev(rebell.blockValues());
     dev::vector<UIN> sparseDataOffsets_dev(rebell.sparseDataOffsets());
     dev::vector<UIN> sparseData_dev(rebell.sparseData());
     dev::vector<UIN> relativeRows_dev(rebell.sparseRelativeRows());
-    dev::vector<UIN> sparseColIndices_dev(rebell.sparseColIndices());
+    dev::vector<UIN> sparseColIndices_dev(rebell.sparseCols());
     dev::vector<float> matrixP_dev(matrixS.values().size(), 0);
 
     dim3 grid_dense, block_dense;
