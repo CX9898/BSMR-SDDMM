@@ -60,7 +60,7 @@ ReBELL::ReBELL(const int K, const sparseMatrix::CSR<float> &matrix, float &time)
                       denseColOffsets_,
                       sparseCols,
                       sparseColOffsets,
-                      sparseDataOffsets_,
+                      sparseValueOffsets_,
                       colReordering_time);
     printf("colReordering time : %f ms\n", colReordering_time);
 
@@ -91,9 +91,9 @@ ReBELL::ReBELL(const int K, const sparseMatrix::CSR<float> &matrix, float &time)
                          numBlockInEachRowPanel.data() + numBlockInEachRowPanel.size(),
                          blockOffsets_.data() + 1);
 
-    sparseRelativeRows_.resize(sparseDataOffsets_.back());
-    sparseData_.resize(sparseDataOffsets_.back());
-    sparseCols_.resize(sparseDataOffsets_.back());
+    sparseRelativeRows_.resize(sparseValueOffsets_.back());
+    sparseValues_.resize(sparseValueOffsets_.back());
+    sparseCols_.resize(sparseValueOffsets_.back());
 
     // initialize blockValues_
     blockValues_.resize(blockOffsets_.back() * BLOCK_SIZE);
@@ -154,7 +154,7 @@ ReBELL::ReBELL(const int K, const sparseMatrix::CSR<float> &matrix, float &time)
         }
 
         UIN count = 0;
-        const UIN startSparsePartIndex = sparseDataOffsets_[rowPanelId];
+        const UIN startSparsePartIndex = sparseValueOffsets_[rowPanelId];
         // Iterate over the sparse columns in the row panel
         for (int indexOfReorderedCols = sparseColOffsets[rowPanelId];
              indexOfReorderedCols < sparseColOffsets[rowPanelId + 1]; ++indexOfReorderedCols) {
@@ -164,7 +164,7 @@ ReBELL::ReBELL(const int K, const sparseMatrix::CSR<float> &matrix, float &time)
             if (findIter != colToRelativeRowAndOriginIndexMap.end()) {
                 for (const std::array<UIN, 2> &iter : findIter->second) {
                     sparseRelativeRows_[startSparsePartIndex + count] = iter[0];
-                    sparseData_[startSparsePartIndex + count] = iter[1];
+                    sparseValues_[startSparsePartIndex + count] = iter[1];
                     sparseCols_[startSparsePartIndex + count] = col;
 
                     ++count;
@@ -178,7 +178,7 @@ ReBELL::ReBELL(const int K, const sparseMatrix::CSR<float> &matrix, float &time)
     maxNumSparseColBlocks_ = 0;
 #pragma omp parallel for reduction(max : maxNumSparseColBlocks_)
     for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
-        const UIN numSparseData = sparseDataOffsets()[rowPanelId + 1] - sparseDataOffsets()[rowPanelId];
+        const UIN numSparseData = sparseValueOffsets()[rowPanelId + 1] - sparseValueOffsets()[rowPanelId];
         const UIN numBlocksCurrentRowPanel = std::ceil(
             static_cast<float>(numSparseData) / sddmm_sparse_block_each_thread_block_counts_the_number_Of_data);
         maxNumSparseColBlocks_ = std::max(maxNumSparseColBlocks_, numBlocksCurrentRowPanel);
@@ -204,7 +204,7 @@ ReBELL::ReBELL(const int K, const sparseMatrix::CSR<float> &matrix, float &time)
 }
 
 UIN ReBELL::getNumSparseBlocks() const {
-    return sparseDataOffsets().back()
+    return sparseValueOffsets().back()
         / static_cast<float>(sddmm_sparse_block_each_thread_block_counts_the_number_Of_data);
 }
 
@@ -468,8 +468,8 @@ bool check_colReordering(const sparseMatrix::CSR<float> &matrix, const struct Re
 
         // check sparse part data
         std::unordered_set<UIN> sparseColIndicesRecordSet;
-        for (int idx = rebell.sparseDataOffsets()[rowPanelId];
-             idx < rebell.sparseDataOffsets()[rowPanelId + 1];
+        for (int idx = rebell.sparseValueOffsets()[rowPanelId];
+             idx < rebell.sparseValueOffsets()[rowPanelId + 1];
              ++idx) {
             const UIN relativeRow = rebell.sparseRelativeRows()[idx];
             const UIN row = rebell.reorderedRows()[rowPanelId * ROW_PANEL_SIZE + relativeRow];
@@ -480,14 +480,14 @@ bool check_colReordering(const sparseMatrix::CSR<float> &matrix, const struct Re
             // Check if the row is in the current row panel
             if (rowIndicesCurrentRowPanelSet.find(row) == rowIndicesCurrentRowPanelSet.end()) {
                 fprintf(stderr,
-                        "Error! Row not in current row panel! rowPanelId: %d, sparseData[%d]\n",
+                        "Error! Row not in current row panel! rowPanelId: %d, sparseValues[%d]\n",
                         rowPanelId, idx);
             }
 
             // Check if the column index in the row panel is correct
             if (colToNumOfNonZeroMap.find(col) == colToNumOfNonZeroMap.end()) {
                 fprintf(stderr,
-                        "Error! Column not in current row panel! rowPanelId: %d, sparseData[%d]\n",
+                        "Error! Column not in current row panel! rowPanelId: %d, sparseValues[%d]\n",
                         rowPanelId, idx);
                 isCorrect = false;
             }
@@ -559,15 +559,15 @@ bool check_bell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &reb
     }
 
     std::unordered_map<UIN, UIN> idxOfOriginalMatrixToSparsePartDataIndexMap;
-    for (int idx = 0; idx < rebell.sparseData().size(); ++idx) {
-        const UIN originalMatrixIndex = rebell.sparseData()[idx];
+    for (int idx = 0; idx < rebell.sparseValues().size(); ++idx) {
+        const UIN originalMatrixIndex = rebell.sparseValues()[idx];
 
         // Check if the original matrix index is duplicated in sparsePartData
         if (idxOfOriginalMatrixToSparsePartDataIndexMap.find(originalMatrixIndex)
             != idxOfOriginalMatrixToSparsePartDataIndexMap.end()) {
             fprintf(stderr,
-                    "Error! The original matrix index is duplicated in sparseData!"
-                    " originalMatrixIndex: %u, sparsePartData[%d] and sparseData[%d]\n",
+                    "Error! The original matrix index is duplicated in sparseValues!"
+                    " originalMatrixIndex: %u, sparsePartData[%d] and sparseValues[%d]\n",
                     originalMatrixIndex,
                     idx,
                     idxOfOriginalMatrixToSparsePartDataIndexMap.find(originalMatrixIndex)->second);

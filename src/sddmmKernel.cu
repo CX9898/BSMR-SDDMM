@@ -969,9 +969,9 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_c
                                                                                       const float beta,
                                                                                       const UIN numNonZeroRow,
                                                                                       const UIN *__restrict__ reorderedRows,
-                                                                                      const UIN *__restrict__ reorderedCols,
-                                                                                      const UIN *__restrict__ reorderedColOffset,
-                                                                                      const UIN *__restrict__ blockRowOffsets,
+                                                                                      const UIN *__restrict__ denseCols,
+                                                                                      const UIN *__restrict__ denseColOffset,
+                                                                                      const UIN *__restrict__ blockOffsets,
                                                                                       const UIN *__restrict__ blockValues,
                                                                                       MATRIX_C_TYPE *matrixP) {
     constexpr int kStep = 32;
@@ -997,7 +997,7 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_c
     const UIN warpId = threadIdx.x >> 5;
 
     const UIN rowPanelId = blockIdx.x;
-    const UIN numColBlocksCurrentRowPanel = blockRowOffsets[rowPanelId + 1] - blockRowOffsets[rowPanelId];
+    const UIN numColBlocksCurrentRowPanel = blockOffsets[rowPanelId + 1] - blockOffsets[rowPanelId];
 
     const UIN colBlockIter = blockIdx.y * each_thread_block_counts_the_number_Of_dense_blocks;
     if (colBlockIter >= numColBlocksCurrentRowPanel) {
@@ -1005,10 +1005,10 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_c
     }
 
     const UIN colBlockId = colBlockIter + warpId;
-    const UIN startIndexOfBlockValuesCurrentBlock = (blockRowOffsets[rowPanelId] + colBlockId) * BLOCK_SIZE;
+    const UIN startIndexOfBlockValuesCurrentBlock = (blockOffsets[rowPanelId] + colBlockId) * BLOCK_SIZE;
 
-    const UIN startIndexOfReorderedColsCurrentColBlock = reorderedColOffset[rowPanelId] + BLOCK_COL_SIZE * colBlockId;
-    const UIN endIndexOfReorderedColsCurrentPanel = reorderedColOffset[rowPanelId + 1];
+    const UIN startIndexOfDenseColsCurrentColBlock = denseColOffset[rowPanelId] + BLOCK_COL_SIZE * colBlockId;
+    const UIN endIndexOfDenseColsCurrentPanel = denseColOffset[rowPanelId + 1];
 
     // Loop over K, one iteration 32
     for (int kIter = 0; kIter < K; kIter += kStep) {
@@ -1031,9 +1031,9 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_c
 #pragma unroll 8
             for (int iter = 0; iter < 16; ++iter) {
                 const UIN bRowId = kIter + laneId;
-                const UIN reorderedColIndex = startIndexOfReorderedColsCurrentColBlock + iter;
-                const UIN bColId = reorderedColIndex < endIndexOfReorderedColsCurrentPanel ?
-                    reorderedCols[reorderedColIndex] : N;
+                const UIN reorderedColIndex = startIndexOfDenseColsCurrentColBlock + iter;
+                const UIN bColId = reorderedColIndex < endIndexOfDenseColsCurrentPanel ?
+                    denseCols[reorderedColIndex] : N;
 
                 bTileSMEM[(warpId * WMMA_N + iter) * bTileSMEMLd + laneId] =
                     (bRowId < K && bColId < N) ? matrixB[bRowId + bColId * K] : static_cast<MATRIX_B_TYPE>(0.0f);
@@ -1945,10 +1945,10 @@ __global__ void sddmm_gpu_sparse_block_block512_2threadOneData_shuffle(const UIN
                                                                        const float beta,
                                                                        const UIN numNonZeroRow,
                                                                        const UIN *__restrict__ reorderedRows,
-                                                                       const UIN *__restrict__ sparseDataOffsets,
-                                                                       const UIN *__restrict__ sparseData,
+                                                                       const UIN *__restrict__ sparseValueOffsets,
+                                                                       const UIN *__restrict__ sparseValues,
                                                                        const UIN *__restrict__ relativeRows,
-                                                                       const UIN *__restrict__ sparseColIndices,
+                                                                       const UIN *__restrict__ sparseCols,
                                                                        float *matrixP) {
     // 线程块中线程数量
     constexpr int numWarpsPerBlock = 16;
@@ -1970,8 +1970,8 @@ __global__ void sddmm_gpu_sparse_block_block512_2threadOneData_shuffle(const UIN
     const UIN rowPanelId = blockIdx.x;
 
     const UIN startIndexOfSparseDataCurrentBlock =
-        sparseDataOffsets[rowPanelId] + blockIdx.y * calculateDataPerThreadBlock;
-    const UIN indexBoundaryCurrentRowPanel = sparseDataOffsets[rowPanelId + 1];
+        sparseValueOffsets[rowPanelId] + blockIdx.y * calculateDataPerThreadBlock;
+    const UIN indexBoundaryCurrentRowPanel = sparseValueOffsets[rowPanelId + 1];
 
     // If the current block is out of the boundary, return
     if (startIndexOfSparseDataCurrentBlock >= indexBoundaryCurrentRowPanel) {
@@ -1981,7 +1981,7 @@ __global__ void sddmm_gpu_sparse_block_block512_2threadOneData_shuffle(const UIN
     const UIN index = startIndexOfSparseDataCurrentBlock + (tId >> 1);
 
     const UIN relativeRow = relativeRows[index];
-    const UIN col = sparseColIndices[index];
+    const UIN col = sparseCols[index];
 
     __shared__ float aTileSMEM[aTileSMEMSize];
 
@@ -2022,7 +2022,7 @@ __global__ void sddmm_gpu_sparse_block_block512_2threadOneData_shuffle(const UIN
 
 
     if (index < indexBoundaryCurrentRowPanel && oddOrEven == 0) {
-        matrixP[sparseData[index]] = c;
+        matrixP[sparseValues[index]] = c;
     }
 }
 
@@ -2315,10 +2315,10 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
     dev::vector<UIN> denseColOffsets_dev(rebell.denseColOffsets());
     dev::vector<UIN> blockRowOffsets_dev(rebell.blockOffsets());
     dev::vector<UIN> blockValues_dev(rebell.blockValues());
-    dev::vector<UIN> sparseDataOffsets_dev(rebell.sparseDataOffsets());
-    dev::vector<UIN> sparseData_dev(rebell.sparseData());
+    dev::vector<UIN> sparseValueOffsets_dev(rebell.sparseValueOffsets());
+    dev::vector<UIN> sparseValues_dev(rebell.sparseValues());
     dev::vector<UIN> relativeRows_dev(rebell.sparseRelativeRows());
-    dev::vector<UIN> sparseColIndices_dev(rebell.sparseCols());
+    dev::vector<UIN> sparseCols_dev(rebell.sparseCols());
     dev::vector<float> matrixP_dev(matrixS.values().size(), 0);
 
     dim3 grid_dense, block_dense;
@@ -2385,10 +2385,10 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
         alpha, beta,
         rebell.reorderedRows().size(),
         reorderedRowIndices_dev.data(),
-        sparseDataOffsets_dev.data(),
-        sparseData_dev.data(),
+        sparseValueOffsets_dev.data(),
+        sparseValues_dev.data(),
         relativeRows_dev.data(),
-        sparseColIndices_dev.data(),
+        sparseCols_dev.data(),
         matrixP_dev.data());
 
     timeCalculator_sparseBlock.endClock();

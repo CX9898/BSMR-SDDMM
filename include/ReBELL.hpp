@@ -34,8 +34,8 @@ class ReBELL {
   const std::vector<UIN> &denseColOffsets() const { return denseColOffsets_; }
   const std::vector<UIN> &blockValues() const { return blockValues_; }
   const std::vector<UIN> &blockOffsets() const { return blockOffsets_; }
-  const std::vector<UIN> &sparseDataOffsets() const { return sparseDataOffsets_; }
-  const std::vector<UIN> &sparseData() const { return sparseData_; }
+  const std::vector<UIN> &sparseValueOffsets() const { return sparseValueOffsets_; }
+  const std::vector<UIN> &sparseValues() const { return sparseValues_; }
   const std::vector<UIN> &sparseRelativeRows() const { return sparseRelativeRows_; }
   const std::vector<UIN> &sparseCols() const { return sparseCols_; }
 
@@ -82,8 +82,8 @@ class ReBELL {
   std::vector<UIN> blockValues_;
 
   // Sparse block data
-  std::vector<UIN> sparseDataOffsets_;
-  std::vector<UIN> sparseData_;
+  std::vector<UIN> sparseValueOffsets_;
+  std::vector<UIN> sparseValues_;
   std::vector<UIN> sparseRelativeRows_;
   std::vector<UIN> sparseCols_;
 
