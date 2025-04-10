@@ -1887,7 +1887,8 @@ __global__ void sddmm_gpu_sparse_block_block512(const UIN M,
 
     const UIN startIndexOfSparseDataCurrentBlock =
         sparseDataOffsets[rowPanelId] + blockIdx.y * calculateDataPerThreadBlock;
-    const UIN indexBoundaryCurrentRowPanel = sparseDataOffsets[rowPanelId + 1];
+    const UIN indexBoundaryCurrentRowPanel =
+        ::min(startIndexOfSparseDataCurrentBlock + calculateDataPerThreadBlock, sparseDataOffsets[rowPanelId + 1]);
 
     // If the current block is out of the boundary, return
     if (startIndexOfSparseDataCurrentBlock >= indexBoundaryCurrentRowPanel) {
@@ -2379,7 +2380,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
 
     timeCalculator_sparseBlock.startClock();
 
-    kernel::sddmm_gpu_sparse_block_block512_2threadOneData_shuffle<<<grid_sparse, block_sparse>>>(matrixS.row(), matrixS.col(), matrixA.col(),
+    kernel::sddmm_gpu_sparse_block_block512<<<grid_sparse, block_sparse>>>(matrixS.row(), matrixS.col(), matrixA.col(),
         matrixA_values_convertedType_dev.data(),
         matrixB_values_convertedType_dev.data(),
         alpha, beta,
