@@ -4,7 +4,7 @@
 
 Sampled Dense-Dense Matrix Multiplication(SDDMM) on GPU
 
-$\mathbf{P}=op(\mathbf{A})\cdot op(\mathbf{B}))\circ spy(\mathbf{S}$
+$\mathbf{P}=op(\mathbf{A})\cdot op(\mathbf{B}))\circ spy(\mathbf{S})$
 
 ---
 
