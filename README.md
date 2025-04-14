@@ -4,7 +4,7 @@
 
 Sampled Dense-Dense Matrix Multiplication(SDDMM) on GPU
 
-$\mathbf{C}=\alpha(op(\mathbf{A})\cdot op(\mathbf{B}))\circ spy(\mathbf{C})+\beta\mathbf{C}$
+$\mathbf{P}=op(\mathbf{A})\cdot op(\mathbf{B}))\circ spy(\mathbf{S}$
 
 ---
 
@@ -42,13 +42,11 @@ cmake ..
 
 Options:
 
-- `-k` : K value. k is a multiple of 32
+- `-k` : K value. K must be a multiple of 32
 - `-f` : input file path
-- `-a` : alpha value
-- `-b` : beta value
 
 Example :
 
 ```shell
-./sddmm-gpu -k 256 -f ../dataset/nips.mtx -a 1.0 -b 0.0
+./sddmm-gpu -k 256 -f ../dataset/nips.mtx
 ```
