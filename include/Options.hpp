@@ -16,8 +16,8 @@ const std::string folderPath("../dataset/test/matrix_15000_15000_/");
 //const std::string fileName("1138_bus/1138_bus");
 const std::string fileName("matrix_15000_15000_11250000");
 const std::string fileFormat(".mtx");
-//const std::string filePath = folderPath + fileName + fileFormat;
-const std::string filePath("./../autoTestTool/dataset_of_isratnisa_paper_results/dataset/loc-gowalla_edges.txt");
+const std::string filePath = folderPath + fileName + fileFormat;
+//const std::string filePath("./../autoTestTool/dataset_of_isratnisa_paper_results/dataset/loc-gowalla_edges.txt");
 
 class Options {
  public:
@@ -27,35 +27,22 @@ class Options {
   std::string programName() const { return programName_; }
   std::string inputFile() const { return inputFile_; }
   size_t K() const { return K_; }
-  float alpha() const { return alpha_; }
-  float beta() const { return beta_; }
 
  private:
   std::string programPath_;
   std::string programName_;
   std::string inputFile_ = filePath;
   size_t K_ = 512;
-  float alpha_ = 1.0f;
-  float beta_ = 0.0f;
 
   std::unordered_set<std::string> shortOptions_ = {
-      "-A", "-a",
-      "-B", "-b",
       "-F", "-f",
       "-K", "-k",
-      "-T", "-t"
   };
   inline void parsingOptionAndParameters(const std::string &option, const std::string &value);
 };
 
 inline void Options::parsingOptionAndParameters(const std::string &option, const std::string &value) {
     try {
-        if (option == "-A" || option == "-a") {
-            alpha_ = std::stof(value);
-        }
-        if (option == "-B" || option == "-b") {
-            beta_ = std::stof(value);
-        }
         if (option == "-F" || option == "-f") {
             inputFile_ = value;
         }

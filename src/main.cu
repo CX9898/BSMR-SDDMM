@@ -11,7 +11,6 @@ int main(int argc, char *argv[]) {
     Options options(argc, argv);
 
     const size_t K = options.K();
-    const float alpha = options.alpha(), beta = options.beta();
 
     sparseMatrix::CSR<float> matrixS;
     if (!matrixS.initializeFromMatrixFile(options.inputFile())) {
@@ -33,11 +32,11 @@ int main(int argc, char *argv[]) {
 
     // cuSparse library
     sparseMatrix::CSR<float> matrixP_cuSparse(matrixS);
-    cuSparseSDDMM(matrixA, matrixB, matrixS, alpha, beta, matrixP_cuSparse, logger);
+    cuSparseSDDMM(matrixA, matrixB, matrixS, matrixP_cuSparse, logger);
 
     // sddmm
     sparseMatrix::CSR<float> matrixP(matrixS);
-    sddmm(matrixA, matrixB, alpha, beta, matrixS, matrixP, logger);
+    sddmm(matrixA, matrixB, matrixS, matrixP, logger);
 
     // Error check
     printf("check cuSparseSDDMM and sddmm : \n");

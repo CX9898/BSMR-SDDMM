@@ -27,8 +27,6 @@
 void cuSparseSDDMM(const Matrix<float> &matrixA,
                    const Matrix<float> &matrixB,
                    const sparseMatrix::CSR<float> &matrixS,
-                   const float alpha,
-                   const float beta,
                    sparseMatrix::CSR<float> &matrixP,
                    Logger &logger) {
 
@@ -97,6 +95,8 @@ void cuSparseSDDMM(const Matrix<float> &matrixA,
                                      mtxS_offsets_dev.data(), mtxS_colIndices_dev.data(), mtxS_values_dev.data(),
                                      CUSPARSE_INDEX_TYPE, CUSPARSE_INDEX_TYPE,
                                      CUSPARSE_INDEX_BASE_ZERO, CUDA_R_32F))
+
+    const float alpha = 1.0f, beta = 0.0f;
 
     size_t bufferSize = 0;
     CHECK_CUSPARSE(cusparseSDDMM_bufferSize(handle,

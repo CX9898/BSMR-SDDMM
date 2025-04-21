@@ -629,8 +629,6 @@ __global__ void sddmm_gpu_dense_block_m16n16k16_block128_matrixA_rowMaj_matrixB_
                                                                                        const UIN K,
                                                                                        const MATRIX_A_TYPE *__restrict__ matrixA,
                                                                                        const MATRIX_B_TYPE *__restrict__ matrixB,
-                                                                                       const float alpha,
-                                                                                       const float beta,
                                                                                        const UIN numNonZeroRow,
                                                                                        const UIN *__restrict__ reorderedRows,
                                                                                        const UIN *__restrict__ reorderedCols,
@@ -716,8 +714,6 @@ __global__ void sddmm_gpu_dense_block_m16n16k16_block128_matrixA_rowMaj_matrixB_
     if (colBlockId < numColBlocksCurrentRowPanel) {
 #pragma unroll
         for (int idxOfFragment = 0; idxOfFragment < cFrag.num_elements; ++idxOfFragment) {
-            const float c = alpha * cFrag.x[idxOfFragment];
-
             UIN localRow, localCol;
             calculateMatrixCFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
 
@@ -726,7 +722,7 @@ __global__ void sddmm_gpu_dense_block_m16n16k16_block128_matrixA_rowMaj_matrixB_
 
             // Saved when the value is not 0
             if (idxOfMatrixP != NULL_VALUE) {
-                matrixP[idxOfMatrixP] = c + beta * matrixP[idxOfFragment];
+                matrixP[idxOfMatrixP] = cFrag.x[idxOfFragment];
             }
         }
     }
@@ -740,8 +736,6 @@ __global__ void sddmm_gpu_dense_block_m16n16k16_block256_matrixA_rowMaj_matrixB_
                                                                                        const UIN K,
                                                                                        const MATRIX_A_TYPE *__restrict__ matrixA,
                                                                                        const MATRIX_B_TYPE *__restrict__ matrixB,
-                                                                                       const float alpha,
-                                                                                       const float beta,
                                                                                        const UIN numNonZeroRow,
                                                                                        const UIN *__restrict__ reorderedRows,
                                                                                        const UIN *__restrict__ reorderedCols,
@@ -828,7 +822,6 @@ __global__ void sddmm_gpu_dense_block_m16n16k16_block256_matrixA_rowMaj_matrixB_
     if (colBlockId < numColBlocksCurrentRowPanel) {
 #pragma unroll
         for (int idxOfFragment = 0; idxOfFragment < cFrag.num_elements; ++idxOfFragment) {
-            const float c = alpha * cFrag.x[idxOfFragment];
 
             UIN localRow, localCol;
             calculateMatrixCFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
@@ -838,7 +831,7 @@ __global__ void sddmm_gpu_dense_block_m16n16k16_block256_matrixA_rowMaj_matrixB_
 
             // Saved when the value is not 0
             if (idxOfMatrixP != NULL_VALUE) {
-                matrixP[idxOfMatrixP] = c + beta * matrixP[idxOfFragment];
+                matrixP[idxOfMatrixP] = cFrag.x[idxOfFragment];
             }
 
         }
@@ -853,8 +846,6 @@ __global__ void sddmm_gpu_dense_block_m16n16k16_block256_matrixA_rowMaj_matrixB_
                                                                                        const UIN K,
                                                                                        const MATRIX_A_TYPE *__restrict__ matrixA,
                                                                                        const MATRIX_B_TYPE *__restrict__ matrixB,
-                                                                                       const float alpha,
-                                                                                       const float beta,
                                                                                        const UIN numNonZeroRow,
                                                                                        const UIN *__restrict__ reorderedRows,
                                                                                        const UIN *__restrict__ reorderedCols,
@@ -941,7 +932,6 @@ __global__ void sddmm_gpu_dense_block_m16n16k16_block256_matrixA_rowMaj_matrixB_
     if (colBlockId < numColBlocksCurrentRowPanel) {
 #pragma unroll
         for (int idxOfFragment = 0; idxOfFragment < cFrag.num_elements; ++idxOfFragment) {
-            const float c = alpha * cFrag.x[idxOfFragment];
 
             UIN localRow, localCol;
             calculateMatrixCFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
@@ -951,7 +941,7 @@ __global__ void sddmm_gpu_dense_block_m16n16k16_block256_matrixA_rowMaj_matrixB_
 
             // Saved when the value is not 0
             if (idxOfMatrixP != NULL_VALUE) {
-                matrixP[idxOfMatrixP] = c + beta * matrixP[idxOfFragment];
+                matrixP[idxOfMatrixP] = cFrag.x[idxOfFragment];
             }
         }
     }
@@ -965,8 +955,6 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_c
                                                                                       const UIN K,
                                                                                       const MATRIX_A_TYPE *__restrict__ matrixA,
                                                                                       const MATRIX_B_TYPE *__restrict__ matrixB,
-                                                                                      const float alpha,
-                                                                                      const float beta,
                                                                                       const UIN numNonZeroRow,
                                                                                       const UIN *__restrict__ reorderedRows,
                                                                                       const UIN *__restrict__ denseCols,
@@ -1062,7 +1050,6 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_c
     if (colBlockId < numColBlocksCurrentRowPanel) {
 #pragma unroll
         for (int idxOfFragment = 0; idxOfFragment < cFrag.num_elements; ++idxOfFragment) {
-//            const float c = alpha * cFrag.x[idxOfFragment];
 
             UIN localRow, localCol;
             calculateMatrixCFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
@@ -1072,7 +1059,6 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_c
 
             // Saved when the value is not 0
             if (idxOfMatrixP != NULL_VALUE) {
-//                matrixP[idxOfMatrixP] = c + beta * matrixP[idxOfFragment];
                 matrixP[idxOfMatrixP] = cFrag.x[idxOfFragment];
             }
         }
@@ -1142,8 +1128,6 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_block128_double_buffer(const UIN 
                                                                       const UIN K,
                                                                       const MATRIX_A_TYPE *__restrict__ matrixA,
                                                                       const MATRIX_B_TYPE *__restrict__ __align__(16) matrixB,
-                                                                      const float alpha,
-                                                                      const float beta,
                                                                       const UIN numNonZeroRow,
                                                                       const UIN *__restrict__ reorderedRows,
                                                                       const UIN *__restrict__ reorderedCols,
@@ -1268,8 +1252,6 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_block256_noSMEM_matrixA_rowMaj_ma
                                                                                              const UIN K,
                                                                                              const MATRIX_A_TYPE *__restrict__ matrixA,
                                                                                              const MATRIX_B_TYPE *__restrict__ matrixB,
-                                                                                             const float alpha,
-                                                                                             const float beta,
                                                                                              const UIN numNonZeroRow,
                                                                                              const UIN *__restrict__ reorderedRows,
                                                                                              const UIN *__restrict__ reorderedCols,
@@ -1381,7 +1363,6 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_block256_noSMEM_matrixA_rowMaj_ma
     // Store the result
 #pragma unroll
     for (int idxOfFragment = 0; idxOfFragment < cFrag.num_elements; ++idxOfFragment) {
-        const float c = alpha * cFrag.x[idxOfFragment];
 
 //        if(warpId ==0 && rowPanelId == 0){
 //            printf("laneId = %d, idxOfFragment = %d, c = %f\n", laneId, idxOfFragment, c);
@@ -1395,13 +1376,13 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_block256_noSMEM_matrixA_rowMaj_ma
 
         // Saved when the value is not 0
         if (idxOfMatrixP != NULL_VALUE) {
-            matrixP[idxOfMatrixP] = c + beta * matrixP[idxOfFragment];
+            matrixP[idxOfMatrixP] = cFrag.x[idxOfFragment];
         }
 
         if (idxOfMatrixP == 0) {
             printf("idxOfMatrixP = %d, c = %f, blockIndex = %d \n",
                    idxOfMatrixP,
-                   c,
+                   cFrag.x[idxOfFragment],
                    startIndexOfBlockValuesCurrentBlock + localRow * BLOCK_COL_SIZE + localCol);
         }
     }
@@ -1415,8 +1396,6 @@ __global__ void sddmm_gpu_dense_block_m16n16k16_block512_matrixA_rowMaj_matrixB_
                                                                                        const UIN K,
                                                                                        const MATRIX_A_TYPE *__restrict__ matrixA,
                                                                                        const MATRIX_B_TYPE *__restrict__ matrixB,
-                                                                                       const float alpha,
-                                                                                       const float beta,
                                                                                        const UIN numNonZeroRow,
                                                                                        const UIN *__restrict__ reorderedRows,
                                                                                        const UIN *__restrict__ reorderedCols,
@@ -1499,7 +1478,6 @@ __global__ void sddmm_gpu_dense_block_m16n16k16_block512_matrixA_rowMaj_matrixB_
     if (colBlockId < numColBlocksCurrentRowPanel) {
 #pragma unroll
         for (int idxOfFragment = 0; idxOfFragment < cFrag.num_elements; ++idxOfFragment) {
-            const float c = alpha * cFrag.x[idxOfFragment];
 
             UIN localRow, localCol;
             calculateMatrixCFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
@@ -1509,7 +1487,7 @@ __global__ void sddmm_gpu_dense_block_m16n16k16_block512_matrixA_rowMaj_matrixB_
 
             // Saved when the value is not 0
             if (idxOfMatrixP != NULL_VALUE) {
-                matrixP[idxOfMatrixP] = c + beta * matrixP[idxOfFragment];
+                matrixP[idxOfMatrixP] = cFrag.x[idxOfFragment];
             }
         }
     }
@@ -1521,8 +1499,6 @@ __global__ void sddmm_gpu_sparse_residue_block256_rowPanel_matrixA_rowMaj_matrix
                                                                                          const UIN K,
                                                                                          const float *__restrict__ matrixA,
                                                                                          const float *__restrict__ matrixB,
-                                                                                         const float alpha,
-                                                                                         const float beta,
                                                                                          const UIN numNonZeroRow,
                                                                                          const UIN *__restrict__ reorderedRows,
                                                                                          const UIN *__restrict__ sparsePartDataOffsets,
@@ -1600,8 +1576,6 @@ __global__ void sddmm_gpu_sparse_residue_block256_matrixA_rowMaj_matrixB_colMaj(
                                                                                 const UIN K,
                                                                                 const float *__restrict__ matrixA,
                                                                                 const float *__restrict__ matrixB,
-                                                                                const float alpha,
-                                                                                const float beta,
                                                                                 const UIN numNonZeroRow,
                                                                                 const UIN *__restrict__ reorderedRows,
                                                                                 const UIN *__restrict__ sparsePartDataOffsets,
@@ -1689,8 +1663,6 @@ __global__ void sddmm_gpu_sparse_block(const UIN M,
                                        const UIN K,
                                        const float *__restrict__ matrixA,
                                        const float *__restrict__ matrixB,
-                                       const float alpha,
-                                       const float beta,
                                        const UIN numNonZeroRow,
                                        const UIN *__restrict__ reorderedRows,
                                        const UIN *__restrict__ sparseDataOffsets,
@@ -1775,8 +1747,6 @@ __global__ void sddmm_gpu_sparse_block_2threadOneData_shuffle(const UIN M,
                                                               const UIN K,
                                                               const float *__restrict__ matrixA,
                                                               const float *__restrict__ matrixB,
-                                                              const float alpha,
-                                                              const float beta,
                                                               const UIN numNonZeroRow,
                                                               const UIN *__restrict__ reorderedRows,
                                                               const UIN *__restrict__ sparseValueOffsets,
@@ -1869,8 +1839,6 @@ __global__ void sddmm_gpu_sparse_block_block512_2thread_mutData_shuffle(const UI
                                                                         const UIN K,
                                                                         const float *__restrict__ matrixA,
                                                                         const float *__restrict__ matrixB,
-                                                                        const float alpha,
-                                                                        const float beta,
                                                                         const UIN numNonZeroRow,
                                                                         const UIN *__restrict__ reorderedRows,
                                                                         const UIN *__restrict__ sparseDataOffsets,
@@ -1878,9 +1846,6 @@ __global__ void sddmm_gpu_sparse_block_block512_2thread_mutData_shuffle(const UI
                                                                         const UIN *__restrict__ relativeRows,
                                                                         const UIN *__restrict__ sparseColIndices,
                                                                         float *matrixP) {
-    // 线程块中线程数量
-    constexpr int numWarpsPerBlock = 16;
-    constexpr int numThreadsPerBlock = numWarpsPerBlock * WARP_SIZE; // 512
 
     constexpr int kStep = 32;
     constexpr int kStepPerThread = kStep / 2;
@@ -1963,8 +1928,6 @@ __global__ void sddmm_gpu_sparse_block_block512_warpOneData_shuffle(const UIN M,
                                                                     const UIN K,
                                                                     const float *__restrict__ matrixA,
                                                                     const float *__restrict__ matrixB,
-                                                                    const float alpha,
-                                                                    const float beta,
                                                                     const UIN numNonZeroRow,
                                                                     const UIN *__restrict__ reorderedRows,
                                                                     const UIN *__restrict__ sparseDataOffsets,
@@ -1974,7 +1937,6 @@ __global__ void sddmm_gpu_sparse_block_block512_warpOneData_shuffle(const UIN M,
                                                                     float *matrixP) {
     // 线程块中线程数量
     constexpr int numWarpsPerBlock = 16;
-    constexpr int numThreadsPerBlock = numWarpsPerBlock * WARP_SIZE; // 512
     constexpr UIN calculateDataPerThreadBlock = numWarpsPerBlock;
 
     constexpr int kStep = 32;
@@ -2043,8 +2005,6 @@ __global__ void sddmm_gpu_sparse_block_warpMutData_shuffle(const UIN M,
                                                            const UIN K,
                                                            const float *__restrict__ matrixA,
                                                            const float *__restrict__ matrixB,
-                                                           const float alpha,
-                                                           const float beta,
                                                            const UIN numNonZeroRow,
                                                            const UIN *__restrict__ reorderedRows,
                                                            const UIN *__restrict__ sparseDataOffsets,
@@ -2124,7 +2084,6 @@ __global__ void sddmm_gpu_sparse_block_warpMutData_shuffle(const UIN M,
 
 void sddmm_gpu_rebell(const Matrix<float> &matrixA,
                       const Matrix<float> &matrixB,
-                      const float alpha, const float beta,
                       const sparseMatrix::CSR<float> &matrixS,
                       const ReBELL &rebell,
                       sparseMatrix::CSR<float> &matrixP,
@@ -2176,7 +2135,6 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
     kernel::sddmm_gpu_dense_block_m16n16k16_block256_matrixA_rowMaj_matrixB_colMaj<<<grid_rebell, block_rebell>>>(matrixS.row(), matrixS.col(), matrixA.col(),
         matrixA_values_convertedType_dev.data(),
         matrixB_values_convertedType_dev.data(),
-        alpha, beta,
         rebell.reorderedRows().size(),
         reorderedRowIndices_dev.data(),
         reorderedColIndices_dev.data(),
@@ -2190,7 +2148,6 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
     kernel::sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj<<<grid_dense, block_dense>>>(matrixS.row(), matrixS.col(), matrixA.col(),
         matrixA_values_convertedType_dev.data(),
         matrixB_values_convertedType_dev.data(),
-        alpha, beta,
         rebell.reorderedRows().size(),
         reorderedRowIndices_dev.data(),
         denseCols_dev.data(),
@@ -2217,7 +2174,6 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
     kernel::sddmm_gpu_sparse_block_2threadOneData_shuffle<<<grid_sparse, block_sparse>>>(matrixS.row(), matrixS.col(), matrixA.col(),
         matrixA_values_convertedType_dev.data(),
         matrixB_values_convertedType_dev.data(),
-        alpha, beta,
         rebell.reorderedRows().size(),
         reorderedRowIndices_dev.data(),
         sparseValueOffsets_dev.data(),

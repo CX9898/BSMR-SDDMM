@@ -8,7 +8,6 @@
 // Reordering method
 void sddmm(const Matrix<float> &matrixA,
            const Matrix<float> &matrixB,
-           const float alpha, const float beta,
            const sparseMatrix::CSR<float> &matrixS,
            sparseMatrix::CSR<float> &matrixP,
            Logger &logger) {
@@ -20,7 +19,7 @@ void sddmm(const Matrix<float> &matrixA,
     logger.zcx_other_time_ = rebell_time;
 
     // sddmm comp by gpu
-    sddmm_gpu_rebell(matrixA, matrixB, alpha, beta, matrixS, rebell, matrixP, logger);
+    sddmm_gpu_rebell(matrixA, matrixB, matrixS, rebell, matrixP, logger);
 
     // Error check
 //    check_rebell(matrixS, rebell);
@@ -29,13 +28,12 @@ void sddmm(const Matrix<float> &matrixA,
 
 bool check_sddmm(const Matrix<float> &matrixA,
                  const Matrix<float> &matrixB,
-                 const float alpha, const float beta,
                  const sparseMatrix::CSR<float> &matrixS,
                  const sparseMatrix::CSR<float> &matrixP) {
 
     // sddmm comp by cpu
     sparseMatrix::CSR<MATRIX_C_TYPE> matrixP_cpu_res(matrixS);
-    sddmm_cpu(matrixA, matrixB, alpha, beta, matrixS, matrixP_cpu_res);
+    sddmm_cpu(matrixA, matrixB, matrixS, matrixP_cpu_res);
 
     // Error check
     printf("check rebell sddmm : \n");

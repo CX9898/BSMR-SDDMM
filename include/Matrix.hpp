@@ -66,6 +66,17 @@ class Matrix {
       }
   }
 
+  Matrix(UIN row,
+         UIN col,
+         MatrixStorageOrder matrixOrder,
+         const T *values)
+      : row_(row),
+        col_(col),
+        storageOrder_(matrixOrder),
+        values_(values, values + row * col) {
+      leadingDimension_ = matrixOrder == MatrixStorageOrder::row_major ? col : row;
+  }
+
   Matrix(const sparseMatrix::COO<T> &matrixS);
 
   bool initializeValue(const std::vector<T> &src);
@@ -173,6 +184,30 @@ class CSR : public DataBase {
       const std::vector<UIN> &rowOffsets,
       const std::vector<UIN> &colIndices,
       const std::vector<T> &values) : rowOffsets_(rowOffsets), colIndices_(colIndices), values_(values) {
+      row_ = row;
+      col_ = col;
+      nnz_ = nnz;
+  }
+  CSR(UIN row,
+      UIN col,
+      UIN nnz,
+      const UIN *rowOffsets,
+      const UIN *colIndices,
+      const T *values) : rowOffsets_(rowOffsets, rowOffsets + row + 1),
+                         colIndices_(colIndices, colIndices + nnz),
+                         values_(values, values + nnz) {
+      row_ = row;
+      col_ = col;
+      nnz_ = nnz;
+  }
+  CSR(UIN row,
+      UIN col,
+      UIN nnz,
+      const int *rowOffsets,
+      const int *colIndices,
+      const T *values) : rowOffsets_(rowOffsets, rowOffsets + row + 1),
+                         colIndices_(colIndices, colIndices + nnz),
+                         values_(values, values + nnz) {
       row_ = row;
       col_ = col;
       nnz_ = nnz;
