@@ -14,7 +14,7 @@
 #include "parallelAlgorithm.cuh"
 #include "sddmmKernel.cuh"
 
-ReBELL::ReBELL(const int K, const sparseMatrix::CSR<float> &matrix, float &time) {
+ReBELL::ReBELL(const int K, const sparseMatrix::CSR<float> &matrix) {
 
     // Calculate the dense column segment threshold
     const float sparsityThreshold = (0.00219 * K + 79.81) / 100;
@@ -200,7 +200,7 @@ ReBELL::ReBELL(const int K, const sparseMatrix::CSR<float> &matrix, float &time)
     float bell_time = timeCalculator.getTime();
     printf("bell time : %f ms\n", bell_time);
 
-    time = rowReordering_time + colReordering_time + bell_time;
+    time_ = rowReordering_time + colReordering_time + bell_time;
 }
 
 UIN ReBELL::getNumSparseBlocks() const {

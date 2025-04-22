@@ -13,10 +13,9 @@ void sddmm(const Matrix<float> &matrixA,
            Logger &logger) {
 
     // Reordering
-    float rebell_time;
-    ReBELL rebell(matrixA.col(), matrixS, rebell_time);
+    ReBELL rebell(matrixA.col(), matrixS);
 
-    logger.zcx_other_time_ = rebell_time;
+    logger.zcx_other_time_ = rebell.time();
 
     // sddmm comp by gpu
     sddmm_gpu_rebell(matrixA, matrixB, matrixS, rebell, matrixP, logger);
@@ -26,10 +25,10 @@ void sddmm(const Matrix<float> &matrixA,
 //    check_sddmm(matrixA, matrixB, alpha, beta, matrixS, matrixP);
 }
 
-bool check_sddmm(const Matrix<float> &matrixA,
-                 const Matrix<float> &matrixB,
-                 const sparseMatrix::CSR<float> &matrixS,
-                 const sparseMatrix::CSR<float> &matrixP) {
+bool checkSddmm(const Matrix<float> &matrixA,
+                const Matrix<float> &matrixB,
+                const sparseMatrix::CSR<float> &matrixS,
+                const sparseMatrix::CSR<float> &matrixP) {
 
     // sddmm comp by cpu
     sparseMatrix::CSR<MATRIX_C_TYPE> matrixP_cpu_res(matrixS);
@@ -45,4 +44,34 @@ bool check_sddmm(const Matrix<float> &matrixA,
     }
 
     return true;
+}
+
+void sddmmBatch(const float *dQuery,
+                const float *dKey,
+                float *dAttn,
+                const UIN *d_offsets,
+                const UIN *d_columns,
+                int seq_len,
+                int emb_dim,
+                int nnz,
+                int num_batches) {
+
+    const int M = seq_len;
+    const int K = emb_dim;
+
+    std::vector<std::vector<UIN>> offsets(num_batches);
+    std::vector<std::vector<UIN>> columns(num_batches);
+
+    for (int batchId = 0; batchId < num_batches; ++batchId) {
+        offsets[batchId] = d2h(d_offsets + batchId * (M + 1), M + 1);
+        columns[batchId] = d2h(d_columns + batchId * nnz, nnz);
+    }
+
+    std::vector<ReBELL> rebell(num_batches);
+#pragma omp parallel for
+    for (int batchId = 0; batchId < num_batches; ++batchId) {
+        sparseMatrix::CSR<float> matrixS(M, M, nnz, offsets[batchId], columns[batchId]);
+        rebell[batchId] = ReBELL(K, matrixS);
+    }
+
 }

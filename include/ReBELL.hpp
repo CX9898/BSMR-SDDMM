@@ -24,7 +24,8 @@ constexpr UIN BLOCK_SIZE = ROW_PANEL_SIZE * BLOCK_COL_SIZE;
  **/
 class ReBELL {
  public:
-  ReBELL(const int K, const sparseMatrix::CSR<float> &matrix, float &time);
+  ReBELL() = default;
+  ReBELL(const int K, const sparseMatrix::CSR<float> &matrix);
 
   UIN numRowPanels() const { return numRowPanels_; }
   UIN maxNumDenseColBlocks() const { return maxNumDenseColBlocks_; }
@@ -38,6 +39,7 @@ class ReBELL {
   const std::vector<UIN> &sparseValues() const { return sparseValues_; }
   const std::vector<UIN> &sparseRelativeRows() const { return sparseRelativeRows_; }
   const std::vector<UIN> &sparseCols() const { return sparseCols_; }
+  const float time() const { return time_; }
 
   UIN dense_column_segment_threshold() const { return dense_column_segment_threshold_; }
 
@@ -88,6 +90,8 @@ class ReBELL {
   std::vector<UIN> sparseCols_;
 
   UIN dense_column_segment_threshold_;
+
+  float time_;
 };
 
 void noReorderRow(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &reorderedRows, float &time);

@@ -29,3 +29,10 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
                       const ReBELL &rebell,
                       sparseMatrix::CSR<float> &matrixP,
                       Logger &logger);
+
+void sddmm_gpu_rebell_beatch(const Matrix<float> &matrixA,
+                             const Matrix<float> &matrixB,
+                             const sparseMatrix::CSR<float> &matrixS,
+                             const ReBELL &rebell,
+                             sparseMatrix::CSR<float> &matrixP,
+                             Logger &logger);

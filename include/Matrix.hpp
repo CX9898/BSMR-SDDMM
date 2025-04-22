@@ -212,6 +212,15 @@ class CSR : public DataBase {
       col_ = col;
       nnz_ = nnz;
   }
+  CSR(UIN row,
+      UIN col,
+      UIN nnz,
+      const std::vector<UIN> &rowOffsets,
+      const std::vector<UIN> &colIndices) : rowOffsets_(rowOffsets), colIndices_(colIndices) {
+      row_ = row;
+      col_ = col;
+      nnz_ = nnz;
+  }
 
   bool initializeFromMatrixFile(const std::string &file);
 

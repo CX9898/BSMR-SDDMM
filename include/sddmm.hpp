@@ -12,7 +12,17 @@ void sddmm(const Matrix<float> &matrixA,
            Logger &logger);
 
 // Error check
-bool check_sddmm(const Matrix<float> &matrixA,
-                 const Matrix<float> &matrixB,
-                 const sparseMatrix::CSR<float> &matrixS,
-                 const sparseMatrix::CSR<float> &matrixP);
+bool checkSddmm(const Matrix<float> &matrixA,
+                const Matrix<float> &matrixB,
+                const sparseMatrix::CSR<float> &matrixS,
+                const sparseMatrix::CSR<float> &matrixP);
+
+void sddmmBatch(const float *dQuery,
+                const float *dKey,
+                float *dAttn,
+                const UIN *d_offsets,
+                const UIN *d_columns,
+                int seq_len,
+                int emb_dim,
+                int nnz,
+                int num_batches);
