@@ -16,13 +16,14 @@
 
 ReBELL::ReBELL(const int K, const sparseMatrix::CSR<float> &matrix) {
 
-    // Calculate the dense column segment threshold
-    const float sparsityThreshold = (0.00219 * K + 79.81) / 100;
-    const UIN minNumNonZeroPerColSegment =
-        std::ceil(BLOCK_SIZE * (1 - sparsityThreshold) / static_cast<float>(BLOCK_COL_SIZE));
-    printf("sparsityThreshold = %f, minNumNonZeroCurrentSparsity : %d\n",
-           sparsityThreshold, minNumNonZeroPerColSegment);
-    dense_column_segment_threshold_ = minNumNonZeroPerColSegment > 0 ? minNumNonZeroPerColSegment : 1;
+//    // Calculate the dense column segment threshold
+//    const float sparsityThreshold = (0.00219 * K + 79.81) / 100;
+//    const UIN minNumNonZeroPerColSegment =
+//        std::ceil(BLOCK_SIZE * (1 - sparsityThreshold) / static_cast<float>(BLOCK_COL_SIZE));
+//    printf("sparsityThreshold = %f, minNumNonZeroCurrentSparsity : %d\n",
+//           sparsityThreshold, minNumNonZeroPerColSegment);
+//    dense_column_segment_threshold_ = minNumNonZeroPerColSegment > 0 ? minNumNonZeroPerColSegment : 1;
+    dense_column_segment_threshold_ = 4;
 
     // Row reordering
     float rowReordering_time;

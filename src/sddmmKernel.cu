@@ -1095,32 +1095,32 @@ __device__ void m16n16k8_block128_double_buffer_load_matrixA(const UIN matrixLd,
 __device__ void m16n16k8_block128_double_buffer_load_matrixB(const UIN matrixLd,
                                                              const UIN kIter,
                                                              const MATRIX_B_TYPE *__restrict__ __align__(
-16) matrixB,
-const UIN startIndex,
-const UIN endIndex,
-const UIN *__restrict__ reorderedCols,
-const int smemLd,
-    MATRIX_B_TYPE
-*bTileSMEM) {
-if (kIter >= matrixLd) {
-return;
-}
+                                                                 16) matrixB,
+                                                             const UIN startIndex,
+                                                             const UIN endIndex,
+                                                             const UIN *__restrict__ reorderedCols,
+                                                             const int smemLd,
+                                                             MATRIX_B_TYPE
+                                                             *bTileSMEM) {
+    if (kIter >= matrixLd) {
+        return;
+    }
 
-const UIN laneId = threadIdx.x & 31;
-const UIN warpId = threadIdx.x >> 5;
+    const UIN laneId = threadIdx.x & 31;
+    const UIN warpId = threadIdx.x >> 5;
 
-const UIN localRow = warpId * WMMA_N + (laneId >> 1); // shared memory location. laneId / 2
-const UIN localCol = (laneId & 1) * 4; // shared memory location. (laneId % 2) * 4
+    const UIN localRow = warpId * WMMA_N + (laneId >> 1); // shared memory location. laneId / 2
+    const UIN localCol = (laneId & 1) * 4; // shared memory location. (laneId % 2) * 4
 
-const UIN reorderedColIndex = startIndex + localRow;
-const float4 bData = (reorderedColIndex < endIndex && kIter + localCol < matrixLd) ?
-    *(float4 * ) & (matrixB)[reorderedCols[reorderedColIndex] * matrixLd + kIter + localCol] :
-    make_float4(0.0f, 0.0f, 0.0f, 0.0f);
+    const UIN reorderedColIndex = startIndex + localRow;
+    const float4 bData = (reorderedColIndex < endIndex && kIter + localCol < matrixLd) ?
+        *(float4 *) &(matrixB)[reorderedCols[reorderedColIndex] * matrixLd + kIter + localCol] :
+        make_float4(0.0f, 0.0f, 0.0f, 0.0f);
 
-*(float4 *) &bTileSMEM[
-localRow *smemLd
-+ localCol] =
-bData;
+    *(float4 *) &bTileSMEM[
+        localRow * smemLd
+            + localCol] =
+        bData;
 }
 
 // m16n16k8
@@ -1133,151 +1133,153 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_block128_double_buffer(const UIN 
                                                                       const UIN K,
                                                                       const MATRIX_A_TYPE *__restrict__ matrixA,
                                                                       const MATRIX_B_TYPE *__restrict__ __align__(
-16) matrixB,
-const UIN numNonZeroRow,
-const UIN *__restrict__ reorderedRows,
-const UIN *__restrict__ reorderedCols,
-const UIN *__restrict__ reorderedColOffset,
-const UIN *__restrict__ blockRowOffsets,
-const UIN *__restrict__ blockValues,
-    MATRIX_C_TYPE
-*matrixP) {
-constexpr UIN aTileSMEMLd = (WMMA_K * 2 + 4); // Double buffer and 4 padding
-constexpr UIN bTileSMEMLd = (WMMA_K + 4); // 4 padding
+                                                                          16) matrixB,
+                                                                      const UIN numNonZeroRow,
+                                                                      const UIN *__restrict__ reorderedRows,
+                                                                      const UIN *__restrict__ reorderedCols,
+                                                                      const UIN *__restrict__ reorderedColOffset,
+                                                                      const UIN *__restrict__ blockRowOffsets,
+                                                                      const UIN *__restrict__ blockValues,
+                                                                      MATRIX_C_TYPE
+                                                                      *matrixP) {
+    constexpr UIN aTileSMEMLd = (WMMA_K * 2 + 4); // Double buffer and 4 padding
+    constexpr UIN bTileSMEMLd = (WMMA_K + 4); // 4 padding
 
-constexpr UIN aTileSMEMSize = WMMA_M * aTileSMEMLd;
-constexpr UIN bTileSMEMSize = (WMMA_N * 4) * bTileSMEMLd;
+    constexpr UIN aTileSMEMSize = WMMA_M * aTileSMEMLd;
+    constexpr UIN bTileSMEMSize = (WMMA_N * 4) * bTileSMEMLd;
 
-const UIN laneId = threadIdx.x & 31;
-const UIN warpId = threadIdx.x >> 5;
+    const UIN laneId = threadIdx.x & 31;
+    const UIN warpId = threadIdx.x >> 5;
 
-const UIN rowPanelId = blockIdx.x;
-const UIN numColBlocksCurrentRowPanel = blockRowOffsets[rowPanelId + 1] - blockRowOffsets[rowPanelId];
+    const UIN rowPanelId = blockIdx.x;
+    const UIN numColBlocksCurrentRowPanel = blockRowOffsets[rowPanelId + 1] - blockRowOffsets[rowPanelId];
 
-const UIN colBlockIter = blockIdx.y * 4;
-if (colBlockIter >= numColBlocksCurrentRowPanel) {
-return;
-}
+    const UIN colBlockIter = blockIdx.y * 4;
+    if (colBlockIter >= numColBlocksCurrentRowPanel) {
+        return;
+    }
 
-__shared__ MATRIX_A_TYPE aTileSMEM[aTileSMEMSize];
-__shared__ __align__(16)
-MATRIX_B_TYPE bTileSMEM[bTileSMEMSize]; // col major
+    __shared__ MATRIX_A_TYPE aTileSMEM[aTileSMEMSize];
+    __shared__ __align__(16)
+    MATRIX_B_TYPE bTileSMEM[bTileSMEMSize]; // col major
 
-wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE_FRAGMENT, wmma::row_major> aFrag;
-wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE_FRAGMENT, wmma::col_major> bFrag;
+    wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE_FRAGMENT, wmma::row_major> aFrag;
+    wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE_FRAGMENT, wmma::col_major> bFrag;
 
-wmma::fragment<wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> cFrag;
+    wmma::fragment<wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> cFrag;
 
-fill_fragment(cFrag,
-0.0f);
+    fill_fragment(cFrag,
+                  0.0f);
 
-const UIN colBlockId = colBlockIter + warpId;
-const UIN startIndexOfBlockValuesCurrentBlock = (blockRowOffsets[rowPanelId] + colBlockId) * BLOCK_SIZE;
+    const UIN colBlockId = colBlockIter + warpId;
+    const UIN startIndexOfBlockValuesCurrentBlock = (blockRowOffsets[rowPanelId] + colBlockId) * BLOCK_SIZE;
 
-const UIN startIndexOfReorderedColsCurrentThreadBlock =
-    reorderedColOffset[rowPanelId] + BLOCK_COL_SIZE * colBlockIter;
-const UIN endIndexOfReorderedColsCurrentPanel = reorderedColOffset[rowPanelId + 1];
+    const UIN startIndexOfReorderedColsCurrentThreadBlock =
+        reorderedColOffset[rowPanelId] + BLOCK_COL_SIZE * colBlockIter;
+    const UIN endIndexOfReorderedColsCurrentPanel = reorderedColOffset[rowPanelId + 1];
 
 // Load first buffer
-m16n16k8_block128_double_buffer_load_matrixA(K,
-0,
-matrixA,
-numNonZeroRow,
-rowPanelId,
-reorderedRows,
-0,
-aTileSMEMLd,
-aTileSMEM);
+    m16n16k8_block128_double_buffer_load_matrixA(K,
+                                                 0,
+                                                 matrixA,
+                                                 numNonZeroRow,
+                                                 rowPanelId,
+                                                 reorderedRows,
+                                                 0,
+                                                 aTileSMEMLd,
+                                                 aTileSMEM);
 
-int writeStage = 1;
+    int writeStage = 1;
 
 // Loop over K
-for (
-int kIter = 0;
-kIter<K;
-kIter += WMMA_K) {
+    for (
+        int kIter = 0;
+        kIter < K;
+        kIter += WMMA_K) {
 
 // Load next buffer
-m16n16k8_block128_double_buffer_load_matrixA(K,
-    kIter
-+ WMMA_K,
-matrixA,
-numNonZeroRow,
-rowPanelId,
-reorderedRows,
-writeStage,
-aTileSMEMLd,
-aTileSMEM);
+        m16n16k8_block128_double_buffer_load_matrixA(K,
+                                                     kIter
+                                                         + WMMA_K,
+                                                     matrixA,
+                                                     numNonZeroRow,
+                                                     rowPanelId,
+                                                     reorderedRows,
+                                                     writeStage,
+                                                     aTileSMEMLd,
+                                                     aTileSMEM);
 
 // Load matrix B tile into shared memory and compute the matrix multiplication
-if (colBlockId<numColBlocksCurrentRowPanel) {
+        if (colBlockId < numColBlocksCurrentRowPanel) {
 // Load matrix B tile into shared memory
-m16n16k8_block128_double_buffer_load_matrixB(K,
-    kIter,
-    matrixB,
-    startIndexOfReorderedColsCurrentThreadBlock,
-    endIndexOfReorderedColsCurrentPanel,
-    reorderedCols,
-    bTileSMEMLd,
-    bTileSMEM
-);
+            m16n16k8_block128_double_buffer_load_matrixB(K,
+                                                         kIter,
+                                                         matrixB,
+                                                         startIndexOfReorderedColsCurrentThreadBlock,
+                                                         endIndexOfReorderedColsCurrentPanel,
+                                                         reorderedCols,
+                                                         bTileSMEMLd,
+                                                         bTileSMEM
+            );
 
 // load matrix A and B tile into fragment
-wmma::load_matrix_sync(aFrag, aTileSMEM
-+ (writeStage ^ 1) * WMMA_K, aTileSMEMLd);
-wmma::load_matrix_sync(bFrag, bTileSMEM
-+
-warpId *WMMA_N
-* bTileSMEMLd, bTileSMEMLd);
+            wmma::load_matrix_sync(aFrag, aTileSMEM
+                + (writeStage ^ 1) * WMMA_K, aTileSMEMLd);
+            wmma::load_matrix_sync(bFrag, bTileSMEM
+                +
+                    warpId * WMMA_N
+                        * bTileSMEMLd, bTileSMEMLd);
 
 // Convert to TF32
 #pragma unroll
-for (
-int i = 0;
-i<aFrag.
-num_elements;
-++i) aFrag.x[i] =
-wmma::__float_to_tf32(aFrag
-.x[i]);
+            for (
+                int i = 0;
+                i < aFrag.
+                    num_elements;
+                ++i)
+                aFrag.x[i] =
+                    wmma::__float_to_tf32(aFrag
+                                              .x[i]);
 #pragma unroll
-for (
-int i = 0;
-i<bFrag.
-num_elements;
-++i) bFrag.x[i] =
-wmma::__float_to_tf32(bFrag
-.x[i]);
+            for (
+                int i = 0;
+                i < bFrag.
+                    num_elements;
+                ++i)
+                bFrag.x[i] =
+                    wmma::__float_to_tf32(bFrag
+                                              .x[i]);
 
-wmma::mma_sync(cFrag, aFrag, bFrag, cFrag
-);
-}
+            wmma::mma_sync(cFrag, aFrag, bFrag, cFrag
+            );
+        }
 
-__syncthreads();
+        __syncthreads();
 
-writeStage ^= 1;
-}
+        writeStage ^= 1;
+    }
 
 // Store the result
-if (colBlockId<numColBlocksCurrentRowPanel) {
+    if (colBlockId < numColBlocksCurrentRowPanel) {
 #pragma unroll
-for (
-int idxOfFragment = 0;
-idxOfFragment<cFrag.
-num_elements;
-++idxOfFragment) {
-UIN localRow, localCol;
-calculateMatrixCFragmentCoordinates(laneId, idxOfFragment, localRow, localCol
-);
+        for (
+            int idxOfFragment = 0;
+            idxOfFragment < cFrag.
+                num_elements;
+            ++idxOfFragment) {
+            UIN localRow, localCol;
+            calculateMatrixCFragmentCoordinates(laneId, idxOfFragment, localRow, localCol
+            );
 
-const UIN idxOfMatrixP =
-    blockValues[startIndexOfBlockValuesCurrentBlock + localRow * BLOCK_COL_SIZE + localCol];
+            const UIN idxOfMatrixP =
+                blockValues[startIndexOfBlockValuesCurrentBlock + localRow * BLOCK_COL_SIZE + localCol];
 
 // Saved when the value is not 0
-if (idxOfMatrixP != NULL_VALUE) {
-matrixP[idxOfMatrixP] = cFrag.x[idxOfFragment];
-}
-}
-}
+            if (idxOfMatrixP != NULL_VALUE) {
+                matrixP[idxOfMatrixP] = cFrag.x[idxOfFragment];
+            }
+        }
+    }
 }
 
 // m16n16k8
@@ -1594,8 +1596,8 @@ __global__ void sddmm_gpu_sparse_residue_block256_rowPanel_matrixA_rowMaj_matrix
 
             float c = 0.0f;
             for (int localKIter = 0; localKIter < kStep; localKIter += 4) {
-                const float4 aData = *((float4 * ) & aTileSMEM[relativeRow * kStep + localKIter]);
-                const float4 bData = *((float4 * ) & matrixB[col * ldb + kIter + localKIter]);
+                const float4 aData = *((float4 *) &aTileSMEM[relativeRow * kStep + localKIter]);
+                const float4 bData = *((float4 *) &matrixB[col * ldb + kIter + localKIter]);
                 c += aData.x * bData.x + aData.y * bData.y + aData.z * bData.z + aData.w * bData.w;
             }
 
@@ -1677,8 +1679,8 @@ __global__ void sddmm_gpu_sparse_residue_block256_matrixA_rowMaj_matrixB_colMaj(
         if (index < indexBoundaryCurrentRowPanel) {
 #pragma unroll 4
             for (int localKIter = 0; localKIter < kStep; localKIter += 4) {
-                const float4 aData = *((float4 * ) & aTileSMEM[relativeRow * kStep + localKIter]);
-                const float4 bData = *((float4 * ) & matrixB[col * ldb + kIter + localKIter]);
+                const float4 aData = *((float4 *) &aTileSMEM[relativeRow * kStep + localKIter]);
+                const float4 bData = *((float4 *) &matrixB[col * ldb + kIter + localKIter]);
                 pSMEM[threadIdx.x] += aData.x * bData.x + aData.y * bData.y + aData.z * bData.z + aData.w * bData.w;
             }
         }
@@ -1761,8 +1763,8 @@ __global__ void sddmm_gpu_sparse_block(const UIN M,
         if (index < indexBoundaryCurrentRowPanel) {
 #pragma unroll
             for (int localKIter = 0; localKIter < kStep; localKIter += 4) {
-                const float4 aData = *((float4 * ) & aTileSMEM[relativeRow * aTileSMEM_ld + localKIter]);
-                const float4 bData = *((float4 * ) & matrixB[col * K + kIter + localKIter]);
+                const float4 aData = *((float4 *) &aTileSMEM[relativeRow * aTileSMEM_ld + localKIter]);
+                const float4 bData = *((float4 *) &matrixB[col * K + kIter + localKIter]);
                 c += aData.x * bData.x + aData.y * bData.y + aData.z * bData.z + aData.w * bData.w;
             }
         }
@@ -1848,8 +1850,8 @@ __global__ void sddmm_gpu_sparse_block_2threadOneData_shuffle(const UIN M,
 #pragma unroll
             for (int localKIter = oddOrEven * kStepPerThread; localKIter < (oddOrEven + 1) * kStepPerThread;
                  localKIter += 4) {
-                const float4 aData = *((float4 * ) & aTileSMEM[relativeRow * aTileSMEM_ld + localKIter]);
-                const float4 bData = *((float4 * ) & matrixB[col * K + kIter + localKIter]);
+                const float4 aData = *((float4 *) &aTileSMEM[relativeRow * aTileSMEM_ld + localKIter]);
+                const float4 bData = *((float4 *) &matrixB[col * K + kIter + localKIter]);
                 c += aData.x * bData.x + aData.y * bData.y + aData.z * bData.z + aData.w * bData.w;
             }
         }
@@ -1936,8 +1938,8 @@ __global__ void sddmm_gpu_sparse_block_block512_2thread_mutData_shuffle(const UI
 #pragma unroll
             for (int localKIter = oddOrEven * kStepPerThread; localKIter < (oddOrEven + 1) * kStepPerThread;
                  localKIter += 4) {
-                const float4 aData = *((float4 * ) & aTileSMEM[relativeRow * aTileSMEM_ld + localKIter]);
-                const float4 bData = *((float4 * ) & matrixB[col * K + kIter + localKIter]);
+                const float4 aData = *((float4 *) &aTileSMEM[relativeRow * aTileSMEM_ld + localKIter]);
+                const float4 bData = *((float4 *) &matrixB[col * K + kIter + localKIter]);
                 c[i] += aData.x * bData.x + aData.y * bData.y + aData.z * bData.z + aData.w * bData.w;
             }
         }
@@ -2151,21 +2153,34 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
     dev::vector<UIN> sparseCols_dev(rebell.sparseCols());
     dev::vector<float> matrixP_dev(matrixS.values().size(), 0);
 
-    dim3 grid_dense, block_dense;
+    dim3 grid_dense, block_dense, grid_sparse, block_sparse;
 
     block_dense.x = WARP_SIZE * sddmm_dense_block_number_of_warps_per_thread_block;
-
     // Assign row panel to x-axis of grid, and assign col block to y-axis of grid
     grid_dense.x = rebell.numRowPanels();
     grid_dense.y = std::ceil(static_cast<float>(rebell.maxNumDenseColBlocks())
                                  / each_thread_block_counts_the_number_Of_dense_blocks);
 
+    block_sparse.x = sddmm_sparse_block_number_of_thread_per_thread_block;
+    grid_sparse.x = rebell.numRowPanels();
+    grid_sparse.y = rebell.maxNumSparseColBlocks();
+
+    logger.gridDim_sparse_ = grid_sparse;
+    logger.blockDim_sparse_ = block_sparse;
     logger.gridDim_dense_ = grid_dense;
     logger.blockDim_dense_ = block_dense;
 
-    CudaTimeCalculator timeCalculator_denseBlock, timeCalculator_sparseBlock;
+    cudaStream_t denseStream;
+    cudaStream_t sparseStream;
 
-    timeCalculator_denseBlock.startClock();
+    cudaStreamCreate(&denseStream);
+    cudaStreamCreate(&sparseStream);
+
+    CudaTimeCalculator totalTimeCalculator, denseKernelTimeCalculator, sparseKernelTimeCalculator;
+
+    totalTimeCalculator.startClock();
+
+    denseKernelTimeCalculator.startClock(denseStream);
 
 #ifdef WMMA_16_16_16
     kernel::sddmm_gpu_dense_block_m16n16k16_block256_matrixA_rowMaj_matrixB_colMaj<<<grid_rebell, block_rebell>>>(matrixS.row(), matrixS.col(), matrixA.col(),
@@ -2181,7 +2196,7 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
 #endif // WMMA_16_16_16
 
 #ifdef WMMA_16_16_8
-    kernel::sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj<<<grid_dense, block_dense>>>(matrixS.row(), matrixS.col(), matrixA.col(),
+    kernel::sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj<<<grid_dense, block_dense, 0, denseStream>>>(matrixS.row(), matrixS.col(), matrixA.col(),
         matrixA_values_convertedType_dev.data(),
         matrixB_values_convertedType_dev.data(),
         rebell.reorderedRows().size(),
@@ -2193,21 +2208,11 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
         matrixP_dev.data());
 #endif // WMMA_16_16_8
 
-    timeCalculator_denseBlock.endClock();
-    float denseBlockTime = timeCalculator_denseBlock.getTime();
-    printf("denseBlockTime: %f ms\n", denseBlockTime);
+    denseKernelTimeCalculator.endClock(denseStream);
 
-    dim3 grid_sparse, block_sparse;
-    block_sparse.x = sddmm_sparse_block_number_of_thread_per_thread_block;
-    grid_sparse.x = rebell.numRowPanels();
-    grid_sparse.y = rebell.maxNumSparseColBlocks();
+    sparseKernelTimeCalculator.startClock(sparseStream);
 
-    logger.gridDim_sparse_ = grid_sparse;
-    logger.blockDim_sparse_ = block_sparse;
-
-    timeCalculator_sparseBlock.startClock();
-
-    kernel::sddmm_gpu_sparse_block_2threadOneData_shuffle<<<grid_sparse, block_sparse>>>(matrixS.row(), matrixS.col(), matrixA.col(),
+    kernel::sddmm_gpu_sparse_block_2threadOneData_shuffle<<<grid_sparse, block_sparse, 0, sparseStream>>>(matrixS.row(), matrixS.col(), matrixA.col(),
         matrixA_values_convertedType_dev.data(),
         matrixB_values_convertedType_dev.data(),
         rebell.reorderedRows().size(),
@@ -2218,12 +2223,21 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
         sparseCols_dev.data(),
         matrixP_dev.data());
 
-    timeCalculator_sparseBlock.endClock();
+    sparseKernelTimeCalculator.endClock(sparseStream);
 
-    float sparseBlockTime = timeCalculator_sparseBlock.getTime();
+    totalTimeCalculator.endClock();
+
+    const float denseBlockTime = denseKernelTimeCalculator.getTime();
+    const float sparseBlockTime = sparseKernelTimeCalculator.getTime();
+    const float totalTime = totalTimeCalculator.getTime();
+
+    const float overlapEfficiency = (denseBlockTime + sparseBlockTime) / totalTime;
+
+    printf("denseBlockTime: %f ms\n", denseBlockTime);
     printf("sparseBlockTime: %f ms\n", sparseBlockTime);
+    printf("totalTime: %f ms, overlapEfficiency: %f\n", totalTime, overlapEfficiency);
 
-    logger.zcx_sddmm_time_ = denseBlockTime + sparseBlockTime;
+    logger.zcx_sddmm_time_ = totalTime;
 
     // Copy the results from the device to the host
     matrixP.setValues() = d2h(matrixP_dev);
