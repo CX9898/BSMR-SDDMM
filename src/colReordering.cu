@@ -391,7 +391,7 @@ void colReordering_cpu(const sparseMatrix::CSR<float> &matrix,
                          numOfSparseColSegmentInEachRowPanel.data() + numOfSparseColSegmentInEachRowPanel.size(),
                          sparseColOffsets.data() + 1);
 
-    // Initialize the denseCols,sparseCols
+    // Initialize the denseCols,sparseColIndices
     denseCols.resize(denseColOffsets[numRowPanels]);
     sparseCols.resize(sparseColOffsets[numRowPanels]);
 #pragma omp parallel for

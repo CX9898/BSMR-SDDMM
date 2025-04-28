@@ -1,5 +1,6 @@
 #pragma once
 
+#include "devVector.cuh"
 #include "Matrix.hpp"
 
 constexpr float row_similarity_threshold_alpha = 0.3f;
@@ -30,18 +31,17 @@ class ReBELL {
   UIN numRowPanels() const { return numRowPanels_; }
   UIN maxNumDenseColBlocks() const { return maxNumDenseColBlocks_; }
   UIN maxNumSparseColBlocks() const { return maxNumSparseColBlocks_; }
-  const std::vector<UIN> &reorderedRows() const { return reorderedRows_; }
-  const std::vector<UIN> &denseCols() const { return denseCols_; }
-  const std::vector<UIN> &denseColOffsets() const { return denseColOffsets_; }
-  const std::vector<UIN> &blockValues() const { return blockValues_; }
-  const std::vector<UIN> &blockOffsets() const { return blockOffsets_; }
-  const std::vector<UIN> &sparseValueOffsets() const { return sparseValueOffsets_; }
-  const std::vector<UIN> &sparseValues() const { return sparseValues_; }
-  const std::vector<UIN> &sparseRelativeRows() const { return sparseRelativeRows_; }
-  const std::vector<UIN> &sparseCols() const { return sparseCols_; }
-  const float time() const { return time_; }
-
+  const dev::vector<UIN> &reorderedRows() const { return reorderedRows_; }
+  const dev::vector<UIN> &denseCols() const { return denseCols_; }
+  const dev::vector<UIN> &denseColOffsets() const { return denseColOffsets_; }
+  const dev::vector<UIN> &blockValues() const { return blockValues_; }
+  const dev::vector<UIN> &blockOffsets() const { return blockOffsets_; }
+  const dev::vector<UIN> &sparseValueOffsets() const { return sparseValueOffsets_; }
+  const dev::vector<UIN> &sparseValues() const { return sparseValues_; }
+  const dev::vector<UIN> &sparseRelativeRows() const { return sparseRelativeRows_; }
+  const dev::vector<UIN> &sparseColIndices() const { return sparseColIndices_; }
   UIN dense_column_segment_threshold() const { return dense_column_segment_threshold_; }
+  float time() const { return time_; }
 
   // Calculate the rowPanelID by blockValueIndex
   UIN calculateRowPanelIdByBlockValuesIndex(UIN blockValueIndex) const;
@@ -58,7 +58,7 @@ class ReBELL {
   // Calculate the colBlockId in row panel by blockValueIndex
   UIN calculateColBlockIdByBlockValueIndex(UIN blockValueIndex) const;
 
-  UIN getNumDenseBlocks() const { return blockOffsets().back(); }
+  UIN getNumDenseBlocks() const { return blockOffsets().back_data(); }
   UIN getNumSparseBlocks() const;
 
   // Calculate the average density of all blocks
@@ -75,19 +75,19 @@ class ReBELL {
   UIN maxNumDenseColBlocks_;
   UIN maxNumSparseColBlocks_;
 
-  std::vector<UIN> reorderedRows_;
+  dev::vector<UIN> reorderedRows_;
 
   // Dense block data
-  std::vector<UIN> denseColOffsets_;
-  std::vector<UIN> denseCols_;
-  std::vector<UIN> blockOffsets_;
-  std::vector<UIN> blockValues_;
+  dev::vector<UIN> denseColOffsets_;
+  dev::vector<UIN> denseCols_;
+  dev::vector<UIN> blockOffsets_;
+  dev::vector<UIN> blockValues_;
 
   // Sparse block data
-  std::vector<UIN> sparseValueOffsets_;
-  std::vector<UIN> sparseValues_;
-  std::vector<UIN> sparseRelativeRows_;
-  std::vector<UIN> sparseCols_;
+  dev::vector<UIN> sparseValueOffsets_;
+  dev::vector<UIN> sparseValues_;
+  dev::vector<UIN> sparseRelativeRows_;
+  dev::vector<UIN> sparseColIndices_;
 
   UIN dense_column_segment_threshold_;
 

@@ -2141,16 +2141,6 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
             matrixB.size(), matrixB_values_dev.data(), matrixB_values_convertedType_dev.data());
     }
 
-    // Copy the data from the host to the device
-    dev::vector<UIN> reorderedRowIndices_dev(rebell.reorderedRows());
-    dev::vector<UIN> denseCols_dev(rebell.denseCols());
-    dev::vector<UIN> denseColOffsets_dev(rebell.denseColOffsets());
-    dev::vector<UIN> blockRowOffsets_dev(rebell.blockOffsets());
-    dev::vector<UIN> blockValues_dev(rebell.blockValues());
-    dev::vector<UIN> sparseValueOffsets_dev(rebell.sparseValueOffsets());
-    dev::vector<UIN> sparseValues_dev(rebell.sparseValues());
-    dev::vector<UIN> relativeRows_dev(rebell.sparseRelativeRows());
-    dev::vector<UIN> sparseCols_dev(rebell.sparseCols());
     dev::vector<float> matrixP_dev(matrixS.values().size(), 0);
 
     dim3 grid_dense, block_dense, grid_sparse, block_sparse;
@@ -2200,11 +2190,11 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
         matrixA_values_convertedType_dev.data(),
         matrixB_values_convertedType_dev.data(),
         rebell.reorderedRows().size(),
-        reorderedRowIndices_dev.data(),
-        denseCols_dev.data(),
-        denseColOffsets_dev.data(),
-        blockRowOffsets_dev.data(),
-        blockValues_dev.data(),
+        rebell.reorderedRows().data(),
+        rebell.denseCols().data(),
+        rebell.denseColOffsets().data(),
+        rebell.blockOffsets().data(),
+        rebell.blockValues().data(),
         matrixP_dev.data());
 #endif // WMMA_16_16_8
 
@@ -2216,11 +2206,11 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
         matrixA_values_convertedType_dev.data(),
         matrixB_values_convertedType_dev.data(),
         rebell.reorderedRows().size(),
-        reorderedRowIndices_dev.data(),
-        sparseValueOffsets_dev.data(),
-        sparseValues_dev.data(),
-        relativeRows_dev.data(),
-        sparseCols_dev.data(),
+        rebell.reorderedRows().data(),
+        rebell.sparseValueOffsets().data(),
+        rebell.sparseValues().data(),
+        rebell.sparseRelativeRows().data(),
+        rebell.sparseColIndices().data(),
         matrixP_dev.data());
 
     sparseKernelTimeCalculator.endClock(sparseStream);
@@ -2242,105 +2232,3 @@ void sddmm_gpu_rebell(const Matrix<float> &matrixA,
     // Copy the results from the device to the host
     matrixP.setValues() = d2h(matrixP_dev);
 }
-
-//void sddmm_gpu_rebell_beatch(const UIN M,
-//                             const UIN N,
-//                             const UIN K,
-//                             const float *matrixA_dev,
-//                             const float *matrixB_dev,
-//                             const sparseMatrix::CSR<float> &matrixS,
-//                             const ReBELL &rebell,
-//                             sparseMatrix::CSR<float> &matrixP,
-//                             Logger &logger) {
-//    const UIN matrixASize = M * K;
-//    const UIN matrixBSize = K * N;
-//
-//    // Copy the data from the host to the device
-//    dev::vector<UIN> reorderedRowIndices_dev(rebell.reorderedRows());
-//    dev::vector<UIN> denseCols_dev(rebell.denseCols());
-//    dev::vector<UIN> denseColOffsets_dev(rebell.denseColOffsets());
-//    dev::vector<UIN> blockRowOffsets_dev(rebell.blockOffsets());
-//    dev::vector<UIN> blockValues_dev(rebell.blockValues());
-//    dev::vector<UIN> sparseValueOffsets_dev(rebell.sparseValueOffsets());
-//    dev::vector<UIN> sparseValues_dev(rebell.sparseValues());
-//    dev::vector<UIN> relativeRows_dev(rebell.sparseRelativeRows());
-//    dev::vector<UIN> sparseCols_dev(rebell.sparseCols());
-//    dev::vector<float> matrixP_dev(matrixS.values().size(), 0);
-//
-//    dim3 grid_dense, block_dense;
-//
-//    block_dense.x = WARP_SIZE * sddmm_dense_block_number_of_warps_per_thread_block;
-//
-//    // Assign row panel to x-axis of grid, and assign col block to y-axis of grid
-//    grid_dense.x = rebell.numRowPanels();
-//    grid_dense.y = std::ceil(static_cast<float>(rebell.maxNumDenseColBlocks())
-//                                 / each_thread_block_counts_the_number_Of_dense_blocks);
-//
-//    logger.gridDim_dense_ = grid_dense;
-//    logger.blockDim_dense_ = block_dense;
-//
-//    CudaTimeCalculator timeCalculator_denseBlock, timeCalculator_sparseBlock;
-//
-//    timeCalculator_denseBlock.startClock();
-//
-//#ifdef WMMA_16_16_16
-//    kernel::sddmm_gpu_dense_block_m16n16k16_block256_matrixA_rowMaj_matrixB_colMaj<<<grid_rebell, block_rebell>>>(matrixS.row(), matrixS.col(), matrixA.col(),
-//        matrixA_values_convertedType_dev.data(),
-//        matrixB_values_convertedType_dev.data(),
-//        rebell.reorderedRows().size(),
-//        reorderedRowIndices_dev.data(),
-//        reorderedColIndices_dev.data(),
-//        reorderedColIndicesOffset_dev.data(),
-//        blockRowOffsets_dev.data(),
-//        blockValues_dev.data(),
-//        matrixP_dev.data());
-//#endif // WMMA_16_16_16
-//
-//#ifdef WMMA_16_16_8
-//    kernel::sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj<<<grid_dense, block_dense>>>(matrixS.row(), matrixS.col(), matrixA.col(),
-//        matrixA_values_convertedType_dev.data(),
-//        matrixB_values_convertedType_dev.data(),
-//        rebell.reorderedRows().size(),
-//        reorderedRowIndices_dev.data(),
-//        denseCols_dev.data(),
-//        denseColOffsets_dev.data(),
-//        blockRowOffsets_dev.data(),
-//        blockValues_dev.data(),
-//        matrixP_dev.data());
-//#endif // WMMA_16_16_8
-//
-//    timeCalculator_denseBlock.endClock();
-//    float denseBlockTime = timeCalculator_denseBlock.getTime();
-//    printf("denseBlockTime: %f ms\n", denseBlockTime);
-//
-//    dim3 grid_sparse, block_sparse;
-//    block_sparse.x = sddmm_sparse_block_number_of_thread_per_thread_block;
-//    grid_sparse.x = rebell.numRowPanels();
-//    grid_sparse.y = rebell.maxNumSparseColBlocks();
-//
-//    logger.gridDim_sparse_ = grid_sparse;
-//    logger.blockDim_sparse_ = block_sparse;
-//
-//    timeCalculator_sparseBlock.startClock();
-//
-//    kernel::sddmm_gpu_sparse_block_2threadOneData_shuffle<<<grid_sparse, block_sparse>>>(matrixS.row(), matrixS.col(), matrixA.col(),
-//        matrixA_values_convertedType_dev.data(),
-//        matrixB_values_convertedType_dev.data(),
-//        rebell.reorderedRows().size(),
-//        reorderedRowIndices_dev.data(),
-//        sparseValueOffsets_dev.data(),
-//        sparseValues_dev.data(),
-//        relativeRows_dev.data(),
-//        sparseCols_dev.data(),
-//        matrixP_dev.data());
-//
-//    timeCalculator_sparseBlock.endClock();
-//
-//    float sparseBlockTime = timeCalculator_sparseBlock.getTime();
-//    printf("sparseBlockTime: %f ms\n", sparseBlockTime);
-//
-//    logger.zcx_sddmm_time_ = denseBlockTime + sparseBlockTime;
-//
-//    // Copy the results from the device to the host
-//    matrixP.setValues() = d2h(matrixP_dev);
-//}

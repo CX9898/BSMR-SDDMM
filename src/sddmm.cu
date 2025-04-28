@@ -22,7 +22,7 @@ void sddmm(const Matrix<float> &matrixA,
 
     // Error check
 //    check_rebell(matrixS, rebell);
-//    check_sddmm(matrixA, matrixB, alpha, beta, matrixS, matrixP);
+//    checkSddmm(matrixA, matrixB, matrixS, matrixP);
 }
 
 bool checkSddmm(const Matrix<float> &matrixA,
@@ -35,7 +35,7 @@ bool checkSddmm(const Matrix<float> &matrixA,
     sddmm_cpu(matrixA, matrixB, matrixS, matrixP_cpu_res);
 
     // Error check
-    printf("check rebell sddmm : \n");
+    printf("check cpu sddmm and rebell sddmm: \n");
     size_t numError = 0;
     if (!checkData(matrixP_cpu_res.values(), matrixP.values(), numError)) {
         printf("[checkData : NO PASS Error rate : %2.2f%%]\n",
