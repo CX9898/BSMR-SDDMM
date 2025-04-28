@@ -18,7 +18,7 @@ void sddmm(const Matrix<float> &matrixA,
     logger.zcx_other_time_ = rebell.time();
 
     // sddmm comp by gpu
-    sddmm_gpu_rebell(matrixA, matrixB, matrixS, rebell, matrixP, logger);
+    sddmm_gpu(matrixA, matrixB, matrixS, rebell, matrixP, logger.zcx_sddmm_time_);
 
     // Error check
 //    check_rebell(matrixS, rebell);
@@ -73,5 +73,8 @@ void sddmmBatch(const float *dQuery,
         sparseMatrix::CSR<float> matrixS(M, M, nnz, offsets[batchId], columns[batchId]);
         rebell[batchId] = ReBELL(K, matrixS);
     }
+
+    float time = 0.0f;
+    sddmm_gpu_batch(num_batches, M, M, K, dQuery, dKey, rebell, dAttn, time);
 
 }

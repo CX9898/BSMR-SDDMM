@@ -273,10 +273,10 @@ std::pair<UIN, UIN> ReBELL::calculateRowColByBlockValueIndex(UIN blockValueIndex
     std::vector<UIN> reorderedRows;
     std::vector<UIN> denseColOffsets;
     std::vector<UIN> denseCols;
-    d2h(blockOffsets,blockOffsets_);
-    d2h(reorderedRows,reorderedRows_);
-    d2h(denseColOffsets,denseColOffsets_);
-    d2h(denseCols,denseCols_);
+    d2h(blockOffsets, blockOffsets_);
+    d2h(reorderedRows, reorderedRows_);
+    d2h(denseColOffsets, denseColOffsets_);
+    d2h(denseCols, denseCols_);
 
     const UIN rowPanelId = calculateRowPanelIdByBlockValuesIndex(blockValueIndex);
 
@@ -301,7 +301,7 @@ std::pair<UIN, UIN> ReBELL::calculateRowColByBlockValueIndex(UIN blockValueIndex
 
 UIN ReBELL::calculateColBlockIdByBlockValueIndex(UIN blockValueIndex) const {
     std::vector<UIN> blockOffsets;
-    d2h(blockOffsets,blockOffsets_);
+    d2h(blockOffsets, blockOffsets_);
 
     const UIN rowPanel = calculateRowPanelIdByBlockValuesIndex(blockValueIndex);
     const UIN startIndexOfBlockValueCurrentRowPanel = blockOffsets[rowPanel] * BLOCK_SIZE;

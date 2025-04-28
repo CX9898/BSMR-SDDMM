@@ -23,16 +23,23 @@ __global__ void convertDataType(const UIN n, const float *in, T *out);
 
 } // namespace kernel
 
-void sddmm_gpu_rebell(const Matrix<float> &matrixA,
-                      const Matrix<float> &matrixB,
-                      const sparseMatrix::CSR<float> &matrixS,
-                      const ReBELL &rebell,
-                      sparseMatrix::CSR<float> &matrixP,
-                      Logger &logger);
+void sddmm_gpu(const Matrix<float> &matrixA,
+               const Matrix<float> &matrixB,
+               const sparseMatrix::CSR<float> &matrixS,
+               const ReBELL &rebell,
+               sparseMatrix::CSR<float> &matrixP,
+               float &time);
 
-void sddmm_gpu_rebell_beatch(const Matrix<float> &matrixA,
-                             const Matrix<float> &matrixB,
-                             const sparseMatrix::CSR<float> &matrixS,
-                             const ReBELL &rebell,
-                             sparseMatrix::CSR<float> &matrixP,
-                             Logger &logger);
+void sddmm_gpu(UIN M, UIN N, UIN K,
+               const float *matrixA,
+               const float *matrixB,
+               const ReBELL &rebell,
+               float *matrixP,
+               float &time);
+
+void sddmm_gpu_batch(UIN numBatch, UIN M, UIN N, UIN K,
+                     const float *matrixA,
+                     const float *matrixB,
+                     const std::vector<ReBELL> &rebell,
+                     float *matrixP,
+                     float &time);
