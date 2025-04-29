@@ -6,6 +6,10 @@
 namespace cuUtil {
 
 template<typename T>
+__global__ void convertDataType(const size_t n, const float *in, T *out);
+
+
+template<typename T>
 static __inline__ __device__ T warp_reduce_sum(T value) {
     /* aggregate all value that each thread within a warp holding.*/
     T ret = value;
@@ -38,6 +42,12 @@ static __inline__ __device__ T reduce_sum(T value, T *shm) {
     }
     return shm[0];
 }
+
+/**
+ * @funcitonName: makeData
+ * @functionInterpretation: Use cuRand library. Generate `size` float random numbers in GPU device memory `data` that follow uniform distribution in [0.0, 1.0).
+ **/
+void makeData(float *data, const int size);
 
 /**
  * @funcitonName: printCudaErrorStringSync

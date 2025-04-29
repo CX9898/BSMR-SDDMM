@@ -44,9 +44,9 @@ void cuSparseSDDMM(const Matrix<float> &matrixA,
         dev::vector<float> matrixB_values_dev(matrixB.values());
 
         const int numThreadPerBlock = 1024;
-        kernel::convertDataType<<< (matrixA.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
+        cuUtil::convertDataType<<< (matrixA.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
             matrixA.size(), matrixA_values_dev.data(), matrixA_values_convertedType_dev.data());
-        kernel::convertDataType<<< (matrixB.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
+        cuUtil::convertDataType<<< (matrixB.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
             matrixB.size(), matrixB_values_dev.data(), matrixB_values_convertedType_dev.data());
     }
 

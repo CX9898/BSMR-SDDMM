@@ -193,20 +193,6 @@ __global__ void checkFragmentData() {
     }
 }
 
-template<typename T>
-__global__ void convertDataType(const UIN n, const float *in, T *out) {
-    const UIN idx = blockDim.x * blockIdx.x + threadIdx.x;
-    if (idx < n) {
-        out[idx] = static_cast<T>(in[idx]);
-//        printf("in[%d] = %f, static_cast<float>out[%d] = %f\n", idx, in[idx], idx, static_cast<float>(out[idx]));
-    }
-}
-
-template __global__ void convertDataType<int>(const UIN n, const float *in, int *out);
-template __global__ void convertDataType<float>(const UIN n, const float *in, float *out);
-template __global__ void convertDataType<double>(const UIN n, const float *in, double *out);
-template __global__ void convertDataType<half>(const UIN n, const float *in, half *out);
-
 // m16n16k16
 // blockDim: [64, 1, 1]
 __global__ void sddmm_gpu_dense_block_m16n16k16_block64_rowPanel_matrixA_rowMaj_matrixB_rowMaj(const UIN M,

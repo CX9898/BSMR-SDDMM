@@ -16,13 +16,6 @@ constexpr int sddmm_sparse_block_number_of_thread_per_thread_block = 256;
 constexpr int sddmm_sparse_block_each_thread_block_counts_the_number_Of_data =
     sddmm_sparse_block_number_of_thread_per_thread_block / 2;
 
-namespace kernel {
-
-template<typename T>
-__global__ void convertDataType(const UIN n, const float *in, T *out);
-
-} // namespace kernel
-
 void sddmm_gpu(const Matrix<float> &matrixA,
                const Matrix<float> &matrixB,
                const sparseMatrix::CSR<float> &matrixS,
