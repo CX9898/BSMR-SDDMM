@@ -43,10 +43,12 @@ template<typename T>
 inline bool checkOneData(const T data1, const T data2) {
     return data1 == data2;
 }
+
 template<>
 inline bool checkOneData<float>(const float data1, const float data2) {
     return abs(data1 - data2) / data1 < ERROR_THRESHOLD_EPSILON;
 }
+
 template<>
 inline bool checkOneData<double>(const double data1, const double data2) {
     return abs(data1 - data2) / data1 < ERROR_THRESHOLD_EPSILON;
@@ -125,6 +127,13 @@ template<typename T>
 bool checkData(const dev::vector<T> &devData1, const std::vector<T> &hostData2) {
     std::vector<T> hostData1;
     d2h(hostData1, devData1);
+    return checkData(hostData1, hostData2);
+}
+
+template<typename T>
+bool checkData(const dev::vector<T> &devData1, const dev::vector<T> &devData2) {
+    std::vector<T> hostData1 = d2h(devData1);
+    std::vector<T> hostData2 = d2h(devData2);
     return checkData(hostData1, hostData2);
 }
 
