@@ -54,7 +54,7 @@ void makeData(float *data, const int size);
  * @functionInterpretation: Print the error message of the cuda runtime API, and synchronize the device
  **/
 inline void printCudaErrorStringSync() {
-    printf("CUDA Error : %s\n", cudaGetErrorString(cudaDeviceSynchronize()));
+    printf("CUDA Error: %s\n", cudaGetErrorString(cudaDeviceSynchronize()));
 }
 
 /**
