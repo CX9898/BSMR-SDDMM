@@ -3,22 +3,22 @@
 #include "CudaTimeCalculator.cuh"
 #include "host.hpp"
 #include "checkData.hpp"
+#include "cudaUtil.cuh"
 #include "ReBELL.hpp"
 
 // Reordering method
 void sddmm(const Matrix<float> &matrixA,
            const Matrix<float> &matrixB,
-           const sparseMatrix::CSR<float> &matrixS,
            sparseMatrix::CSR<float> &matrixP,
            Logger &logger) {
 
     // Reordering
-    ReBELL rebell(matrixA.col(), matrixS);
+    ReBELL rebell(matrixA.col(), matrixP);
 
     logger.zcx_other_time_ = rebell.time();
 
     // sddmm comp by gpu
-    sddmm_gpu(matrixA, matrixB, matrixS, rebell, matrixP, logger.zcx_sddmm_time_);
+    sddmm_gpu(matrixA, matrixB, rebell, matrixP, logger.zcx_sddmm_time_);
 
     // Error check
 //    check_rebell(matrixS, rebell);
@@ -46,35 +46,35 @@ bool checkSddmm(const Matrix<float> &matrixA,
     return true;
 }
 
-void sddmmBatch(const float *dQuery,
-                const float *dKey,
-                float *dAttn,
-                const UIN *d_offsets,
-                const UIN *d_columns,
-                int seq_len,
+void sddmmBatch(int seq_len,
                 int emb_dim,
                 int nnz,
-                int num_batches) {
+                int numBatches,
+                const float *dQuery,
+                const float *dKey,
+                const UIN *d_offsets,
+                const UIN *d_columns,
+                float *dAttn) {
 
     const int M = seq_len;
     const int K = emb_dim;
 
-    std::vector<std::vector<UIN>> offsets(num_batches);
-    std::vector<std::vector<UIN>> columns(num_batches);
+    std::vector<std::vector<UIN>> offsets(numBatches);
+    std::vector<std::vector<UIN>> columns(numBatches);
 
-    for (int batchId = 0; batchId < num_batches; ++batchId) {
+    for (int batchId = 0; batchId < numBatches; ++batchId) {
         offsets[batchId] = d2h(d_offsets + batchId * (M + 1), M + 1);
         columns[batchId] = d2h(d_columns + batchId * nnz, nnz);
     }
 
-    std::vector<ReBELL> rebell(num_batches);
-#pragma omp parallel for
-    for (int batchId = 0; batchId < num_batches; ++batchId) {
-        sparseMatrix::CSR<float> matrixS(M, M, nnz, offsets[batchId], columns[batchId]);
-        rebell[batchId] = ReBELL(K, matrixS);
+    std::vector<ReBELL> rebell;
+// #pragma omp parallel for
+    for (int batchId = 0; batchId < numBatches; ++batchId) {
+        sparseMatrix::CSR<float> matrixP(M, M, nnz, offsets[batchId], columns[batchId]);
+        rebell.push_back(ReBELL(K, matrixP));
     }
 
     float time = 0.0f;
-    sddmm_gpu_batch(num_batches, M, M, K, dQuery, dKey, rebell, dAttn, time);
+    sddmm_gpu_batch(numBatches, M, M, K, nnz, dQuery, dKey, rebell, dAttn, time);
 
 }

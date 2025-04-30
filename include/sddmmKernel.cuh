@@ -18,7 +18,6 @@ constexpr int sddmm_sparse_block_each_thread_block_counts_the_number_Of_data =
 
 void sddmm_gpu(const Matrix<float> &matrixA,
                const Matrix<float> &matrixB,
-               const sparseMatrix::CSR<float> &matrixS,
                const ReBELL &rebell,
                sparseMatrix::CSR<float> &matrixP,
                float &time);
@@ -30,7 +29,8 @@ void sddmm_gpu(UIN M, UIN N, UIN K,
                float *matrixP,
                float &time);
 
-void sddmm_gpu_batch(UIN numBatch, UIN M, UIN N, UIN K,
+void sddmm_gpu_batch(const UIN numBatch,
+                     const UIN M, const UIN N, const UIN K, const UIN nnz,
                      const float *matrixA,
                      const float *matrixB,
                      const std::vector<ReBELL> &rebell,
