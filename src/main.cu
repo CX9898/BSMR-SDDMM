@@ -1,6 +1,6 @@
 #include "Matrix.hpp"
 #include "TensorCoreConfig.cuh"
-#include "cuSparseSDDMM.hpp"
+#include "cuSparseSDDMM.cuh"
 #include "sddmm.hpp"
 #include "Logger.hpp"
 #include "Options.hpp"
@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
 
     // sddmm
     sparseMatrix::CSR<float> matrixP(matrixS);
-    sddmm(matrixA, matrixB, matrixS, matrixP, logger);
+    sddmm(matrixA, matrixB, matrixP, logger);
 
     // Error check
     printf("check cuSparseSDDMM and sddmm : \n");
