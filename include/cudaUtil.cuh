@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdio>
+#include <string>
 #include <cuda_runtime.h>
 
 namespace cuUtil {
@@ -53,7 +54,10 @@ void makeData(float *data, const int size);
  * @funcitonName: printCudaErrorStringSync
  * @functionInterpretation: Print the error message of the cuda runtime API, and synchronize the device
  **/
-inline void printCudaErrorStringSync() {
+inline void printCudaErrorStringSync(const std::string &msg = "") {
+    if (!msg.empty()) {
+        printf("%s. ", msg.c_str());
+    }
     printf("CUDA Error: %s\n", cudaGetErrorString(cudaDeviceSynchronize()));
 }
 
