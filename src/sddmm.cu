@@ -78,3 +78,29 @@ void sddmmBatch(int seq_len,
     sddmm_gpu_batch(numBatches, M, M, K, nnz, dQuery, dKey, rebell, dAttn, time);
 
 }
+
+void sddmmBatch(int seq_len,
+                int emb_dim,
+                int nnz,
+                int numBatches,
+                const float *dQuery,
+                const float *dKey,
+                const int *d_offsets,
+                const int *d_columns,
+                float *dAttn) {
+
+    dev::vector<UIN> converted_offsets(numBatches * (seq_len + 1));
+    cudaMemcpy(converted_offsets.data(), d_offsets, converted_offsets.size() * sizeof(int), cudaMemcpyDeviceToDevice);
+    dev::vector<UIN> converted_columns(numBatches * nnz);
+    cudaMemcpy(converted_columns.data(), d_columns, converted_columns.size() * sizeof(int), cudaMemcpyDeviceToDevice);
+
+    sddmmBatch(seq_len,
+               emb_dim,
+               nnz,
+               numBatches,
+               dQuery,
+               dKey,
+               converted_offsets.data(),
+               converted_columns.data(),
+               dAttn);
+}
