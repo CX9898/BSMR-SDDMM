@@ -40,6 +40,7 @@ template<typename T>
 class Matrix {
  public:
   Matrix() = delete;
+
   ~Matrix() = default;
 
   Matrix(UIN row,
@@ -80,10 +81,13 @@ class Matrix {
   Matrix(const sparseMatrix::COO<T> &matrixS);
 
   bool initializeValue(const std::vector<T> &src);
+
   void changeStorageOrder();
 
   UIN rowOfValueIndex(UIN idx) const;
+
   UIN colOfValueIndex(UIN idx) const;
+
   T getOneValue(UIN row, UIN col) const;
 
   /**
@@ -97,32 +101,41 @@ class Matrix {
                                  UIN positionOfKIter) const;
 
   void makeData();
+
   void makeData(UIN numRow, UIN numCol);
 
   void print() const;
+
   void printToMarkdownTable() const;
 
   std::vector<T> getRowVector(UIN row) const;
+
   std::vector<T> getColVector(UIN col) const;
 
   UIN size() const {
       return values_.size();
   }
+
   MatrixStorageOrder storageOrder() const {
       return storageOrder_;
   }
+
   UIN leadingDimension() const {
       return leadingDimension_;
   }
+
   UIN row() const {
       return row_;
   }
+
   UIN col() const {
       return col_;
   }
+
   const std::vector<T> &values() const {
       return values_;
   }
+
   const T *data() const {
       return values_.data();
   }
@@ -133,6 +146,7 @@ class Matrix {
       }
       return values_[idx];
   }
+
   T &operator[](UIN idx) {
       if (idx > values_.size()) {
           std::cerr << "Error! Array access out of bounds" << std::endl;
@@ -161,7 +175,9 @@ class DataBase {
   DataBase() = default;
 
   UIN row() const { return row_; }
+
   UIN col() const { return col_; }
+
   UIN nnz() const { return nnz_; }
 
   inline float getSparsity() const {
@@ -178,6 +194,7 @@ template<typename T>
 class CSR : public DataBase {
  public:
   CSR() = default;
+
   CSR(UIN row,
       UIN col,
       UIN nnz,
@@ -188,6 +205,7 @@ class CSR : public DataBase {
       col_ = col;
       nnz_ = nnz;
   }
+
   CSR(UIN row,
       UIN col,
       UIN nnz,
@@ -200,6 +218,7 @@ class CSR : public DataBase {
       col_ = col;
       nnz_ = nnz;
   }
+
   CSR(UIN row,
       UIN col,
       UIN nnz,
@@ -212,11 +231,12 @@ class CSR : public DataBase {
       col_ = col;
       nnz_ = nnz;
   }
+
   CSR(UIN row,
       UIN col,
       UIN nnz,
       const std::vector<UIN> &rowOffsets,
-      const std::vector<UIN> &colIndices) : rowOffsets_(rowOffsets), colIndices_(colIndices) {
+      const std::vector<UIN> &colIndices) : rowOffsets_(rowOffsets), colIndices_(colIndices), values_(nnz, 0) {
       row_ = row;
       col_ = col;
       nnz_ = nnz;
@@ -253,7 +273,9 @@ class CSR : public DataBase {
   bool initializeFromMtxFile(const std::string &file);
 
   const std::vector<UIN> &rowOffsets() const { return rowOffsets_; }
+
   const std::vector<UIN> &colIndices() const { return colIndices_; }
+
   const std::vector<T> &values() const { return values_; }
 
   std::vector<T> &setValues() { return values_; }
@@ -268,6 +290,7 @@ template<typename T>
 class COO : public DataBase {
  public:
   COO() = default;
+
   COO(UIN row,
       UIN col,
       UIN nnz,
@@ -280,7 +303,9 @@ class COO : public DataBase {
   }
 
   const std::vector<UIN> &rowIndices() const { return rowIndices_; }
+
   const std::vector<UIN> &colIndices() const { return colIndices_; }
+
   const std::vector<T> &values() const { return values_; }
 
   std::vector<T> &setValues() { return values_; }
@@ -299,6 +324,7 @@ class COO : public DataBase {
     * Used as a test comparison result
     **/
   bool outputToMarketMatrixFile(const std::string &fileName) const;
+
   bool outputToMarketMatrixFile() const;
 
   bool setValuesFromMatrix(const Matrix<T> &inputMatrix);
@@ -334,6 +360,7 @@ template<typename T>
 class BELL : public DataBase {
  public:
   BELL() = default;
+
   BELL(UIN row,
        UIN col,
        UIN nnz,
@@ -347,7 +374,9 @@ class BELL : public DataBase {
   }
 
   const std::vector<UIN> &blockRowOffsets() const { return blockRowOffsets_; }
+
   const std::vector<UIN> &blockColIndices() const { return blockColIndices_; }
+
   const std::vector<T> &blockValues() const { return blockValues_; }
 
  private:
