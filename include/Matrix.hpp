@@ -272,6 +272,13 @@ class CSR : public DataBase {
   **/
   bool initializeFromMtxFile(const std::string &file);
 
+    /**
+    * Used as a test comparison result
+    **/
+  bool outputToMarketMatrixFile(const std::string &fileName) const;
+
+  bool outputToMarketMatrixFile() const;
+
   const std::vector<UIN> &rowOffsets() const { return rowOffsets_; }
 
   const std::vector<UIN> &colIndices() const { return colIndices_; }
@@ -301,6 +308,8 @@ class COO : public DataBase {
       col_ = col;
       nnz_ = nnz;
   }
+
+  COO(const CSR<T> &csr);
 
   const std::vector<UIN> &rowIndices() const { return rowIndices_; }
 

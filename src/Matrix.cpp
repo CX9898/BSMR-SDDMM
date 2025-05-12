@@ -108,6 +108,7 @@ void Matrix<T>::changeStorageOrder() {
     leadingDimension_ = newLd;
     values_ = newValues;
 }
+
 template<typename T>
 void Matrix<T>::makeData() {
     makeData(row_, col_);
@@ -572,6 +573,44 @@ bool sparseMatrix::CSR<T>::initializeFromGraphDataset(const std::string &file) {
     inFile.close();
 
     return true;
+}
+
+template<typename T>
+bool sparseMatrix::CSR<T>::outputToMarketMatrixFile() const {
+    std::string first("matrix_");
+    return outputToMarketMatrixFile(
+        first + std::to_string(row_) + "_" + std::to_string(col_) + "_" + std::to_string(nnz_));
+}
+
+template<typename T>
+bool sparseMatrix::CSR<T>::outputToMarketMatrixFile(const std::string &fileName) const {
+
+    sparseMatrix::COO<T> coo(*this);
+
+    return coo.outputToMarketMatrixFile(fileName);
+}
+
+template<typename T>
+sparseMatrix::COO<T>::COO(const CSR<T> &csr) {
+    row_ = csr.row();
+    col_ = csr.col();
+    nnz_ = csr.nnz();
+
+    rowIndices_.resize(nnz_);
+    colIndices_.resize(nnz_);
+    values_.resize(nnz_);
+
+#pragma omp parallel for
+    for (int row = 0; row < row_; ++row) {
+        for (int idx = csr.rowOffsets()[row]; idx < csr.rowOffsets()[row + 1]; ++idx) {
+            const UIN col = csr.colIndices()[idx];
+            const T val = csr.values()[idx];
+
+            rowIndices_[idx] = row;
+            colIndices_[idx] = col;
+            values_[idx] = val;
+        }
+    }
 }
 
 template<typename T>
