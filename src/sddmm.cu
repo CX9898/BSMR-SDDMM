@@ -61,6 +61,8 @@ void sddmmBatch(int seq_len,
 
     std::vector<UIN> offsets(M + 1);
     std::vector<UIN> columns(nnz);
+    cudaMemcpy(offsets.data(), d_offsets, offsets.size() * sizeof(UIN), cudaMemcpyDeviceToHost);
+    cudaMemcpy(columns.data(), d_columns, columns.size() * sizeof(UIN), cudaMemcpyDeviceToHost);
 
     ReBELL rebell;
     sparseMatrix::CSR<float> matrixP(M, M, nnz, offsets, columns);
