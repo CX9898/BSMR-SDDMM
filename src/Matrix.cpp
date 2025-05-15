@@ -903,3 +903,43 @@ void sparseMatrix::COO<T>::print() const {
     }
     std::cout << std::endl;
 }
+
+template<typename T>
+bool checkMatrixData(const sparseMatrix::CSR<T> &csr) {
+    if (csr.nnz() == 0) {
+        if (!csr.colIndices().empty()) {
+            fprintf(stderr, "Error, CSR nnz is 0, but colIndices is not empty!\n");
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    int numNonZeroRows = 0;
+    for (int row = 0; row < csr.row(); ++row) {
+        if (csr.rowOffsets()[row] > csr.rowOffsets()[row + 1]) {
+            fprintf(stderr, "Error, CSR rowOffsets[%d] > rowOffsets[%d]\n", row, row + 1);
+            return false;
+        }
+        if (csr.rowOffsets()[row + 1] - csr.rowOffsets()[row] > 0) {
+            ++numNonZeroRows;
+        }
+    }
+    if (numNonZeroRows == 0 && csr.nnz() > 0) {
+        fprintf(stderr, "Error, CSR nnz is %d, but no non-zero rows!\n", csr.nnz());
+        return false;
+    }
+
+    for (int row = 0; row < csr.row(); ++row) {
+        for (int idx = csr.rowOffsets()[row]; idx < csr.rowOffsets()[row + 1]; ++idx) {
+            const UIN col = csr.colIndices()[idx];
+            if (col >= csr.col()) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+template bool checkMatrixData<float>(const sparseMatrix::CSR<float> &csr);

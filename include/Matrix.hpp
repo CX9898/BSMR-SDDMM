@@ -394,3 +394,6 @@ class BELL : public DataBase {
   std::vector<T> blockValues_;
 };
 } // namespace sparseDataType
+
+template<typename T>
+bool checkMatrixData(const sparseMatrix::CSR<T> &csr);
