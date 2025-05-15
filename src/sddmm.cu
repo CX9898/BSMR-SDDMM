@@ -81,9 +81,9 @@ void sddmmBatch(int seq_len,
                 const int *d_columns,
                 float *dAttn) {
 
-    dev::vector<UIN> converted_offsets(numBatches * (seq_len + 1));
+    dev::vector<UIN> converted_offsets(seq_len + 1);
     cudaMemcpy(converted_offsets.data(), d_offsets, converted_offsets.size() * sizeof(int), cudaMemcpyDeviceToDevice);
-    dev::vector<UIN> converted_columns(numBatches * nnz);
+    dev::vector<UIN> converted_columns(nnz);
     cudaMemcpy(converted_columns.data(), d_columns, converted_columns.size() * sizeof(int), cudaMemcpyDeviceToDevice);
 
     sddmmBatch(seq_len,
