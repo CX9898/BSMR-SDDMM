@@ -33,6 +33,14 @@ void sddmm_gpu_batch(const UIN numBatch,
                      const UIN M, const UIN N, const UIN K, const UIN nnz,
                      const float *matrixA,
                      const float *matrixB,
+                     const ReBELL &rebell,
+                     float *matrixP,
+                     float &time);
+
+void sddmm_gpu_batch(const UIN numBatch,
+                     const UIN M, const UIN N, const UIN K, const UIN nnz,
+                     const float *matrixA,
+                     const float *matrixB,
                      const std::vector<ReBELL> &rebell,
                      float *matrixP,
                      float &time);

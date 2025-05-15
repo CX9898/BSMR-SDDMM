@@ -2242,6 +2242,79 @@ void sddmm_gpu(UIN M, UIN N, UIN K,
 
 void sddmm_gpu_batch(const UIN numBatch, const UIN M, const UIN N, const UIN K,
                      const UIN nnz, const float *matrixA, const float *matrixB,
+                     const ReBELL &rebell, float *matrixP,
+                     float &time) {
+    cudaStream_t stream[numBatch * 2];
+    std::vector<cudaStream_t> streams(numBatch * 2);
+    for (auto &s : stream) {
+        cudaStreamCreate(&s);
+    }
+
+//    cudaGraph_t graph;
+//    cudaGraphExec_t graphExec;
+
+//    cudaStreamBeginCapture(stream, cudaStreamCaptureModeGlobal);
+
+    CudaTimeCalculator cudaTimeCalculator;
+    cudaTimeCalculator.startClock();
+
+    for (int batchId = 0; batchId < numBatch; ++batchId) {
+        dim3 grid_dense, block_dense, grid_sparse, block_sparse;
+
+        block_dense.x = WARP_SIZE * sddmm_dense_block_number_of_warps_per_thread_block;
+        // Assign row panel to x-axis of grid, and assign col block to y-axis of grid
+        grid_dense.x = rebell.numRowPanels();
+        grid_dense.y = std::ceil(static_cast<float>(rebell.maxNumDenseColBlocks()) /
+                                 each_thread_block_counts_the_number_Of_dense_blocks);
+
+        block_sparse.x = sddmm_sparse_block_number_of_thread_per_thread_block;
+        grid_sparse.x = rebell.numRowPanels();
+        grid_sparse.y = rebell.maxNumSparseColBlocks();
+
+        kernel::sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj<<<grid_dense, block_dense, 0, stream[
+            batchId * 2]>>>(M, N, K,
+            matrixA + batchId * M * K, matrixB + batchId * N * K,
+            rebell.reorderedRows().size(),
+            rebell.reorderedRows().data(),
+            rebell.denseCols().data(),
+            rebell.denseColOffsets().data(),
+            rebell.blockOffsets().data(),
+            rebell.blockValues().data(),
+            matrixP + batchId * nnz);
+
+        kernel::sddmm_gpu_sparse_block_2threadOneData_shuffle<<<grid_sparse, block_sparse, 0, stream[batchId * 2 +
+                                                                                                     1]>>>(M, N, K,
+            matrixA + batchId * M * K, matrixB + batchId * N * K,
+            rebell.reorderedRows().size(),
+            rebell.reorderedRows().data(),
+            rebell.sparseValueOffsets().data(),
+            rebell.sparseValues().data(),
+            rebell.sparseRelativeRows().data(),
+            rebell.sparseColIndices().data(),
+            matrixP + batchId * nnz);
+    }
+
+//    cudaStreamEndCapture(stream, &graph);
+//    cudaGraphInstantiate(&graphExec, graph, NULL, NULL, 0);
+
+
+//    cudaGraphLaunch(graphExec, stream);
+
+    cudaTimeCalculator.endClock();
+
+    const float totalTime = cudaTimeCalculator.getTime();
+    printf("sddmm_gpu_batch: numBatch = %d, totalTime: %f ms\n", numBatch, totalTime);
+    time = totalTime;
+
+//    cudaGraphExecDestroy(graphExec);
+//    cudaGraphDestroy(graph);
+    for (auto &s : stream) {
+        cudaStreamDestroy(s);
+    }
+}
+
+void sddmm_gpu_batch(const UIN numBatch, const UIN M, const UIN N, const UIN K,
+                     const UIN nnz, const float *matrixA, const float *matrixB,
                      const std::vector<ReBELL> &rebell, float *matrixP,
                      float &time) {
     cudaStream_t stream[numBatch * 2];

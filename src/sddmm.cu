@@ -59,24 +59,14 @@ void sddmmBatch(int seq_len,
     const int M = seq_len;
     const int K = emb_dim;
 
-    std::vector<std::vector<UIN>> offsets(numBatches);
-    std::vector<std::vector<UIN>> columns(numBatches);
+    std::vector<UIN> offsets(M + 1);
+    std::vector<UIN> columns(nnz);
 
-    for (int batchId = 0; batchId < numBatches; ++batchId) {
-        offsets[batchId] = d2h(d_offsets + batchId * (M + 1), M + 1);
-        columns[batchId] = d2h(d_columns + batchId * nnz, nnz);
-    }
-
-    std::vector<ReBELL> rebell;
-// #pragma omp parallel for
-    for (int batchId = 0; batchId < numBatches; ++batchId) {
-        sparseMatrix::CSR<float> matrixP(M, M, nnz, offsets[batchId], columns[batchId]);
-        rebell.push_back(ReBELL(K, matrixP));
-    }
+    ReBELL rebell;
+    sparseMatrix::CSR<float> matrixP(M, M, nnz, offsets, columns);
 
     float time = 0.0f;
     sddmm_gpu_batch(numBatches, M, M, K, nnz, dQuery, dKey, rebell, dAttn, time);
-
 }
 
 void sddmmBatch(int seq_len,
