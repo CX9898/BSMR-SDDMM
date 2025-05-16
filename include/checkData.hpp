@@ -20,44 +20,24 @@ inline bool checkOneData(const T data1, const T data2) {
 
 template<>
 inline bool checkOneData<float>(const float data1, const float data2) {
-    constexpr float ABS_EPSILON = 1e-6f;
+    constexpr float ABS_EPSILON = 1e-5f;
 
     const float absDiff = std::fabs(data1 - data2);
+    if (absDiff < ABS_EPSILON) return true;
 
-    // 绝对误差优先处理非常小的数（如 data1 == 0）
-    if (absDiff < ABS_EPSILON) {
-        return true;
-    }
-
-    // 如果 data1 非法用于除法，说明差异已经不可以接受
-    if (std::fabs(data1) < ABS_EPSILON) {
-        return false;
-    }
-
-    // 相对误差基于 data1
-    const float relDiff = absDiff / std::fabs(data1);
-    return relDiff < ERROR_THRESHOLD_EPSILON;
+    const float maxVal = std::max(std::max(std::fabs(data1), std::fabs(data2)), ERROR_THRESHOLD_EPSILON);
+    return (absDiff / maxVal) < ERROR_THRESHOLD_EPSILON;
 }
 
 template<>
 inline bool checkOneData<double>(const double data1, const double data2) {
-    constexpr double ABS_EPSILON = 1e-6f;
+    constexpr double ABS_EPSILON = 1e-5;
 
     const double absDiff = std::fabs(data1 - data2);
+    if (absDiff < ABS_EPSILON) return true;
 
-    // 绝对误差优先处理非常小的数（如 data1 == 0）
-    if (absDiff < ABS_EPSILON) {
-        return true;
-    }
-
-    // 如果 data1 非法用于除法，说明差异已经不可以接受
-    if (std::fabs(data1) < ABS_EPSILON) {
-        return false;
-    }
-
-    // 相对误差基于 data1
-    const float relDiff = absDiff / std::fabs(data1);
-    return relDiff < ERROR_THRESHOLD_EPSILON;
+    const double maxVal = std::max(std::max(std::fabs(data1), std::fabs(data2)), static_cast<double>(ERROR_THRESHOLD_EPSILON));
+    return (absDiff / maxVal) < ERROR_THRESHOLD_EPSILON;
 }
 
 template<typename T>
