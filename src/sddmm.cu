@@ -64,8 +64,8 @@ void sddmmBatch(int seq_len,
     cudaMemcpy(offsets.data(), d_offsets, offsets.size() * sizeof(UIN), cudaMemcpyDeviceToHost);
     cudaMemcpy(columns.data(), d_columns, columns.size() * sizeof(UIN), cudaMemcpyDeviceToHost);
 
-    ReBELL rebell;
     sparseMatrix::CSR<float> matrixP(M, M, nnz, offsets, columns);
+    ReBELL rebell(K, matrixP);
 
     float time = 0.0f;
     sddmm_gpu_batch(numBatches, M, M, K, nnz, dQuery, dKey, rebell, dAttn, time);
