@@ -20,12 +20,44 @@ inline bool checkOneData(const T data1, const T data2) {
 
 template<>
 inline bool checkOneData<float>(const float data1, const float data2) {
-    return std::fabs(data1 - data2) < ERROR_THRESHOLD_EPSILON;
+    constexpr float ABS_EPSILON = 1e-6f;
+
+    const float absDiff = std::fabs(data1 - data2);
+
+    // 绝对误差优先处理非常小的数（如 data1 == 0）
+    if (absDiff < ABS_EPSILON) {
+        return true;
+    }
+
+    // 如果 data1 非法用于除法，说明差异已经不可以接受
+    if (std::fabs(data1) < ABS_EPSILON) {
+        return false;
+    }
+
+    // 相对误差基于 data1
+    const float relDiff = absDiff / std::fabs(data1);
+    return relDiff < ERROR_THRESHOLD_EPSILON;
 }
 
 template<>
 inline bool checkOneData<double>(const double data1, const double data2) {
-    return std::fabs(data1 - data2) < ERROR_THRESHOLD_EPSILON;
+    constexpr double ABS_EPSILON = 1e-6f;
+
+    const double absDiff = std::fabs(data1 - data2);
+
+    // 绝对误差优先处理非常小的数（如 data1 == 0）
+    if (absDiff < ABS_EPSILON) {
+        return true;
+    }
+
+    // 如果 data1 非法用于除法，说明差异已经不可以接受
+    if (std::fabs(data1) < ABS_EPSILON) {
+        return false;
+    }
+
+    // 相对误差基于 data1
+    const float relDiff = absDiff / std::fabs(data1);
+    return relDiff < ERROR_THRESHOLD_EPSILON;
 }
 
 template<typename T>
