@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdio>
+#include <cmath>
 #include <vector>
 #include <string>
 
@@ -12,33 +13,6 @@
 
 const float ERROR_THRESHOLD_EPSILON = 1e-3;
 
-/**
- * error checking
- **/
-//template<typename T>
-//inline bool checkDataFunction(const size_t num, const T *data1, const T *data2, size_t &numError);
-//
-//template<typename T>
-//bool checkData(const std::vector<T> &data1, const std::vector<T> &data2);
-//
-//template<typename T>
-//bool checkData(const std::vector<T> &data1, const dev::vector<T> &devData2);
-//
-//template<typename T>
-//bool checkData(const dev::vector<T> &devData1, const std::vector<T> &hostData2);
-//
-//template<typename T>
-//bool checkData(const size_t num, const std::vector<T> &dataHost1, const T *dataDev2);
-//
-//template<typename T>
-//bool checkData(const size_t num, const T *dataDev1, const std::vector<T> &dataHost2);
-//
-//template<typename T>
-//bool checkDevData(const size_t num, const T *dataDev1, const T *dataDev2);
-//
-//template<typename T>
-//inline bool checkOneData(const T data1, const T data2);
-
 template<typename T>
 inline bool checkOneData(const T data1, const T data2) {
     return data1 == data2;
@@ -46,12 +20,12 @@ inline bool checkOneData(const T data1, const T data2) {
 
 template<>
 inline bool checkOneData<float>(const float data1, const float data2) {
-    return abs(data1 - data2) / data1 < ERROR_THRESHOLD_EPSILON;
+    return std::fabs(data1 - data2) < ERROR_THRESHOLD_EPSILON;
 }
 
 template<>
 inline bool checkOneData<double>(const double data1, const double data2) {
-    return abs(data1 - data2) / data1 < ERROR_THRESHOLD_EPSILON;
+    return std::fabs(data1 - data2) < ERROR_THRESHOLD_EPSILON;
 }
 
 template<typename T>
