@@ -67,7 +67,7 @@ void cuSparseSDDMM(const Matrix<float> &matrixA,
                                        CUSPARSE_ORDER_A))
 
     cudaDataType_t CUSPARSE_MATRIX_B_TYPE = CUDA_R_32F;
-    if (typeid(MATRIX_A_TYPE) == typeid(half)) {
+    if (typeid(MATRIX_B_TYPE) == typeid(half)) {
         CUSPARSE_MATRIX_B_TYPE = CUDA_R_16F;
     }
     const auto CUSPARSE_ORDER_B = matrixB.storageOrder() == row_major ?
