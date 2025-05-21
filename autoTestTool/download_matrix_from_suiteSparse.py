@@ -1,7 +1,7 @@
 import argparse
 import ssgetpy
 import tarfile
-
+import os
 
 def extract_tar_gz(file_path, output_dir):
     """解压 .tar.gz 文件到指定目录"""
@@ -9,6 +9,8 @@ def extract_tar_gz(file_path, output_dir):
         with tarfile.open(file_path, "r:gz") as tar:
             tar.extractall(path=output_dir)
             print(f"解压完成, 文件已存放到 {output_dir}")
+        os.remove(file_path)  # 解压完后删除压缩包
+        print(f"已删除压缩包: {file_path}")
     except (tarfile.TarError, EOFError):
         print(f"文件损坏: {file_path}")
 
@@ -20,6 +22,7 @@ parser.add_argument("-row_min", type=int, default=1000, help="矩阵数量")
 parser.add_argument("-row_max", type=int, default=10000, help="矩阵数量")
 parser.add_argument("-col_min", type=int, default=1000, help="矩阵数量")
 parser.add_argument("-col_max", type=int, default=10000, help="矩阵数量")
+parser.add_argument("-outdir", type=str, default="dataset/ssgetpy/", help="矩阵数量")
 # parser.add_argument("-nnz_min", type=int, default=1000, help="矩阵数量")
 # parser.add_argument("-nnz_max", type=int, default=10000, help="矩阵数量")
 
@@ -37,7 +40,7 @@ result = ssgetpy.search(rowbounds=(row_min, row_max),
 
 print("Download " + str(numMatrix) + " matrices from suite sparse matrix collection")
 
-output_path = "../dataset/ssgetpy/"
+output_path = args.outdir
 matrix_file_list = []
 i = 0
 for matrix in result[:numMatrix]:
@@ -51,8 +54,8 @@ for matrix in result[:numMatrix]:
     matrix_file = output_path + matrix.name + "/" + matrix.name + ".mtx"
     matrix_file_list.append(matrix_file)
 
-matrix_file_list_file = output_path + "matrix_file_list.txt"
-with open(matrix_file_list_file, "w") as file:
-    for matrix_file in matrix_file_list:
-        file.write(matrix_file + "\n")
-    print("矩阵文件列表: " + matrix_file_list_file)
+# matrix_file_list_file = output_path + "matrix_file_list.txt"
+# with open(matrix_file_list_file, "w") as file:
+#     for matrix_file in matrix_file_list:
+#         file.write(matrix_file + "\n")
+#     print("矩阵文件列表: " + matrix_file_list_file)

@@ -1,8 +1,10 @@
 #!/bin/bash
 
-results_path="dataset_of_isratnisa_paper_results/"
+# 设置变量
+results_path="results_dataset_of_isratnisa_paper/"
 dataset_path="${results_path}dataset/"
 
+# 函数定义
 # 下载数据集并解压, 并移动到指定目录
 download_decompressing_move(){
   local url=$1
@@ -17,6 +19,7 @@ download_decompressing_move(){
 #############################################################
 # main
 
+# 数据集准备
 mkdir -p ${results_path}
 download_decompressing_move "https://snap.stanford.edu/data/cit-HepPh.txt.gz"
 download_decompressing_move "https://snap.stanford.edu/data/bigdata/communities/com-amazon.ungraph.txt.gz"
@@ -26,11 +29,10 @@ download_decompressing_move "https://snap.stanford.edu/data/web-BerkStan.txt.gz"
 download_decompressing_move "https://snap.stanford.edu/data/web-Google.txt.gz"
 download_decompressing_move "https://snap.stanford.edu/data/web-NotreDame.txt.gz"
 download_decompressing_move "https://snap.stanford.edu/data/loc-gowalla_edges.txt.gz"
-
 wget "https://graphchallenge.s3.amazonaws.com/snap/facebook_combined/facebook_combined_adj.mmio"
 mv facebook_combined_adj.mmio ${dataset_path}
 
- 在没有头部信息的文件中添加头部信息
+# 在没有头部信息的文件中添加头部信息
 sed -i '1i # Nodes: 1005 Edges: 25571' ${dataset_path}email-Eu-core.txt
 sed -i '1i # Nodes: 196591 Edges: 1900654' ${dataset_path}loc-gowalla_edges.txt
 
@@ -39,10 +41,12 @@ matrix_list_file="${results_path}matrix_file_list.txt"
 > "${matrix_list_file}"
 find "${dataset_path}" -type f | sed "s|^${results_path}||" > "${matrix_list_file}"
 
+# 编译程序
 bash build_program.sh
 program_zcx="./build_zcx/sddmm-gpu"
 program_isratnisa="./build_isratnisa/isratnisa-sddmm"
 
+# 运行测试程序
 bash testTool.sh -f ${matrix_list_file} -p ${program_zcx} -n "${results_path}zcx_results"
 bash testTool.sh -f ${matrix_list_file} -p ${program_isratnisa} -n "${results_path}isratnisa_results"
 
