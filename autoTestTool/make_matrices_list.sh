@@ -15,10 +15,11 @@ target_folder="${target_folder%/}"
 
 output_file="${target_folder}/matrix_file_list.txt"   # 保存文件路径的文件
 
+touch "$output_file"
 # 清空输出文件(如果已存在)
 > "$output_file"
 
 # 遍历所有 .mtx 或 .smtx 结尾的文件并保存路径
-find "$target_folder" -type f \( -name "*.mtx" -o -name "*.smtx" \) > "$output_file"
+find "$target_folder" -type f \( -name "*.mtx" -o -name "*.smtx" \) | sed "s|^$target_folder/||" > "$output_file"
 
 echo "所有文件路径已保存到 $output_file"
