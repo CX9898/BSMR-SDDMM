@@ -13,9 +13,12 @@
 #include <bits/stdc++.h>
 #include <string>
 #include "Options.hpp"
+
 using namespace std;
 
 // long n_rows, n_cols, nnz;
+
+#define ITER 10
 
 int tile_sizeX = 256;
 int tile_sizeY = 25000;
@@ -313,21 +316,30 @@ void preprocessing(const Matrix S) {
     // sddmm_CPU_CSR(row_ptr, cols, vals, W, H, P);
     sddmm_CPU_COO(S.rows, S.cols, S.vals, W, H, P, S);
 
-    float *comp_kernel_COO_time = (float *) malloc(sizeof(float));
-    /* GPU call */
-    sddmm_GPU(S, tiledS, P, W, H, comp_kernel_COO_time);
+
+    float sddmm_time = 0.0f;
+    for (int i = 0; i < ITER; ++i) {
+        float *comp_kernel_COO_time = (float *) malloc(sizeof(float));
+        /* GPU call */
+        sddmm_GPU(S, tiledS, P, W, H, comp_kernel_COO_time);
+
+        sddmm_time += *comp_kernel_COO_time;
+    }
+
+    sddmm_time /= ITER;
 
     float other_time = make_CSR_time + rewrite_matrix_1D_time;
-    float sum_time = make_CSR_time + rewrite_matrix_1D_time + *comp_kernel_COO_time;
+    float sum_time = make_CSR_time + rewrite_matrix_1D_time + sddmm_time;
 
     float flops = 2 * S.nnz * k;
-    float gflops = flops / ( *comp_kernel_COO_time * 1e6);
+    float gflops = flops / (sddmm_time * 1e6);
     printf("[isratnisa_gflops : %.2f ]\n", gflops);
-    printf("[isratnisa_sddmm : %.2f ]\n", *comp_kernel_COO_time);
+    printf("[isratnisa_sddmm : %.2f ]\n", sddmm_time);
     printf("[isratnisa_other : %.2f ]\n", other_time);
     printf("[isratnisa : %.2f ]\n", sum_time);
+    printf("11111111111111111111111111111111\n");
 
-    std::cout << "sddmm_time = " << *comp_kernel_COO_time << " ms" << std::endl;
+    std::cout << "sddmm_time = " << sddmm_time << " ms" << std::endl;
     std::cout << "other_time = " << other_time << " ms" << std::endl;
     std::cout << "Finished sum time = " << sum_time << " ms" << std::endl;
 

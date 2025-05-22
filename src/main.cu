@@ -29,6 +29,7 @@ int main(int argc, char *argv[]) {
     logger.inputFile_ = options.inputFile();
     logger.getInformation(matrixS);
     logger.getInformation(matrixA, matrixB);
+    logger.numITER_ = options.numIterations();
 
     // cuSparse library
     sparseMatrix::CSR<float> matrixP_cuSparse(matrixS);

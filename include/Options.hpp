@@ -24,20 +24,27 @@ class Options {
   Options(const int argc, const char *const argv[]);
 
   std::string programPath() const { return programPath_; }
+
   std::string programName() const { return programName_; }
+
   std::string inputFile() const { return inputFile_; }
+
   size_t K() const { return K_; }
+
+  int numIterations() const { return numIterations_; }
 
  private:
   std::string programPath_;
   std::string programName_;
   std::string inputFile_ = filePath;
-  size_t K_ = 512;
+  size_t K_ = 32;
+  int numIterations_ = 10;
 
   std::unordered_set<std::string> shortOptions_ = {
       "-F", "-f",
       "-K", "-k",
   };
+
   inline void parsingOptionAndParameters(const std::string &option, const std::string &value);
 };
 

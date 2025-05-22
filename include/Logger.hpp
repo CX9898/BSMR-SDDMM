@@ -66,11 +66,13 @@ struct Logger {
   size_t NNZ_;
   float sparsity_;
 
-  float zcx_sddmm_time_;
-  float zcx_other_time_;
-  float zcx_time_;
+  int numITER_;
 
-  float cuSparse_sddmm_time_;
+  float zcx_sddmm_time_ = 0.0f;
+  float zcx_other_time_ = 0.0f;
+  float zcx_time_ = 0.0f;
+
+  float cuSparse_sddmm_time_ = 0.0f;
 };
 
 void Logger::getInformation(const sparseMatrix::DataBase &matrix) {
@@ -101,6 +103,11 @@ void Logger::printLogInformation() {
 
     printf("[matrixA storageOrder : %s]\n", matrixA_storageOrder_.c_str());
     printf("[matrixB storageOrder : %s]\n", matrixB_storageOrder_.c_str());
+
+    printf("[Num iterations : %d]\n", numITER_);
+
+    cuSparse_sddmm_time_ /= numITER_;
+    zcx_sddmm_time_ /= numITER_;
 
     const size_t flops = 2 * NNZ_ * K_;
 

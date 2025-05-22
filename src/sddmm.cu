@@ -17,8 +17,14 @@ void sddmm(const Matrix<float> &matrixA,
 
     logger.zcx_other_time_ = rebell.time();
 
-    // sddmm comp by gpu
-    sddmm_gpu(matrixA, matrixB, rebell, matrixP, logger.zcx_sddmm_time_);
+    for (int ITER = 0; ITER < logger.numITER_; ++ITER) {
+        float sddmm_time = 0.0f;
+
+        // sddmm comp by gpu
+        sddmm_gpu(matrixA, matrixB, rebell, matrixP, sddmm_time);
+
+        logger.zcx_sddmm_time_ += sddmm_time;
+    }
 
     // Error check
 //    check_rebell(matrixS, rebell);

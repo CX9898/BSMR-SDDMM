@@ -55,7 +55,7 @@ void cuSparseSDDMM(const Matrix<float> &matrixA,
         CUSPARSE_MATRIX_A_TYPE = CUDA_R_16F;
     }
     const auto CUSPARSE_ORDER_A = matrixA.storageOrder() == row_major ?
-        CUSPARSE_ORDER_ROW : CUSPARSE_ORDER_COL;
+                                  CUSPARSE_ORDER_ROW : CUSPARSE_ORDER_COL;
 
     // Create dense matrix A
     CHECK_CUSPARSE(cusparseCreateDnMat(&_mtxA,
@@ -71,7 +71,7 @@ void cuSparseSDDMM(const Matrix<float> &matrixA,
         CUSPARSE_MATRIX_B_TYPE = CUDA_R_16F;
     }
     const auto CUSPARSE_ORDER_B = matrixB.storageOrder() == row_major ?
-        CUSPARSE_ORDER_ROW : CUSPARSE_ORDER_COL;
+                                  CUSPARSE_ORDER_ROW : CUSPARSE_ORDER_COL;
 
     // Create dense matrix B
     CHECK_CUSPARSE(cusparseCreateDnMat(&_mtxB,
@@ -114,19 +114,21 @@ void cuSparseSDDMM(const Matrix<float> &matrixA,
                                             &alpha, _mtxA, _mtxB, &beta, _mtxS, CUDA_R_32F,
                                             CUSPARSE_SDDMM_ALG_DEFAULT, dBuffer.data()))
 
-    CudaTimeCalculator timer;
-    timer.startClock();
+    for (int i = 0; i < logger.numITER_; ++i) {
+        CudaTimeCalculator timer;
+        timer.startClock();
 
-    // execute SDDMM
-    CHECK_CUSPARSE(cusparseSDDMM(handle,
-                                 CUSPARSE_OPERATION_NON_TRANSPOSE,
-                                 CUSPARSE_OPERATION_NON_TRANSPOSE,
-                                 &alpha, _mtxA, _mtxB, &beta, _mtxS, CUDA_R_32F,
-                                 CUSPARSE_SDDMM_ALG_DEFAULT, dBuffer.data()))
+        // execute SDDMM
+        CHECK_CUSPARSE(cusparseSDDMM(handle,
+                                     CUSPARSE_OPERATION_NON_TRANSPOSE,
+                                     CUSPARSE_OPERATION_NON_TRANSPOSE,
+                                     &alpha, _mtxA, _mtxB, &beta, _mtxS, CUDA_R_32F,
+                                     CUSPARSE_SDDMM_ALG_DEFAULT, dBuffer.data()))
 
-    timer.endClock();
+        timer.endClock();
 
-    logger.cuSparse_sddmm_time_ = timer.getTime();
+        logger.cuSparse_sddmm_time_ += timer.getTime();
+    }
 
     matrixP.setValues() = d2h(mtxS_values_dev);
 
