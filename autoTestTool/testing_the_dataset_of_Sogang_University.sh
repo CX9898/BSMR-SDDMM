@@ -25,19 +25,20 @@ bash testTool.sh -f ${results_path}dlmc/rn50_matrices.txt -p ./build_zcx/sddmm-g
 bash testTool.sh -f ${results_path}dlmc/transformer_matrices.txt -p ./build_zcx/sddmm-gpu -n ${transformer_results_path}zcx_results_transformer
 
 # 分析结果
-./autoAnalysisResults "${rn50_results_path}zcx_results_rn50.log" "${rn50_results_path}isratnisa_results_rn50.log" > ${rn50_results_path}analysisResults_rn50.log
+./autoAnalysisResults "${rn50_results_path}zcx_results_rn50.log" "${rn50_results_path}HiPC18_results_rn50.log" > ${rn50_results_path}analysisResults_rn50.log
 echo "Results analysis completed: ${rn50_results_path}analysisResults_rn50.log"
 
 # 结果可视化
 python3 resultsVisualization.py -file ${rn50_results_path}analysisResults_rn50.log -outdir ${rn50_results_path}
 
 # 测试 transformer dataset
-bash testTool.sh -f ${results_path}dlmc/rn50_matrices.txt -p ./build_isratnisa/isratnisa-sddmm -n ${rn50_results_path}isratnisa_results_rn50
-bash testTool.sh -f ${results_path}dlmc/transformer_matrices.txt -p ./build_isratnisa/isratnisa-sddmm -n ${transformer_results_path}isratnisa_results_transformer
+bash testTool.sh -f ${results_path}dlmc/rn50_matrices.txt -p ./build_HiPC18/HiPC18-sddmm -n ${rn50_results_path}HiPC18_results_rn50
+bash testTool.sh -f ${results_path}dlmc/transformer_matrices.txt -p ./build_HiPC18/HiPC18-sddmm -n ${transformer_results_path}HiPC18_results_transformer
 
 # 分析结果
-./autoAnalysisResults "${transformer_results_path}zcx_results_transformer.log" "${transformer_results_path}isratnisa_results_transformer.log" > ${transformer_results_path}analysisResults_transformer.log
+./autoAnalysisResults "${transformer_results_path}zcx_results_transformer.log" "${transformer_results_path}HiPC18_results_transformer.log" > ${transformer_results_path}analysisResults_transformer.log
 echo "Results analysis completed: ${transformer_results_path}analysisResults_transformer.log"
 
 # 结果可视化
 python3 resultsVisualization.py -file ${transformer_results_path}analysisResults_transformer.log -outdir ${transformer_results_path}
+echo "The result visualization is successful! The file is stored in: ${results_path}"

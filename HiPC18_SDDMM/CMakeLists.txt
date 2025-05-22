@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.26)
 
 # Project Information
-project(sddmm-gpu)
+project(HiPC18-sddmm)
 
 # Add languages needed when building the project
 enable_language(CXX)
@@ -11,11 +11,11 @@ enable_language(CUDA)
 find_package(CUDAToolkit REQUIRED)
 
 # Sets the C++ standard used by the project
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CUDA_STANDARD 17)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CUDA_STANDARD 11)
 
-# Specifies which GPU architectures are supported when compiling CUDA code (optional)
-set(CMAKE_CUDA_ARCHITECTURES 86)
+## Specifies which GPU architectures are supported when compiling CUDA code (optional)
+#set(CMAKE_CUDA_ARCHITECTURES 86)
 
 # Save the folder path in a variable
 set(INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")
@@ -28,18 +28,7 @@ file(GLOB SRC_FILES "${SRC_DIR}/*.c" "${SRC_DIR}/*.cpp" "${SRC_DIR}/*.cc" "${SRC
 message(STATUS "Src files: ${SRC_FILES}")
 
 # Add generate target
-add_executable(${PROJECT_NAME})
-
-## Print kernel function register information
-#set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --resource-usage")
-
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -O3")
-
-# Set the CUDA separable compilation property
-set_target_properties(${PROJECT_NAME} PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-
-# Link the source file to the build target
-target_sources(${PROJECT_NAME} PRIVATE ${SRC_FILES})
+add_executable(${PROJECT_NAME} ${SRC_FILES})
 
 # Set the installation Path
 set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}")
@@ -60,13 +49,13 @@ target_link_libraries(${PROJECT_NAME} PRIVATE CUDA::cudart)
 #target_link_libraries(${PROJECT_NAME} PRIVATE CUDA::cufft)
 
 # Linked cuRAND library
-target_link_libraries(${PROJECT_NAME} PRIVATE CUDA::curand)
+#target_link_libraries(${PROJECT_NAME} PRIVATE CUDA::curand)
 
 # Linked cuSOLVER library
 #target_link_libraries(${PROJECT_NAME} PRIVATE CUDA::cusolver)
 
 # Linked cuSPARSE library
-target_link_libraries(${PROJECT_NAME} PRIVATE CUDA::cusparse)
+#target_link_libraries(${PROJECT_NAME} PRIVATE CUDA::cusparse)
 
 # Find OpenMP package
 find_package(OpenMP REQUIRED)
