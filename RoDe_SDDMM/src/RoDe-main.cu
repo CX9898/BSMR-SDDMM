@@ -2,8 +2,9 @@
 #include <string>
 #include <iostream>
 
-#include "../include/RoDeSddmm.h"
-#include "../include/matrix_utils.h"
+#include "RoDeSddmm.h"
+#include "matrix_utils.h"
+#include "Options.hpp"
 
 __global__ void FillValues(int n, float *array, float val) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -16,15 +17,9 @@ int main(int argc, char *argv[]) {
     int ITER = 10;
     // cudaSetDevice(0);
 
-    int k = 32;
-    std::string file_path;
-    if (argc < 2) {
-        std::cout << "No file path" << std::endl;
-        return 0;
-    } else {
-        file_path = argv[1];
-        k = atoi(argv[2]);
-    }
+    Options options(argc, argv);
+    const size_t k = options.K();
+    const std::string file_path = options.inputFile();
 
     if (k == 32) {
         const int SEG_LENGTH = 512;
