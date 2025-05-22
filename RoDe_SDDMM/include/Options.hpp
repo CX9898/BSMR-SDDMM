@@ -6,19 +6,6 @@
 #include <unordered_set>
 #include <unordered_map>
 
-#include "util.hpp"
-
-const std::string folderPath("../dataset/test/matrix_15000_15000_/");
-//const std::string folderPath("../autoTestTool/matrices/");
-//const std::string folderPath("./");
-//const std::string fileName = ("nips");
-//const std::string fileName = ("test2");
-//const std::string fileName("1138_bus/1138_bus");
-const std::string fileName("matrix_15000_15000_11250000");
-const std::string fileFormat(".mtx");
-const std::string filePath = folderPath + fileName + fileFormat;
-//const std::string filePath("./../autoTestTool/dataset_of_isratnisa_paper_results/dataset/loc-gowalla_edges.txt");
-
 class Options {
  public:
   Options(const int argc, const char *const argv[]);
@@ -63,9 +50,31 @@ inline void Options::parsingOptionAndParameters(const std::string &option, const
     }
 }
 
+std::string getParentFolderPath(const std::string &path) {
+    if (path.empty()) return "";
+
+    const size_t pos = path.find_last_of("/\\");
+    if (pos == std::string::npos) {
+        std::cerr << "Warning. The input path has no parent folder" << std::endl;
+    }
+    const std::string directory = (pos == std::string::npos) ? "" : path.substr(0, pos + 1);
+    return directory;
+}
+
+std::string getFileName(const std::string &path) {
+    if (path.empty()) return "";
+
+    const size_t pos = path.find_last_of("/\\");
+    if (pos == std::string::npos) {
+        std::cerr << "Warning. The input path has no parent folder" << std::endl;
+    }
+    const std::string filename = (pos == std::string::npos) ? path : path.substr(pos + 1);
+    return filename;
+}
+
 inline Options::Options(const int argc, const char *const argv[]) {
-    programPath_ = util::getParentFolderPath(argv[0]);
-    programName_ = util::getFileName(argv[0]);
+    programPath_ = getParentFolderPath(argv[0]);
+    programName_ = getFileName(argv[0]);
 
     // Record the index of the options
     std::vector<int> optionIndices;
