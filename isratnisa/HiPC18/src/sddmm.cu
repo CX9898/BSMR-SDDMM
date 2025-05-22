@@ -337,7 +337,6 @@ void preprocessing(const Matrix S) {
     printf("[isratnisa_sddmm : %.2f ]\n", sddmm_time);
     printf("[isratnisa_other : %.2f ]\n", other_time);
     printf("[isratnisa : %.2f ]\n", sum_time);
-    printf("11111111111111111111111111111111\n");
 
     std::cout << "sddmm_time = " << sddmm_time << " ms" << std::endl;
     std::cout << "other_time = " << other_time << " ms" << std::endl;
