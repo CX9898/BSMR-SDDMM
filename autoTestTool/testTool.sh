@@ -9,11 +9,12 @@
 # - -f : 测试文件列表
 # - -p : 目标测试程序
 # - -n : 日志文件名(可选)
+# - -k : k值(可选)
 # Notes:
 # -
 #
 # Example:
-# bash autoTestTool.sh -f test_list.txt -p ./build_zcx/sddmm-gpu -n results
+# bash autoTestTool.sh -f test_list.txt -p ./build_zcx/sddmm-gpu -n results -k 32
 #
 
 ##############################################################################################
@@ -25,9 +26,6 @@ data_split_symbol="\n---New data---\n"
 test_done_symbol="\n---Test done---\n"
 
 script_file_path="$(dirname "$0")/"
-
-# 设置多个K
-k_list=(32 128 512)
 
 log_file_suffix=".log"
 
@@ -74,7 +72,6 @@ testTool(){
   echo "${print_tag}Number of test files: ${numTestFiles}"
 
   echo -e "[numTestFiles : ${numTestFiles}]\n" >> ${autoTest_autoTestlog_file}
-  echo -e "[num_k : ${num_k}]\n" >> ${autoTest_autoTestlog_file}
 
   local sum_time=0
 
@@ -84,18 +81,14 @@ testTool(){
 
     local execution_time=0
 
-    local k_id=1
-    for k in "${k_list[@]}"; do
-      echo -e "${print_tag}\t\tK = ${k} start testing... [Remaining: $((${num_k} - ${k_id}))]"
-      echo -e ${data_split_symbol} >> ${autoTest_autoTestlog_file}
-      local start_time=$(date +%s.%N)
-      ${autoTest_program} -f ${file} -k ${k}>> ${autoTest_autoTestlog_file}
-      local end_time=$(date +%s.%N)
-      execution_time=$(echo "$end_time - $start_time" | bc)
-      echo -e "${print_tag}\t\tExecution time: ${execution_time} seconds"
-      sum_time=$(echo "$sum_time + $execution_time" | bc)
-      ((k_id++))
-    done
+    echo -e "${print_tag}\t\tK = ${k} start testing... "
+    echo -e ${data_split_symbol} >> ${autoTest_autoTestlog_file}
+    local start_time=$(date +%s.%N)
+    ${autoTest_program} -f ${file} -k ${k}>> ${autoTest_autoTestlog_file}
+    local end_time=$(date +%s.%N)
+    execution_time=$(echo "$end_time - $start_time" | bc)
+    echo -e "${print_tag}\t\tExecution time: ${execution_time} seconds"
+    sum_time=$(echo "$sum_time + $execution_time" | bc)
 
     ((file_id++))
   done
@@ -120,12 +113,13 @@ testTool(){
 test_file_list_file=""
 target_program=""
 target_log_filename="results"
-while getopts "f:p:n:" opt; do
+while getopts "f:p:k:n:" opt; do
     case ${opt} in
-        f) test_file_list_file="$OPTARG" ;;   # 处理 -f 选项(txt文件)
+        f) test_file_list_file="$OPTARG" ;;   # 处理 -f 选项(列表文件)
         p) target_program="$OPTARG" ;;  # 处理 -p 选项(程序路径)
         n) target_log_filename="$OPTARG" ;;  # 处理 -n 选项(日志文件名)
-        ?) echo "用法: $0 -f <txt文件> -p <程序> -n <日志文件名>"
+        k) k="$OPTARG" ;;  # 处理 -k 选项(k值)
+        ?) echo "用法: $0 -f <列表文件> -p <程序> -n <日志文件名> -k <k值>"
            exit 1 ;;
     esac
 done
@@ -157,16 +151,8 @@ if [ ! -f "$target_program" ]; then
 fi
 
 # 创建日志文件
-#create_log_file "${target_log_filename}"
 target_log_file="${target_log_filename}${log_file_suffix}"
 > "$target_log_file"
-
-num_k=${#k_list[@]}
-echo -n "${print_tag}The number of test k is ${num_k}, which are :"
-for element in "${k_list[@]}"; do
-    echo -n " $element"
-done
-echo
 
 # 开始测试
 testTool ${target_program} ${target_log_file}
