@@ -23,7 +23,7 @@ class Options {
  private:
   std::string programPath_;
   std::string programName_;
-  std::string inputFile_ = filePath;
+  std::string inputFile_;
   size_t K_ = 32;
   int numIterations_ = 10;
 
