@@ -2428,66 +2428,43 @@ void sddmm_gpu(UIN M, UIN N, UIN K,
     cudaStreamCreate(&denseStream);
     cudaStreamCreate(&sparseStream);
 
-    CudaTimeCalculator totalTimeCalculator, denseKernelTimeCalculator, sparseKernelTimeCalculator;
+    CudaTimeCalculator totalTimeCalculator;
 
     totalTimeCalculator.startClock();
 
-    denseKernelTimeCalculator.startClock(denseStream);
-
-#ifdef WMMA_16_16_16
-    kernel::sddmm_gpu_dense_block_m16n16k16_block256_matrixA_rowMaj_matrixB_colMaj<<<grid_rebell, block_rebell>>>(matrixS.row(), matrixS.col(), matrixA.col(),
-        matrixA_convertedType.data(),
-        matrixB_convertedType.data(),
-        rebell.reorderedRows().size(),
-        reorderedRowIndices_dev.data(),
-        reorderedColIndices_dev.data(),
-        reorderedColIndicesOffset_dev.data(),
-        blockRowOffsets_dev.data(),
-        blockValues_dev.data(),
-        matrixP_dev.data());
-#endif // WMMA_16_16_16
-
 #ifdef WMMA_16_16_8
-    kernel::sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj<<<grid_dense, block_dense, 0, denseStream>>>(M, N, K,
-        matrixA,
-        matrixB,
-        rebell.reorderedRows().size(),
-        rebell.reorderedRows().data(),
-        rebell.denseCols().data(),
-        rebell.denseColOffsets().data(),
-        rebell.blockOffsets().data(),
-        rebell.blockValues().data(),
-        matrixP);
+    if (grid_dense.x > 0 && grid_dense.y > 0) {
+        kernel::sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj<<<grid_dense, block_dense, 0, denseStream>>>(M, N, K,
+            matrixA,
+            matrixB,
+            rebell.reorderedRows().size(),
+            rebell.reorderedRows().data(),
+            rebell.denseCols().data(),
+            rebell.denseColOffsets().data(),
+            rebell.blockOffsets().data(),
+            rebell.blockValues().data(),
+            matrixP);
+    }
 #endif // WMMA_16_16_8
 
-    denseKernelTimeCalculator.endClock(denseStream);
-
-    sparseKernelTimeCalculator.startClock(sparseStream);
-
-    kernel::sddmm_gpu_sparse_block_2threadOneData_shuffle<<<grid_sparse, block_sparse, 0, sparseStream>>>(M, N, K,
-        matrixA,
-        matrixB,
-        rebell.reorderedRows().size(),
-        rebell.reorderedRows().data(),
-        rebell.sparseValueOffsets().data(),
-        rebell.sparseValues().data(),
-        rebell.sparseRelativeRows().data(),
-        rebell.sparseColIndices().data(),
-        matrixP);
-
-    sparseKernelTimeCalculator.endClock(sparseStream);
+    if (grid_sparse.x > 0 && grid_sparse.y > 0) {
+        kernel::sddmm_gpu_sparse_block_2threadOneData_shuffle<<<grid_sparse, block_sparse, 0, sparseStream>>>(M, N, K,
+            matrixA,
+            matrixB,
+            rebell.reorderedRows().size(),
+            rebell.reorderedRows().data(),
+            rebell.sparseValueOffsets().data(),
+            rebell.sparseValues().data(),
+            rebell.sparseRelativeRows().data(),
+            rebell.sparseColIndices().data(),
+            matrixP);
+    }
 
     totalTimeCalculator.endClock();
 
-    const float denseBlockTime = denseKernelTimeCalculator.getTime();
-    const float sparseBlockTime = sparseKernelTimeCalculator.getTime();
     const float totalTime = totalTimeCalculator.getTime();
 
-    const float overlapEfficiency = (denseBlockTime + sparseBlockTime) / totalTime;
-
-    printf("denseBlockTime: %f ms\n", denseBlockTime);
-    printf("sparseBlockTime: %f ms\n", sparseBlockTime);
-    printf("totalTime: %f ms, overlapEfficiency: %f\n", totalTime, overlapEfficiency);
+    printf("totalTime: %f ms\n", totalTime);
 
     time = totalTime;
 
