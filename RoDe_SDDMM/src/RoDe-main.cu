@@ -21,6 +21,9 @@ int main(int argc, char *argv[]) {
     const size_t k = options.K();
     const std::string file_path = options.inputFile();
 
+    printf("[File : %s]\n", options.inputFile().c_str());
+    printf("[K : %zu]\n", k);
+
     if (k == 32) {
         const int SEG_LENGTH = 512;
 
@@ -100,7 +103,7 @@ int main(int argc, char *argv[]) {
         cudaDeviceSynchronize();
 
         gflops = (double) ITER * (double) c_sm.Nonzeros() * 2 * k / tot_ms / 1000000;
-        printf("k = %d, GFLOPS: %f\n", k, gflops);
+        printf("[RoDe_gflops : %.2f ]\n", gflops);
 
 
 #ifdef VALIDATE
@@ -201,7 +204,7 @@ int main(int argc, char *argv[]) {
         cudaDeviceSynchronize();
 
         gflops = (double) ITER * (double) c_sm.Nonzeros() * 2 * k / tot_ms / 1000000;
-        printf("k = %d, GFLOPS: %f\n", k, gflops);
+        printf("[RoDe_gflops : %.2f ]\n", gflops);
 
 
 #ifdef VALIDATE
