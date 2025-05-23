@@ -54,6 +54,7 @@ def main():
 
     for k in unique_K:
         subset = df[df["K"] == k].copy().reset_index(drop=True)
+        subset = subset.fillna(0).infer_objects(copy=False)
         x_labels = subset["file"].tolist()
         x = np.arange(len(x_labels))
         width = 0.15
@@ -63,7 +64,7 @@ def main():
         ax.bar(x - width, subset["cuSparse_gflops"], width, label="cuSparse")
         ax.bar(x, subset["zcx_gflops"], width, label="zcx")
         ax.bar(x + width, subset["RoDe_gflops"], width, label="RoDe")
-        # ax.bar(x + 2*width, subset["ASpT_gflops"], width, label="ASpT")
+        ax.bar(x + 2*width, subset["ASpT_gflops"], width, label="ASpT")
 
         ax.set_title(f"GFLOPS Comparison at K={k}")
         ax.set_ylabel("GFLOPS")
