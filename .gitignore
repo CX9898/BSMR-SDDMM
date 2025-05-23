@@ -24,3 +24,6 @@ autoTestTool/matrices/
 
 # Download the matrix data for testing
 **/ssgetpy/
+
+# Download the dataset for testing
+**/dataset/
