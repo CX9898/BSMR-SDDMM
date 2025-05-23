@@ -84,7 +84,7 @@ testTool(){
     echo -e "${print_tag}\t\tK = ${k} start testing... "
     echo -e ${data_split_symbol} >> ${autoTest_autoTestlog_file}
     local start_time=$(date +%s.%N)
-    ${autoTest_program} -f ${file} -k ${k}>> ${autoTest_autoTestlog_file}
+    ${autoTest_program} ${file} ${k}>> ${autoTest_autoTestlog_file}
     local end_time=$(date +%s.%N)
     execution_time=$(echo "$end_time - $start_time" | bc)
     echo -e "${print_tag}\t\tExecution time: ${execution_time} seconds"
