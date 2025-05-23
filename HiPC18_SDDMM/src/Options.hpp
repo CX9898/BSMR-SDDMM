@@ -111,4 +111,10 @@ Options::Options(int argc, char **argv) {
 
         parsingOptionAndParameters(option_str, argv[index + 1]);
     }
+
+    // If no options are provided, use the default input file and K
+    if (optionIndices.empty() && argc > 1) {
+        inputFile_ = argv[1];
+        k_ = std::stoi(argv[2]);
+    }
 }

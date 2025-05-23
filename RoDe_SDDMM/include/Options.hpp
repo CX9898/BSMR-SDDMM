@@ -117,4 +117,10 @@ inline Options::Options(const int argc, const char *const argv[]) {
     for (const auto &optionArgumentPair : optionToArgumentMap) {
         parsingOptionAndParameters(optionArgumentPair.first, optionArgumentPair.second);
     }
+
+    // If no options are provided, use the default input file and K
+    if (optionToArgumentMap.empty() && argc > 1) {
+        inputFile_ = argv[1];
+        K_ = std::stoi(argv[2]);
+    }
 }

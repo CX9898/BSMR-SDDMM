@@ -16,8 +16,8 @@ const std::string folderPath("../dataset/test/matrix_15000_15000_/");
 //const std::string fileName("1138_bus/1138_bus");
 const std::string fileName("matrix_15000_15000_11250000");
 const std::string fileFormat(".mtx");
-const std::string filePath = folderPath + fileName + fileFormat;
-//const std::string filePath("./../autoTestTool/dataset_of_isratnisa_paper_results/dataset/loc-gowalla_edges.txt");
+//const std::string filePath = folderPath + fileName + fileFormat;
+const std::string filePath("./../autoTestTool/./results_dataset_of_suiteSparse/dataset/bcspwr09/bcspwr09.mtx");
 
 class Options {
  public:
@@ -107,5 +107,11 @@ inline Options::Options(const int argc, const char *const argv[]) {
     // Parsing options
     for (const auto &optionArgumentPair : optionToArgumentMap) {
         parsingOptionAndParameters(optionArgumentPair.first, optionArgumentPair.second);
+    }
+
+    // If no options are provided, use the default input file and K
+    if (optionToArgumentMap.empty() && argc > 1) {
+        inputFile_ = argv[1];
+        K_ = std::stoi(argv[2]);
     }
 }
