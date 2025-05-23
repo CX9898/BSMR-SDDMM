@@ -104,6 +104,9 @@ void ready(int argc, char **argv)
 
         srand(time(NULL));
 
+        printf("[File : %s]\n", argv[1]);
+        printf("[K : %d]\n", atoi(argv[2]));
+
         sc = atoi(argv[2]);
         fp = fopen(argv[1], "r");
         fgets(buf, 300, fp);
@@ -1325,11 +1328,14 @@ for(int ik=0;ik<ITER;ik++) {
         // fprintf(fpo, "%f,", (double)ITER*(double)ne*2*sc/tot_ms/1000000);
 
 		printf(",%f,%f\n",tot_ms,(double)ITER*(double)ne*2*sc/tot_ms/1000000);
+
+        const float gflops = (double)ITER*(double)ne*2*sc/tot_ms/1000000;
+        printf("[ASpT_gflops : %.2f ]\n", gflops);
 	
 
         cudaMemcpy(ocsr_ev, _ocsr_ev, sizeof(FTYPE)*ne, cudaMemcpyDeviceToHost);
 
-// #define VALIDATE
+#define VALIDATE
 #if defined VALIDATE
 	cudaMemcpy(csr_e0, _csr_e, sizeof(int)*ne, cudaMemcpyDeviceToHost);
 	cudaMemcpy(csr_ev0, _csr_ev, sizeof(FTYPE)*ne, cudaMemcpyDeviceToHost);
@@ -1363,9 +1369,8 @@ for(int ik=0;ik<ITER;ik++) {
                         num_diff++;
                 }
         }
-//      fprintf(stdout, "num_diff : %d\n", num_diff);
-        //fprintf(stdout, "%f,", (double)num_diff/ne*100);
-        // fprintf(fpo, "%f,", (double)num_diff/ne*100);
+        fprintf(stdout, "num_diff : %d\n", num_diff);
+        fprintf(stdout, "diff: %f,\n", (double)num_diff/ne*100);
 
 //fprintf(stdout, "X(%f %f)\n", x1, x2);
 //      fprintf(stdout, "ne : %d\n", gold_ne);
