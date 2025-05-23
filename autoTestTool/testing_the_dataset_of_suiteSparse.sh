@@ -8,7 +8,7 @@ dataset_path="${results_path}dataset/"
 mkdir -p ${results_path}
 
 # 下载数据集并解压
-#python download_matrix_from_suiteSparse.py -num 100 -outdir ${dataset_path} -row_min 512 -row_max 33288 -col_min 512 -col_max 33288
+python download_matrix_from_suiteSparse.py -num 100 -outdir ${dataset_path} -row_min 512 -row_max 33288 -col_min 512 -col_max 33288
 
 # 生成矩阵文件列表
 bash make_matrices_list.sh ${dataset_path}
@@ -23,14 +23,14 @@ program_ASpT_32="./build_ASpT/ASpT-sddmm-32"
 program_ASpT_128="./build_ASpT/ASpT-sddmm-32"
 
 # 运行测试程序
-#bash testTool.sh -f ${matrix_list_file} -p ${program_zcx} -n "${results_path}zcx_results_32" -k 32
-#bash testTool.sh -f ${matrix_list_file} -p ${program_zcx} -n "${results_path}zcx_results_128" -k 128
-#bash testTool.sh -f ${matrix_list_file} -p ${program_HiPC18} -n "${results_path}HiPC18_results_32" -k 32
-#bash testTool.sh -f ${matrix_list_file} -p ${program_HiPC18} -n "${results_path}HiPC18_results_128" -k 128
-#bash testTool.sh -f ${matrix_list_file} -p ${program_RoDe} -n "${results_path}RoDe_results_32" -k 32
-#bash testTool.sh -f ${matrix_list_file} -p ${program_RoDe} -n "${results_path}RoDe_results_128" -k 128
-#bash testTool.sh -f ${matrix_list_file} -p ${program_ASpT_32} -n "${results_path}ASpT_results_32" -k 32
-#bash testTool.sh -f ${matrix_list_file} -p ${program_ASpT_128} -n "${results_path}ASpT_results_128" -k 128
+bash testTool.sh -f ${matrix_list_file} -p ${program_zcx} -n "${results_path}zcx_results_32" -k 32
+bash testTool.sh -f ${matrix_list_file} -p ${program_zcx} -n "${results_path}zcx_results_128" -k 128
+bash testTool.sh -f ${matrix_list_file} -p ${program_HiPC18} -n "${results_path}HiPC18_results_32" -k 32
+bash testTool.sh -f ${matrix_list_file} -p ${program_HiPC18} -n "${results_path}HiPC18_results_128" -k 128
+bash testTool.sh -f ${matrix_list_file} -p ${program_RoDe} -n "${results_path}RoDe_results_32" -k 32
+bash testTool.sh -f ${matrix_list_file} -p ${program_RoDe} -n "${results_path}RoDe_results_128" -k 128
+bash testTool.sh -f ${matrix_list_file} -p ${program_ASpT_32} -n "${results_path}ASpT_results_32" -k 32
+bash testTool.sh -f ${matrix_list_file} -p ${program_ASpT_128} -n "${results_path}ASpT_results_128" -k 128
 
 # 分析结果
 g++ autoAnalysisResults.cpp -o autoAnalysisResults
