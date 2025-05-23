@@ -5,7 +5,7 @@
 #include "Logger.hpp"
 #include "Options.hpp"
 
-//#define VALIDATE
+#define VALIDATE
 
 int main(int argc, char *argv[]) {
 
