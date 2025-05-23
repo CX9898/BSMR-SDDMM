@@ -7,7 +7,7 @@ from pathlib import Path
 import matplotlib.ticker as ticker
 import matplotlib
 
-matplotlib.rcParams['figure.figsize'] = (12, 6)
+matplotlib.rcParams['figure.figsize'] = (14, 7)
 
 
 def parse_markdown_data(file_path):
@@ -15,19 +15,21 @@ def parse_markdown_data(file_path):
     current_file = None
     with open(file_path, 'r', encoding='utf-8') as f:
         for line in f:
-            file_match = re.search(r'M\s*:\s*\d+,\s*N\s*:\s*\d+,\s*sparsity\s*:\s*[\d.]+%,\s*file\s*:\s*.*/(.+)', line)
+            file_match = re.search(r'file\s*:\s*.*/(.+\.mtx)', line)
             if file_match:
                 current_file = file_match.group(1).strip()
-            elif line.strip().startswith("|") and not line.strip().startswith("| M") and current_file:
+            elif line.strip().startswith("|") and not line.strip().startswith("| M ") and current_file:
                 parts = [x.strip() for x in line.strip().split("|")[1:-1]]
-                if len(parts) >= 7:
+                if len(parts) >= 9:
                     try:
                         row = {
                             "file": current_file,
                             "K": int(parts[3]),
-                            "isratnisa_gflops": float(parts[4]) if parts[4] else None,
-                            "cuSparse_gflops": float(parts[5]) if parts[5] else None,
-                            "zcx_gflops": float(parts[6]) if parts[6] else None
+                            "zcx_gflops": float(parts[4]) if parts[4] else None,
+                            "HiPC18_gflops": float(parts[5]) if parts[5] else None,
+                            "cuSparse_gflops": float(parts[6]) if parts[6] else None,
+                            "RoDe_gflops": float(parts[7]) if parts[7] else None,
+                            "ASpT_gflops": float(parts[8]) if parts[8] else None
                         }
                         data.append(row)
                     except ValueError:
@@ -43,7 +45,7 @@ def main():
 
     df = parse_markdown_data(args.file)
     df = df.dropna(subset=["K", "zcx_gflops"])
-    df = df.drop_duplicates(subset=["file", "K"])  # 去重，防止重复条目
+    df = df.drop_duplicates(subset=["file", "K"])
 
     output_dir = Path(args.outdir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -54,12 +56,14 @@ def main():
         subset = df[df["K"] == k].copy().reset_index(drop=True)
         x_labels = subset["file"].tolist()
         x = np.arange(len(x_labels))
-        width = 0.25
+        width = 0.15
 
         fig, ax = plt.subplots()
-        ax.bar(x - width, subset["isratnisa_gflops"], width, label="isratnisa")
-        ax.bar(x, subset["cuSparse_gflops"], width, label="cuSparse")
-        ax.bar(x + width, subset["zcx_gflops"], width, label="zcx")
+        ax.bar(x - 2*width, subset["HiPC18_gflops"], width, label="HiPC18")
+        ax.bar(x - width, subset["cuSparse_gflops"], width, label="cuSparse")
+        ax.bar(x, subset["zcx_gflops"], width, label="zcx")
+        ax.bar(x + width, subset["RoDe_gflops"], width, label="RoDe")
+        ax.bar(x + 2*width, subset["ASpT_gflops"], width, label="ASpT")
 
         ax.set_title(f"GFLOPS Comparison at K={k}")
         ax.set_ylabel("GFLOPS")
@@ -70,7 +74,6 @@ def main():
         ax.legend()
         plt.tight_layout()
 
-        # Save figure instead of showing it
         fig_path = output_dir / f"gflops_k{k}.png"
         plt.savefig(fig_path)
         plt.close()

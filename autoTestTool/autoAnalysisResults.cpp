@@ -109,11 +109,14 @@ bool SettingInformation::initInformation(const std::vector<std::string> &oneTime
         matrixB_type = matrixB_type.empty() ? findWord(line, "[matrixB type : ") : matrixB_type;
         matrixC_type = matrixC_type.empty() ? findWord(line, "[matrixC type : ") : matrixC_type;
         matrixA_storageOrder = matrixA_storageOrder.empty() ? findWord(line,
-                                                                       "[matrixA storageOrder : ") : matrixA_storageOrder;
+                                                                       "[matrixA storageOrder : ")
+                                                            : matrixA_storageOrder;
         matrixB_storageOrder = matrixB_storageOrder.empty() ? findWord(line,
-                                                                       "[matrixB storageOrder : ") : matrixB_storageOrder;
+                                                                       "[matrixB storageOrder : ")
+                                                            : matrixB_storageOrder;
         matrixC_storageOrder = matrixC_storageOrder.empty() ? findWord(line,
-                                                                       "[matrixC storageOrder : ") : matrixC_storageOrder;
+                                                                       "[matrixC storageOrder : ")
+                                                            : matrixC_storageOrder;
     }
 
     if (!initOperationOrCheckIfDifferent(buildType_, buildType)) {
@@ -187,66 +190,25 @@ void SettingInformation::printInformation() const {
 
 struct OneTimeData {
   void initInformation(const std::vector<std::string> &oneTimeResults);
-  bool isEffective() const;
 
-  std::string isratnisa_gflops_;
-  std::string cuSparse_gflops_;
   std::string zcx_gflops_;
-
-  std::string isratnisa_sddmm_;
-  std::string cuSparse_sddmm_;
-  std::string zcx_sddmm_;
-
-  std::string isratnisa_other_;
-  std::string zcx_other_;
-
-  std::string isratnisa_;
-  std::string zcx_;
+  std::string HiPC18_gflops_;
+  std::string cuSparse_gflops_;
+  std::string RoDe_gflops_;
+  std::string ASpT_gflops_;
 
   std::string checkResults_;
 };
 
-bool OneTimeData::isEffective() const {
-    if (isratnisa_sddmm_.empty()) {
-        return false;
-    }
-    if (zcx_sddmm_.empty()) {
-        return false;
-    }
-
-    if (isratnisa_other_.empty()) {
-        return false;
-    }
-    if (zcx_other_.empty()) {
-        return false;
-    }
-
-    if (isratnisa_.empty()) {
-        return false;
-    }
-    if (zcx_.empty()) {
-        return false;
-    }
-    if (cuSparse_sddmm_.empty()) {
-        return false;
-    }
-
-    return true;
-}
-
 void OneTimeData::initInformation(const std::vector<std::string> &oneTimeResults) {
     for (const std::string &line : oneTimeResults) {
-        isratnisa_gflops_ = isratnisa_gflops_.empty() ? getValue(line, "isratnisa_gflops : ") : isratnisa_gflops_;
-        cuSparse_gflops_ = cuSparse_gflops_.empty() ? getValue(line, "[cuSparse_gflops : ") : cuSparse_gflops_;
         zcx_gflops_ = zcx_gflops_.empty() ? getValue(line, "[zcx_gflops : ") : zcx_gflops_;
-        isratnisa_sddmm_ = isratnisa_sddmm_.empty() ? getValue(line, "[isratnisa_sddmm : ") : isratnisa_sddmm_;
-        cuSparse_sddmm_ = cuSparse_sddmm_.empty() ? getValue(line, "[cuSparse_sddmm : ") : cuSparse_sddmm_;
-        zcx_sddmm_ = zcx_sddmm_.empty() ? getValue(line, "[zcx_sddmm : ") : zcx_sddmm_;
-        isratnisa_other_ = isratnisa_other_.empty() ? getValue(line, "[isratnisa_other : ") : isratnisa_other_;
-        zcx_other_ = zcx_other_.empty() ? getValue(line, "[zcx_other : ") : zcx_other_;
-        isratnisa_ = isratnisa_.empty() ? getValue(line, "[isratnisa : ") : isratnisa_;
-        zcx_ = zcx_.empty() ? getValue(line, "[zcx : ") : zcx_;
-        checkResults_ = checkResults_.empty() ? getValue(line, "[checkResults : ") : checkResults_;
+        HiPC18_gflops_ = HiPC18_gflops_.empty() ? getValue(line, "HiPC18_gflops : ") : HiPC18_gflops_;
+        cuSparse_gflops_ = cuSparse_gflops_.empty() ? getValue(line, "[cuSparse_gflops : ") : cuSparse_gflops_;
+        RoDe_gflops_ = RoDe_gflops_.empty() ? getValue(line, "[RoDe_gflops : ") : RoDe_gflops_;
+        ASpT_gflops_ = ASpT_gflops_.empty() ? getValue(line, "[ASpT_gflops : ") : ASpT_gflops_;
+
+        checkResults_ = checkResults_.empty() ? getValue(line, "[eliminateNullValues : ") : checkResults_;
     }
 }
 
@@ -320,7 +282,7 @@ void ResultsInformation::printInformation() const {
     printf("## M : %s, N: %s, sparsity: %s, file: %s\n",
            M_.c_str(), N_.c_str(), sparsity_.c_str(), file_.c_str());
 
-    const int numColAttributes = 14;
+    const int numColAttributes = 9;
 
     // print the head of the list
     printf("\n");
@@ -329,16 +291,11 @@ void ResultsInformation::printInformation() const {
     printf(" N |");
     printf(" sparsity |");
     printf(" K |");
-    printf(" isratnisa_gflops |");
-    printf(" cuSparse_gflops |");
     printf(" zcx_gflops |");
-    printf(" isratnisa_sddmm |");
-    printf(" cuSparse_sddmm |");
-    printf(" zcx_sddmm |");
-    printf(" isratnisa_other |");
-    printf(" zcx_other |");
-    printf(" isratnisa |");
-    printf(" zcx |");
+    printf(" HiPC18_gflops |");
+    printf(" cuSparse_gflops |");
+    printf(" RoDe_gflops |");
+    printf(" ASpT_gflops |");
 
     printf("\n");
 
@@ -361,16 +318,11 @@ void ResultsInformation::printInformation() const {
         printOneLineInformation(N_);
         printOneLineInformation(sparsity_);
         std::cout << iter.first << "|"; // K value
-        printOneLineInformation(iter.second.isratnisa_gflops_);
-        printOneLineInformation(iter.second.cuSparse_gflops_);
         printOneLineInformation(iter.second.zcx_gflops_);
-        printOneLineInformation(iter.second.isratnisa_sddmm_);
-        printOneLineInformation(iter.second.cuSparse_sddmm_);
-        printOneLineInformation(iter.second.zcx_sddmm_);
-        printOneLineInformation(iter.second.isratnisa_other_);
-        printOneLineInformation(iter.second.zcx_other_);
-        printOneLineInformation(iter.second.isratnisa_);
-        printOneLineInformation(iter.second.zcx_);
+        printOneLineInformation(iter.second.HiPC18_gflops_);
+        printOneLineInformation(iter.second.cuSparse_gflops_);
+        printOneLineInformation(iter.second.RoDe_gflops_);
+        printOneLineInformation(iter.second.ASpT_gflops_);
 
         std::cout << iter.second.checkResults_;
         printf("\n");
@@ -426,11 +378,11 @@ std::unordered_map<std::string, ResultsInformation> pickTheBadResults(
         badResultsInformation.kToOneTimeData_.clear();
         for (const auto &kToOneTimeData : resultesInformation.kToOneTimeData_) {
             const int k = kToOneTimeData.first;
-            const float zcx_sddmm = getFloatValue(kToOneTimeData.second.zcx_sddmm_);
-            const float isratnisa_sddmm = getFloatValue(kToOneTimeData.second.isratnisa_sddmm_);
-            const float cuSparse = getFloatValue(kToOneTimeData.second.cuSparse_sddmm_);
-            if (zcx_sddmm > 1e-6 && isratnisa_sddmm > 1e-6 && cuSparse > 1e-6) {
-                if (zcx_sddmm > isratnisa_sddmm || zcx_sddmm > cuSparse) {
+            const float zcx_gflops = getFloatValue(kToOneTimeData.second.zcx_gflops_);
+            const float HiPC18_gflops = getFloatValue(kToOneTimeData.second.HiPC18_gflops_);
+            const float cuSparse_gflops = getFloatValue(kToOneTimeData.second.cuSparse_gflops_);
+            if (zcx_gflops > 1e-6 && HiPC18_gflops > 1e-6 && cuSparse_gflops > 1e-6) {
+                if (zcx_gflops > HiPC18_gflops || zcx_gflops > cuSparse_gflops) {
                     OneTimeData oneTimeData = kToOneTimeData.second;
                     badResultsInformation.kToOneTimeData_[k] = oneTimeData;
                 }
@@ -450,7 +402,7 @@ int getNumResults(const std::unordered_map<std::string, ResultsInformation> &mat
         numResults += iter.second.kToOneTimeData_.size();
 
         for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
-            const float zcx_sddmm = getFloatValue(kToOneTimeData.second.zcx_sddmm_);
+            const float zcx_sddmm = getFloatValue(kToOneTimeData.second.zcx_gflops_);
 
             if (zcx_sddmm <= 1e-6) {
                 --numResults;
@@ -509,14 +461,15 @@ std::pair<float, float> calculateAverageAndMaxSpeedup(
     const int numResults = getNumResults(matrixFileToResultsInformationMap);
     for (const auto &iter : matrixFileToResultsInformationMap) {
         for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
-            const float zcx_sddmm = getFloatValue(kToOneTimeData.second.zcx_sddmm_);
-            const float isratnisa_sddmm = getFloatValue(kToOneTimeData.second.isratnisa_sddmm_);
+            const float zcx_gflops = getFloatValue(kToOneTimeData.second.zcx_gflops_);
+            const float HiPC18_gflops = getFloatValue(kToOneTimeData.second.HiPC18_gflops_);
+            const float RoDe_gflops = getFloatValue(kToOneTimeData.second.HiPC18_gflops_);
 
-            if (zcx_sddmm <= 1e-6 || isratnisa_sddmm <= 1e-6) {
+            if (zcx_gflops <= 1e-6 || HiPC18_gflops <= 1e-6) {
                 continue;
             }
 
-            float speedup = isratnisa_sddmm / zcx_sddmm;
+            float speedup = HiPC18_gflops / zcx_gflops;
             maxSpeedup = std::max(speedup, maxSpeedup);
             sumSpeedup += speedup;
         }
@@ -536,8 +489,8 @@ std::pair<float, float> calculateAverageAndMaxSpeedup2(
     const int numResults = getNumResults(matrixFileToResultsInformationMap);
     for (const auto &iter : matrixFileToResultsInformationMap) {
         for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
-            const float zcx_sddmm = getFloatValue(kToOneTimeData.second.zcx_sddmm_);
-            const float cuSparse_sddmm = getFloatValue(kToOneTimeData.second.cuSparse_sddmm_);
+            const float zcx_sddmm = getFloatValue(kToOneTimeData.second.zcx_gflops_);
+            const float cuSparse_sddmm = getFloatValue(kToOneTimeData.second.cuSparse_gflops_);
 
             if (zcx_sddmm <= 1e-6 || cuSparse_sddmm <= 1e-6) {
                 continue;
@@ -570,29 +523,17 @@ std::pair<float, float> getMaxAndMinSparsity(
     return std::make_pair(maxSparsity, minSparsity);
 }
 
-// Get the number of effective results
-int getEffectiveResults(
-    const std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
-
-    int numEffectiveResults = 0;
-
-    for (const auto &iter : matrixFileToResultsInformationMap) {
-        for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
-            if (kToOneTimeData.second.isEffective()) {
-                ++numEffectiveResults;
-            }
+void eliminateNullValues(std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
+    for (auto iter = matrixFileToResultsInformationMap.begin(); iter != matrixFileToResultsInformationMap.end();) {
+        if (iter->second.M_.empty() || iter->second.N_.empty() || iter->second.sparsity_.empty()) {
+            iter = matrixFileToResultsInformationMap.erase(iter);
+        } else {
+            ++iter;
         }
     }
-
-    return numEffectiveResults;
 }
 
 int main(int argc, char *argv[]) {
-
-    if (argc < 2) {
-        printf("Please input the file.\n");
-        return -1;
-    }
 
     // Read the results file
     SettingInformation settingInformation;
@@ -618,6 +559,7 @@ int main(int argc, char *argv[]) {
             }
         }
     }
+    eliminateNullValues(matrixFileToResultsInformationMap);
 
     // Pick the bad results
     std::unordered_map<std::string, ResultsInformation> badResults =
@@ -626,14 +568,16 @@ int main(int argc, char *argv[]) {
     // Print the results Analysis information
     const int numResults = getNumResults(matrixFileToResultsInformationMap);
     printf("Number of results: %d\n", numResults);
-    const int numEffectiveResults = getEffectiveResults(matrixFileToResultsInformationMap);
-    printf("Number of effective results: %d\n", numEffectiveResults);
+
     const auto [maxSparsity, minSparsity] = getMaxAndMinSparsity(matrixFileToResultsInformationMap);
     printf("Maximum sparsity: %.2f%%, minimum sparsity: %.2f%%\n", maxSparsity, minSparsity);
+
     const float accuracy = calculateAccuracy(matrixFileToResultsInformationMap);
     printf("Accuracy: %.2f%%\n", accuracy * 100);
+
     const auto [averageSpeedup, maxSpeedup] = calculateAverageAndMaxSpeedup(matrixFileToResultsInformationMap);
-    printf("Average speedup over isratnisa: %.2f, maximum speedup: %.2f\n", averageSpeedup, maxSpeedup);
+    printf("Average speedup over HiPC18: %.2f, maximum speedup: %.2f\n", averageSpeedup, maxSpeedup);
+
     const auto [averageSpeedup2, maxSpeedup2] = calculateAverageAndMaxSpeedup2(matrixFileToResultsInformationMap);
     printf("Average speedup over cuSparse: %.2f, maximum speedup: %.2f\n", averageSpeedup2, maxSpeedup2);
 

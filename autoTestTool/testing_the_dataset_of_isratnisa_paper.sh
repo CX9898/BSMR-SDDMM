@@ -19,6 +19,9 @@ download_decompressing_move(){
 #############################################################
 # main
 
+# 创建结果目录
+mkdir -p ${results_path}
+
 # 数据集准备
 mkdir -p ${results_path}
 download_decompressing_move "https://snap.stanford.edu/data/cit-HepPh.txt.gz"

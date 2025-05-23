@@ -4,6 +4,7 @@
 results_path="results_dataset_of_ASpT_paper/"
 dataset_path="../../ASpT-mirror/data/"
 
+# 创建结果目录
 mkdir -p ${results_path}
 
 # 创建矩阵列表文件
