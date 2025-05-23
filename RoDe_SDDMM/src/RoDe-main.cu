@@ -6,10 +6,71 @@
 #include "matrix_utils.h"
 #include "Options.hpp"
 
-__global__ void FillValues(int n, float *array, float val) {
+ #define VALIDATE
+
+__global__ void MatrixDiff(int n,float* res,float* A,float* B) {
+    if(threadIdx.x == 0 && blockIdx.x == 0)
+        res[0] = 0.0f;
+
+    __syncthreads();
+
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx >= n) return;
+    if(idx >= n) return;
+    float diff = abs(A[idx] - B[idx]);
+
+    // if(diff > 1e-5) {
+    //     printf("[%d] : %f ~ %f\n",idx,A[idx],B[idx]);
+    // }
+
+    float r = diff;
+    r += __shfl_down_sync(0xffffffff,r,16);
+    r += __shfl_down_sync(0xffffffff,r,8);
+    r += __shfl_down_sync(0xffffffff,r,4);
+    r += __shfl_down_sync(0xffffffff,r,2);
+    r += __shfl_down_sync(0xffffffff,r,1);
+
+    if(threadIdx.x == 0)
+        atomicAdd(res,r);
+
+    __syncthreads();
+    if(threadIdx.x == 0 && blockIdx.x == 0)
+        printf("Matrix diff: %f\n",res[0]);
+}
+
+__global__ void FillValues(int n,float* array,float val) {
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if(idx >= n) return;
     array[idx] = val;
+}
+
+__global__ void StandKernel(int m,int n,int k,const int* __restrict__ row_indices,const int* __restrict__ row_offsets,const int* __restrict__ column_indices,\
+    const float* __restrict__ values,const float* __restrict__ lhs_matrix,const float* __restrict__ rhs_matrix,float* __restrict__ out) {
+
+    int m_idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if(m_idx >= m) return;
+
+    m_idx = row_indices[m_idx];
+
+    int row_offset = row_offsets[m_idx];
+    int nonzeros = row_offsets[m_idx + 1] - row_offset;
+
+    for(int n_idx = 0; n_idx < nonzeros; ++ n_idx) {
+        int col_idx = column_indices[row_offset + n_idx];
+        int sparse_value = values[row_offset + n_idx];
+
+        float res = 0.0f;
+        for(int kk = 0; kk < k; ++ kk) {
+            res += lhs_matrix[m_idx * k + kk]  * rhs_matrix[col_idx * k + kk];
+        }
+        out[row_offset + n_idx] = res * sparse_value;
+    }
+
+}
+
+void StandCall(int m,int n,int k,const int* __restrict__ row_indices,const int* __restrict__ row_offsets,const int* __restrict__ column_indices,\
+    const float* __restrict__ values,const float* __restrict__ lhs_matrix,const float* __restrict__ rhs_matrix,float* __restrict__ out) {
+    StandKernel<<<(m + 31)/32 ,32>>>(m,n,k,row_indices,row_offsets,column_indices,values,lhs_matrix,rhs_matrix,out);
 }
 
 int main(int argc, char *argv[]) {
@@ -107,7 +168,7 @@ int main(int argc, char *argv[]) {
 
 
 #ifdef VALIDATE
-        MatrixDiff<<<(size+31)/32,32>>>(size,diff,d_C,d_C1);
+        //MatrixDiff<<<(size+31)/32,32>>>(size,diff,d_C,d_C1);
         MatrixDiff<<<(size+31)/32,32>>>(size,diff,d_C,d_C2);
         // MatrixDiff<<<(size+31)/32,32>>>(size,diff,d_C,d_C3);
         // MatrixDiff<<<(size+31)/32,32>>>(size,diff,d_C,d_C4);
@@ -208,7 +269,7 @@ int main(int argc, char *argv[]) {
 
 
 #ifdef VALIDATE
-        MatrixDiff<<<(size+31)/32,32>>>(size,diff,d_C,d_C1);
+        //MatrixDiff<<<(size+31)/32,32>>>(size,diff,d_C,d_C1);
         MatrixDiff<<<(size+31)/32,32>>>(size,diff,d_C,d_C2);
         // MatrixDiff<<<(size+31)/32,32>>>(size,diff,d_C,d_C3);
         // MatrixDiff<<<(size+31)/32,32>>>(size,diff,d_C,d_C4);
