@@ -23,7 +23,7 @@ matrix_list_file="${dataset_path}matrix_file_list.txt"
 # 编译程序
 bash build_program.sh
 program_zcx="./build_zcx/sddmm-gpu"
-program_HiPC18="./build_HiPC18/HiPC18-sddmm"
+program_cuSDDMM="./build_cuSDDMM/cuSDDMM-sddmm"
 program_RoDe="./build_RoDe/RoDe-sddmm"
 program_ASpT_32="./build_ASpT/ASpT-sddmm-32"
 program_ASpT_128="./build_ASpT/ASpT-sddmm-32"
@@ -35,7 +35,7 @@ bash testTool.sh -f ${results_path}dlmc/transformer_matrices.txt -p ./build_zcx/
 # 分析结果
 g++ autoAnalysisResults.cpp -o autoAnalysisResults
 ./autoAnalysisResults "${results_path}zcx_results_32.log" "${results_path}zcx_results_128.log" \
-                      "${results_path}HiPC18_results_32.log" "${results_path}HiPC18_results_128.log" \
+                      "${results_path}cuSDDMM_results_32.log" "${results_path}cuSDDMM_results_128.log" \
                       "${results_path}RoDe_results_32.log" "${results_path}RoDe_results_128.log" \
                       "${results_path}ASpT_results_32.log" "${results_path}ASpT_results_128.log" \
                       > ${results_path}analysisResults.log

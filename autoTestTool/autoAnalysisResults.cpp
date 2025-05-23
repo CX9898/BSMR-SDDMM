@@ -192,7 +192,7 @@ struct OneTimeData {
   void initInformation(const std::vector<std::string> &oneTimeResults);
 
   std::string zcx_gflops_;
-  std::string HiPC18_gflops_;
+  std::string cuSDDMM_gflops_;
   std::string cuSparse_gflops_;
   std::string RoDe_gflops_;
   std::string ASpT_gflops_;
@@ -203,12 +203,12 @@ struct OneTimeData {
 void OneTimeData::initInformation(const std::vector<std::string> &oneTimeResults) {
     for (const std::string &line : oneTimeResults) {
         zcx_gflops_ = zcx_gflops_.empty() ? getValue(line, "[zcx_gflops : ") : zcx_gflops_;
-        HiPC18_gflops_ = HiPC18_gflops_.empty() ? getValue(line, "HiPC18_gflops : ") : HiPC18_gflops_;
+        cuSDDMM_gflops_ = cuSDDMM_gflops_.empty() ? getValue(line, "[cuSDDMM_gflops : ") : cuSDDMM_gflops_;
         cuSparse_gflops_ = cuSparse_gflops_.empty() ? getValue(line, "[cuSparse_gflops : ") : cuSparse_gflops_;
         RoDe_gflops_ = RoDe_gflops_.empty() ? getValue(line, "[RoDe_gflops : ") : RoDe_gflops_;
         ASpT_gflops_ = ASpT_gflops_.empty() ? getValue(line, "[ASpT_gflops : ") : ASpT_gflops_;
 
-        checkResults_ = checkResults_.empty() ? getValue(line, "[eliminateNullValues : ") : checkResults_;
+        checkResults_ = checkResults_.empty() ? getValue(line, "[checkResults : ") : checkResults_;
     }
 }
 
@@ -292,7 +292,7 @@ void ResultsInformation::printInformation() const {
     printf(" sparsity |");
     printf(" K |");
     printf(" zcx_gflops |");
-    printf(" HiPC18_gflops |");
+    printf(" cuSDDMM_gflops |");
     printf(" cuSparse_gflops |");
     printf(" RoDe_gflops |");
     printf(" ASpT_gflops |");
@@ -319,7 +319,7 @@ void ResultsInformation::printInformation() const {
         printOneLineInformation(sparsity_);
         std::cout << iter.first << "|"; // K value
         printOneLineInformation(iter.second.zcx_gflops_);
-        printOneLineInformation(iter.second.HiPC18_gflops_);
+        printOneLineInformation(iter.second.cuSDDMM_gflops_);
         printOneLineInformation(iter.second.cuSparse_gflops_);
         printOneLineInformation(iter.second.RoDe_gflops_);
         printOneLineInformation(iter.second.ASpT_gflops_);
@@ -379,10 +379,10 @@ std::unordered_map<std::string, ResultsInformation> pickTheBadResults(
         for (const auto &kToOneTimeData : resultesInformation.kToOneTimeData_) {
             const int k = kToOneTimeData.first;
             const float zcx_gflops = getFloatValue(kToOneTimeData.second.zcx_gflops_);
-            const float HiPC18_gflops = getFloatValue(kToOneTimeData.second.HiPC18_gflops_);
+            const float cuSDDMM_gflops = getFloatValue(kToOneTimeData.second.cuSDDMM_gflops_);
             const float cuSparse_gflops = getFloatValue(kToOneTimeData.second.cuSparse_gflops_);
-            if (zcx_gflops > 1e-6 && HiPC18_gflops > 1e-6 && cuSparse_gflops > 1e-6) {
-                if (zcx_gflops > HiPC18_gflops || zcx_gflops > cuSparse_gflops) {
+            if (zcx_gflops > 1e-6 && cuSDDMM_gflops > 1e-6 && cuSparse_gflops > 1e-6) {
+                if (zcx_gflops > cuSDDMM_gflops || zcx_gflops > cuSparse_gflops) {
                     OneTimeData oneTimeData = kToOneTimeData.second;
                     badResultsInformation.kToOneTimeData_[k] = oneTimeData;
                 }
@@ -462,14 +462,14 @@ std::pair<float, float> calculateAverageAndMaxSpeedup(
     for (const auto &iter : matrixFileToResultsInformationMap) {
         for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
             const float zcx_gflops = getFloatValue(kToOneTimeData.second.zcx_gflops_);
-            const float HiPC18_gflops = getFloatValue(kToOneTimeData.second.HiPC18_gflops_);
-            const float RoDe_gflops = getFloatValue(kToOneTimeData.second.HiPC18_gflops_);
+            const float cuSDDMM_gflops = getFloatValue(kToOneTimeData.second.cuSDDMM_gflops_);
+            const float RoDe_gflops = getFloatValue(kToOneTimeData.second.cuSDDMM_gflops_);
 
-            if (zcx_gflops <= 1e-6 || HiPC18_gflops <= 1e-6) {
+            if (zcx_gflops <= 1e-6 || cuSDDMM_gflops <= 1e-6) {
                 continue;
             }
 
-            float speedup = HiPC18_gflops / zcx_gflops;
+            float speedup = cuSDDMM_gflops / zcx_gflops;
             maxSpeedup = std::max(speedup, maxSpeedup);
             sumSpeedup += speedup;
         }
@@ -576,7 +576,7 @@ int main(int argc, char *argv[]) {
     printf("Accuracy: %.2f%%\n", accuracy * 100);
 
     const auto [averageSpeedup, maxSpeedup] = calculateAverageAndMaxSpeedup(matrixFileToResultsInformationMap);
-    printf("Average speedup over HiPC18: %.2f, maximum speedup: %.2f\n", averageSpeedup, maxSpeedup);
+    printf("Average speedup over cuSDDMM: %.2f, maximum speedup: %.2f\n", averageSpeedup, maxSpeedup);
 
     const auto [averageSpeedup2, maxSpeedup2] = calculateAverageAndMaxSpeedup2(matrixFileToResultsInformationMap);
     printf("Average speedup over cuSparse: %.2f, maximum speedup: %.2f\n", averageSpeedup2, maxSpeedup2);

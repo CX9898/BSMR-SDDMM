@@ -333,10 +333,10 @@ void preprocessing(const Matrix S) {
 
     float flops = 2 * S.nnz * k;
     float gflops = flops / (sddmm_time * 1e6);
-    printf("[HiPC18_gflops : %.2f ]\n", gflops);
-    printf("[HiPC18_sddmm : %.2f ]\n", sddmm_time);
-    printf("[HiPC18_other : %.2f ]\n", other_time);
-    printf("[HiPC18 : %.2f ]\n", sum_time);
+    printf("[cuSDDMM_gflops : %.2f ]\n", gflops);
+    printf("[cuSDDMM_sddmm : %.2f ]\n", sddmm_time);
+    printf("[cuSDDMM_other : %.2f ]\n", other_time);
+    printf("[cuSDDMM : %.2f ]\n", sum_time);
 
     std::cout << "sddmm_time = " << sddmm_time << " ms" << std::endl;
     std::cout << "other_time = " << other_time << " ms" << std::endl;

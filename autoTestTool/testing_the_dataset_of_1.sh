@@ -1,13 +1,31 @@
 #!/bin/bash
 
 # 设置变量
-results_path="results_dataset_of_ASpT_paper/"
-dataset_path="../../ASpT-mirror/data/"
+results_path="results_dataset_of_1/"
+dataset_path="${results_path}dataset/"
 
 # 创建结果目录
 mkdir -p ${results_path}
+mkdir -p ${dataset_path}
 
-# 创建矩阵列表文件
+# 函数定义
+# 下载数据集并解压, 并移动到指定目录
+download_decompressing_move(){
+  local url=$1
+  local compressed_file=$(basename "$url")
+  wget -O ${compressed_file} ${url}
+  tar -xvzf $compressed_file -C ${dataset_path}
+  rm ${compressed_file}
+}
+
+# 下载数据集并解压
+download_decompressing_move "https://suitesparse-collection-website.herokuapp.com/MM/ND/nd3k.tar.gz"
+download_decompressing_move "https://suitesparse-collection-website.herokuapp.com/MM/Gupta/gupta3.tar.gz"
+download_decompressing_move "https://suitesparse-collection-website.herokuapp.com/MM/Chen/pkustk08.tar.gz"
+download_decompressing_move "https://suitesparse-collection-website.herokuapp.com/MM/GHS_psdef/ramage02.tar.gz"
+download_decompressing_move "https://suitesparse-collection-website.herokuapp.com/MM/TKK/smt.tar.gz"
+
+# 生成矩阵文件列表
 bash make_matrices_list.sh ${dataset_path}
 matrix_list_file="${dataset_path}matrix_file_list.txt"
 
@@ -34,7 +52,6 @@ g++ autoAnalysisResults.cpp -o autoAnalysisResults
 ./autoAnalysisResults "${results_path}zcx_results_32.log" "${results_path}zcx_results_128.log" \
                       "${results_path}cuSDDMM_results_32.log" "${results_path}cuSDDMM_results_128.log" \
                       "${results_path}RoDe_results_32.log" "${results_path}RoDe_results_128.log" \
-                      "${results_path}ASpT_results_32.log" "${results_path}ASpT_results_128.log" \
                       > ${results_path}analysisResults.log
 echo "Results analysis completed: ${results_path}analysisResults.log"
 

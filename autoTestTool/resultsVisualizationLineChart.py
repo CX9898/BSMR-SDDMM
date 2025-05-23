@@ -26,7 +26,7 @@ def parse_markdown_data(file_path):
                             "file": current_file,
                             "K": int(parts[3]),
                             "zcx_gflops": float(parts[4]) if parts[4] else None,
-                            "HiPC18_gflops": float(parts[5]) if parts[5] else None,
+                            "cuSDDMM_gflops": float(parts[5]) if parts[5] else None,
                             "cuSparse_gflops": float(parts[6]) if parts[6] else None,
                             "RoDe_gflops": float(parts[7]) if parts[7] else None,
                             "ASpT_gflops": float(parts[8]) if parts[8] else None
@@ -59,7 +59,7 @@ def main():
 
         fig, ax = plt.subplots()
 
-        ax.plot(x, subset["HiPC18_gflops"], marker='o', label="HiPC18")
+        ax.plot(x, subset["cuSDDMM_gflops"], marker='o', label="cuSDDMM")
         ax.plot(x, subset["cuSparse_gflops"], marker='s', label="cuSparse")
         ax.plot(x, subset["zcx_gflops"], marker='^', label="zcx")
         ax.plot(x, subset["RoDe_gflops"], marker='d', label="RoDe")

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 设置变量
-results_path="results_dataset_of_HiPC18_paper/"
+results_path="results_dataset_of_cuSDDMM_paper/"
 dataset_path="${results_path}dataset/"
 
 # 函数定义
@@ -46,7 +46,7 @@ matrix_list_file="${dataset_path}matrix_file_list.txt"
 # 编译程序
 bash build_program.sh
 program_zcx="./build_zcx/sddmm-gpu"
-program_HiPC18="./build_HiPC18/HiPC18-sddmm"
+program_cuSDDMM="./build_cuSDDMM/cuSDDMM-sddmm"
 program_RoDe="./build_RoDe/RoDe-sddmm"
 program_ASpT_32="./build_ASpT/ASpT-sddmm-32"
 program_ASpT_128="./build_ASpT/ASpT-sddmm-32"
@@ -54,8 +54,8 @@ program_ASpT_128="./build_ASpT/ASpT-sddmm-32"
 # 运行测试程序
 bash testTool.sh -f ${matrix_list_file} -p ${program_zcx} -n "${results_path}zcx_results_32" -k 32
 bash testTool.sh -f ${matrix_list_file} -p ${program_zcx} -n "${results_path}zcx_results_128" -k 128
-bash testTool.sh -f ${matrix_list_file} -p ${program_HiPC18} -n "${results_path}HiPC18_results_32" -k 32
-bash testTool.sh -f ${matrix_list_file} -p ${program_HiPC18} -n "${results_path}HiPC18_results_128" -k 128
+bash testTool.sh -f ${matrix_list_file} -p ${program_cuSDDMM} -n "${results_path}cuSDDMM_results_32" -k 32
+bash testTool.sh -f ${matrix_list_file} -p ${program_cuSDDMM} -n "${results_path}cuSDDMM_results_128" -k 128
 bash testTool.sh -f ${matrix_list_file} -p ${program_RoDe} -n "${results_path}RoDe_results_32" -k 32
 bash testTool.sh -f ${matrix_list_file} -p ${program_RoDe} -n "${results_path}RoDe_results_128" -k 128
 bash testTool.sh -f ${matrix_list_file} -p ${program_ASpT_32} -n "${results_path}ASpT_results_32" -k 32
@@ -64,7 +64,7 @@ bash testTool.sh -f ${matrix_list_file} -p ${program_ASpT_128} -n "${results_pat
 # 分析结果
 g++ autoAnalysisResults.cpp -o autoAnalysisResults
 ./autoAnalysisResults "${results_path}zcx_results_32.log" "${results_path}zcx_results_128.log" \
-                      "${results_path}HiPC18_results_32.log" "${results_path}HiPC18_results_128.log" \
+                      "${results_path}cuSDDMM_results_32.log" "${results_path}cuSDDMM_results_128.log" \
                       "${results_path}RoDe_results_32.log" "${results_path}RoDe_results_128.log" \
                       "${results_path}ASpT_results_32.log" "${results_path}ASpT_results_128.log" \
                       > ${results_path}analysisResults.log

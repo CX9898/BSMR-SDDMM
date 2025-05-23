@@ -8,10 +8,10 @@ zcx_cmake_file_path="${script_file_path}../"
 zcx_program_path="${zcx_build_folder_path}"
 zcx_program_name="sddmm-gpu"
 
-HiPC18_build_folder_path="${script_file_path}build_HiPC18/"
-HiPC18_cmake_file_path="${script_file_path}../HiPC18_SDDMM/"
-HiPC18_program_path="${HiPC18_build_folder_path}"
-HiPC18_program_name="HiPC18-sddmm"
+cuSDDMM_build_folder_path="${script_file_path}build_cuSDDMM/"
+cuSDDMM_cmake_file_path="${script_file_path}../cuSDDMM_SDDMM/"
+cuSDDMM_program_path="${cuSDDMM_build_folder_path}"
+cuSDDMM_program_name="cuSDDMM-sddmm"
 
 ASpT_build_folder_path="${script_file_path}build_ASpT/"
 ASpT_file_path="${script_file_path}../ASpT_SDDMM_GPU/"
@@ -42,7 +42,7 @@ build_program(){
 
 # 编译程序
 build_program ${zcx_build_folder_path} ${zcx_cmake_file_path}
-build_program ${HiPC18_build_folder_path} ${HiPC18_cmake_file_path}
+build_program ${cuSDDMM_build_folder_path} ${cuSDDMM_cmake_file_path}
 build_program ${RoDe_build_folder_path} ${RoDe_cmake_file_path}
 
 mkdir ${ASpT_build_folder_path}
