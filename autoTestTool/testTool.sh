@@ -65,6 +65,8 @@ testTool(){
 
   echo "${print_tag}Start test..."
 
+  echo "${print_tag}K = ${k}"
+
   echo "${print_tag}Test program: ${autoTest_program}"
   echo "${print_tag}Test log file: ${autoTest_autoTestlog_file}"
 

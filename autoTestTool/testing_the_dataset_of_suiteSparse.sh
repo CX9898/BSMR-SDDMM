@@ -15,7 +15,7 @@ bash make_matrices_list.sh ${dataset_path}
 matrix_list_file="${dataset_path}matrix_file_list.txt"
 
 # 编译程序
-#bash build_program.sh
+bash build_program.sh
 program_zcx="./build_zcx/sddmm-gpu"
 program_HiPC18="./build_HiPC18/HiPC18-sddmm"
 program_RoDe="./build_RoDe/RoDe-sddmm"
@@ -43,7 +43,7 @@ echo "Results analysis completed: ${results_path}analysisResults.log"
 
 # 结果可视化
 python3 resultsVisualizationBarChart.py -file ${results_path}analysisResults.log -outdir ${results_path}
-echo "The result visualization is successful! The file is stored in: ${results_path}"
+echo "The bar chart was generated successfully! The file is stored in: ${results_path}"
 
 python3 resultsVisualizationLineChart.py -file ${results_path}analysisResults.log -outdir ${results_path}
-echo "The result visualization is successful! The file is stored in: ${results_path}"
+echo "The line chart was generated successfully! The file is stored in: ${results_path}"
