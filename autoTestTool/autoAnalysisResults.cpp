@@ -382,7 +382,7 @@ std::unordered_map<std::string, ResultsInformation> pickTheBadResults(
             const float cuSDDMM_gflops = getFloatValue(kToOneTimeData.second.cuSDDMM_gflops_);
             const float cuSparse_gflops = getFloatValue(kToOneTimeData.second.cuSparse_gflops_);
             if (zcx_gflops > 1e-6 && cuSDDMM_gflops > 1e-6 && cuSparse_gflops > 1e-6) {
-                if (zcx_gflops > cuSDDMM_gflops || zcx_gflops > cuSparse_gflops) {
+                if (zcx_gflops < cuSDDMM_gflops || zcx_gflops < cuSparse_gflops) {
                     OneTimeData oneTimeData = kToOneTimeData.second;
                     badResultsInformation.kToOneTimeData_[k] = oneTimeData;
                 }
@@ -453,7 +453,7 @@ float calculateAccuracy(const std::unordered_map<std::string,
 }
 
 // return the average speedup adn the maximum speedup
-std::pair<float, float> calculateAverageAndMaxSpeedup(
+std::pair<float, float> calculateAverageAndMaxSpeedupWithCuSDDMM(
     std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
     float sumSpeedup = 0.0f;
     float maxSpeedup = 0.0f;
@@ -469,7 +469,7 @@ std::pair<float, float> calculateAverageAndMaxSpeedup(
                 continue;
             }
 
-            float speedup = cuSDDMM_gflops / zcx_gflops;
+            float speedup = zcx_gflops / cuSDDMM_gflops;
             maxSpeedup = std::max(speedup, maxSpeedup);
             sumSpeedup += speedup;
         }
@@ -481,7 +481,7 @@ std::pair<float, float> calculateAverageAndMaxSpeedup(
 }
 
 // return the average speedup adn the maximum speedup
-std::pair<float, float> calculateAverageAndMaxSpeedup2(
+std::pair<float, float> calculateAverageAndMaxSpeedupWithCuSparse(
     std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
     float sumSpeedup = 0.0f;
     float maxSpeedup = 0.0f;
@@ -496,7 +496,7 @@ std::pair<float, float> calculateAverageAndMaxSpeedup2(
                 continue;
             }
 
-            float speedup = cuSparse_sddmm / zcx_sddmm;
+            float speedup = zcx_sddmm / cuSparse_sddmm;
             maxSpeedup = std::max(speedup, maxSpeedup);
             sumSpeedup += speedup;
         }
@@ -506,6 +506,61 @@ std::pair<float, float> calculateAverageAndMaxSpeedup2(
 
     return std::make_pair(averageSpeedup, maxSpeedup);
 }
+
+// return the average speedup adn the maximum speedup
+std::pair<float, float> calculateAverageAndMaxSpeedupWithRoDe(
+    std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
+    float sumSpeedup = 0.0f;
+    float maxSpeedup = 0.0f;
+
+    const int numResults = getNumResults(matrixFileToResultsInformationMap);
+    for (const auto &iter : matrixFileToResultsInformationMap) {
+        for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
+            const float zcx_sddmm = getFloatValue(kToOneTimeData.second.zcx_gflops_);
+            const float RoDe_sddmm = getFloatValue(kToOneTimeData.second.RoDe_gflops_);
+
+            if (zcx_sddmm <= 1e-6 || RoDe_sddmm <= 1e-6) {
+                continue;
+            }
+
+            float speedup = zcx_sddmm / RoDe_sddmm;
+            maxSpeedup = std::max(speedup, maxSpeedup);
+            sumSpeedup += speedup;
+        }
+    }
+
+    float averageSpeedup = sumSpeedup / numResults;
+
+    return std::make_pair(averageSpeedup, maxSpeedup);
+}
+
+// return the average speedup adn the maximum speedup
+std::pair<float, float> calculateAverageAndMaxSpeedupWithASpT(
+    std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
+    float sumSpeedup = 0.0f;
+    float maxSpeedup = 0.0f;
+
+    const int numResults = getNumResults(matrixFileToResultsInformationMap);
+    for (const auto &iter : matrixFileToResultsInformationMap) {
+        for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
+            const float zcx_sddmm = getFloatValue(kToOneTimeData.second.zcx_gflops_);
+            const float ASpT_sddmm = getFloatValue(kToOneTimeData.second.ASpT_gflops_);
+
+            if (zcx_sddmm <= 1e-6 || ASpT_sddmm <= 1e-6) {
+                continue;
+            }
+
+            float speedup = zcx_sddmm / ASpT_sddmm;
+            maxSpeedup = std::max(speedup, maxSpeedup);
+            sumSpeedup += speedup;
+        }
+    }
+
+    float averageSpeedup = sumSpeedup / numResults;
+
+    return std::make_pair(averageSpeedup, maxSpeedup);
+}
+
 
 // return the maximum sparsity and minimum sparsity
 std::pair<float, float> getMaxAndMinSparsity(
@@ -575,11 +630,21 @@ int main(int argc, char *argv[]) {
     const float accuracy = calculateAccuracy(matrixFileToResultsInformationMap);
     printf("Accuracy: %.2f%%\n", accuracy * 100);
 
-    const auto [averageSpeedup, maxSpeedup] = calculateAverageAndMaxSpeedup(matrixFileToResultsInformationMap);
-    printf("Average speedup over cuSDDMM: %.2f, maximum speedup: %.2f\n", averageSpeedup, maxSpeedup);
+    const auto [averageSpeedupCuSDDMM, maxSpeedupCuSDDMM] = calculateAverageAndMaxSpeedupWithCuSDDMM(
+        matrixFileToResultsInformationMap);
+    printf("Average speedup over cuSDDMM: %.2f, maximum speedup: %.2f\n", averageSpeedupCuSDDMM, maxSpeedupCuSDDMM);
 
-    const auto [averageSpeedup2, maxSpeedup2] = calculateAverageAndMaxSpeedup2(matrixFileToResultsInformationMap);
-    printf("Average speedup over cuSparse: %.2f, maximum speedup: %.2f\n", averageSpeedup2, maxSpeedup2);
+    const auto [averageSpeedupCuSparse, maxSpeedupCuSparse] = calculateAverageAndMaxSpeedupWithCuSparse(
+        matrixFileToResultsInformationMap);
+    printf("Average speedup over cuSparse: %.2f, maximum speedup: %.2f\n", averageSpeedupCuSparse, maxSpeedupCuSparse);
+
+    const auto [averageSpeedupRoDe, maxSpeedupRoDe] = calculateAverageAndMaxSpeedupWithRoDe(
+        matrixFileToResultsInformationMap);
+    printf("Average speedup over RoDe: %.2f, maximum speedup: %.2f\n", averageSpeedupRoDe, maxSpeedupRoDe);
+
+    const auto [averageSpeedupASpT, maxSpeedupASpT] = calculateAverageAndMaxSpeedupWithASpT(
+        matrixFileToResultsInformationMap);
+    printf("Average speedup over ASpT: %.2f, maximum speedup: %.2f\n", averageSpeedupASpT, maxSpeedupASpT);
 
     const int numBadResults = getNumResults(badResults);
     printf("Bad results: %.2f%%\n", (static_cast<float>(numBadResults) / numResults) * 100);
