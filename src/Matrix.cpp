@@ -454,6 +454,10 @@ bool sparseMatrix::CSR<T>::initializeFromMtxFile(const std::string &file) {
         }
         rowColSet.insert(rowColPair);
     }
+    if (nnz_ < 1) {
+        std::cerr << "Warning, file " << file << " nnz is 1, this is not a valid matrix!" << std::endl;
+        return false;
+    }
 
     host::sort_by_key_for_multiple_vectors(rowIndices.data(),
                                            rowIndices.data() + rowIndices.size(),
