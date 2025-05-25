@@ -387,6 +387,15 @@ std::unordered_map<std::string, ResultsInformation> pickTheBadResults(
                     badResultsInformation.kToOneTimeData_[k] = oneTimeData;
                 }
             }
+
+            const float RoDe_gflops = getFloatValue(kToOneTimeData.second.RoDe_gflops_);
+            const float ASpT_gflops = getFloatValue(kToOneTimeData.second.ASpT_gflops_);
+            if( zcx_gflops > 1e-6 && RoDe_gflops > 1e-6 && ASpT_gflops > 1e-6) {
+                if (zcx_gflops < RoDe_gflops || zcx_gflops < ASpT_gflops) {
+                    OneTimeData oneTimeData = kToOneTimeData.second;
+                    badResultsInformation.kToOneTimeData_[k] = oneTimeData;
+                }
+            }
         }
         if (!badResultsInformation.empty()) {
             bad[file] = badResultsInformation;
@@ -581,6 +590,7 @@ std::pair<float, float> getMaxAndMinSparsity(
 void eliminateNullValues(std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
     for (auto iter = matrixFileToResultsInformationMap.begin(); iter != matrixFileToResultsInformationMap.end();) {
         if (iter->second.M_.empty() || iter->second.N_.empty() || iter->second.sparsity_.empty()) {
+            printf("[bad file] : %s\n", iter->first.c_str());
             iter = matrixFileToResultsInformationMap.erase(iter);
         } else {
             ++iter;
