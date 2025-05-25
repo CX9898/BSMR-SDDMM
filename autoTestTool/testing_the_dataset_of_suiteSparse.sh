@@ -8,7 +8,7 @@ dataset_path="${results_path}dataset/"
 mkdir -p ${results_path}
 
 # 下载数据集并解压
-python download_matrix_from_suiteSparse.py -num 100 -outdir ${dataset_path} -row_min 512 -row_max 33288 -col_min 512 -col_max 33288
+python download_matrix_from_suiteSparse.py -num 1000 -outdir ${dataset_path} -row_min 5000 -row_max 33288 -col_min 5000 -col_max 33288
 
 # 生成矩阵文件列表
 bash make_matrices_list.sh ${dataset_path}
@@ -37,7 +37,7 @@ g++ autoAnalysisResults.cpp -o autoAnalysisResults
 ./autoAnalysisResults "${results_path}zcx_results_32.log" "${results_path}zcx_results_128.log" \
                       "${results_path}cuSDDMM_results_32.log" "${results_path}cuSDDMM_results_128.log" \
                       "${results_path}RoDe_results_32.log" "${results_path}RoDe_results_128.log" \
-                      "${results_path}ASpT_results_32.log" "${results_path}ASpT_results_128.log" \
+                      "${results_path}ASpT_results_32.log"  \
                       > ${results_path}analysisResults.log
 echo "Results analysis completed: ${results_path}analysisResults.log"
 
