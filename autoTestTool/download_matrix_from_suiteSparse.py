@@ -24,10 +24,10 @@ def wget_download(matrix, output_dir):
 
     try:
         subprocess.run(["wget", "--show-progress", "-O", filename, url], check=True)
-        return True
+        return True, url
     except subprocess.CalledProcessError as e:
         print(f"wget 下载失败: {matrix.name} | {e}")
-        return False
+        return False, url
 
 # 解析命令行参数
 parser = argparse.ArgumentParser(description="从SuiteSparse_Matrix_Collection下载矩阵脚本")
@@ -60,6 +60,7 @@ print(f"准备下载 {numMatrix} 个矩阵...")
 
 matrix_file_list = []
 failed_matrix_list = []
+download_url_list = []
 
 # 依次下载每个矩阵
 for i, matrix in enumerate(result[:numMatrix]):
@@ -70,8 +71,9 @@ for i, matrix in enumerate(result[:numMatrix]):
     time.sleep(random.uniform(1.5, 3.5))
 
     success = False
+    url = ""
     for attempt in range(3):
-        success = wget_download(matrix, output_path)
+        success, url = wget_download(matrix, output_path)
         if success:
             break
         print(f"[{matrix.name}] 第 {attempt + 1} 次 wget 下载失败，重试中...")
@@ -81,6 +83,9 @@ for i, matrix in enumerate(result[:numMatrix]):
         print(f"[{matrix.name}] 最终 wget 下载失败，跳过")
         failed_matrix_list.append(matrix.name)
         continue
+
+    # 保存成功的下载链接
+    download_url_list.append(url)
 
     # 解压下载的文件
     tar_gz_file = os.path.join(output_path, matrix.name + ".tar.gz")
@@ -99,3 +104,11 @@ if failed_matrix_list:
     print(f"\n下载失败的矩阵已记录: {fail_list_path}")
 else:
     print("\n所有矩阵均成功下载 ✅")
+
+# 写入所有下载链接
+if download_url_list:
+    url_list_path = os.path.join(output_path, "download_urls.txt")
+    with open(url_list_path, "w") as f:
+        for url in download_url_list:
+            f.write(url + "\n")
+    print(f"所有下载链接已保存到: {url_list_path}")
