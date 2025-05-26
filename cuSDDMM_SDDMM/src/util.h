@@ -163,9 +163,9 @@ bool initializeFromMtxFile(const std::string &filePath, Matrix &S) {
         const std::string valueStr = iterateOneWordFromLine(line, wordIter);
         const float val = valueStr.empty() ? static_cast<float>(0) : static_cast<float>(std::stod(valueStr));
 
-        if (wordIter < line.size()) {
-            std::cerr << "Error, mtx file " << line << " line format is incorrect!" << std::endl;
-        }
+//        if (wordIter < line.size()) {
+//            std::cerr << "Error, mtx file " << line << " line format is incorrect!" << std::endl;
+//        }
 
         rowIndices[idx] = row;
         colIndices[idx] = col;
