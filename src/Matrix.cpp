@@ -382,10 +382,10 @@ bool getOneLineThreeData(const std::string &line, UIN &first, UIN &second, T &th
     const std::string valueStr = util::iterateOneWordFromLine(line, wordIter);
     third = valueStr.empty() ? static_cast<T>(1) : static_cast<T>(std::stof(valueStr));
 
-    if (wordIter < line.size()) {
-        std::cerr << "Error, file \"" << line << "\" line format is incorrect!" << std::endl;
-        return false;
-    }
+//    if (wordIter < line.size()) {
+//        std::cerr << "Error, file \"" << line << "\" line format is incorrect!" << std::endl;
+//        return false;
+//    }
 
     return true;
 }
