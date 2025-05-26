@@ -95,7 +95,7 @@ void Logger::printLogInformation() {
     printf("[M : %ld], ", M_);
     printf("[N : %ld], ", N_);
     printf("[NNZ : %ld], ", NNZ_);
-    printf("[sparsity : %.2f%%]\n", sparsity_ * 100);
+    printf("[sparsity : %.2f%%]\n", floor(sparsity_ * 10000) / 100.0);
 
     printf("[matrixA type : %s]\n", matrixA_type_.c_str());
     printf("[matrixB type : %s]\n", matrixB_type_.c_str());
