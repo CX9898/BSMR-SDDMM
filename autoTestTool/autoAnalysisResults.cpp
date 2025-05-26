@@ -282,13 +282,14 @@ void ResultsInformation::printInformation() const {
     printf("## M : %s, N: %s, sparsity: %s, file: %s\n",
            M_.c_str(), N_.c_str(), sparsity_.c_str(), file_.c_str());
 
-    const int numColAttributes = 9;
+    const int numColAttributes = 10;
 
     // print the head of the list
     printf("\n");
     printf("|");
     printf(" M |");
     printf(" N |");
+    printf(" NNZ |");
     printf(" sparsity |");
     printf(" K |");
     printf(" zcx_gflops |");
@@ -316,6 +317,7 @@ void ResultsInformation::printInformation() const {
         printf("|");
         printOneLineInformation(M_);
         printOneLineInformation(N_);
+        printOneLineInformation(NNZ_);
         printOneLineInformation(sparsity_);
         std::cout << iter.first << "|"; // K value
         printOneLineInformation(iter.second.zcx_gflops_);
@@ -390,7 +392,7 @@ std::unordered_map<std::string, ResultsInformation> pickTheBadResults(
 
             const float RoDe_gflops = getFloatValue(kToOneTimeData.second.RoDe_gflops_);
             const float ASpT_gflops = getFloatValue(kToOneTimeData.second.ASpT_gflops_);
-            if( zcx_gflops > 1e-6 && RoDe_gflops > 1e-6 && ASpT_gflops > 1e-6) {
+            if (zcx_gflops > 1e-6 && RoDe_gflops > 1e-6 && ASpT_gflops > 1e-6) {
                 if (zcx_gflops < RoDe_gflops || zcx_gflops < ASpT_gflops) {
                     OneTimeData oneTimeData = kToOneTimeData.second;
                     badResultsInformation.kToOneTimeData_[k] = oneTimeData;
@@ -472,7 +474,6 @@ std::pair<float, float> calculateAverageAndMaxSpeedupWithCuSDDMM(
         for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
             const float zcx_gflops = getFloatValue(kToOneTimeData.second.zcx_gflops_);
             const float cuSDDMM_gflops = getFloatValue(kToOneTimeData.second.cuSDDMM_gflops_);
-            const float RoDe_gflops = getFloatValue(kToOneTimeData.second.cuSDDMM_gflops_);
 
             if (zcx_gflops <= 1e-6 || cuSDDMM_gflops <= 1e-6) {
                 continue;
@@ -590,7 +591,7 @@ std::pair<float, float> getMaxAndMinSparsity(
 void eliminateNullValues(std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
     for (auto iter = matrixFileToResultsInformationMap.begin(); iter != matrixFileToResultsInformationMap.end();) {
         if (iter->second.M_.empty() || iter->second.N_.empty() || iter->second.sparsity_.empty()) {
-            printf("[bad file] : %s\n", iter->first.c_str());
+//            printf("[bad file] : %s\n", iter->first.c_str());
             iter = matrixFileToResultsInformationMap.erase(iter);
         } else {
             ++iter;
