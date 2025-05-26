@@ -19,17 +19,18 @@ def parse_markdown_data(file_path):
             if file_match:
                 current_file = file_match.group(1).strip()
             elif line.strip().startswith("|") and not line.strip().startswith("| M ") and current_file:
-                parts = [x.strip() for x in line.strip().split("|")[1:-1]]
-                if len(parts) >= 9:
+                parts = [x.strip().replace('%','') for x in line.strip().split("|")[1:-1]]
+                if len(parts) >= 10:
                     try:
                         row = {
                             "file": current_file,
-                            "K": int(parts[3]),
-                            "zcx_gflops": float(parts[4]) if parts[4] else None,
-                            "cuSDDMM_gflops": float(parts[5]) if parts[5] else None,
-                            "cuSparse_gflops": float(parts[6]) if parts[6] else None,
-                            "RoDe_gflops": float(parts[7]) if parts[7] else None,
-                            "ASpT_gflops": float(parts[8]) if parts[8] else None
+                            "NNZ": int(parts[2]),
+                            "K": int(parts[4]),
+                            "zcx_gflops": float(parts[5]) if parts[5] else None,
+                            "cuSDDMM_gflops": float(parts[6]) if parts[6] else None,
+                            "cuSparse_gflops": float(parts[7]) if parts[7] else None,
+                            "RoDe_gflops": float(parts[8]) if parts[8] else None,
+                            "ASpT_gflops": float(parts[9]) if parts[9] else None
                         }
                         data.append(row)
                     except ValueError:
@@ -44,6 +45,7 @@ def main():
     args = parser.parse_args()
 
     df = parse_markdown_data(args.file)
+    df = df.sort_values(by="NNZ").reset_index(drop=True)
     df = df.dropna(subset=["K", "zcx_gflops"])
     df = df.drop_duplicates(subset=["file", "K"])
 
@@ -55,7 +57,7 @@ def main():
     for k in unique_K:
         subset = df[df["K"] == k].copy().reset_index(drop=True)
         subset = subset.fillna(0).infer_objects(copy=False)
-        x_labels = subset["file"].tolist()
+        x_labels = subset["NNZ"].astype(str).tolist()
         x = np.arange(len(x_labels))
         width = 0.15
 
@@ -68,14 +70,17 @@ def main():
 
         ax.set_title(f"GFLOPS Comparison at K={k}")
         ax.set_ylabel("GFLOPS")
-        ax.set_xlabel("Dataset File")
+        ax.set_xlabel("NNZ")
         ax.set_xticks(x)
-        ax.set_xticklabels(x_labels, rotation=45, ha='right')
+        ax.set_xticklabels(
+            [label if i % 40 == 0 else '' for i, label in enumerate(x_labels)],
+            rotation=60, ha='right', fontsize=8
+        )
         ax.yaxis.set_major_locator(ticker.MaxNLocator(integer=True))
         ax.legend()
         plt.tight_layout()
 
-        fig_path = output_dir / f"gflops_k{k}.png"
+        fig_path = output_dir / f"gflops_bar_k{k}.png"
         plt.savefig(fig_path)
         plt.close()
 
