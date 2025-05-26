@@ -79,15 +79,17 @@ testTool(){
 
   local file_id=1
   for file in "${test_file_list[@]}"; do
-    echo -e "${print_tag}\t$file start testing... [Remaining: $((${numTestFiles} - ${file_id}))]"
+
+    echo -e ${data_split_symbol} >> ${autoTest_autoTestlog_file}
+
+    echo -e "${print_tag}\t\"${autoTest_program} ${file} ${k}\" start testing... [Remaining: $((${numTestFiles} - ${file_id}))]"
 
     local execution_time=0
 
-    echo -e "${print_tag}\t\tK = ${k} start testing... "
-    echo -e ${data_split_symbol} >> ${autoTest_autoTestlog_file}
     local start_time=$(date +%s.%N)
     ${autoTest_program} ${file} ${k}>> ${autoTest_autoTestlog_file}
     local end_time=$(date +%s.%N)
+
     execution_time=$(echo "$end_time - $start_time" | bc)
     echo -e "${print_tag}\t\tExecution time: ${execution_time} seconds"
     sum_time=$(echo "$sum_time + $execution_time" | bc)
