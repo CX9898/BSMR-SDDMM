@@ -10,8 +10,7 @@ $\mathbf{P}=op(\mathbf{A})\cdot op(\mathbf{B}))\circ spy(\mathbf{S})$
 
 ## Input format
 
-Supoprts Matrix Market (https://sparse.tamu.edu/about) input format. Example avaialable in dataset folder.
-Conversion code from col sorted to row sorted can be found inside sddmm.cu
+Supoprts Matrix Market (https://sparse.tamu.edu/about) input format.
 
 ---
 
