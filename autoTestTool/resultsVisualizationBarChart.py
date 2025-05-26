@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import re
 from pathlib import Path
-import matplotlib.ticker as ticker
+from matplotlib.ticker import MaxNLocator
 import matplotlib
 
 matplotlib.rcParams['figure.figsize'] = (14, 7)
@@ -72,16 +72,13 @@ def main():
         ax.set_ylabel("GFLOPS")
         ax.set_xlabel("NNZ")
         ax.set_xticks(x)
-        ax.set_xticklabels(
-            [label if i % 40 == 0 else '' for i, label in enumerate(x_labels)],
-            rotation=60, ha='right', fontsize=8
-        )
-        ax.yaxis.set_major_locator(ticker.MaxNLocator(integer=True))
+        ax.set_xticklabels(x_labels, rotation=60, ha='right', fontsize=10)
+        ax.xaxis.set_major_locator(MaxNLocator(nbins=20, integer=True))  # ← 智能选择最多 12 个标签
         ax.legend()
         plt.tight_layout()
 
         fig_path = output_dir / f"gflops_bar_k{k}.png"
-        plt.savefig(fig_path)
+        plt.savefig(fig_path, dpi=600)
         plt.close()
 
 

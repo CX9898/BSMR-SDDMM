@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import re
 from pathlib import Path
-import matplotlib.ticker as ticker
+from matplotlib.ticker import MaxNLocator
 import matplotlib
 
 matplotlib.rcParams['figure.figsize'] = (14, 7)
@@ -61,26 +61,23 @@ def main():
 
         fig, ax = plt.subplots()
 
-        ax.plot(x, subset["cuSDDMM_gflops"], marker='o', label="cuSDDMM")
-        ax.plot(x, subset["cuSparse_gflops"], marker='s', label="cuSparse")
-        ax.plot(x, subset["zcx_gflops"], marker='^', label="zcx")
-        ax.plot(x, subset["RoDe_gflops"], marker='d', label="RoDe")
-        ax.plot(x, subset["ASpT_gflops"], marker='x', label="ASpT")
+        ax.plot(x, subset["cuSDDMM_gflops"], marker='o', label="cuSDDMM", alpha=0.6)
+        ax.plot(x, subset["cuSparse_gflops"], marker='s', label="cuSparse", alpha=0.6)
+        ax.plot(x, subset["zcx_gflops"], marker='^', label="zcx", alpha=0.6)
+        ax.plot(x, subset["RoDe_gflops"], marker='d', label="RoDe", alpha=0.6)
+        ax.plot(x, subset["ASpT_gflops"], marker='x', label="ASpT", alpha=0.6)
 
         ax.set_title(f"GFLOPS Line Plot at K={k}")
         ax.set_ylabel("GFLOPS")
         ax.set_xlabel("NNZ")
         ax.set_xticks(x)
-        ax.set_xticklabels(
-            [label if i % 40 == 0 else '' for i, label in enumerate(x_labels)],
-            rotation=60, ha='right', fontsize=8
-        )
-        ax.yaxis.set_major_locator(ticker.MaxNLocator(integer=False))
+        ax.set_xticklabels(x_labels, rotation=60, ha='right', fontsize=10)
+        ax.xaxis.set_major_locator(MaxNLocator(nbins=40, integer=True))
         ax.legend()
         plt.tight_layout()
 
         fig_path = output_dir / f"gflops_line_k{k}.png"
-        plt.savefig(fig_path)
+        plt.savefig(fig_path, dpi=600)
         plt.close()
 
 
