@@ -37,7 +37,7 @@ g++ autoAnalysisResults.cpp -o autoAnalysisResults
 ./autoAnalysisResults "${results_path}zcx_results_32.log" "${results_path}zcx_results_128.log" \
                       "${results_path}cuSDDMM_results_32.log" "${results_path}cuSDDMM_results_128.log" \
                       "${results_path}RoDe_results_32.log" "${results_path}RoDe_results_128.log" \
-                      "${results_path}ASpT_results_32.log"  \
+                      "${results_path}ASpT_results_32.log" "${results_path}ASpT_results_128.log" \
                       > ${results_path}analysisResults.log
 echo "Results analysis completed: ${results_path}analysisResults.log"
 

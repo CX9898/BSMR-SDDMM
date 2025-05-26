@@ -8,6 +8,7 @@
 #include <map>
 #include <algorithm>
 #include <utility>
+#include <limits>
 
 const std::string dataSplitSymbol("---New data---");
 
@@ -383,7 +384,7 @@ std::unordered_map<std::string, ResultsInformation> pickTheBadResults(
             const float zcx_gflops = getFloatValue(kToOneTimeData.second.zcx_gflops_);
             const float cuSDDMM_gflops = getFloatValue(kToOneTimeData.second.cuSDDMM_gflops_);
             const float cuSparse_gflops = getFloatValue(kToOneTimeData.second.cuSparse_gflops_);
-            if (zcx_gflops > 1e-6 && cuSDDMM_gflops > 1e-6 && cuSparse_gflops > 1e-6) {
+            if (zcx_gflops > 1e-6) {
                 if (zcx_gflops < cuSDDMM_gflops || zcx_gflops < cuSparse_gflops) {
                     OneTimeData oneTimeData = kToOneTimeData.second;
                     badResultsInformation.kToOneTimeData_[k] = oneTimeData;
@@ -392,7 +393,7 @@ std::unordered_map<std::string, ResultsInformation> pickTheBadResults(
 
             const float RoDe_gflops = getFloatValue(kToOneTimeData.second.RoDe_gflops_);
             const float ASpT_gflops = getFloatValue(kToOneTimeData.second.ASpT_gflops_);
-            if (zcx_gflops > 1e-6 && RoDe_gflops > 1e-6 && ASpT_gflops > 1e-6) {
+            if (zcx_gflops > 1e-6) {
                 if (zcx_gflops < RoDe_gflops || zcx_gflops < ASpT_gflops) {
                     OneTimeData oneTimeData = kToOneTimeData.second;
                     badResultsInformation.kToOneTimeData_[k] = oneTimeData;
@@ -588,6 +589,22 @@ std::pair<float, float> getMaxAndMinSparsity(
     return std::make_pair(maxSparsity, minSparsity);
 }
 
+// return the maximum row and minimum row
+std::pair<int, int> getMaxAndMinRow(
+    const std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
+    int maxM = 0;
+    int minM = std::numeric_limits<int>::max();;
+
+    for (const auto &iter : matrixFileToResultsInformationMap) {
+        const int M = getIntValue(iter.second.M_);
+
+        maxM = std::max(M, maxM);
+        minM = std::min(M, minM);
+    }
+
+    return std::make_pair(maxM, minM);
+}
+
 void eliminateNullValues(std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
     for (auto iter = matrixFileToResultsInformationMap.begin(); iter != matrixFileToResultsInformationMap.end();) {
         if (iter->second.M_.empty() || iter->second.N_.empty() || iter->second.sparsity_.empty()) {
@@ -631,12 +648,17 @@ int main(int argc, char *argv[]) {
     std::unordered_map<std::string, ResultsInformation> badResults =
         pickTheBadResults(matrixFileToResultsInformationMap);
 
+    printf("Number of matrix files: %d\n", static_cast<int>(matrixFileToResultsInformationMap.size()));
+
     // Print the results Analysis information
     const int numResults = getNumResults(matrixFileToResultsInformationMap);
-    printf("Number of results: %d\n", numResults);
+    printf("Number of data: %d\n", numResults);
 
     const auto [maxSparsity, minSparsity] = getMaxAndMinSparsity(matrixFileToResultsInformationMap);
     printf("Maximum sparsity: %.2f%%, minimum sparsity: %.2f%%\n", maxSparsity, minSparsity);
+
+    const auto [maxRow, minRow] = getMaxAndMinRow(matrixFileToResultsInformationMap);
+    printf("Maximum row: %d, minimum row: %d\n", maxRow, minRow);
 
     const float accuracy = calculateAccuracy(matrixFileToResultsInformationMap);
     printf("Accuracy: %.2f%%\n", accuracy * 100);
