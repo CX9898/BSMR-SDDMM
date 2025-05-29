@@ -963,9 +963,9 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_c
     wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE_FRAGMENT, wmma::row_major> aFrag;
     wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE_FRAGMENT, wmma::col_major> bFrag;
 
-    wmma::fragment<wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> cFrag;
+    wmma::fragment<wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> accFrag;
 
-    fill_fragment(cFrag, 0.0f);
+    fill_fragment(accFrag, 0.0f);
 
     const UIN laneId = threadIdx.x & 31;
     const UIN warpId = threadIdx.x >> 5;
@@ -1015,9 +1015,9 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_c
 
             // Compute the matrix multiplication
 #pragma unroll
-            for (int iter = 0; iter < 32; iter += WMMA_K) {
-                wmma::load_matrix_sync(aFrag, aTileSMEM + iter, aTileSMEMLd);
-                wmma::load_matrix_sync(bFrag, bTileSMEM + warpId * WMMA_N * bTileSMEMLd + iter, bTileSMEMLd);
+            for (int localK = 0; localK < 32; localK += WMMA_K) {
+                wmma::load_matrix_sync(aFrag, aTileSMEM + localK, aTileSMEMLd);
+                wmma::load_matrix_sync(bFrag, bTileSMEM + warpId * WMMA_N * bTileSMEMLd + localK, bTileSMEMLd);
 
                 // Convert to TF32
 #pragma unroll
@@ -1025,7 +1025,7 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_c
 #pragma unroll
                 for (int i = 0; i < bFrag.num_elements; ++i) bFrag.x[i] = wmma::__float_to_tf32(bFrag.x[i]);
 
-                wmma::mma_sync(cFrag, aFrag, bFrag, cFrag);
+                wmma::mma_sync(accFrag, aFrag, bFrag, accFrag);
             }
         }
 
@@ -1035,7 +1035,7 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_c
     // Store the result
     if (colBlockId < numColBlocksCurrentRowPanel) {
 #pragma unroll
-        for (int idxOfFragment = 0; idxOfFragment < cFrag.num_elements; ++idxOfFragment) {
+        for (int idxOfFragment = 0; idxOfFragment < accFrag.num_elements; ++idxOfFragment) {
 
             UIN localRow, localCol;
             calculateMatrixCFragmentCoordinates(laneId, idxOfFragment, localRow, localCol);
@@ -1045,7 +1045,7 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_c
 
             // Saved when the value is not 0
             if (idxOfMatrixP != NULL_VALUE) {
-                matrixP[idxOfMatrixP] = cFrag.x[idxOfFragment];
+                matrixP[idxOfMatrixP] = accFrag.x[idxOfFragment];
             }
         }
     }
