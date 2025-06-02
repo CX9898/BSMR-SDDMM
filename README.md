@@ -4,7 +4,7 @@
 
 Sampled Dense-Dense Matrix Multiplication(SDDMM) on GPU
 
-$\mathbf{P}=op(\mathbf{A})\cdot op(\mathbf{B}))\circ spy(\mathbf{S})$
+$\mathbf{P}_{ij} = (\mathbf{A} \cdot \mathbf{B})_{ij} \cdot \mathbf{S}_{ij}, \quad \text{only if } \mathbf{S}_{ij} > 0$
 
 ---
 
@@ -48,4 +48,10 @@ Example :
 
 ```shell
 ./sddmm-gpu -k 256 -f ../dataset/nips.mtx
+```
+
+or
+
+```shell
+./sddmm-gpu 256 ../dataset/nips.mtx
 ```
