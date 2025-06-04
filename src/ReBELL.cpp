@@ -790,22 +790,27 @@ bool check_bell(const sparseMatrix::CSR<float> &matrix, const struct ReBELL &reb
     return true;
 }
 
-bool check_rebell(const sparseMatrix::CSR<float> &matrix, const ReBELL &rebell) {
+bool check_rebell(const sparseMatrix::CSR<float> &matrix, const ReBELL &rebell, Logger &logger) {
 
     const auto [maxDensity, minDensity] = rebell.calculateMaxMinDensity();
+    const float averageDensity = rebell.calculateAverageDensity();
     printf("rebell : numDenseBlock = %d, average density = %f%%, max average = %f%%, min average = %f%%\n",
            rebell.getNumDenseBlocks(),
-           rebell.calculateAverageDensity() * 100,
+           averageDensity * 100,
            maxDensity * 100,
            minDensity * 100);
     printf("rebell: numSparseBlock = %d\n", rebell.getNumSparseBlocks());
 
     const auto [modeDensity, frequency] = rebell.calculateDensityMode();
-    printf("rebell : mode density = %f%%, frequency = %d\n", modeDensity * 100, frequency);
+    printf("rebell dense block: mode density = %f%%, frequency = %d\n", modeDensity * 100, frequency);
 
-    const auto [numTiles, averageDensity] = calculateNumTilesAndAverageDensityInOriginalMatrix(matrix);
+    const auto [numTilesOriginal, averageDensityOriginal] = calculateNumTilesAndAverageDensityInOriginalMatrix(matrix);
     printf("Number of tiles before reorder: %d, average density : %f%%\n",
-           numTiles, averageDensity * 100);
+           numTilesOriginal, averageDensityOriginal * 100);
+
+    logger.numDenseBlock_ = rebell.getNumDenseBlocks();
+    logger.averageDensity_ = averageDensity;
+    logger.numSparseBlock_ = rebell.getNumSparseBlocks();
 
     bool isCorrect = true;
 //    if (!check_rowReordering(matrix, rebell)) {

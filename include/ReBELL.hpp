@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Logger.hpp>
+
 #include "devVector.cuh"
 #include "Matrix.hpp"
 
@@ -167,7 +169,7 @@ void colReordering_gpu(const sparseMatrix::CSR<float> &matrix,
                        float &time);
 
 // Error checking
-bool check_rebell(const sparseMatrix::CSR<float> &matrix, const ReBELL &rebell);
+bool check_rebell(const sparseMatrix::CSR<float> &matrix, const ReBELL &rebell, Logger &logger);
 
 // Calculate the number of tiles and average density in the original matrix
 std::pair<UIN, float> calculateNumTilesAndAverageDensityInOriginalMatrix(const sparseMatrix::CSR<float> &matrix);
