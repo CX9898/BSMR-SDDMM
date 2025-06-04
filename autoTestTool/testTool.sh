@@ -117,6 +117,7 @@ testTool(){
 test_file_list_file=""
 target_program=""
 target_log_filename="results"
+k=32
 while getopts "f:p:k:n:" opt; do
     case ${opt} in
         f) test_file_list_file="$OPTARG" ;;   # 处理 -f 选项(列表文件)
