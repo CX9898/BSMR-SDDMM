@@ -16,8 +16,8 @@ const std::string folderPath("../dataset/test/matrix_15000_15000_/");
 //const std::string fileName("1138_bus/1138_bus");
 const std::string fileName("matrix_15000_15000_11250000");
 const std::string fileFormat(".mtx");
-//const std::string filePath = folderPath + fileName + fileFormat;
-const std::string filePath("./../autoTestTool/./results_dataset_of_suiteSparse/dataset/bcspwr09/bcspwr09.mtx");
+const std::string filePath = folderPath + fileName + fileFormat;
+//const std::string filePath("./../autoTestTool/./results_dataset_of_suiteSparse/dataset/bcspwr09/bcspwr09.mtx");
 
 class Options {
  public:
