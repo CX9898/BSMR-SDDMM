@@ -1018,7 +1018,7 @@ UIN calculateBlockSize(const sparseMatrix::CSR<float> &matrix) {
 
     UIN blockSize = std::max(minBlockSizeDueToGMEM, minBlockSizeDueToSMEM);
 
-    return blockSize > 32 ? blockSize : 32;
+    return blockSize > 16 ? blockSize : 16;
 }
 
 std::vector<UIN> bsa_rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
