@@ -305,7 +305,6 @@ void ResultsInformation::printInformation() const {
     printf(" zcx_gflops |");
     printf(" cuSDDMM_gflops |");
     printf(" cuSparse_gflops |");
-    printf(" RoDe_gflops |");
     printf(" ASpT_gflops |");
 
     printf("\n");

@@ -344,7 +344,7 @@ download_dataset(){
 }
 
 # 下载并解压数据集
-download_dataset
+#download_dataset
 
 # 生成矩阵文件列表
 bash make_matrices_list.sh ${dataset_path}
@@ -354,32 +354,28 @@ matrix_list_file="${dataset_path}matrix_file_list.txt"
 bash build_program.sh
 program_zcx="./build_zcx/sddmm-gpu"
 program_cuSDDMM="./build_cuSDDMM/cuSDDMM-sddmm"
-program_RoDe="./build_RoDe/RoDe-sddmm"
 program_ASpT_32="./build_ASpT/ASpT-sddmm-32"
 program_ASpT_128="./build_ASpT/ASpT-sddmm-32"
+program_BSA="./build_BSA/BSA-spmm"
 
 # 运行测试程序
 bash testTool.sh -f ${matrix_list_file} -p ${program_zcx} -n "${results_path}zcx_results_32" -k 32
 bash testTool.sh -f ${matrix_list_file} -p ${program_zcx} -n "${results_path}zcx_results_128" -k 128
 bash testTool.sh -f ${matrix_list_file} -p ${program_cuSDDMM} -n "${results_path}cuSDDMM_results_32" -k 32
 bash testTool.sh -f ${matrix_list_file} -p ${program_cuSDDMM} -n "${results_path}cuSDDMM_results_128" -k 128
-bash testTool.sh -f ${matrix_list_file} -p ${program_RoDe} -n "${results_path}RoDe_results_32" -k 32
-bash testTool.sh -f ${matrix_list_file} -p ${program_RoDe} -n "${results_path}RoDe_results_128" -k 128
 bash testTool.sh -f ${matrix_list_file} -p ${program_ASpT_32} -n "${results_path}ASpT_results_32" -k 32
 bash testTool.sh -f ${matrix_list_file} -p ${program_ASpT_128} -n "${results_path}ASpT_results_128" -k 128
+bash testTool.sh -f ${matrix_list_file} -p ${program_BSA} -n "${results_path}BSA_results"
 
 # 分析结果
 g++ autoAnalysisResults.cpp -o autoAnalysisResults
 ./autoAnalysisResults "${results_path}zcx_results_32.log" "${results_path}zcx_results_128.log" \
                       "${results_path}cuSDDMM_results_32.log" "${results_path}cuSDDMM_results_128.log" \
-                      "${results_path}RoDe_results_32.log" "${results_path}RoDe_results_128.log" \
                       "${results_path}ASpT_results_32.log" "${results_path}ASpT_results_128.log" \
+                      "${results_path}BSA_results.log" \
                       > ${results_path}analysisResults.log
 echo "Results analysis completed: ${results_path}analysisResults.log"
 
 # 结果可视化
-python3 resultsVisualizationBarChart.py -file ${results_path}analysisResults.log -outdir ${results_path}
-echo "The bar chart was generated successfully! The file is stored in: ${results_path}"
-
 python3 resultsVisualizationLineChart.py -file ${results_path}analysisResults.log -outdir ${results_path}
-echo "The line chart was generated successfully! The file is stored in: ${results_path}"
+python3 evalBSA.py -file ${results_path}analysisResults.log -outdir ${results_path}

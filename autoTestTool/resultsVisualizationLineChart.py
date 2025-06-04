@@ -6,8 +6,19 @@ import re
 from pathlib import Path
 from matplotlib.ticker import MaxNLocator
 import matplotlib
+from matplotlib.ticker import LogLocator
 
-matplotlib.rcParams['figure.figsize'] = (14, 7)
+# ✅ 设置全局样式（科研级别图表风格）
+matplotlib.rcParams.update({
+    'figure.figsize': (12, 6),
+    'axes.titlesize': 18,
+    'axes.labelsize': 16,
+    'xtick.labelsize': 14,
+    'ytick.labelsize': 14,
+    'legend.fontsize': 14,
+    'lines.linewidth': 2,
+    'lines.markersize': 6
+})
 
 
 def parse_markdown_data(file_path):
@@ -20,7 +31,7 @@ def parse_markdown_data(file_path):
                 current_file = file_match.group(1).strip()
             elif line.strip().startswith("|") and not line.strip().startswith("| M ") and current_file:
                 parts = [x.strip().replace('%', '') for x in line.strip().split("|")[1:-1]]
-                if len(parts) >= 10:
+                if len(parts) >= 9:
                     try:
                         row = {
                             "file": current_file,
@@ -29,8 +40,7 @@ def parse_markdown_data(file_path):
                             "zcx_gflops": float(parts[5]) if parts[5] else None,
                             "cuSDDMM_gflops": float(parts[6]) if parts[6] else None,
                             "cuSparse_gflops": float(parts[7]) if parts[7] else None,
-                            "RoDe_gflops": float(parts[8]) if parts[8] else None,
-                            "ASpT_gflops": float(parts[9]) if parts[9] else None
+                            "ASpT_gflops": float(parts[8]) if parts[8] else None
                         }
                         data.append(row)
                     except ValueError:
@@ -46,6 +56,7 @@ def main():
 
     df = parse_markdown_data(args.file)
     df = df.sort_values(by="NNZ").reset_index(drop=True)
+    df = df[(df["NNZ"] >= 1000) & (df["NNZ"] <= 20000)]
     df = df.dropna(subset=["K", "zcx_gflops"])
     df = df.drop_duplicates(subset=["file", "K"])
 
@@ -64,15 +75,15 @@ def main():
         ax.plot(x, subset["cuSDDMM_gflops"], label="cuSDDMM", alpha=0.7)
         ax.plot(x, subset["cuSparse_gflops"], label="cuSparse", alpha=0.7)
         ax.plot(x, subset["zcx_gflops"], label="zcx", alpha=0.7)
-        ax.plot(x, subset["RoDe_gflops"], label="RoDe", alpha=0.7)
         ax.plot(x, subset["ASpT_gflops"], label="ASpT", alpha=0.7)
 
-        ax.set_title(f"GFLOPS Line Plot at K={k}")
+        ax.set_title(f"K={k}")
         ax.set_ylabel("GFLOPS")
         ax.set_xlabel("NNZ")
 
-        ax.set_xscale('log')  # 横轴log尺度（关键）
-        # ax.set_ylim(0, 3000)  # Y轴范围（可选）
+        ax.set_xscale('linear')  # 可切换为 log
+        ax.xaxis.set_major_locator(MaxNLocator(nbins=10))
+        ax.set_ylim(0, 150)  # Y轴范围（可选）
         ax.legend()
         plt.tight_layout()
 
@@ -80,7 +91,7 @@ def main():
         plt.savefig(fig_path, dpi=600)
         plt.close()
 
-        # print("The line chart was generated successfully! The file is stored in:")
+        print(f"The line chart was generated successfully! The file is stored in:{fig_path}")
 
 
 if __name__ == "__main__":
