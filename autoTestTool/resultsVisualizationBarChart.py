@@ -57,6 +57,7 @@ def main():
     for k in unique_K:
         subset = df[df["K"] == k].copy().reset_index(drop=True)
         subset = subset.fillna(0).infer_objects(copy=False)
+        subset = subset.iloc[::3].copy().reset_index(drop=True)  # 子采样
         x_labels = subset["NNZ"].astype(str).tolist()
         x = np.arange(len(x_labels))
         width = 0.15

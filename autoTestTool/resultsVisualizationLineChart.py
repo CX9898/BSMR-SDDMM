@@ -19,7 +19,7 @@ def parse_markdown_data(file_path):
             if file_match:
                 current_file = file_match.group(1).strip()
             elif line.strip().startswith("|") and not line.strip().startswith("| M ") and current_file:
-                parts = [x.strip().replace('%','') for x in line.strip().split("|")[1:-1]]
+                parts = [x.strip().replace('%', '') for x in line.strip().split("|")[1:-1]]
                 if len(parts) >= 10:
                     try:
                         row = {
@@ -56,29 +56,31 @@ def main():
 
     for k in unique_K:
         subset = df[df["K"] == k].copy().reset_index(drop=True)
-        x_labels = subset["NNZ"].astype(str).tolist()
-        x = np.arange(len(x_labels))
+        subset = subset.iloc[::3].copy().reset_index(drop=True)  # 子采样
+
+        x = subset["NNZ"].values
 
         fig, ax = plt.subplots()
-
-        ax.plot(x, subset["cuSDDMM_gflops"], marker='o', label="cuSDDMM", alpha=0.6)
-        ax.plot(x, subset["cuSparse_gflops"], marker='s', label="cuSparse", alpha=0.6)
-        ax.plot(x, subset["zcx_gflops"], marker='^', label="zcx", alpha=0.6)
-        ax.plot(x, subset["RoDe_gflops"], marker='d', label="RoDe", alpha=0.6)
-        ax.plot(x, subset["ASpT_gflops"], marker='x', label="ASpT", alpha=0.6)
+        ax.plot(x, subset["cuSDDMM_gflops"], label="cuSDDMM", alpha=0.7)
+        ax.plot(x, subset["cuSparse_gflops"], label="cuSparse", alpha=0.7)
+        ax.plot(x, subset["zcx_gflops"], label="zcx", alpha=0.7)
+        ax.plot(x, subset["RoDe_gflops"], label="RoDe", alpha=0.7)
+        ax.plot(x, subset["ASpT_gflops"], label="ASpT", alpha=0.7)
 
         ax.set_title(f"GFLOPS Line Plot at K={k}")
         ax.set_ylabel("GFLOPS")
         ax.set_xlabel("NNZ")
-        ax.set_xticks(x)
-        ax.set_xticklabels(x_labels, rotation=60, ha='right', fontsize=10)
-        ax.xaxis.set_major_locator(MaxNLocator(nbins=40, integer=True))
+
+        ax.set_xscale('log')  # 横轴log尺度（关键）
+        # ax.set_ylim(0, 3000)  # Y轴范围（可选）
         ax.legend()
         plt.tight_layout()
 
         fig_path = output_dir / f"gflops_line_k{k}.png"
         plt.savefig(fig_path, dpi=600)
         plt.close()
+
+        # print("The line chart was generated successfully! The file is stored in:")
 
 
 if __name__ == "__main__":
