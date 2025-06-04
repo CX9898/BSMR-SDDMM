@@ -195,19 +195,28 @@ struct OneTimeData {
   std::string zcx_gflops_;
   std::string cuSDDMM_gflops_;
   std::string cuSparse_gflops_;
-  std::string RoDe_gflops_;
   std::string ASpT_gflops_;
+
+  std::string zcx_numDenseBlock_;
+  std::string BSA_numDenseBlock_;
 
   std::string checkResults_;
 };
 
+void initOperation(std::string& str, const std::string& line, const std::string& findWord){
+    str = str.empty() ? getValue(line, findWord) : str;
+}
+
 void OneTimeData::initInformation(const std::vector<std::string> &oneTimeResults) {
+
     for (const std::string &line : oneTimeResults) {
         zcx_gflops_ = zcx_gflops_.empty() ? getValue(line, "[zcx_gflops : ") : zcx_gflops_;
         cuSDDMM_gflops_ = cuSDDMM_gflops_.empty() ? getValue(line, "[cuSDDMM_gflops : ") : cuSDDMM_gflops_;
         cuSparse_gflops_ = cuSparse_gflops_.empty() ? getValue(line, "[cuSparse_gflops : ") : cuSparse_gflops_;
-        RoDe_gflops_ = RoDe_gflops_.empty() ? getValue(line, "[RoDe_gflops : ") : RoDe_gflops_;
         ASpT_gflops_ = ASpT_gflops_.empty() ? getValue(line, "[ASpT_gflops : ") : ASpT_gflops_;
+
+        initOperation(zcx_numDenseBlock_,line,"[zcx_numDenseBlock : ");
+        initOperation(BSA_numDenseBlock_,line,"[BSA_numDenseBlock : ");
 
         checkResults_ = checkResults_.empty() ? getValue(line, "[checkResults : ") : checkResults_;
     }
@@ -283,7 +292,7 @@ void ResultsInformation::printInformation() const {
     printf("## M : %s, N: %s, sparsity: %s, file: %s\n",
            M_.c_str(), N_.c_str(), sparsity_.c_str(), file_.c_str());
 
-    const int numColAttributes = 10;
+    const int numColAttributes = 9;
 
     // print the head of the list
     printf("\n");
@@ -324,7 +333,6 @@ void ResultsInformation::printInformation() const {
         printOneLineInformation(iter.second.zcx_gflops_);
         printOneLineInformation(iter.second.cuSDDMM_gflops_);
         printOneLineInformation(iter.second.cuSparse_gflops_);
-        printOneLineInformation(iter.second.RoDe_gflops_);
         printOneLineInformation(iter.second.ASpT_gflops_);
 
         std::cout << iter.second.checkResults_;
@@ -391,10 +399,9 @@ std::unordered_map<std::string, ResultsInformation> pickTheBadResults(
                 }
             }
 
-            const float RoDe_gflops = getFloatValue(kToOneTimeData.second.RoDe_gflops_);
             const float ASpT_gflops = getFloatValue(kToOneTimeData.second.ASpT_gflops_);
             if (zcx_gflops > 1e-6) {
-                if (zcx_gflops < RoDe_gflops || zcx_gflops < ASpT_gflops) {
+                if (zcx_gflops < ASpT_gflops) {
                     OneTimeData oneTimeData = kToOneTimeData.second;
                     badResultsInformation.kToOneTimeData_[k] = oneTimeData;
                 }
@@ -526,35 +533,6 @@ std::pair<float, float> calculateAverageAndMaxSpeedupWithCuSparse(
 }
 
 // return the average speedup adn the maximum speedup
-std::pair<float, float> calculateAverageAndMaxSpeedupWithRoDe(
-    std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
-    float sumSpeedup = 0.0f;
-    float maxSpeedup = 0.0f;
-
-    const int numResults = getNumResults(matrixFileToResultsInformationMap);
-    for (const auto &iter : matrixFileToResultsInformationMap) {
-        for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
-            const float zcx_sddmm = getFloatValue(kToOneTimeData.second.zcx_gflops_);
-            const float RoDe_sddmm = getFloatValue(kToOneTimeData.second.RoDe_gflops_);
-
-            if (zcx_sddmm <= 1e-6 || RoDe_sddmm <= 1e-6) {
-                continue;
-            }
-
-            float speedup = zcx_sddmm / RoDe_sddmm;
-            maxSpeedup = std::max(speedup, maxSpeedup);
-            sumSpeedup += speedup;
-        }
-    }
-
-    float averageSpeedup = sumSpeedup / numResults;
-
-    printf("Average speedup over RoDe: %.2f, maximum speedup: %.2f\n", averageSpeedup, maxSpeedup);
-
-    return std::make_pair(averageSpeedup, maxSpeedup);
-}
-
-// return the average speedup adn the maximum speedup
 std::pair<float, float> calculateAverageAndMaxSpeedupWithASpT(
     std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
     float sumSpeedup = 0.0f;
@@ -631,6 +609,81 @@ void eliminateNullValues(std::unordered_map<std::string, ResultsInformation> &ma
     }
 }
 
+void printReorderingEffectiveness(const std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap)
+{
+
+    const int numColAttributes = 3;
+    // print the head of the list
+    printf("\n");
+    printf("|");
+    printf(" NNZ |");
+    printf(" zcx_numDenseBlock |");
+    printf(" bsa_numDenseBlock |");
+
+    printf("\n");
+
+    // print the split line
+    const int numColData = numColAttributes;
+    printf("|");
+    for (int i = 0; i < numColData; ++i) {
+        printf("-|");
+    }
+    printf("\n");
+
+    auto printOneLineInformation = [](const std::string &information) -> void {
+        std::cout << information << "|";
+    };
+
+    for (const auto &iter : matrixFileToResultsInformationMap) {
+        for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
+            if (kToOneTimeData.second.zcx_numDenseBlock_.empty() || kToOneTimeData.second.BSA_numDenseBlock_.empty()){
+                continue;
+            }
+
+            const int zcx_numDenseBlock = getIntValue(kToOneTimeData.second.zcx_numDenseBlock_);
+            const int bsa_numDenseBlock = getIntValue(kToOneTimeData.second.BSA_numDenseBlock_);
+
+            if (zcx_numDenseBlock <= 0 && bsa_numDenseBlock <= 0) {
+                continue;
+            }
+
+            printf("|");
+            printOneLineInformation(iter.second.NNZ_);
+            printOneLineInformation(kToOneTimeData.second.zcx_numDenseBlock_);
+            printOneLineInformation(kToOneTimeData.second.BSA_numDenseBlock_);
+            printf("\n");
+        }
+    }
+
+    printf("\n");
+}
+
+void evaluateReorderingEffectivenessWithBSA(
+    const std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
+
+    int sumZCX = 0;
+    int sumBSA = 0;
+
+    int numResults = getNumResults(matrixFileToResultsInformationMap);
+    for (const auto &iter : matrixFileToResultsInformationMap) {
+        for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
+            if (kToOneTimeData.second.zcx_numDenseBlock_.empty() || kToOneTimeData.second.BSA_numDenseBlock_.empty()){
+                continue;
+            }
+
+            const int zcx_numDenseBlock = getIntValue(kToOneTimeData.second.zcx_numDenseBlock_);
+            const int bsa_numDenseBlock = getIntValue(kToOneTimeData.second.BSA_numDenseBlock_);
+
+            sumZCX += zcx_numDenseBlock;
+            sumBSA += bsa_numDenseBlock;
+        }
+    }
+
+    float relativeIncreasePercent = static_cast<float>(sumZCX - sumBSA)  / sumBSA * 100.0f;
+
+    printf("Percentage increase of dense blocks relative to BSA: %.2f%%\n", relativeIncreasePercent);
+}
+
 int main(int argc, char *argv[]) {
 
     // Read the results file
@@ -679,9 +732,11 @@ int main(int argc, char *argv[]) {
 
     calculateAverageAndMaxSpeedupWithCuSparse(matrixFileToResultsInformationMap);
 
-    calculateAverageAndMaxSpeedupWithRoDe(matrixFileToResultsInformationMap);
-
     calculateAverageAndMaxSpeedupWithASpT(matrixFileToResultsInformationMap);
+
+    evaluateReorderingEffectivenessWithBSA(matrixFileToResultsInformationMap);
+
+    printReorderingEffectiveness(matrixFileToResultsInformationMap);
 
     const int numBadResults = getNumResults(badResults);
     printf("Bad results: %.2f%%\n", (static_cast<float>(numBadResults) / numResults) * 100);
@@ -694,13 +749,13 @@ int main(int argc, char *argv[]) {
         iter.second.printInformation();
     }
 
-    // Print the bad results to Markdown format
-    if (numBadResults > 0) {
-        printf("Bad results: \n\n");
-        for (const auto &iter : badResults) {
-            iter.second.printInformation();
-        }
-    }
+    // // Print the bad results to Markdown format
+    // if (numBadResults > 0) {
+    //     printf("Bad results: \n\n");
+    //     for (const auto &iter : badResults) {
+    //         iter.second.printInformation();
+    //     }
+    // }
 
     return 0;
 }

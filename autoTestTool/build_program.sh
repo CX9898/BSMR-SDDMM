@@ -23,6 +23,11 @@ RoDe_cmake_file_path="${script_file_path}../baselines/RoDe_SDDMM/"
 RoDe_program_path="${RoDe_build_folder_path}"
 RoDe_program_name="RoDe-sddmm"
 
+BSA_build_folder_path="${script_file_path}build_BSA/"
+BSA_cmake_file_path="${script_file_path}../baselines/BSA_SpMM/"
+BSA_program_path="${RoDe_build_folder_path}"
+BSA_program_name="BSA-spmm"
+
 ##############################################################################################
 
 # 参数1: 构建地址
@@ -44,6 +49,7 @@ build_program(){
 build_program ${zcx_build_folder_path} ${zcx_cmake_file_path}
 build_program ${cuSDDMM_build_folder_path} ${cuSDDMM_cmake_file_path}
 build_program ${RoDe_build_folder_path} ${RoDe_cmake_file_path}
+build_program ${BSA_build_folder_path} ${BSA_cmake_file_path}
 
 mkdir ${ASpT_build_folder_path}
 nvcc -o ${ASpT_build_folder_path}${ASpT_32_program_name} ${ASpT_file_path}sddmm_32.cu -O3 -Xcompiler -fopenmp -arch=sm_80
