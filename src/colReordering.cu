@@ -282,12 +282,12 @@ std::pair<UIN, UIN> analysisDescendingOrderColSegment(const UIN dense_column_seg
     }
 
     // 优化密集块平均密度
-//    const UIN remainderNumber = numDenseColSegment % each_thread_block_counts_the_number_Of_cols;
-//    numDenseColSegment -= remainderNumber;
-//    if (remainderNumber > each_thread_block_counts_the_number_Of_cols / 2) {
-//        numDenseColSegment = std::min(static_cast<UIN>(numOfNonZeroInEachColSegment.size()),
-//                                      numDenseColSegment + each_thread_block_counts_the_number_Of_cols);
-//    }
+    const UIN remainderNumber = numDenseColSegment % each_thread_block_counts_the_number_Of_cols;
+    numDenseColSegment -= remainderNumber;
+    // if (remainderNumber > each_thread_block_counts_the_number_Of_cols / 2) {
+    //     numDenseColSegment = std::min(static_cast<UIN>(numOfNonZeroInEachColSegment.size()),
+    //                                   numDenseColSegment + each_thread_block_counts_the_number_Of_cols);
+    // }
 
     const UIN numSparseColSegment = numNonZeroColSegment - numDenseColSegment;
     return std::make_pair(numDenseColSegment, numSparseColSegment);
