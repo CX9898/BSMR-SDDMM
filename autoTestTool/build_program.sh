@@ -9,17 +9,17 @@ zcx_program_path="${zcx_build_folder_path}"
 zcx_program_name="sddmm-gpu"
 
 cuSDDMM_build_folder_path="${script_file_path}build_cuSDDMM/"
-cuSDDMM_cmake_file_path="${script_file_path}../cuSDDMM_SDDMM/"
+cuSDDMM_cmake_file_path="${script_file_path}../baselines/cuSDDMM_SDDMM/"
 cuSDDMM_program_path="${cuSDDMM_build_folder_path}"
 cuSDDMM_program_name="cuSDDMM-sddmm"
 
 ASpT_build_folder_path="${script_file_path}build_ASpT/"
-ASpT_file_path="${script_file_path}../ASpT_SDDMM_GPU/"
+ASpT_file_path="${script_file_path}../baselines/ASpT_SDDMM_GPU/"
 ASpT_32_program_name="ASpT-sddmm-32"
 ASpT_128_program_name="ASpT-sddmm-128"
 
 RoDe_build_folder_path="${script_file_path}build_RoDe/"
-RoDe_cmake_file_path="${script_file_path}../RoDe_SDDMM/"
+RoDe_cmake_file_path="${script_file_path}../baselines/RoDe_SDDMM/"
 RoDe_program_path="${RoDe_build_folder_path}"
 RoDe_program_name="RoDe-sddmm"
 
