@@ -2415,12 +2415,12 @@ void sddmm_gpu(UIN M, UIN N, UIN K,
     grid_sparse.x = rebell.numRowPanels();
     grid_sparse.y = rebell.maxNumSparseColBlocks();
 
-    printf("grid_dense: [%u, %u, %u], block_dense: [%u, %u, %u]\n",
-           grid_dense.x, grid_dense.y, grid_dense.z,
-           block_dense.x, block_dense.y, block_dense.z);
-    printf("grid_sparse: [%u, %u, %u], block_sparse: [%u, %u, %u]\n",
-           grid_sparse.x, grid_sparse.y, grid_sparse.z,
-           block_sparse.x, block_sparse.y, block_sparse.z);
+    // printf("grid_dense: [%u, %u, %u], block_dense: [%u, %u, %u]\n",
+    //        grid_dense.x, grid_dense.y, grid_dense.z,
+    //        block_dense.x, block_dense.y, block_dense.z);
+    // printf("grid_sparse: [%u, %u, %u], block_sparse: [%u, %u, %u]\n",
+    //        grid_sparse.x, grid_sparse.y, grid_sparse.z,
+    //        block_sparse.x, block_sparse.y, block_sparse.z);
 
     cudaStream_t denseStream;
     cudaStream_t sparseStream;
@@ -2464,7 +2464,7 @@ void sddmm_gpu(UIN M, UIN N, UIN K,
 
     const float totalTime = totalTimeCalculator.getTime();
 
-    printf("totalTime: %f ms\n", totalTime);
+    // printf("totalTime: %f ms\n", totalTime);
 
     time = totalTime;
 

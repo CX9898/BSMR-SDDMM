@@ -561,79 +561,79 @@ float clusterComparison(const std::vector<UIN> &encoding_rep, const std::vector<
     return min_sum / max_sum;
 }
 
-void clustering(const std::vector<std::vector<UIN>> &encodings,
-                const std::vector<UIN> &rows, const UIN startIndexOfNonZeroRow, std::vector<int> &clusterIds) {
+// void clustering(const std::vector<std::vector<UIN>> &encodings,
+//                 const std::vector<UIN> &rows, const UIN startIndexOfNonZeroRow, std::vector<int> &clusterIds) {
+//
+// //    UIN num = 0;
+//     for (int idx = startIndexOfNonZeroRow; idx < encodings.size() - 1; ++idx) {
+//         if (idx > startIndexOfNonZeroRow && clusterIds[rows[idx]] != -1) {
+//             continue;
+//         }
+//         clusterIds[rows[idx]] = idx;
+// #pragma omp parallel for schedule(dynamic)
+//         for (int cmpIdx = idx + 1; cmpIdx < encodings.size(); ++cmpIdx) {
+//             if (clusterIds[rows[cmpIdx]] != -1) {
+//                 continue;
+//             }
+//             const float similarity =
+//                 clusterComparison(encodings[rows[startIndexOfNonZeroRow]], encodings[rows[cmpIdx]]);
+//             if (similarity > row_similarity_threshold_alpha) {
+//                 clusterIds[rows[cmpIdx]] = clusterIds[rows[idx]];
+// //                ++num;
+//             }
+//         }
+//     }
+// //    printf("!!! num = %d\n", num);
+// }
 
-//    UIN num = 0;
-    for (int idx = startIndexOfNonZeroRow; idx < encodings.size() - 1; ++idx) {
-        if (idx > startIndexOfNonZeroRow && clusterIds[rows[idx]] != -1) {
-            continue;
-        }
-        clusterIds[rows[idx]] = idx;
-#pragma omp parallel for schedule(dynamic)
-        for (int cmpIdx = idx + 1; cmpIdx < encodings.size(); ++cmpIdx) {
-            if (clusterIds[rows[cmpIdx]] != -1) {
-                continue;
-            }
-            const float similarity =
-                clusterComparison(encodings[rows[startIndexOfNonZeroRow]], encodings[rows[cmpIdx]]);
-            if (similarity > row_similarity_threshold_alpha) {
-                clusterIds[rows[cmpIdx]] = clusterIds[rows[idx]];
-//                ++num;
-            }
-        }
-    }
-//    printf("!!! num = %d\n", num);
-}
-
-void rowReordering_cpu(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &rows, float &time) {
-
-    CudaTimeCalculator timeCalculator;
-    timeCalculator.startClock();
-
-    std::vector<std::vector<UIN>> encodings;
-    encoding(matrix, encodings);
-
-    std::vector<UIN> dispersions(matrix.row());
-    calculateDispersion(matrix.col(), encodings, dispersions);
-
-    std::vector<UIN> ascendingRow(matrix.row()); // Store the original row id
-    std::iota(ascendingRow.begin(), ascendingRow.end(), 0); // ascending = {0, 1, 2, 3, ... rows-1}
-    std::stable_sort(ascendingRow.begin(),
-                     ascendingRow.end(),
-                     [&dispersions](size_t i, size_t j) { return dispersions[i] < dispersions[j]; });
-
-    std::vector<int> clusterIds(matrix.row(), -1);
-    UIN startIndexOfNonZeroRow = 0;
-    while (startIndexOfNonZeroRow < matrix.row() && dispersions[ascendingRow[startIndexOfNonZeroRow]] == 0) {
-        clusterIds[ascendingRow[startIndexOfNonZeroRow]] = 0;
-        ++startIndexOfNonZeroRow;
-    }
-
-    clustering(encodings, ascendingRow, startIndexOfNonZeroRow, clusterIds);
-
-    rows.resize(matrix.row());
-    std::iota(rows.begin(),
-              rows.end(),
-              0); // rowIndices = {0, 1, 2, 3, ... rows-1}
-    std::stable_sort(rows.begin(),
-                     rows.end(),
-                     [&clusterIds](int i, int j) { return clusterIds[i] < clusterIds[j]; });
-
-    // Remove zero rows
-    {
-        startIndexOfNonZeroRow = 0;
-        while (startIndexOfNonZeroRow < matrix.row()
-            && matrix.rowOffsets()[rows[startIndexOfNonZeroRow] + 1]
-                - matrix.rowOffsets()[rows[startIndexOfNonZeroRow]] == 0) {
-            ++startIndexOfNonZeroRow;
-        }
-        rows.erase(rows.begin(), rows.begin() + startIndexOfNonZeroRow);
-    }
-
-    timeCalculator.endClock();
-    time = timeCalculator.getTime();
-}
+// void rowReordering_cpu(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &rows, float &time) {
+//
+//     CudaTimeCalculator timeCalculator;
+//     timeCalculator.startClock();
+//
+//     std::vector<std::vector<UIN>> encodings;
+//     encoding(matrix, encodings);
+//
+//     std::vector<UIN> dispersions(matrix.row());
+//     calculateDispersion(matrix.col(), encodings, dispersions);
+//
+//     std::vector<UIN> ascendingRow(matrix.row()); // Store the original row id
+//     std::iota(ascendingRow.begin(), ascendingRow.end(), 0); // ascending = {0, 1, 2, 3, ... rows-1}
+//     std::stable_sort(ascendingRow.begin(),
+//                      ascendingRow.end(),
+//                      [&dispersions](size_t i, size_t j) { return dispersions[i] < dispersions[j]; });
+//
+//     std::vector<int> clusterIds(matrix.row(), -1);
+//     UIN startIndexOfNonZeroRow = 0;
+//     while (startIndexOfNonZeroRow < matrix.row() && dispersions[ascendingRow[startIndexOfNonZeroRow]] == 0) {
+//         clusterIds[ascendingRow[startIndexOfNonZeroRow]] = 0;
+//         ++startIndexOfNonZeroRow;
+//     }
+//
+//     clustering(encodings, ascendingRow, startIndexOfNonZeroRow, clusterIds);
+//
+//     rows.resize(matrix.row());
+//     std::iota(rows.begin(),
+//               rows.end(),
+//               0); // rowIndices = {0, 1, 2, 3, ... rows-1}
+//     std::stable_sort(rows.begin(),
+//                      rows.end(),
+//                      [&clusterIds](int i, int j) { return clusterIds[i] < clusterIds[j]; });
+//
+//     // Remove zero rows
+//     {
+//         startIndexOfNonZeroRow = 0;
+//         while (startIndexOfNonZeroRow < matrix.row()
+//             && matrix.rowOffsets()[rows[startIndexOfNonZeroRow] + 1]
+//                 - matrix.rowOffsets()[rows[startIndexOfNonZeroRow]] == 0) {
+//             ++startIndexOfNonZeroRow;
+//         }
+//         rows.erase(rows.begin(), rows.begin() + startIndexOfNonZeroRow);
+//     }
+//
+//     timeCalculator.endClock();
+//     time = timeCalculator.getTime();
+// }
 
 void rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
                        const float similarity_threshold_alpha,

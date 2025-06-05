@@ -3,9 +3,11 @@
 #include "Matrix.hpp"
 #include "Logger.hpp"
 #include "ReBELL.hpp"
+#include "Options.hpp"
 
 // Using reordering method for sddmm operations
-void sddmm(const Matrix<float> &matrixA,
+void sddmm(const Options& options,
+           const Matrix<float> &matrixA,
            const Matrix<float> &matrixB,
            sparseMatrix::CSR<float> &matrixP,
            Logger &logger);

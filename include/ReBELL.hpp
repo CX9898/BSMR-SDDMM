@@ -5,8 +5,6 @@
 #include "devVector.cuh"
 #include "Matrix.hpp"
 
-constexpr float row_similarity_threshold_alpha = 0.3f;
-
 constexpr UIN ROW_PANEL_SIZE = WMMA_M;
 constexpr UIN BLOCK_COL_SIZE = WMMA_N;
 constexpr UIN BLOCK_SIZE = ROW_PANEL_SIZE * BLOCK_COL_SIZE;
@@ -28,7 +26,7 @@ constexpr UIN BLOCK_SIZE = ROW_PANEL_SIZE * BLOCK_COL_SIZE;
 class ReBELL {
  public:
   ReBELL() = default;
-  ReBELL(const int K, const sparseMatrix::CSR<float> &matrix);
+  ReBELL(const sparseMatrix::CSR<float> &matrix, float similarityThresholdAlpha = 0.3, int columnNonZeroThresholdBeta = 4);
 
   UIN numRowPanels() const { return numRowPanels_; }
   UIN maxNumDenseColBlocks() const { return maxNumDenseColBlocks_; }
@@ -42,7 +40,6 @@ class ReBELL {
   const dev::vector<UIN> &sparseValues() const { return sparseValues_; }
   const dev::vector<UIN> &sparseRelativeRows() const { return sparseRelativeRows_; }
   const dev::vector<UIN> &sparseColIndices() const { return sparseColIndices_; }
-  UIN dense_column_segment_threshold() const { return dense_column_segment_threshold_; }
   float time() const { return time_; }
 
   // Calculate the rowPanelID by blockValueIndex
@@ -90,8 +87,6 @@ class ReBELL {
   dev::vector<UIN> sparseValues_;
   dev::vector<UIN> sparseRelativeRows_;
   dev::vector<UIN> sparseColIndices_;
-
-  UIN dense_column_segment_threshold_;
 
   float time_;
 };

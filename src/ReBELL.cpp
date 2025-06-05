@@ -14,16 +14,7 @@
 #include "parallelAlgorithm.cuh"
 #include "sddmmKernel.cuh"
 
-ReBELL::ReBELL(const int K, const sparseMatrix::CSR<float> &matrix) {
-
-//    // Calculate the dense column segment threshold
-//    const float sparsityThreshold = (0.00219 * K + 79.81) / 100;
-//    const UIN minNumNonZeroPerColSegment =
-//        std::ceil(BLOCK_SIZE * (1 - sparsityThreshold) / static_cast<float>(BLOCK_COL_SIZE));
-//    printf("sparsityThreshold = %f, minNumNonZeroCurrentSparsity : %d\n",
-//           sparsityThreshold, minNumNonZeroPerColSegment);
-//    dense_column_segment_threshold_ = minNumNonZeroPerColSegment > 0 ? minNumNonZeroPerColSegment : 1;
-    dense_column_segment_threshold_ = 4;
+ReBELL::ReBELL(const sparseMatrix::CSR<float> &matrix, float similarityThresholdAlpha, int columnNonZeroThresholdBeta) {
 
     std::vector<UIN> reorderedRows;
 
@@ -42,7 +33,7 @@ ReBELL::ReBELL(const int K, const sparseMatrix::CSR<float> &matrix) {
     const UIN blockSize = calculateBlockSize(matrix);
 //    noReorderRow(matrix, reorderedRows_, rowReordering_time);
     reorderedRows = bsa_rowReordering_gpu(matrix,
-                                          row_similarity_threshold_alpha,
+                                          similarityThresholdAlpha,
                                           blockSize,
                                           rowReordering_time);
 //    std::vector<int> rows = bsa_rowReordering_cpu(matrix,
@@ -68,7 +59,7 @@ ReBELL::ReBELL(const int K, const sparseMatrix::CSR<float> &matrix) {
     colReordering_cpu(matrix,
                       numRowPanels_,
                       reorderedRows,
-                      dense_column_segment_threshold_,
+                      columnNonZeroThresholdBeta,
                       denseCols,
                       denseColOffsets,
                       sparseCols,

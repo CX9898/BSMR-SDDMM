@@ -41,17 +41,19 @@ cmake ..
 
 Options:
 
-- `-k` : K value. K must be a multiple of 32
-- `-f` : input file path
+- `-f` : Input file path
+- `-k` : K value. K must be a multiple of 32 (Default 32)
+- `-a` : Row similarity threshold alpha (Default 0.3)
+- `-b` : Column non-zero threshold beta (Default 4)
 
 Example :
 
 ```shell
-./sddmm-gpu -k 256 -f ../dataset/nips.mtx
+./sddmm-gpu -f ../dataset/nips.mtx -k 256
 ```
 
 or
 
 ```shell
-./sddmm-gpu 256 ../dataset/nips.mtx
+./sddmm-gpu ../dataset/nips.mtx 256
 ```

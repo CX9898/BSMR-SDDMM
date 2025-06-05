@@ -1,19 +1,20 @@
-#include "sddmm.hpp"
-#include "sddmmKernel.cuh"
 #include "CudaTimeCalculator.cuh"
-#include "host.hpp"
+#include "ReBELL.hpp"
 #include "checkData.hpp"
 #include "cudaUtil.cuh"
-#include "ReBELL.hpp"
+#include "host.hpp"
+#include "sddmm.hpp"
+#include "sddmmKernel.cuh"
 
 // Reordering method
-void sddmm(const Matrix<float> &matrixA,
+void sddmm(const Options& options,
+           const Matrix<float> &matrixA,
            const Matrix<float> &matrixB,
            sparseMatrix::CSR<float> &matrixP,
            Logger &logger) {
 
     // Reordering
-    ReBELL rebell(matrixA.col(), matrixP);
+    ReBELL rebell(matrixP, options.similarityThresholdAlpha(), options.columnNonZeroThresholdBeta());
 
     logger.zcx_other_time_ = rebell.time();
 
@@ -71,7 +72,7 @@ void sddmmBatch(int seq_len,
     cudaMemcpy(columns.data(), d_columns, columns.size() * sizeof(UIN), cudaMemcpyDeviceToHost);
 
     sparseMatrix::CSR<float> matrixP(M, M, nnz, offsets, columns);
-    ReBELL rebell(K, matrixP);
+    ReBELL rebell(matrixP);
 
     float time = 0.0f;
     sddmm_gpu_batch(numBatches, M, M, K, nnz, dQuery, dKey, rebell, dAttn, time);

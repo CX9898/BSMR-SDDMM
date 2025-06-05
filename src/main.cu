@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
 
     // sddmm
     sparseMatrix::CSR<float> matrixP(matrixS);
-    sddmm(matrixA, matrixB, matrixP, logger);
+    sddmm(options, matrixA, matrixB, matrixP, logger);
 
 #ifdef VALIDATE
     // Error check
