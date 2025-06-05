@@ -479,6 +479,9 @@ std::pair<float, float> calculateAverageAndMaxSpeedupWithCuSDDMM(
     float sumSpeedup = 0.0f;
     float maxSpeedup = 0.0f;
 
+    // 0~0.5, 0.5~0.8, 0.8~1.0, 1.0~1.2, 1.2~1.5, 1.5~
+    std::vector<int> numSpeedups(6);
+
     const int numResults = getNumResults(matrixFileToResultsInformationMap);
     for (const auto &iter : matrixFileToResultsInformationMap) {
         for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
@@ -492,12 +495,46 @@ std::pair<float, float> calculateAverageAndMaxSpeedupWithCuSDDMM(
             float speedup = zcx_gflops / cuSDDMM_gflops;
             maxSpeedup = std::max(speedup, maxSpeedup);
             sumSpeedup += speedup;
+
+            if (speedup <= 0.5)
+            {
+                ++numSpeedups[0];
+            }
+            if (speedup > 0.5 && speedup <= 0.8)
+            {
+                ++numSpeedups[1];
+            }
+            if (speedup > 0.8 && speedup <= 1.0)
+            {
+                ++numSpeedups[2];
+            }
+            if (speedup > 1.0 && speedup <= 1.2)
+            {
+                ++numSpeedups[3];
+            }
+            if (speedup > 1.2 && speedup <= 1.5)
+            {
+                ++numSpeedups[4];
+            }
+            if (speedup > 1.5)
+            {
+                ++numSpeedups[5];
+            }
         }
     }
 
     float averageSpeedup = sumSpeedup / numResults;
 
     printf("Average speedup over cuSDDMM: %.2f, maximum speedup: %.2f\n", averageSpeedup, maxSpeedup);
+
+
+    printf("Speedup over cuSDDMM <= 0.5 : %.1f%%\n", numSpeedups[0] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over cuSDDMM 0.5~0.8 : %.1f%%\n", numSpeedups[1] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over cuSDDMM 0.8~1.0 : %.1f%%\n", numSpeedups[2] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over cuSDDMM 1.0~1.2 : %.1f%%\n", numSpeedups[3] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over cuSDDMM 1.2~1.5 : %.1f%%\n", numSpeedups[4] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over cuSDDMM > 1.5 : %.1f%%\n", numSpeedups[5] / static_cast<float>(numResults) * 100.0f);
+
 
     return std::make_pair(averageSpeedup, maxSpeedup);
 }
@@ -537,6 +574,9 @@ std::pair<float, float> calculateAverageAndMaxSpeedupWithASpT(
     float sumSpeedup = 0.0f;
     float maxSpeedup = 0.0f;
 
+    // 0~0.5, 0.5~0.8, 0.8~1.0, 1.0~1.2, 1.2~1.5, 1.5~
+    std::vector<int> numSpeedups(6);
+
     const int numResults = getNumResults(matrixFileToResultsInformationMap);
     for (const auto &iter : matrixFileToResultsInformationMap) {
         for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
@@ -547,15 +587,48 @@ std::pair<float, float> calculateAverageAndMaxSpeedupWithASpT(
                 continue;
             }
 
-            float speedup = zcx_sddmm / ASpT_sddmm;
+            const float speedup = zcx_sddmm / ASpT_sddmm;
             maxSpeedup = std::max(speedup, maxSpeedup);
             sumSpeedup += speedup;
+
+            if (speedup <= 0.5)
+            {
+                ++numSpeedups[0];
+            }
+            if (speedup > 0.5 && speedup <= 0.8)
+            {
+                ++numSpeedups[1];
+            }
+            if (speedup > 0.8 && speedup <= 1.0)
+            {
+                ++numSpeedups[2];
+            }
+            if (speedup > 1.0 && speedup <= 1.2)
+            {
+                ++numSpeedups[3];
+            }
+            if (speedup > 1.2 && speedup <= 1.5)
+            {
+                ++numSpeedups[4];
+            }
+            if (speedup > 1.5)
+            {
+                ++numSpeedups[5];
+            }
         }
     }
 
     float averageSpeedup = sumSpeedup / numResults;
 
     printf("Average speedup over ASpT: %.2f, maximum speedup: %.2f\n", averageSpeedup, maxSpeedup);
+
+    printf("Speedup over ASpT <= 0.5 : %.1f%%\n", numSpeedups[0] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over ASpT 0.5~0.8 : %.1f%%\n", numSpeedups[1] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over ASpT 0.8~1.0 : %.1f%%\n", numSpeedups[2] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over ASpT 1.0~1.2 : %.1f%%\n", numSpeedups[3] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over ASpT 1.2~1.5 : %.1f%%\n", numSpeedups[4] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over ASpT > 1.5 : %.1f%%\n", numSpeedups[5] / static_cast<float>(numResults) * 100.0f);
+
 
     return std::make_pair(averageSpeedup, maxSpeedup);
 }
