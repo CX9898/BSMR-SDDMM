@@ -10,7 +10,7 @@ $\mathbf{P}_{ij} = (\mathbf{A} \cdot \mathbf{B})\_{ij} \cdot \mathbf{S}\_{ij}, \
 
 ## Input format
 
-Supoprts Matrix Market (https://sparse.tamu.edu/about) input format.
+Supports Matrix Market (https://sparse.tamu.edu/about) input format (Suffix: `.mtx`).
 
 ---
 
