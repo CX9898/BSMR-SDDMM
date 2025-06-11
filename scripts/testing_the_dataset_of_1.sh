@@ -2,7 +2,7 @@
 
 # 设置变量
 results_path="results_dataset_of_1/"
-dataset_path="$./dataset_of_suiteSparse/"
+dataset_path="./dataset_of_suiteSparse/"
 
 # 创建结果目录
 mkdir -p ${results_path}
@@ -28,15 +28,23 @@ bash test_script.sh -f ${matrix_list_file} -p ${program_ASpT_32} -n "${results_p
 bash test_script.sh -f ${matrix_list_file} -p ${program_ASpT_128} -n "${results_path}ASpT_128" -k 128
 bash test_script.sh -f ${matrix_list_file} -p ${program_BSA} -n "${results_path}BSA_32" -k 128
 
-# 分析结果
-g++ autoAnalysisResults.cpp -o autoAnalysisResults
-./autoAnalysisResults "${results_path}zcx_32.log" "${results_path}zcx_128.log" \
-                      "${results_path}cuSDDMM_32.log" "${results_path}cuSDDMM_128.log" \
-                      "${results_path}ASpT_32.log" "${results_path}ASpT_128.log" \
+g++ analyze_results.cpp -o analyze_results
+
+./analyze_results "${results_path}zcx_32.log" \
+                      "${results_path}cuSDDMM_32.log" \
+                      "${results_path}ASpT_32.log" \
                       "${results_path}BSA_32.log" \
-                      > ${results_path}analysisResults.log
-echo "Results analysis completed: ${results_path}analysisResults.log"
+                      > ${results_path}analysis_results_32.log
+echo "Results analysis completed: ${results_path}analysis_results_32.log"
+
+./analyze_results "${results_path}zcx_128.log" \
+                      "${results_path}cuSDDMM_128.log" \
+                      "${results_path}ASpT_128.log" \
+                      "${results_path}BSA_128.log" \
+                      > ${results_path}analysis_results_128.log
+echo "Results analysis completed: ${results_path}analysis_results_128.log"
 
 # 结果可视化
-python3 plot_sddmm_line_chart.py -file ${results_path}analysisResults.log -outdir ${results_path}
-python3 plot_reordering_line_chart.py -file ${results_path}analysisResults.log -outdir ${results_path}
+python3 plot_sddmm_line_chart.py -file ${results_path}analysis_results_32.log -outdir ${results_path}
+python3 plot_sddmm_line_chart.py -file ${results_path}analysis_results_128.log -outdir ${results_path}
+python3 plot_reordering_line_chart.py -file ${results_path}analysis_results_32.log -outdir ${results_path}
