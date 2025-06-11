@@ -8,7 +8,6 @@
 #define VALIDATE
 
 int main(int argc, char *argv[]) {
-
     // Parsing option and parameter
     Options options(argc, argv);
 
