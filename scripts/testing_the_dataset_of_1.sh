@@ -20,20 +20,20 @@ program_ASpT_128="./build_ASpT/ASpT-sddmm-32"
 program_BSA="./build_BSA/BSA-spmm"
 
 # 运行测试程序
-bash test_script.sh -f ${matrix_list_file} -p ${program_zcx} -n "${results_path}zcx_results_32" -k 32
-bash test_script.sh -f ${matrix_list_file} -p ${program_zcx} -n "${results_path}zcx_results_128" -k 128
-bash test_script.sh -f ${matrix_list_file} -p ${program_cuSDDMM} -n "${results_path}cuSDDMM_results_32" -k 32
-bash test_script.sh -f ${matrix_list_file} -p ${program_cuSDDMM} -n "${results_path}cuSDDMM_results_128" -k 128
-bash test_script.sh -f ${matrix_list_file} -p ${program_ASpT_32} -n "${results_path}ASpT_results_32" -k 32
-bash test_script.sh -f ${matrix_list_file} -p ${program_ASpT_128} -n "${results_path}ASpT_results_128" -k 128
-bash test_script.sh -f ${matrix_list_file} -p ${program_BSA} -n "${results_path}BSA_results"
+bash test_script.sh -f ${matrix_list_file} -p ${program_zcx} -n "${results_path}zcx_32" -k 32
+bash test_script.sh -f ${matrix_list_file} -p ${program_zcx} -n "${results_path}zcx_128" -k 128
+bash test_script.sh -f ${matrix_list_file} -p ${program_cuSDDMM} -n "${results_path}cuSDDMM_32" -k 32
+bash test_script.sh -f ${matrix_list_file} -p ${program_cuSDDMM} -n "${results_path}cuSDDMM_128" -k 128
+bash test_script.sh -f ${matrix_list_file} -p ${program_ASpT_32} -n "${results_path}ASpT_32" -k 32
+bash test_script.sh -f ${matrix_list_file} -p ${program_ASpT_128} -n "${results_path}ASpT_128" -k 128
+bash test_script.sh -f ${matrix_list_file} -p ${program_BSA} -n "${results_path}BSA_32" -k 128
 
 # 分析结果
-g++ analyze_results.cpp -o analyze_results
-./analyze_results "${results_path}zcx_results_32.log" "${results_path}zcx_results_128.log" \
-                      "${results_path}cuSDDMM_results_32.log" "${results_path}cuSDDMM_results_128.log" \
-                      "${results_path}ASpT_results_32.log" "${results_path}ASpT_results_128.log" \
-                      "${results_path}BSA_results.log" \
+g++ autoAnalysisResults.cpp -o autoAnalysisResults
+./autoAnalysisResults "${results_path}zcx_32.log" "${results_path}zcx_128.log" \
+                      "${results_path}cuSDDMM_32.log" "${results_path}cuSDDMM_128.log" \
+                      "${results_path}ASpT_32.log" "${results_path}ASpT_128.log" \
+                      "${results_path}BSA_32.log" \
                       > ${results_path}analysisResults.log
 echo "Results analysis completed: ${results_path}analysisResults.log"
 
