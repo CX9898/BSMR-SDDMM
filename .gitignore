@@ -26,4 +26,4 @@ autoTestTool/matrices/
 **/ssgetpy/
 
 # Download the dataset for testing
-**/dataset/
+**/*dataset*/
