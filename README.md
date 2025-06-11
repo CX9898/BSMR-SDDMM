@@ -4,6 +4,8 @@
 
 Sampled Dense-Dense Matrix Multiplication(SDDMM) on GPU
 
+sddmm operates:
+
 $\mathbf{P}_{ij} = (\mathbf{A} \cdot \mathbf{B})\_{ij} \cdot \mathbf{S}\_{ij}, \quad \text{only if} \quad \mathbf{S}\_{ij} > 0$
 
 ---
