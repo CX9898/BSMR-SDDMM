@@ -33,8 +33,8 @@ bash test_script.sh -f ${results_path}dlmc/rn50_matrices.txt -p ./build_zcx/sddm
 bash test_script.sh -f ${results_path}dlmc/transformer_matrices.txt -p ./build_zcx/sddmm-gpu -n ${transformer_results_path}zcx_results_transformer
 
 # 分析结果
-g++ autoAnalysisResults.cpp -o autoAnalysisResults
-./autoAnalysisResults "${results_path}zcx_results_32.log" "${results_path}zcx_results_128.log" \
+g++ analyze_results.cpp -o analyze_results
+./analyze_results "${results_path}zcx_results_32.log" "${results_path}zcx_results_128.log" \
                       "${results_path}cuSDDMM_results_32.log" "${results_path}cuSDDMM_results_128.log" \
                       "${results_path}RoDe_results_32.log" "${results_path}RoDe_results_128.log" \
                       "${results_path}ASpT_results_32.log" "${results_path}ASpT_results_128.log" \

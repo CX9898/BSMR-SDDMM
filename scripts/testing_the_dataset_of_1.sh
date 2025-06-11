@@ -29,8 +29,8 @@ bash test_script.sh -f ${matrix_list_file} -p ${program_ASpT_128} -n "${results_
 bash test_script.sh -f ${matrix_list_file} -p ${program_BSA} -n "${results_path}BSA_results"
 
 # 分析结果
-g++ autoAnalysisResults.cpp -o autoAnalysisResults
-./autoAnalysisResults "${results_path}zcx_results_32.log" "${results_path}zcx_results_128.log" \
+g++ analyze_results.cpp -o analyze_results
+./analyze_results "${results_path}zcx_results_32.log" "${results_path}zcx_results_128.log" \
                       "${results_path}cuSDDMM_results_32.log" "${results_path}cuSDDMM_results_128.log" \
                       "${results_path}ASpT_results_32.log" "${results_path}ASpT_results_128.log" \
                       "${results_path}BSA_results.log" \

@@ -33,8 +33,8 @@ bash test_script.sh -f ${matrix_list_file} -p ${program_ASpT_32} -n "${results_p
 bash test_script.sh -f ${matrix_list_file} -p ${program_ASpT_128} -n "${results_path}ASpT_results_128" -k 128
 
 # 分析结果
-g++ autoAnalysisResults.cpp -o autoAnalysisResults
-./autoAnalysisResults "${results_path}zcx_results_32.log" "${results_path}zcx_results_128.log" \
+g++ analyze_results.cpp -o analyze_results
+./analyze_results "${results_path}zcx_results_32.log" "${results_path}zcx_results_128.log" \
                       "${results_path}cuSDDMM_results_32.log" "${results_path}cuSDDMM_results_128.log" \
                       "${results_path}RoDe_results_32.log" "${results_path}RoDe_results_128.log" \
                       "${results_path}ASpT_results_32.log" "${results_path}ASpT_results_128.log" \
