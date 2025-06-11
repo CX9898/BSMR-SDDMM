@@ -20,8 +20,8 @@ program_ASpT_128="./build_ASpT/ASpT-sddmm-32"
 program_BSA="./build_BSA/BSA-spmm"
 
 # 运行测试程序
-bash test_script.sh -f ${matrix_list_file} -p ${program_zcx} -n "${results_path}zcx_results_32_0.4" -k 32
-bash test_script.sh -f ${matrix_list_file} -p ${program_zcx} -n "${results_path}zcx_results_128_0.4" -k 128
+bash test_script.sh -f ${matrix_list_file} -p ${program_zcx} -n "${results_path}zcx_results_32" -k 32
+bash test_script.sh -f ${matrix_list_file} -p ${program_zcx} -n "${results_path}zcx_results_128" -k 128
 bash test_script.sh -f ${matrix_list_file} -p ${program_cuSDDMM} -n "${results_path}cuSDDMM_results_32" -k 32
 bash test_script.sh -f ${matrix_list_file} -p ${program_cuSDDMM} -n "${results_path}cuSDDMM_results_128" -k 128
 bash test_script.sh -f ${matrix_list_file} -p ${program_ASpT_32} -n "${results_path}ASpT_results_32" -k 32
@@ -30,13 +30,13 @@ bash test_script.sh -f ${matrix_list_file} -p ${program_BSA} -n "${results_path}
 
 # 分析结果
 g++ autoAnalysisResults.cpp -o autoAnalysisResults
-./autoAnalysisResults "${results_path}zcx_results_32_0.4.log" "${results_path}zcx_results_128_0.4.log" \
+./autoAnalysisResults "${results_path}zcx_results_32.log" "${results_path}zcx_results_128.log" \
                       "${results_path}cuSDDMM_results_32.log" "${results_path}cuSDDMM_results_128.log" \
                       "${results_path}ASpT_results_32.log" "${results_path}ASpT_results_128.log" \
                       "${results_path}BSA_results.log" \
                       > ${results_path}analysisResults.log
-echo "Results analysis completed: ${results_path}analysisResults_0.4.log"
+echo "Results analysis completed: ${results_path}analysisResults.log"
 
 # 结果可视化
-python3 resultsVisualizationLineChart.py -file ${results_path}analysisResults_0.4.log -outdir ${results_path}
-python3 evalBSA.py -file ${results_path}analysisResults_0.4.log -outdir ${results_path}
+python3 plot_sddmm_line_chart.py -file ${results_path}analysisResults.log -outdir ${results_path}
+python3 plot_reordering_line_chart.py -file ${results_path}analysisResults.log -outdir ${results_path}

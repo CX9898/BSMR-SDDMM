@@ -39,8 +39,5 @@ g++ autoAnalysisResults.cpp -o autoAnalysisResults
 echo "Results analysis completed: ${results_path}analysisResults.log"
 
 # 结果可视化
-python3 resultsVisualizationBarChart.py -file ${results_path}analysisResults.log -outdir ${results_path}
-echo "The bar chart was generated successfully! The file is stored in: ${results_path}"
-
-python3 resultsVisualizationLineChart.py -file ${results_path}analysisResults.log -outdir ${results_path}
+python3 plot_sddmm_line_chart.py -file ${results_path}analysisResults.log -outdir ${results_path}
 echo "The line chart was generated successfully! The file is stored in: ${results_path}"
