@@ -3,7 +3,7 @@
 #
 # Script Name: testTool.sh
 # Description: 用于自动化测试程序的脚本. 该脚本使用给定的测试文件列表和测试程序进行测试.
-# Usage: ./autoTestTool.sh [参数] [参数值] ...
+# Usage: ./testTool.sh [参数] [参数值] ...
 #
 # Options:
 # - -f : 测试文件列表
@@ -14,7 +14,7 @@
 # -
 #
 # Example:
-# bash autoTestTool.sh -f test_list.txt -p ./build_zcx/sddmm-gpu -n results -k 32
+# bash testTool.sh -f test_list.txt -p ./build/sddmm-gpu -n results -k 32
 #
 
 ##############################################################################################
