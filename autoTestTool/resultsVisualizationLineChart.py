@@ -72,10 +72,10 @@ def main():
         x = subset["NNZ"].values
 
         fig, ax = plt.subplots()
-        ax.plot(x, subset["cuSDDMM_gflops"], label="cuSDDMM", alpha=0.7)
-        ax.plot(x, subset["cuSparse_gflops"], label="cuSparse", alpha=0.7)
-        ax.plot(x, subset["zcx_gflops"], label="zcx", alpha=0.7)
-        ax.plot(x, subset["ASpT_gflops"], label="ASpT", alpha=0.7)
+        ax.plot(x, subset["cuSDDMM_gflops"], marker='s', label="cuSDDMM", alpha=0.7)
+        ax.plot(x, subset["cuSparse_gflops"], marker='o', label="cuSparse", alpha=0.7)
+        ax.plot(x, subset["zcx_gflops"], marker='^', label="BSMR", alpha=0.7)
+        ax.plot(x, subset["ASpT_gflops"], marker='d', label="ASpT", alpha=0.7)
 
         ax.set_title(f"K={k}")
         ax.set_ylabel("GFLOPS")
