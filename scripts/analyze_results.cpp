@@ -17,7 +17,8 @@ std::string findWord(const std::string &line, const std::string &word) {
     if (findIdx != std::string::npos) {
         const size_t beginIdx = findIdx + 1;
         size_t endIdx = beginIdx + 1;
-        while (line[endIdx++] != ']') {}
+        while (line[endIdx++] != ']') {
+        }
         return line.substr(beginIdx, endIdx - beginIdx - 1);
     }
     return "";
@@ -25,7 +26,7 @@ std::string findWord(const std::string &line, const std::string &word) {
 
 std::string findWord(const std::vector<std::string> &multiLine, const std::string &word) {
     std::string value;
-    for (const std::string &line : multiLine) {
+    for (const std::string &line: multiLine) {
         value = findWord(line, word);
         if (!value.empty()) {
             break;
@@ -39,7 +40,8 @@ std::string getValue(const std::string &line, const std::string &word) {
     if (findIdx != std::string::npos) {
         const size_t beginIdx = line.find(word) + word.size();
         size_t endIdx = beginIdx;
-        while (line[endIdx++] != ']') {}
+        while (line[endIdx++] != ']') {
+        }
         return line.substr(beginIdx, endIdx - beginIdx - 1);
     }
     return "";
@@ -47,13 +49,17 @@ std::string getValue(const std::string &line, const std::string &word) {
 
 std::string getValue(const std::vector<std::string> &multiLine, const std::string &word) {
     std::string value;
-    for (const std::string &line : multiLine) {
+    for (const std::string &line: multiLine) {
         value = getValue(line, word);
         if (!value.empty()) {
             break;
         }
     }
     return value;
+}
+
+void printSeparator() {
+    printf("---------------------------------------------------------------------------\n");
 }
 
 // Initialize variables and check if they are different
@@ -70,35 +76,35 @@ bool initOperationOrCheckIfDifferent(std::string &src, const std::string &data) 
 }
 
 struct SettingInformation {
-  bool initInformation(const std::vector<std::string> &oneTimeData);
+    bool initInformation(const std::vector<std::string> &oneTimeData);
 
-  void printInformation() const;
+    void printInformation() const;
 
-  std::string buildType_;
-  std::string device_;
+    std::string buildType_;
+    std::string device_;
 
-  std::string wmma_m_;
-  std::string wmma_n_;
-  std::string wmma_k_;
+    std::string wmma_m_;
+    std::string wmma_n_;
+    std::string wmma_k_;
 
-  std::string blockDim_dense_;
-  std::string blockDim_sparse_;
+    std::string blockDim_dense_;
+    std::string blockDim_sparse_;
 
-  std::string matrixA_type_;
-  std::string matrixB_type_;
-  std::string matrixC_type_;
+    std::string matrixA_type_;
+    std::string matrixB_type_;
+    std::string matrixC_type_;
 
-  std::string matrixA_storageOrder_;
-  std::string matrixB_storageOrder_;
-  std::string matrixC_storageOrder_;
+    std::string matrixA_storageOrder_;
+    std::string matrixB_storageOrder_;
+    std::string matrixC_storageOrder_;
 };
 
 // init the setting information, if setting information is already initialized, and the new data is different, than return false
 bool SettingInformation::initInformation(const std::vector<std::string> &oneTimeResults) {
     std::string buildType, device, wmma_m, wmma_n, wmma_k, blockDim_dense, blockDim_sparse, matrixA_type, matrixB_type,
-        matrixC_type, matrixA_storageOrder, matrixB_storageOrder, matrixC_storageOrder;
+            matrixC_type, matrixA_storageOrder, matrixB_storageOrder, matrixC_storageOrder;
 
-    for (const std::string &line : oneTimeResults) {
+    for (const std::string &line: oneTimeResults) {
         buildType = buildType.empty() ? findWord(line, "[Build type : ") : buildType;
         device = device.empty() ? findWord(line, "[Device : ") : device;
         wmma_m = wmma_m.empty() ? findWord(line, "[WMMA_M : ") : wmma_m;
@@ -109,15 +115,18 @@ bool SettingInformation::initInformation(const std::vector<std::string> &oneTime
         matrixA_type = matrixA_type.empty() ? findWord(line, "[matrixA type : ") : matrixA_type;
         matrixB_type = matrixB_type.empty() ? findWord(line, "[matrixB type : ") : matrixB_type;
         matrixC_type = matrixC_type.empty() ? findWord(line, "[matrixC type : ") : matrixC_type;
-        matrixA_storageOrder = matrixA_storageOrder.empty() ? findWord(line,
-                                                                       "[matrixA storageOrder : ")
-                                                            : matrixA_storageOrder;
-        matrixB_storageOrder = matrixB_storageOrder.empty() ? findWord(line,
-                                                                       "[matrixB storageOrder : ")
-                                                            : matrixB_storageOrder;
-        matrixC_storageOrder = matrixC_storageOrder.empty() ? findWord(line,
-                                                                       "[matrixC storageOrder : ")
-                                                            : matrixC_storageOrder;
+        matrixA_storageOrder = matrixA_storageOrder.empty()
+                                   ? findWord(line,
+                                              "[matrixA storageOrder : ")
+                                   : matrixA_storageOrder;
+        matrixB_storageOrder = matrixB_storageOrder.empty()
+                                   ? findWord(line,
+                                              "[matrixB storageOrder : ")
+                                   : matrixB_storageOrder;
+        matrixC_storageOrder = matrixC_storageOrder.empty()
+                                   ? findWord(line,
+                                              "[matrixC storageOrder : ")
+                                   : matrixC_storageOrder;
     }
 
     if (!initOperationOrCheckIfDifferent(buildType_, buildType)) {
@@ -165,9 +174,9 @@ bool SettingInformation::initInformation(const std::vector<std::string> &oneTime
 
 void SettingInformation::printInformation() const {
     auto printOneInformation = [](const std::string &information) -> void {
-      if (!information.empty()) {
-          printf("- %s\n", information.c_str());
-      }
+        if (!information.empty()) {
+            printf("- %s\n", information.c_str());
+        }
     };
 
     printf("\n");
@@ -190,59 +199,58 @@ void SettingInformation::printInformation() const {
 }
 
 struct OneTimeData {
-  void initInformation(const std::vector<std::string> &oneTimeResults);
+    void initInformation(const std::vector<std::string> &oneTimeResults);
 
-  std::string zcx_gflops_;
-  std::string cuSDDMM_gflops_;
-  std::string cuSparse_gflops_;
-  std::string ASpT_gflops_;
+    std::string zcx_gflops_;
+    std::string cuSDDMM_gflops_;
+    std::string cuSparse_gflops_;
+    std::string ASpT_gflops_;
 
-  std::string zcx_numDenseBlock_;
-  std::string BSA_numDenseBlock_;
+    std::string zcx_numDenseBlock_;
+    std::string BSA_numDenseBlock_;
 
-  std::string checkResults_;
+    std::string checkResults_;
 };
 
-void initOperation(std::string& str, const std::string& line, const std::string& findWord){
+void initOperation(std::string &str, const std::string &line, const std::string &findWord) {
     str = str.empty() ? getValue(line, findWord) : str;
 }
 
 void OneTimeData::initInformation(const std::vector<std::string> &oneTimeResults) {
-
-    for (const std::string &line : oneTimeResults) {
+    for (const std::string &line: oneTimeResults) {
         zcx_gflops_ = zcx_gflops_.empty() ? getValue(line, "[zcx_gflops : ") : zcx_gflops_;
         cuSDDMM_gflops_ = cuSDDMM_gflops_.empty() ? getValue(line, "[cuSDDMM_gflops : ") : cuSDDMM_gflops_;
         cuSparse_gflops_ = cuSparse_gflops_.empty() ? getValue(line, "[cuSparse_gflops : ") : cuSparse_gflops_;
         ASpT_gflops_ = ASpT_gflops_.empty() ? getValue(line, "[ASpT_gflops : ") : ASpT_gflops_;
 
-        initOperation(zcx_numDenseBlock_,line,"[zcx_numDenseBlock : ");
-        initOperation(BSA_numDenseBlock_,line,"[BSA_numDenseBlock : ");
+        initOperation(zcx_numDenseBlock_, line, "[zcx_numDenseBlock : ");
+        initOperation(BSA_numDenseBlock_, line, "[BSA_numDenseBlock : ");
 
         checkResults_ = checkResults_.empty() ? getValue(line, "[checkResults : ") : checkResults_;
     }
 }
 
 struct ResultsInformation {
-  bool initInformation(const std::vector<std::string> &oneTimeResults);
+    bool initInformation(const std::vector<std::string> &oneTimeResults);
 
-  void printInformation() const;
+    void printInformation() const;
 
-  bool empty() const {
-      return kToOneTimeData_.empty();
-  }
+    bool empty() const {
+        return kToOneTimeData_.empty();
+    }
 
-  std::string file_;
-  std::string M_;
-  std::string N_;
-  std::string NNZ_;
-  std::string sparsity_;
+    std::string file_;
+    std::string M_;
+    std::string N_;
+    std::string NNZ_;
+    std::string sparsity_;
 
-  std::map<int, OneTimeData> kToOneTimeData_;
+    std::map<int, OneTimeData> kToOneTimeData_;
 };
 
 bool ResultsInformation::initInformation(const std::vector<std::string> &oneTimeResults) {
     std::string file, M, N, NNZ, sparsity, K_str;
-    for (const std::string &line : oneTimeResults) {
+    for (const std::string &line: oneTimeResults) {
         file = file.empty() ? getValue(line, "[File : ") : file;
         M = M.empty() ? getValue(line, "[M : ") : M;
         N = N.empty() ? getValue(line, "[N : ") : N;
@@ -288,7 +296,6 @@ std::string getFileName(const std::string &path) {
 }
 
 void ResultsInformation::printInformation() const {
-
     printf("## M : %s, N: %s, sparsity: %s, file: %s\n",
            M_.c_str(), N_.c_str(), sparsity_.c_str(), file_.c_str());
 
@@ -318,11 +325,11 @@ void ResultsInformation::printInformation() const {
     printf("\n");
 
     auto printOneLineInformation = [](const std::string &information) -> void {
-      std::cout << information << "|";
+        std::cout << information << "|";
     };
 
     // Print data line by line
-    for (const auto &iter : kToOneTimeData_) {
+    for (const auto &iter: kToOneTimeData_) {
         printf("|");
         printOneLineInformation(M_);
         printOneLineInformation(N_);
@@ -342,8 +349,8 @@ void ResultsInformation::printInformation() const {
 }
 
 // return the data in the file
-std::vector<std::vector<std::string>> readResultsFile(const std::string &resultsFile) {
-    std::vector<std::vector<std::string>> allData;
+std::vector<std::vector<std::string> > readResultsFile(const std::string &resultsFile) {
+    std::vector<std::vector<std::string> > allData;
 
     std::ifstream inFile;
     inFile.open(resultsFile, std::ios::in); // open file
@@ -380,13 +387,13 @@ std::unordered_map<std::string, ResultsInformation> pickTheBadResults(
     const std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
     std::unordered_map<std::string, ResultsInformation> bad;
 
-    for (const auto &iter : matrixFileToResultsInformationMap) {
+    for (const auto &iter: matrixFileToResultsInformationMap) {
         const std::string file = iter.first;
         const ResultsInformation &resultesInformation = iter.second;
 
         ResultsInformation badResultsInformation(resultesInformation);
         badResultsInformation.kToOneTimeData_.clear();
-        for (const auto &kToOneTimeData : resultesInformation.kToOneTimeData_) {
+        for (const auto &kToOneTimeData: resultesInformation.kToOneTimeData_) {
             const int k = kToOneTimeData.first;
             const float zcx_gflops = getFloatValue(kToOneTimeData.second.zcx_gflops_);
             const float cuSDDMM_gflops = getFloatValue(kToOneTimeData.second.cuSDDMM_gflops_);
@@ -416,10 +423,10 @@ std::unordered_map<std::string, ResultsInformation> pickTheBadResults(
 
 int getNumResults(const std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
     int numResults = 0;
-    for (const auto &iter : matrixFileToResultsInformationMap) {
+    for (const auto &iter: matrixFileToResultsInformationMap) {
         numResults += iter.second.kToOneTimeData_.size();
 
-        for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
+        for (const auto &kToOneTimeData: iter.second.kToOneTimeData_) {
             const float zcx_sddmm = getFloatValue(kToOneTimeData.second.zcx_gflops_);
 
             if (zcx_sddmm <= 1e-6) {
@@ -454,11 +461,11 @@ bool checkIsCorrect(const std::string &checkResults) {
 }
 
 float calculateAccuracy(const std::unordered_map<std::string,
-                                                 ResultsInformation> &matrixFileToResultsInformationMap) {
+    ResultsInformation> &matrixFileToResultsInformationMap) {
     const int numResults = getNumResults(matrixFileToResultsInformationMap);
     int numErrors = 0;
-    for (const auto &iter : matrixFileToResultsInformationMap) {
-        for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
+    for (const auto &iter: matrixFileToResultsInformationMap) {
+        for (const auto &kToOneTimeData: iter.second.kToOneTimeData_) {
             bool isCorrect = checkIsCorrect(kToOneTimeData.second.checkResults_);
 
             if (!isCorrect) {
@@ -474,7 +481,7 @@ float calculateAccuracy(const std::unordered_map<std::string,
 }
 
 // return the average speedup adn the maximum speedup
-std::pair<float, float> calculateAverageAndMaxSpeedupWithCuSDDMM(
+void evaluateSddmmWithCuSDDMM(
     std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
     float sumSpeedup = 0.0f;
     float maxSpeedup = 0.0f;
@@ -483,8 +490,8 @@ std::pair<float, float> calculateAverageAndMaxSpeedupWithCuSDDMM(
     std::vector<int> numSpeedups(6);
 
     const int numResults = getNumResults(matrixFileToResultsInformationMap);
-    for (const auto &iter : matrixFileToResultsInformationMap) {
-        for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
+    for (const auto &iter: matrixFileToResultsInformationMap) {
+        for (const auto &kToOneTimeData: iter.second.kToOneTimeData_) {
             const float zcx_gflops = getFloatValue(kToOneTimeData.second.zcx_gflops_);
             const float cuSDDMM_gflops = getFloatValue(kToOneTimeData.second.cuSDDMM_gflops_);
 
@@ -496,28 +503,22 @@ std::pair<float, float> calculateAverageAndMaxSpeedupWithCuSDDMM(
             maxSpeedup = std::max(speedup, maxSpeedup);
             sumSpeedup += speedup;
 
-            if (speedup <= 0.5)
-            {
+            if (speedup <= 0.5) {
                 ++numSpeedups[0];
             }
-            if (speedup > 0.5 && speedup <= 0.8)
-            {
+            if (speedup > 0.5 && speedup <= 0.8) {
                 ++numSpeedups[1];
             }
-            if (speedup > 0.8 && speedup <= 1.0)
-            {
+            if (speedup > 0.8 && speedup <= 1.0) {
                 ++numSpeedups[2];
             }
-            if (speedup > 1.0 && speedup <= 1.2)
-            {
+            if (speedup > 1.0 && speedup <= 1.2) {
                 ++numSpeedups[3];
             }
-            if (speedup > 1.2 && speedup <= 1.5)
-            {
+            if (speedup > 1.2 && speedup <= 1.5) {
                 ++numSpeedups[4];
             }
-            if (speedup > 1.5)
-            {
+            if (speedup > 1.5) {
                 ++numSpeedups[5];
             }
         }
@@ -525,8 +526,10 @@ std::pair<float, float> calculateAverageAndMaxSpeedupWithCuSDDMM(
 
     float averageSpeedup = sumSpeedup / numResults;
 
-    printf("Average speedup over cuSDDMM: %.2f, maximum speedup: %.2f\n", averageSpeedup, maxSpeedup);
+    printSeparator();
+    printf("evaluateSddmmWithCuSDDMM:\n");
 
+    printf("Average speedup over cuSDDMM: %.2f, maximum speedup: %.2f\n", averageSpeedup, maxSpeedup);
 
     printf("Speedup over cuSDDMM <= 0.5 : %.1f%%\n", numSpeedups[0] / static_cast<float>(numResults) * 100.0f);
     printf("Speedup over cuSDDMM 0.5~0.8 : %.1f%%\n", numSpeedups[1] / static_cast<float>(numResults) * 100.0f);
@@ -535,19 +538,18 @@ std::pair<float, float> calculateAverageAndMaxSpeedupWithCuSDDMM(
     printf("Speedup over cuSDDMM 1.2~1.5 : %.1f%%\n", numSpeedups[4] / static_cast<float>(numResults) * 100.0f);
     printf("Speedup over cuSDDMM > 1.5 : %.1f%%\n", numSpeedups[5] / static_cast<float>(numResults) * 100.0f);
 
-
-    return std::make_pair(averageSpeedup, maxSpeedup);
+    printSeparator();
 }
 
 // return the average speedup adn the maximum speedup
-std::pair<float, float> calculateAverageAndMaxSpeedupWithCuSparse(
+void evaluateSddmmWithCuSparse(
     std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
     float sumSpeedup = 0.0f;
     float maxSpeedup = 0.0f;
 
     const int numResults = getNumResults(matrixFileToResultsInformationMap);
-    for (const auto &iter : matrixFileToResultsInformationMap) {
-        for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
+    for (const auto &iter: matrixFileToResultsInformationMap) {
+        for (const auto &kToOneTimeData: iter.second.kToOneTimeData_) {
             const float zcx_sddmm = getFloatValue(kToOneTimeData.second.zcx_gflops_);
             const float cuSparse_sddmm = getFloatValue(kToOneTimeData.second.cuSparse_gflops_);
 
@@ -563,13 +565,16 @@ std::pair<float, float> calculateAverageAndMaxSpeedupWithCuSparse(
 
     float averageSpeedup = sumSpeedup / numResults;
 
+    printSeparator();
+    printf("evaluateSddmmWithCuSparse:\n");
+
     printf("Average speedup over cuSparse: %.2f, maximum speedup: %.2f\n", averageSpeedup, maxSpeedup);
 
-    return std::make_pair(averageSpeedup, maxSpeedup);
+    printSeparator();
 }
 
 // return the average speedup adn the maximum speedup
-std::pair<float, float> calculateAverageAndMaxSpeedupWithASpT(
+void evaluateSddmmWithASpT(
     std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
     float sumSpeedup = 0.0f;
     float maxSpeedup = 0.0f;
@@ -578,8 +583,8 @@ std::pair<float, float> calculateAverageAndMaxSpeedupWithASpT(
     std::vector<int> numSpeedups(6);
 
     const int numResults = getNumResults(matrixFileToResultsInformationMap);
-    for (const auto &iter : matrixFileToResultsInformationMap) {
-        for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
+    for (const auto &iter: matrixFileToResultsInformationMap) {
+        for (const auto &kToOneTimeData: iter.second.kToOneTimeData_) {
             const float zcx_sddmm = getFloatValue(kToOneTimeData.second.zcx_gflops_);
             const float ASpT_sddmm = getFloatValue(kToOneTimeData.second.ASpT_gflops_);
 
@@ -591,34 +596,31 @@ std::pair<float, float> calculateAverageAndMaxSpeedupWithASpT(
             maxSpeedup = std::max(speedup, maxSpeedup);
             sumSpeedup += speedup;
 
-            if (speedup <= 0.5)
-            {
+            if (speedup <= 0.5) {
                 ++numSpeedups[0];
             }
-            if (speedup > 0.5 && speedup <= 0.8)
-            {
+            if (speedup > 0.5 && speedup <= 0.8) {
                 ++numSpeedups[1];
             }
-            if (speedup > 0.8 && speedup <= 1.0)
-            {
+            if (speedup > 0.8 && speedup <= 1.0) {
                 ++numSpeedups[2];
             }
-            if (speedup > 1.0 && speedup <= 1.2)
-            {
+            if (speedup > 1.0 && speedup <= 1.2) {
                 ++numSpeedups[3];
             }
-            if (speedup > 1.2 && speedup <= 1.5)
-            {
+            if (speedup > 1.2 && speedup <= 1.5) {
                 ++numSpeedups[4];
             }
-            if (speedup > 1.5)
-            {
+            if (speedup > 1.5) {
                 ++numSpeedups[5];
             }
         }
     }
 
     float averageSpeedup = sumSpeedup / numResults;
+
+    printSeparator();
+    printf("evaluateSddmmWithASpT:\n");
 
     printf("Average speedup over ASpT: %.2f, maximum speedup: %.2f\n", averageSpeedup, maxSpeedup);
 
@@ -629,8 +631,7 @@ std::pair<float, float> calculateAverageAndMaxSpeedupWithASpT(
     printf("Speedup over ASpT 1.2~1.5 : %.1f%%\n", numSpeedups[4] / static_cast<float>(numResults) * 100.0f);
     printf("Speedup over ASpT > 1.5 : %.1f%%\n", numSpeedups[5] / static_cast<float>(numResults) * 100.0f);
 
-
-    return std::make_pair(averageSpeedup, maxSpeedup);
+    printSeparator();
 }
 
 
@@ -640,7 +641,7 @@ std::pair<float, float> getMaxAndMinSparsity(
     float maxSparsity = 0.0f;
     float minSparsity = 100.0f;
 
-    for (const auto &iter : matrixFileToResultsInformationMap) {
+    for (const auto &iter: matrixFileToResultsInformationMap) {
         const float sparsity = getFloatValue(iter.second.sparsity_);
 
         maxSparsity = std::max(sparsity, maxSparsity);
@@ -658,7 +659,7 @@ std::pair<int, int> getMaxAndMinRow(
     int maxM = 0;
     int minM = std::numeric_limits<int>::max();;
 
-    for (const auto &iter : matrixFileToResultsInformationMap) {
+    for (const auto &iter: matrixFileToResultsInformationMap) {
         const int M = getIntValue(iter.second.M_);
 
         maxM = std::max(M, maxM);
@@ -673,7 +674,7 @@ std::pair<int, int> getMaxAndMinRow(
 void eliminateNullValues(std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
     for (auto iter = matrixFileToResultsInformationMap.begin(); iter != matrixFileToResultsInformationMap.end();) {
         if (iter->second.M_.empty() || iter->second.N_.empty() || iter->second.sparsity_.empty()) {
-//            printf("[bad file] : %s\n", iter->first.c_str());
+            //            printf("[bad file] : %s\n", iter->first.c_str());
             iter = matrixFileToResultsInformationMap.erase(iter);
         } else {
             ++iter;
@@ -681,9 +682,8 @@ void eliminateNullValues(std::unordered_map<std::string, ResultsInformation> &ma
     }
 }
 
-void printReorderingEffectiveness(const std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap)
-{
-
+void printReorderingEffectiveness(
+    const std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
     const int numColAttributes = 3;
     // print the head of the list
     printf("\n");
@@ -706,9 +706,9 @@ void printReorderingEffectiveness(const std::unordered_map<std::string, ResultsI
         std::cout << information << "|";
     };
 
-    for (const auto &iter : matrixFileToResultsInformationMap) {
-        for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
-            if (kToOneTimeData.second.zcx_numDenseBlock_.empty() || kToOneTimeData.second.BSA_numDenseBlock_.empty()){
+    for (const auto &iter: matrixFileToResultsInformationMap) {
+        for (const auto &kToOneTimeData: iter.second.kToOneTimeData_) {
+            if (kToOneTimeData.second.zcx_numDenseBlock_.empty() || kToOneTimeData.second.BSA_numDenseBlock_.empty()) {
                 continue;
             }
 
@@ -730,16 +730,15 @@ void printReorderingEffectiveness(const std::unordered_map<std::string, ResultsI
     printf("\n");
 }
 
-void evaluateReorderingEffectivenessWithBSA(
+void evaluateReorderingWithBSA(
     const std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
-
     int sumZCX = 0;
     int sumBSA = 0;
 
     int numResults = getNumResults(matrixFileToResultsInformationMap);
-    for (const auto &iter : matrixFileToResultsInformationMap) {
-        for (const auto &kToOneTimeData : iter.second.kToOneTimeData_) {
-            if (kToOneTimeData.second.zcx_numDenseBlock_.empty() || kToOneTimeData.second.BSA_numDenseBlock_.empty()){
+    for (const auto &iter: matrixFileToResultsInformationMap) {
+        for (const auto &kToOneTimeData: iter.second.kToOneTimeData_) {
+            if (kToOneTimeData.second.zcx_numDenseBlock_.empty() || kToOneTimeData.second.BSA_numDenseBlock_.empty()) {
                 continue;
             }
 
@@ -751,22 +750,28 @@ void evaluateReorderingEffectivenessWithBSA(
         }
     }
 
-    float relativeIncreasePercent = static_cast<float>(sumZCX - sumBSA)  / sumBSA * 100.0f;
+    const float relativeIncreasePercent = static_cast<float>(sumZCX - sumBSA) / sumBSA * 100.0f;
+
+    printSeparator();
+    printf("evaluateReorderingWithBSA:\n");
 
     printf("Percentage increase of dense blocks relative to BSA: %.2f%%\n", relativeIncreasePercent);
+
+    printReorderingEffectiveness(matrixFileToResultsInformationMap);
+
+    printSeparator();
 }
 
-int main(int argc, char *argv[]) {
-
+int main(const int argc, const char *argv[]) {
     // Read the results file
     SettingInformation settingInformation;
     std::unordered_map<std::string, ResultsInformation> matrixFileToResultsInformationMap;
     for (int fileIdx = 1; fileIdx < argc; ++fileIdx) {
         const std::string resultsFile = argv[fileIdx];
 
-        const std::vector<std::vector<std::string>> allData = readResultsFile(resultsFile);
+        const std::vector<std::vector<std::string> > allData = readResultsFile(resultsFile);
 
-        for (const std::vector<std::string> &oneTimeResults : allData) {
+        for (const std::vector<std::string> &oneTimeResults: allData) {
             if (!settingInformation.initInformation(oneTimeResults)) {
                 return -1;
             }
@@ -785,8 +790,8 @@ int main(int argc, char *argv[]) {
     eliminateNullValues(matrixFileToResultsInformationMap);
 
     // Pick the bad results
-    std::unordered_map<std::string, ResultsInformation> badResults =
-        pickTheBadResults(matrixFileToResultsInformationMap);
+    const std::unordered_map<std::string, ResultsInformation> badResults =
+            pickTheBadResults(matrixFileToResultsInformationMap);
 
     printf("Number of matrix files: %d\n", static_cast<int>(matrixFileToResultsInformationMap.size()));
 
@@ -794,30 +799,26 @@ int main(int argc, char *argv[]) {
     const int numResults = getNumResults(matrixFileToResultsInformationMap);
     printf("Number of data: %d\n", numResults);
 
+    const int numBadResults = getNumResults(badResults);
+    printf("Bad results: %.2f%%\n", (static_cast<float>(numBadResults) / numResults) * 100);
+
     getMaxAndMinSparsity(matrixFileToResultsInformationMap);
 
     getMaxAndMinRow(matrixFileToResultsInformationMap);
 
     calculateAccuracy(matrixFileToResultsInformationMap);
 
-    calculateAverageAndMaxSpeedupWithCuSDDMM(matrixFileToResultsInformationMap);
+    evaluateSddmmWithCuSDDMM(matrixFileToResultsInformationMap);
 
-    calculateAverageAndMaxSpeedupWithCuSparse(matrixFileToResultsInformationMap);
+    evaluateSddmmWithCuSparse(matrixFileToResultsInformationMap);
 
-    calculateAverageAndMaxSpeedupWithASpT(matrixFileToResultsInformationMap);
+    evaluateSddmmWithASpT(matrixFileToResultsInformationMap);
 
-    evaluateReorderingEffectivenessWithBSA(matrixFileToResultsInformationMap);
+    evaluateReorderingWithBSA(matrixFileToResultsInformationMap);
 
-    printReorderingEffectiveness(matrixFileToResultsInformationMap);
-
-    const int numBadResults = getNumResults(badResults);
-    printf("Bad results: %.2f%%\n", (static_cast<float>(numBadResults) / numResults) * 100);
-
-    // Print the program setting information to Markdown format
+    // Print the program setting information to Markdown format and the results information
     settingInformation.printInformation();
-
-    // Print the results to Markdown format
-    for (const auto &iter : matrixFileToResultsInformationMap) {
+    for (const auto &iter: matrixFileToResultsInformationMap) {
         iter.second.printInformation();
     }
 
