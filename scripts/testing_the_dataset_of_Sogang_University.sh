@@ -29,8 +29,8 @@ program_ASpT_32="./build_ASpT/ASpT-sddmm-32"
 program_ASpT_128="./build_ASpT/ASpT-sddmm-32"
 
 # 测试 rn50 dataset
-bash testTool.sh -f ${results_path}dlmc/rn50_matrices.txt -p ./build_zcx/sddmm-gpu -n ${rn50_results_path}zcx_results_rn50
-bash testTool.sh -f ${results_path}dlmc/transformer_matrices.txt -p ./build_zcx/sddmm-gpu -n ${transformer_results_path}zcx_results_transformer
+bash testScript.sh -f ${results_path}dlmc/rn50_matrices.txt -p ./build_zcx/sddmm-gpu -n ${rn50_results_path}zcx_results_rn50
+bash testScript.sh -f ${results_path}dlmc/transformer_matrices.txt -p ./build_zcx/sddmm-gpu -n ${transformer_results_path}zcx_results_transformer
 
 # 分析结果
 g++ autoAnalysisResults.cpp -o autoAnalysisResults
