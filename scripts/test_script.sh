@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #
-# Script Name: testScript.sh
+# Script Name: test_script.sh
 # Description: 用于自动化测试程序的脚本. 该脚本使用给定的测试文件列表和测试程序进行测试.
-# Usage: ./testScript.sh [参数] [参数值] ...
+# Usage: ./test_script.sh [参数] [参数值] ...
 #
 # Options:
 # - -f : 测试文件列表
@@ -14,7 +14,7 @@
 # -
 #
 # Example:
-# bash testScript.sh -f test_list.txt -p ./build/sddmm-gpu -n results -k 32
+# bash test_script.sh -f test_list.txt -p ./build/sddmm-gpu -n results -k 32
 #
 
 ##############################################################################################

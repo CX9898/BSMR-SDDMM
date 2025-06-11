@@ -20,13 +20,13 @@ program_ASpT_128="./build_ASpT/ASpT-sddmm-32"
 program_BSA="./build_BSA/BSA-spmm"
 
 # 运行测试程序
-bash testScript.sh -f ${matrix_list_file} -p ${program_zcx} -n "${results_path}zcx_results_32_0.4" -k 32
-bash testScript.sh -f ${matrix_list_file} -p ${program_zcx} -n "${results_path}zcx_results_128_0.4" -k 128
-bash testScript.sh -f ${matrix_list_file} -p ${program_cuSDDMM} -n "${results_path}cuSDDMM_results_32" -k 32
-bash testScript.sh -f ${matrix_list_file} -p ${program_cuSDDMM} -n "${results_path}cuSDDMM_results_128" -k 128
-bash testScript.sh -f ${matrix_list_file} -p ${program_ASpT_32} -n "${results_path}ASpT_results_32" -k 32
-bash testScript.sh -f ${matrix_list_file} -p ${program_ASpT_128} -n "${results_path}ASpT_results_128" -k 128
-bash testScript.sh -f ${matrix_list_file} -p ${program_BSA} -n "${results_path}BSA_results"
+bash test_script.sh -f ${matrix_list_file} -p ${program_zcx} -n "${results_path}zcx_results_32_0.4" -k 32
+bash test_script.sh -f ${matrix_list_file} -p ${program_zcx} -n "${results_path}zcx_results_128_0.4" -k 128
+bash test_script.sh -f ${matrix_list_file} -p ${program_cuSDDMM} -n "${results_path}cuSDDMM_results_32" -k 32
+bash test_script.sh -f ${matrix_list_file} -p ${program_cuSDDMM} -n "${results_path}cuSDDMM_results_128" -k 128
+bash test_script.sh -f ${matrix_list_file} -p ${program_ASpT_32} -n "${results_path}ASpT_results_32" -k 32
+bash test_script.sh -f ${matrix_list_file} -p ${program_ASpT_128} -n "${results_path}ASpT_results_128" -k 128
+bash test_script.sh -f ${matrix_list_file} -p ${program_BSA} -n "${results_path}BSA_results"
 
 # 分析结果
 g++ autoAnalysisResults.cpp -o autoAnalysisResults
