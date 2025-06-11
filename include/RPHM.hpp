@@ -10,7 +10,7 @@ constexpr UIN BLOCK_COL_SIZE = WMMA_N;
 constexpr UIN BLOCK_SIZE = ROW_PANEL_SIZE * BLOCK_COL_SIZE;
 
 /**
- * @className: ReBELL
+ * @className: RPHM
  * @classInterpretation: Reorder the rows and columns of a sparse matrix and divide it into dense tiled and sparse tiled. Store dense tiled in BELL format, and sparse tiled in COO format.
  * @MemberVariables:
  * `reorderedRows_`: Store the reordered row indexes.
@@ -23,72 +23,76 @@ constexpr UIN BLOCK_SIZE = ROW_PANEL_SIZE * BLOCK_COL_SIZE;
  * `sparseRelativeRows_`: row indices in COO format, but relative to the row panel.
  * `sparseCols_`: column indices in COO format.
  **/
-class ReBELL {
- public:
-  ReBELL() = default;
-  ReBELL(const sparseMatrix::CSR<float> &matrix, float similarityThresholdAlpha = 0.3, int columnNonZeroThresholdBeta = 4);
+class RPHM {
+public:
+    RPHM() = default;
 
-  UIN numRowPanels() const { return numRowPanels_; }
-  UIN maxNumDenseColBlocks() const { return maxNumDenseColBlocks_; }
-  UIN maxNumSparseColBlocks() const { return maxNumSparseColBlocks_; }
-  const dev::vector<UIN> &reorderedRows() const { return reorderedRows_; }
-  const dev::vector<UIN> &denseCols() const { return denseCols_; }
-  const dev::vector<UIN> &denseColOffsets() const { return denseColOffsets_; }
-  const dev::vector<UIN> &blockValues() const { return blockValues_; }
-  const dev::vector<UIN> &blockOffsets() const { return blockOffsets_; }
-  const dev::vector<UIN> &sparseValueOffsets() const { return sparseValueOffsets_; }
-  const dev::vector<UIN> &sparseValues() const { return sparseValues_; }
-  const dev::vector<UIN> &sparseRelativeRows() const { return sparseRelativeRows_; }
-  const dev::vector<UIN> &sparseColIndices() const { return sparseColIndices_; }
-  float time() const { return time_; }
+    RPHM(const sparseMatrix::CSR<float> &matrix,
+         float similarityThresholdAlpha = 0.3,
+         int columnNonZeroThresholdBeta = 4);
 
-  // Calculate the rowPanelID by blockValueIndex
-  UIN calculateRowPanelIdByBlockValuesIndex(UIN blockValueIndex) const;
+    UIN numRowPanels() const { return numRowPanels_; }
+    UIN maxNumDenseColBlocks() const { return maxNumDenseColBlocks_; }
+    UIN maxNumSparseColBlocks() const { return maxNumSparseColBlocks_; }
+    const dev::vector<UIN> &reorderedRows() const { return reorderedRows_; }
+    const dev::vector<UIN> &denseCols() const { return denseCols_; }
+    const dev::vector<UIN> &denseColOffsets() const { return denseColOffsets_; }
+    const dev::vector<UIN> &blockValues() const { return blockValues_; }
+    const dev::vector<UIN> &blockOffsets() const { return blockOffsets_; }
+    const dev::vector<UIN> &sparseValueOffsets() const { return sparseValueOffsets_; }
+    const dev::vector<UIN> &sparseValues() const { return sparseValues_; }
+    const dev::vector<UIN> &sparseRelativeRows() const { return sparseRelativeRows_; }
+    const dev::vector<UIN> &sparseColIndices() const { return sparseColIndices_; }
+    float time() const { return time_; }
 
-  // Calculate the rowPanelID by reorderedColIndex
-  UIN calculateRowPanelIdByColIndex(UIN reorderedColIndex) const;
+    // Calculate the rowPanelID by blockValueIndex
+    UIN calculateRowPanelIdByBlockValuesIndex(UIN blockValueIndex) const;
 
-  // Calculate the localRow and localCol by blockValueIndex
-  std::pair<UIN, UIN> calculateLocalRowColByBlockValueIndex(UIN blockValueIndex) const;
+    // Calculate the rowPanelID by reorderedColIndex
+    UIN calculateRowPanelIdByColIndex(UIN reorderedColIndex) const;
 
-  // Calculate the row and col by blockValueIndex
-  std::pair<UIN, UIN> calculateRowColByBlockValueIndex(UIN blockValueIndex) const;
+    // Calculate the localRow and localCol by blockValueIndex
+    std::pair<UIN, UIN> calculateLocalRowColByBlockValueIndex(UIN blockValueIndex) const;
 
-  // Calculate the colBlockId in row panel by blockValueIndex
-  UIN calculateColBlockIdByBlockValueIndex(UIN blockValueIndex) const;
+    // Calculate the row and col by blockValueIndex
+    std::pair<UIN, UIN> calculateRowColByBlockValueIndex(UIN blockValueIndex) const;
 
-  UIN getNumDenseBlocks() const { return blockOffsets().back_data(); }
-  UIN getNumSparseBlocks() const;
+    // Calculate the colBlockId in row panel by blockValueIndex
+    UIN calculateColBlockIdByBlockValueIndex(UIN blockValueIndex) const;
 
-  // Calculate the average density of all blocks
-  float calculateAverageDensity() const;
+    UIN getNumDenseBlocks() const { return blockOffsets().back_data(); }
 
-  // Calculate the maximum and minimum density of all blocks
-  std::pair<float, float> calculateMaxMinDensity() const;
+    UIN getNumSparseBlocks() const;
 
-  // Calculate the mode density and its frequency among all blocks.
-  std::pair<float, UIN> calculateDensityMode() const;
+    // Calculate the average density of all blocks
+    float calculateAverageDensity() const;
 
- private:
-  UIN numRowPanels_;
-  UIN maxNumDenseColBlocks_;
-  UIN maxNumSparseColBlocks_;
+    // Calculate the maximum and minimum density of all blocks
+    std::pair<float, float> calculateMaxMinDensity() const;
 
-  dev::vector<UIN> reorderedRows_;
+    // Calculate the mode density and its frequency among all blocks.
+    std::pair<float, UIN> calculateDensityMode() const;
 
-  // Dense block data
-  dev::vector<UIN> denseColOffsets_;
-  dev::vector<UIN> denseCols_;
-  dev::vector<UIN> blockOffsets_;
-  dev::vector<UIN> blockValues_;
+private:
+    UIN numRowPanels_;
+    UIN maxNumDenseColBlocks_;
+    UIN maxNumSparseColBlocks_;
 
-  // Sparse block data
-  dev::vector<UIN> sparseValueOffsets_;
-  dev::vector<UIN> sparseValues_;
-  dev::vector<UIN> sparseRelativeRows_;
-  dev::vector<UIN> sparseColIndices_;
+    dev::vector<UIN> reorderedRows_;
 
-  float time_;
+    // Dense block data
+    dev::vector<UIN> denseColOffsets_;
+    dev::vector<UIN> denseCols_;
+    dev::vector<UIN> blockOffsets_;
+    dev::vector<UIN> blockValues_;
+
+    // Sparse block data
+    dev::vector<UIN> sparseValueOffsets_;
+    dev::vector<UIN> sparseValues_;
+    dev::vector<UIN> sparseRelativeRows_;
+    dev::vector<UIN> sparseColIndices_;
+
+    float time_;
 };
 
 void noReorderRow(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &reorderedRows, float &time);
@@ -164,7 +168,7 @@ void colReordering_gpu(const sparseMatrix::CSR<float> &matrix,
                        float &time);
 
 // Error checking
-bool check_rebell(const sparseMatrix::CSR<float> &matrix, const ReBELL &rebell, Logger &logger);
+bool check_rphm(const sparseMatrix::CSR<float> &matrix, const RPHM &rphm, Logger &logger);
 
 // Calculate the number of tiles and average density in the original matrix
 std::pair<UIN, float> calculateNumTilesAndAverageDensityInOriginalMatrix(const sparseMatrix::CSR<float> &matrix);

@@ -1,48 +1,45 @@
 #include "CudaTimeCalculator.cuh"
-#include "ReBELL.hpp"
+#include "RPHM.hpp"
 #include "checkData.hpp"
-#include "cudaUtil.cuh"
 #include "host.hpp"
 #include "sddmm.hpp"
 #include "sddmmKernel.cuh"
 
 // Reordering method
-void sddmm(const Options& options,
+void sddmm(const Options &options,
            const Matrix<float> &matrixA,
            const Matrix<float> &matrixB,
            sparseMatrix::CSR<float> &matrixP,
            Logger &logger) {
-
     // Reordering
-    ReBELL rebell(matrixP, options.similarityThresholdAlpha(), options.columnNonZeroThresholdBeta());
+    RPHM rphm(matrixP, options.similarityThresholdAlpha(), options.columnNonZeroThresholdBeta());
 
-    logger.zcx_other_time_ = rebell.time();
+    logger.zcx_other_time_ = rphm.time();
 
     for (int ITER = 0; ITER < logger.numITER_; ++ITER) {
         float sddmm_time = 0.0f;
 
         // sddmm comp by gpu
-        sddmm_gpu(matrixA, matrixB, rebell, matrixP, sddmm_time);
+        sddmm_gpu(matrixA, matrixB, rphm, matrixP, sddmm_time);
 
         logger.zcx_sddmm_time_ += sddmm_time;
     }
 
     // Error check
-    check_rebell(matrixP, rebell, logger);
-//    checkSddmm(matrixA, matrixB, matrixS, matrixP);
+    check_rphm(matrixP, rphm, logger);
+    //    checkSddmm(matrixA, matrixB, matrixS, matrixP);
 }
 
 bool checkSddmm(const Matrix<float> &matrixA,
                 const Matrix<float> &matrixB,
                 const sparseMatrix::CSR<float> &matrixS,
                 const sparseMatrix::CSR<float> &matrixP) {
-
     // sddmm comp by cpu
     sparseMatrix::CSR<MATRIX_C_TYPE> matrixP_cpu_res(matrixS);
     sddmm_cpu(matrixA, matrixB, matrixS, matrixP_cpu_res);
 
     // Error check
-    printf("check cpu sddmm and rebell sddmm: \n");
+    printf("check cpu sddmm and BSMR sddmm: \n");
     size_t numError = 0;
     if (!checkData(matrixP_cpu_res.values(), matrixP.values(), numError)) {
         printf("[checkData : NO PASS Error rate : %2.2f%%]\n",
@@ -62,7 +59,6 @@ void sddmmBatch(int seq_len,
                 const UIN *d_offsets,
                 const UIN *d_columns,
                 float *dAttn) {
-
     const int M = seq_len;
     const int K = emb_dim;
 
@@ -72,10 +68,10 @@ void sddmmBatch(int seq_len,
     cudaMemcpy(columns.data(), d_columns, columns.size() * sizeof(UIN), cudaMemcpyDeviceToHost);
 
     sparseMatrix::CSR<float> matrixP(M, M, nnz, offsets, columns);
-    ReBELL rebell(matrixP);
+    RPHM rphm(matrixP);
 
     float time = 0.0f;
-    sddmm_gpu_batch(numBatches, M, M, K, nnz, dQuery, dKey, rebell, dAttn, time);
+    sddmm_gpu_batch(numBatches, M, M, K, nnz, dQuery, dKey, rphm, dAttn, time);
 }
 
 void sddmmBatch(int seq_len,
@@ -87,7 +83,6 @@ void sddmmBatch(int seq_len,
                 const int *d_offsets,
                 const int *d_columns,
                 float *dAttn) {
-
     dev::vector<UIN> converted_offsets(seq_len + 1);
     cudaMemcpy(converted_offsets.data(), d_offsets, converted_offsets.size() * sizeof(int), cudaMemcpyDeviceToDevice);
     dev::vector<UIN> converted_columns(nnz);
