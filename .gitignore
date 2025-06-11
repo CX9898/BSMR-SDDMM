@@ -14,16 +14,7 @@
 *.log
 
 # Result analysis program
-autoAnalysisResults
-
-# Download the matrix data for testing
-autoTestTool/matrices/
-
-# Matrix data for testing
-**/dlmc/
-
-# Download the matrix data for testing
-**/ssgetpy/
+analyze_results
 
 # Download the dataset for testing
 **/*dataset*/
