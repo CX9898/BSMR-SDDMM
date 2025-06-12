@@ -246,18 +246,15 @@ public:
 
 private:
     std::string nameToken_;
-    float gflops_ = std::numeric_limits<float>::max();
+    float gflops_ = 0.0f;
     int numDenseBlock_ = 0;
     std::string checkResults_;
 
-    void updateGflops(float newValue) {
-        if (newValue < 1e-6f) {
-            return; // Ignore values that are too small
-        }
-        gflops_ = std::min(gflops_, newValue);
+    void updateGflops(const float newValue) {
+        gflops_ = std::max(gflops_, newValue);
     }
 
-    void updateNumDenseBlock(int newValue) {
+    void updateNumDenseBlock(const int newValue) {
         numDenseBlock_ = std::max(numDenseBlock_, newValue);
     }
 
