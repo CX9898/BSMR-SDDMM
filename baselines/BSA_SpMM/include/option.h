@@ -74,8 +74,12 @@ public:
                 input_format = std::stoi(optarg);
                 break;
             case 'b':
-                block_size = std::stoi(optarg);
-                break;
+                {
+//                    block_size = std::stoi(optarg);
+                    const int nnzInColSeg = std::stoi(optarg);
+                    delta = nnzInColSeg / 16.0f;
+                    break;
+                }
             case 'v':
                 valid = (std::stoi(optarg) == 1);
                 break;
