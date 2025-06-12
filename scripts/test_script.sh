@@ -10,6 +10,8 @@
 # - -p : 目标测试程序
 # - -n : 日志文件名(可选)
 # - -k : k值(可选)
+# - -a : similarityThresholdAlpha值(可选)
+# - -b : columnNonZeroThresholdBeta值(可选)
 # Notes:
 # -
 #
@@ -82,12 +84,12 @@ testTool(){
 
     echo -e ${data_split_symbol} >> ${autoTest_autoTestlog_file}
 
-    echo -e "${print_tag}\t\"${autoTest_program} ${file} ${k}\" start testing... [Remaining: $((${numTestFiles} - ${file_id}))]"
+    echo -e "${print_tag}\t\"${autoTest_program} -f ${file} -k ${k} -a ${similarityThresholdAlpha} -b ${columnNonZeroThresholdBeta}\" start testing... [Remaining: $((${numTestFiles} - ${file_id}))]"
 
     local execution_time=0
 
     local start_time=$(date +%s.%N)
-    ${autoTest_program} ${file} ${k}>> ${autoTest_autoTestlog_file}
+    ${autoTest_program} -f ${file} -k ${k} -a ${similarityThresholdAlpha} -b ${columnNonZeroThresholdBeta} >> ${autoTest_autoTestlog_file}
     local end_time=$(date +%s.%N)
 
     execution_time=$(echo "$end_time - $start_time" | bc)
@@ -118,12 +120,16 @@ test_file_list_file=""
 target_program=""
 target_log_filename="results"
 k=32
-while getopts "f:p:k:n:" opt; do
+similarityThresholdAlpha=0.3
+columnNonZeroThresholdBeta=4
+while getopts "f:p:k:n:a:b:" opt; do
     case ${opt} in
         f) test_file_list_file="$OPTARG" ;;   # 处理 -f 选项(列表文件)
         p) target_program="$OPTARG" ;;  # 处理 -p 选项(程序路径)
         n) target_log_filename="$OPTARG" ;;  # 处理 -n 选项(日志文件名)
         k) k="$OPTARG" ;;  # 处理 -k 选项(k值)
+        a) similarityThresholdAlpha="$OPTARG" ;;  # 处理 -a 选项(similarityThresholdAlpha值)
+        b) columnNonZeroThresholdBeta="$OPTARG" ;;  # 处理 -b 选项(columnNonZeroThresholdBeta值)
         ?) echo "用法: $0 -f <列表文件> -p <程序> -n <日志文件名> -k <k值>"
            exit 1 ;;
     esac
