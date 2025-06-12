@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "Options.h"
 #include "bb_segsort.h"
 //#include <cub/cub.cuh>
 
@@ -104,11 +105,13 @@ void ready(int argc, char **argv)
 
         srand(time(NULL));
 
-        printf("[File : %s]\n", argv[1]);
-        printf("[K : %d]\n", atoi(argv[2]));
+        Options options(argc, argv);
 
-        sc = atoi(argv[2]);
-        fp = fopen(argv[1], "r");
+        printf("[File : %s]\n", options.inputFile().c_str());
+        printf("[K : %d]\n", options.K());
+
+        sc = options.K();
+        fp = fopen(options.inputFile().c_str(), "r");
         fgets(buf, 300, fp);
         if(strstr(buf, "symmetric") != NULL || strstr(buf, "Hermitian") != NULL) sflag = 1; // symmetric
         else sflag = 0;
@@ -127,7 +130,7 @@ void ready(int argc, char **argv)
         }
         fclose(fp);
 
-        fp = fopen(argv[1], "r");
+        fp = fopen(options.inputFile().c_str(), "r");
         for(i=0;i<pre_count;i++)
                 fgets(buf, 300, fp);
 
@@ -223,7 +226,7 @@ void ready(int argc, char **argv)
         }
         csr_v[nr] = ne;
 
-        // fprintf(stdout,"TTAAGG,%s,%d,%d,%d,",argv[1],nr0,nc,ne);
+        // fprintf(stdout,"TTAAGG,%s,%d,%d,%d,",options.inputFile().c_str(),nr0,nc,ne);
 
 }
 

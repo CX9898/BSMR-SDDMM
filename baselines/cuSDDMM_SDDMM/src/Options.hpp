@@ -2,68 +2,51 @@
 
 #include <iostream>
 #include <string>
-#include <vector>
+#include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
-//const std::string folderPath("../../dataset/");
-//const std::string fileName = ("nips");
-const std::string folderPath("../../../dataset/test/matrix_20000_20000_/");
-const std::string fileName = ("matrix_20000_20000_4000000");
-const std::string fileFormat(".mtx");
-//const std::string filePath = folderPath + fileName + fileFormat;
-const std::string filePath("./../../../autoTestTool/dataset_of_isratnisa_paper_results/dataset/web-NotreDame.txt");
+ const std::string filePath("");
 
 class Options {
- public:
-  Options(int argc, char *argv[]);
+public:
+    Options(const int argc, const char *const argv[]);
 
-  std::string inputFile() const { return inputFile_; }
-  size_t k() const { return k_; }
-  float alpha() const { return alpha_; }
-  float beta() const { return beta_; }
-  int tile_sizeX() const { return tile_sizeX_; }
-  int tile_sizeY() const { return tile_sizeY_; }
+    std::string programPath() const { return programPath_; }
+    std::string programName() const { return programName_; }
+    std::string inputFile() const { return inputFile_; }
+    size_t K() const { return K_; }
+    int numIterations() const { return numIterations_; }
+    float similarityThresholdAlpha() const { return similarityThresholdAlpha_; }
+    int columnNonZeroThresholdBeta() const { return columnNonZeroThresholdBeta_; }
 
- private:
-  std::string program_name_;
-  std::string inputFile_ = filePath;
-  size_t k_ = 32;
-  float alpha_ = 1.0f;
-  float beta_ = 0.0f;
-  int tile_sizeX_ = 50000;
-  int tile_sizeY_ = 192;
+private:
+    std::string programPath_;
+    std::string programName_;
+    std::string inputFile_ = filePath;
+    size_t K_ = 32;
+    int numIterations_ = 10;
+    float similarityThresholdAlpha_ = 0.3;
+    int columnNonZeroThresholdBeta_ = 4;
 
-  std::unordered_set<std::string> shortOptions_ = {
-      "-A", "-a",
-      "-B", "-b",
-      "-F", "-f",
-      "-K", "-k",
-      "-X",
-      "-Y"
-  };
-
-  inline void parsingOptionAndParameters(const std::string &option, const std::string &value);
+    inline void parsingOptionAndParameters(const std::string &option,
+                                           const std::string &value);
 };
 
-inline void Options::parsingOptionAndParameters(const std::string &option, const std::string &value) {
+inline void Options::parsingOptionAndParameters(const std::string &option,
+                                                const std::string &value) {
     try {
-        if (option == "-A" || option == "-a") {
-            alpha_ = std::stof(value);
-        }
-        if (option == "-B" || option == "-b") {
-            beta_ = std::stof(value);
-        }
         if (option == "-F" || option == "-f") {
             inputFile_ = value;
         }
         if (option == "-K" || option == "-k") {
-            k_ = std::stoi(value);
+            K_ = std::stoi(value);
         }
-        if (option == "-X") {
-            tile_sizeX_ = std::stoi(value);
+        if (option == "-A" || option == "-a") {
+            similarityThresholdAlpha_ = std::stof(value);
         }
-        if (option == "-Y") {
-            tile_sizeY_ = std::stoi(value);
+        if (option == "-B" || option == "-b") {
+            columnNonZeroThresholdBeta_ = std::stoi(value);
         }
     } catch (const std::invalid_argument &e) {
         std::cerr << "Invalid argument: " << e.what() << std::endl;
@@ -72,20 +55,9 @@ inline void Options::parsingOptionAndParameters(const std::string &option, const
     }
 }
 
-std::string getParentFolderPath(const std::string &path) {
-    for (int idx = path.size() - 2; idx >= 0; --idx) {
-        if (path[idx] == '/' || path[idx] == '\\') {
-            return path.substr(0, idx + 1);
-        }
-    }
-    std::cerr << "Warning. The input path has no parent folder" << std::endl;
-    return path;
-}
+inline Options::Options(const int argc, const char *const argv[]) {
 
-Options::Options(int argc, char **argv) {
-    program_name_ = getParentFolderPath(argv[0]) + argv[0];
-
-    // 记录参数的索引
+    // Record the index of the options
     std::vector<int> optionIndices;
     for (int argIdx = 1; argIdx < argc; ++argIdx) {
         if (argv[argIdx][0] == '-') {
@@ -93,28 +65,38 @@ Options::Options(int argc, char **argv) {
         }
     }
 
-    // 检查是否有重复的参数
+    // Check options
+    std::unordered_map<std::string, std::string> optionToArgumentMap;
+    for (const int optionIndex: optionIndices) {
+        std::string option_str = argv[optionIndex];
 
-    // 解析参数
-    for (int index : optionIndices) {
-        std::string option_str = argv[index];
-
-        if (shortOptions_.find(option_str) == shortOptions_.end()) {
-            std::cerr << "Unknown option: " << option_str.substr(1, option_str.size() - 1) << std::endl;
+        // Check if the option is duplicated
+        if (optionToArgumentMap.find(option_str) != optionToArgumentMap.end()) {
+            std::cerr << "Option " << option_str << "is duplicated." << std::endl;
             continue;
         }
 
-        if (index + 1 >= argc) {
-            std::cerr << "Option " << option_str << " requires an argument." << std::endl;
+        // Check if the option has an argument
+        if (optionIndex + 1 >= argc) {
+            std::cerr << "Option " << option_str << "requires an argument."
+                    << std::endl;
             continue;
         }
 
-        parsingOptionAndParameters(option_str, argv[index + 1]);
+        // Record the option and its argument
+        const std::string value = argv[optionIndex + 1];
+        optionToArgumentMap[option_str] = value;
+    }
+
+    // Parsing options
+    for (const auto &optionArgumentPair: optionToArgumentMap) {
+        parsingOptionAndParameters(optionArgumentPair.first,
+                                   optionArgumentPair.second);
     }
 
     // If no options are provided, use the default input file and K
-    if (optionIndices.empty() && argc > 1) {
+    if (optionToArgumentMap.empty() && argc > 1) {
         inputFile_ = argv[1];
-        k_ = std::stoi(argv[2]);
+        K_ = std::stoi(argv[2]);
     }
 }

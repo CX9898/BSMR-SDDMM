@@ -29,20 +29,20 @@ public:
 
     Option(int argc, char* argv[])
     {
-        if (argc > 1)
+        if (argc == 3)
         {
             input_filename = argv[1];
             const int k = atoi(argv[2]);
             printf("[K : %d]\n", k);
         }
 
-        // parse(argc, argv);
+         parse(argc, argv);
     }
 
     void parse(int argc, char* argv[])
     {
         char param_opt;
-        while ((param_opt = getopt(argc, argv, "d:t:c:n:x:p:f:o:i:b:z:a:v:m:s:")) != -1)
+        while ((param_opt = getopt(argc, argv, "d:t:c:n:x:p:f:o:i:b:z:a:v:m:s:k:")) != -1)
         {
             switch (param_opt)
             {
@@ -88,6 +88,9 @@ public:
             case 's':
                 spmm = std::stoi(optarg);
                 break;
+            case 'k':
+                printf("[K : %d]\n", std::stoi(optarg));
+            break;
             }
         }
     }
