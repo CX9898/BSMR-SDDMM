@@ -37,13 +37,8 @@ private:
     std::string inputFile_ = filePath;
     size_t K_ = 32;
     int numIterations_ = 10;
-    float similarityThresholdAlpha_ = 0.4;
+    float similarityThresholdAlpha_ = 0.3;
     int columnNonZeroThresholdBeta_ = 4;
-
-    std::unordered_set<std::string> shortOptions_ = {
-        "-F", "-f", "-K", "-k",
-        "-A", "-a", "-B", "-b"
-    };
 
     inline void parsingOptionAndParameters(const std::string &option,
                                            const std::string &value);
@@ -91,14 +86,6 @@ inline Options::Options(const int argc, const char *const argv[]) {
         // Check if the option is duplicated
         if (optionToArgumentMap.find(option_str) != optionToArgumentMap.end()) {
             std::cerr << "Option " << option_str << "is duplicated." << std::endl;
-            continue;
-        }
-
-        // Check if the option is valid
-        if (shortOptions_.find(option_str) == shortOptions_.end()) {
-            std::cerr << "Unknown option: "
-                    << option_str.substr(1, option_str.size() - 1) << std::endl
-                    << "Please check the usage of the program." << std::endl;
             continue;
         }
 
