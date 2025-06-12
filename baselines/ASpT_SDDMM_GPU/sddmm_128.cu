@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "Options.h"
+#include "Options.hpp"
 #include "bb_segsort.h"
 //#include <cub/cub.cuh>
 

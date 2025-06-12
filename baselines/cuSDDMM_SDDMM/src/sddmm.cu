@@ -379,7 +379,7 @@ int main(int argc, char *argv[]) {
 //    } else{
 //        fp.open(filePath);
 //    }
-    k = options.k();
+    k = options.K();
     tile_sizeY = options.tile_sizeY();
     tile_sizeX = options.tile_sizeX();
     actv_row_size = tile_sizeY;

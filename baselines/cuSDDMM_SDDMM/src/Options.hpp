@@ -19,6 +19,8 @@ public:
     int numIterations() const { return numIterations_; }
     float similarityThresholdAlpha() const { return similarityThresholdAlpha_; }
     int columnNonZeroThresholdBeta() const { return columnNonZeroThresholdBeta_; }
+    int tile_sizeX() const { return tile_sizeX_; }
+    int tile_sizeY() const { return tile_sizeY_; }
 
 private:
     std::string programPath_;
@@ -28,6 +30,8 @@ private:
     int numIterations_ = 10;
     float similarityThresholdAlpha_ = 0.3;
     int columnNonZeroThresholdBeta_ = 4;
+    int tile_sizeX_ = 50000;
+    int tile_sizeY_ = 192;
 
     inline void parsingOptionAndParameters(const std::string &option,
                                            const std::string &value);
@@ -47,6 +51,12 @@ inline void Options::parsingOptionAndParameters(const std::string &option,
         }
         if (option == "-B" || option == "-b") {
             columnNonZeroThresholdBeta_ = std::stoi(value);
+        }
+        if (option == "-X") {
+            tile_sizeX_ = std::stoi(value);
+        }
+        if (option == "-Y") {
+            tile_sizeY_ = std::stoi(value);
         }
     } catch (const std::invalid_argument &e) {
         std::cerr << "Invalid argument: " << e.what() << std::endl;
