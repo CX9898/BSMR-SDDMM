@@ -9,11 +9,12 @@
 #include <algorithm>
 #include <utility>
 #include <limits>
+#include <optional>
 
 const std::string dataSplitSymbol("---New data---");
 
 std::string findWord(const std::string &line, const std::string &word) {
-    size_t findIdx = line.find(word);
+    const size_t findIdx = line.find(word);
     if (findIdx != std::string::npos) {
         const size_t beginIdx = findIdx + 1;
         size_t endIdx = beginIdx + 1;
@@ -45,6 +46,30 @@ std::string getValue(const std::string &line, const std::string &word) {
         return line.substr(beginIdx, endIdx - beginIdx - 1);
     }
     return "";
+}
+
+
+template<typename T>
+std::optional<T> tryParse(const std::string &str);
+
+template<>
+std::optional<int> tryParse<int>(const std::string &str) {
+    if (str.empty()) return std::nullopt;
+    try {
+        return std::stoi(str);
+    } catch (...) {
+        return std::nullopt;
+    }
+}
+
+template<>
+std::optional<float> tryParse<float>(const std::string &str) {
+    if (str.empty()) return std::nullopt;
+    try {
+        return std::stof(str);
+    } catch (...) {
+        return std::nullopt;
+    }
 }
 
 std::string getValue(const std::vector<std::string> &multiLine, const std::string &word) {
@@ -100,11 +125,11 @@ struct SettingInformation {
 };
 
 // init the setting information, if setting information is already initialized, and the new data is different, than return false
-bool SettingInformation::initInformation(const std::vector<std::string> &oneTimeResults) {
+bool SettingInformation::initInformation(const std::vector<std::string> &oneTimeData) {
     std::string buildType, device, wmma_m, wmma_n, wmma_k, blockDim_dense, blockDim_sparse, matrixA_type, matrixB_type,
             matrixC_type, matrixA_storageOrder, matrixB_storageOrder, matrixC_storageOrder;
 
-    for (const std::string &line: oneTimeResults) {
+    for (const std::string &line: oneTimeData) {
         buildType = buildType.empty() ? findWord(line, "[Build type : ") : buildType;
         device = device.empty() ? findWord(line, "[Device : ") : device;
         wmma_m = wmma_m.empty() ? findWord(line, "[WMMA_M : ") : wmma_m;
@@ -198,36 +223,68 @@ void SettingInformation::printInformation() const {
     printf("\n");
 }
 
-struct OneTimeData {
-    void initInformation(const std::vector<std::string> &oneTimeResults);
+class BaseLine {
+public:
+    BaseLine(const std::string &nameToken): nameToken_(nameToken) {
+    }
 
-    std::string zcx_gflops_;
-    std::string cuSDDMM_gflops_;
-    std::string cuSparse_gflops_;
-    std::string ASpT_gflops_;
+    void parseLine(const std::vector<std::string> &multiLine) {
+        for (const std::string &line: multiLine) {
+            parseLine(line);
+        }
+    }
 
-    std::string zcx_numDenseBlock_;
-    std::string BSA_numDenseBlock_;
+    void parseLine(const std::string &line) {
+        updateNumDenseBlock(tryParse<int>(getValue(line, "[" + nameToken_ + "_numDenseBlock : ")).value_or(0));
+        updateGflops(tryParse<float>(getValue(line, "[" + nameToken_ + "_gflops : ")).value_or(0.0f));
+        updateCheckResults(getValue(line, "[" + nameToken_ + "_checkResults : "));
+    }
 
+    float gflops() const { return gflops_; }
+    int numDenseBlock() const { return numDenseBlock_; }
+    const std::string &checkResults() const { return checkResults_; }
+
+private:
+    std::string nameToken_;
+    float gflops_ = std::numeric_limits<float>::max();
+    int numDenseBlock_ = 0;
     std::string checkResults_;
+
+    void updateGflops(float newValue) {
+        if (newValue < 1e-6f) {
+            return; // Ignore values that are too small
+        }
+        gflops_ = std::min(gflops_, newValue);
+    }
+
+    void updateNumDenseBlock(int newValue) {
+        numDenseBlock_ = std::max(numDenseBlock_, newValue);
+    }
+
+    void updateCheckResults(const std::string &newValue) {
+        if (newValue.empty()) {
+            return; // Ignore empty results
+        }
+        checkResults_ = newValue;
+    }
 };
 
-void initOperation(std::string &str, const std::string &line, const std::string &findWord) {
-    str = str.empty() ? getValue(line, findWord) : str;
-}
+struct OneTimeData {
+    void update(const std::vector<std::string> &oneTimeResults);
 
-void OneTimeData::initInformation(const std::vector<std::string> &oneTimeResults) {
-    for (const std::string &line: oneTimeResults) {
-        zcx_gflops_ = zcx_gflops_.empty() ? getValue(line, "[zcx_gflops : ") : zcx_gflops_;
-        cuSDDMM_gflops_ = cuSDDMM_gflops_.empty() ? getValue(line, "[cuSDDMM_gflops : ") : cuSDDMM_gflops_;
-        cuSparse_gflops_ = cuSparse_gflops_.empty() ? getValue(line, "[cuSparse_gflops : ") : cuSparse_gflops_;
-        ASpT_gflops_ = ASpT_gflops_.empty() ? getValue(line, "[ASpT_gflops : ") : ASpT_gflops_;
+    BaseLine zcx_{"zcx"};
+    BaseLine cuSDDMM_{"cuSDDMM"};
+    BaseLine cuSparse_{"cuSparse"};
+    BaseLine ASpT_{"ASpT"};
+    BaseLine BSA_{"BSA"};
+};
 
-        initOperation(zcx_numDenseBlock_, line, "[zcx_numDenseBlock : ");
-        initOperation(BSA_numDenseBlock_, line, "[BSA_numDenseBlock : ");
-
-        checkResults_ = checkResults_.empty() ? getValue(line, "[checkResults : ") : checkResults_;
-    }
+void OneTimeData::update(const std::vector<std::string> &oneTimeResults) {
+    zcx_.parseLine(oneTimeResults);
+    cuSDDMM_.parseLine(oneTimeResults);
+    cuSparse_.parseLine(oneTimeResults);
+    ASpT_.parseLine(oneTimeResults);
+    BSA_.parseLine(oneTimeResults);
 }
 
 struct ResultsInformation {
@@ -279,7 +336,7 @@ bool ResultsInformation::initInformation(const std::vector<std::string> &oneTime
     if (kToOneTimeData_.find(k) == kToOneTimeData_.end()) {
         kToOneTimeData_[k] = OneTimeData();
     }
-    kToOneTimeData_[k].initInformation(oneTimeResults);
+    kToOneTimeData_[k].update(oneTimeResults);
 
     return true;
 }
@@ -336,12 +393,12 @@ void ResultsInformation::printInformation() const {
         printOneLineInformation(NNZ_);
         printOneLineInformation(sparsity_);
         std::cout << iter.first << "|"; // K value
-        printOneLineInformation(iter.second.zcx_gflops_);
-        printOneLineInformation(iter.second.cuSDDMM_gflops_);
-        printOneLineInformation(iter.second.cuSparse_gflops_);
-        printOneLineInformation(iter.second.ASpT_gflops_);
+        std::cout << iter.second.zcx_.gflops() << "|";
+        std::cout << iter.second.cuSDDMM_.gflops() << "|";
+        std::cout << iter.second.cuSparse_.gflops() << "|";
+        std::cout << iter.second.ASpT_.gflops() << "|";
 
-        std::cout << iter.second.checkResults_;
+        std::cout << iter.second.zcx_.checkResults();
         printf("\n");
     }
 
@@ -375,14 +432,6 @@ std::vector<std::vector<std::string> > readResultsFile(const std::string &result
     return allData;
 }
 
-int getIntValue(const std::string &value) {
-    return value.empty() ? 0 : std::stoi(value);
-}
-
-float getFloatValue(const std::string &value) {
-    return value.empty() ? 0.0f : std::stof(value);
-}
-
 std::unordered_map<std::string, ResultsInformation> pickTheBadResults(
     const std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
     std::unordered_map<std::string, ResultsInformation> bad;
@@ -395,9 +444,9 @@ std::unordered_map<std::string, ResultsInformation> pickTheBadResults(
         badResultsInformation.kToOneTimeData_.clear();
         for (const auto &kToOneTimeData: resultesInformation.kToOneTimeData_) {
             const int k = kToOneTimeData.first;
-            const float zcx_gflops = getFloatValue(kToOneTimeData.second.zcx_gflops_);
-            const float cuSDDMM_gflops = getFloatValue(kToOneTimeData.second.cuSDDMM_gflops_);
-            const float cuSparse_gflops = getFloatValue(kToOneTimeData.second.cuSparse_gflops_);
+            const float zcx_gflops = kToOneTimeData.second.zcx_.gflops();
+            const float cuSDDMM_gflops = kToOneTimeData.second.cuSDDMM_.gflops();
+            const float cuSparse_gflops = kToOneTimeData.second.cuSparse_.gflops();
             if (zcx_gflops > 1e-6) {
                 if (zcx_gflops < cuSDDMM_gflops || zcx_gflops < cuSparse_gflops) {
                     OneTimeData oneTimeData = kToOneTimeData.second;
@@ -405,7 +454,7 @@ std::unordered_map<std::string, ResultsInformation> pickTheBadResults(
                 }
             }
 
-            const float ASpT_gflops = getFloatValue(kToOneTimeData.second.ASpT_gflops_);
+            const float ASpT_gflops = kToOneTimeData.second.ASpT_.gflops();
             if (zcx_gflops > 1e-6) {
                 if (zcx_gflops < ASpT_gflops) {
                     OneTimeData oneTimeData = kToOneTimeData.second;
@@ -427,7 +476,7 @@ int getNumResults(const std::unordered_map<std::string, ResultsInformation> &mat
         numResults += iter.second.kToOneTimeData_.size();
 
         for (const auto &kToOneTimeData: iter.second.kToOneTimeData_) {
-            const float zcx_sddmm = getFloatValue(kToOneTimeData.second.zcx_gflops_);
+            const float zcx_sddmm = kToOneTimeData.second.zcx_.gflops();
 
             if (zcx_sddmm <= 1e-6) {
                 --numResults;
@@ -442,12 +491,12 @@ bool checkIsCorrect(const std::string &checkResults) {
     std::string str = checkResults;
     std::transform(str.begin(), str.end(), str.begin(), ::tolower);
 
-    bool isNoPass = checkResults.find("no pass");
+    const bool isNoPass = checkResults.find("no pass");
 
     if (isNoPass) {
         float errorRate = 0.0f;
         const size_t beginIdx = str.find("error rate : ");
-        const size_t endIdx = str.find("%");
+        const size_t endIdx = str.find('%');
         if (beginIdx != std::string::npos && endIdx != std::string::npos) {
             errorRate = std::stof(str.substr(beginIdx + 13, endIdx - beginIdx - 13));
         }
@@ -466,7 +515,7 @@ float calculateAccuracy(const std::unordered_map<std::string,
     int numErrors = 0;
     for (const auto &iter: matrixFileToResultsInformationMap) {
         for (const auto &kToOneTimeData: iter.second.kToOneTimeData_) {
-            bool isCorrect = checkIsCorrect(kToOneTimeData.second.checkResults_);
+            bool isCorrect = checkIsCorrect(kToOneTimeData.second.zcx_.checkResults());
 
             if (!isCorrect) {
                 ++numErrors;
@@ -482,7 +531,7 @@ float calculateAccuracy(const std::unordered_map<std::string,
 
 // return the average speedup adn the maximum speedup
 void evaluateSddmmWithCuSDDMM(
-    std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
+    const std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
     float sumSpeedup = 0.0f;
     float maxSpeedup = 0.0f;
 
@@ -492,8 +541,8 @@ void evaluateSddmmWithCuSDDMM(
     const int numResults = getNumResults(matrixFileToResultsInformationMap);
     for (const auto &iter: matrixFileToResultsInformationMap) {
         for (const auto &kToOneTimeData: iter.second.kToOneTimeData_) {
-            const float zcx_gflops = getFloatValue(kToOneTimeData.second.zcx_gflops_);
-            const float cuSDDMM_gflops = getFloatValue(kToOneTimeData.second.cuSDDMM_gflops_);
+            const float zcx_gflops = kToOneTimeData.second.zcx_.gflops();
+            const float cuSDDMM_gflops = kToOneTimeData.second.cuSDDMM_.gflops();
 
             if (zcx_gflops <= 1e-6 || cuSDDMM_gflops <= 1e-6) {
                 continue;
@@ -550,8 +599,8 @@ void evaluateSddmmWithCuSparse(
     const int numResults = getNumResults(matrixFileToResultsInformationMap);
     for (const auto &iter: matrixFileToResultsInformationMap) {
         for (const auto &kToOneTimeData: iter.second.kToOneTimeData_) {
-            const float zcx_sddmm = getFloatValue(kToOneTimeData.second.zcx_gflops_);
-            const float cuSparse_sddmm = getFloatValue(kToOneTimeData.second.cuSparse_gflops_);
+            const float zcx_sddmm = kToOneTimeData.second.zcx_.gflops();
+            const float cuSparse_sddmm = kToOneTimeData.second.cuSparse_.gflops();
 
             if (zcx_sddmm <= 1e-6 || cuSparse_sddmm <= 1e-6) {
                 continue;
@@ -585,8 +634,8 @@ void evaluateSddmmWithASpT(
     const int numResults = getNumResults(matrixFileToResultsInformationMap);
     for (const auto &iter: matrixFileToResultsInformationMap) {
         for (const auto &kToOneTimeData: iter.second.kToOneTimeData_) {
-            const float zcx_sddmm = getFloatValue(kToOneTimeData.second.zcx_gflops_);
-            const float ASpT_sddmm = getFloatValue(kToOneTimeData.second.ASpT_gflops_);
+            const float zcx_sddmm = kToOneTimeData.second.zcx_.gflops();
+            const float ASpT_sddmm = kToOneTimeData.second.ASpT_.gflops();
 
             if (zcx_sddmm <= 1e-6 || ASpT_sddmm <= 1e-6) {
                 continue;
@@ -642,7 +691,7 @@ std::pair<float, float> getMaxAndMinSparsity(
     float minSparsity = 100.0f;
 
     for (const auto &iter: matrixFileToResultsInformationMap) {
-        const float sparsity = getFloatValue(iter.second.sparsity_);
+        const float sparsity = tryParse<float>(iter.second.sparsity_).value_or(0.0f);
 
         maxSparsity = std::max(sparsity, maxSparsity);
         minSparsity = std::min(sparsity, minSparsity);
@@ -660,7 +709,7 @@ std::pair<int, int> getMaxAndMinRow(
     int minM = std::numeric_limits<int>::max();;
 
     for (const auto &iter: matrixFileToResultsInformationMap) {
-        const int M = getIntValue(iter.second.M_);
+        const int M = tryParse<int>(iter.second.M_).value_or(0);
 
         maxM = std::max(M, maxM);
         minM = std::min(M, minM);
@@ -702,27 +751,20 @@ void printReorderingEffectiveness(
     }
     printf("\n");
 
-    auto printOneLineInformation = [](const std::string &information) -> void {
-        std::cout << information << "|";
-    };
-
     for (const auto &iter: matrixFileToResultsInformationMap) {
         for (const auto &kToOneTimeData: iter.second.kToOneTimeData_) {
-            if (kToOneTimeData.second.zcx_numDenseBlock_.empty() || kToOneTimeData.second.BSA_numDenseBlock_.empty()) {
-                continue;
-            }
 
-            const int zcx_numDenseBlock = getIntValue(kToOneTimeData.second.zcx_numDenseBlock_);
-            const int bsa_numDenseBlock = getIntValue(kToOneTimeData.second.BSA_numDenseBlock_);
+            const int zcx_numDenseBlock = kToOneTimeData.second.zcx_.numDenseBlock();
+            const int bsa_numDenseBlock = kToOneTimeData.second.BSA_.numDenseBlock();
 
             if (zcx_numDenseBlock <= 0 && bsa_numDenseBlock <= 0) {
                 continue;
             }
 
             printf("|");
-            printOneLineInformation(iter.second.NNZ_);
-            printOneLineInformation(kToOneTimeData.second.zcx_numDenseBlock_);
-            printOneLineInformation(kToOneTimeData.second.BSA_numDenseBlock_);
+            std::cout << iter.second.NNZ_ << "|";
+            std::cout<< zcx_numDenseBlock << "|";
+            std::cout<< bsa_numDenseBlock << "|";
             printf("\n");
         }
     }
@@ -738,12 +780,12 @@ void evaluateReorderingWithBSA(
     int numResults = getNumResults(matrixFileToResultsInformationMap);
     for (const auto &iter: matrixFileToResultsInformationMap) {
         for (const auto &kToOneTimeData: iter.second.kToOneTimeData_) {
-            if (kToOneTimeData.second.zcx_numDenseBlock_.empty() || kToOneTimeData.second.BSA_numDenseBlock_.empty()) {
-                continue;
-            }
+            // if (kToOneTimeData.second.zcx_numDenseBlock_.empty() || kToOneTimeData.second.BSA_numDenseBlock_.empty()) {
+            //     continue;
+            // }
 
-            const int zcx_numDenseBlock = getIntValue(kToOneTimeData.second.zcx_numDenseBlock_);
-            const int bsa_numDenseBlock = getIntValue(kToOneTimeData.second.BSA_numDenseBlock_);
+            const int zcx_numDenseBlock = kToOneTimeData.second.zcx_.numDenseBlock();
+            const int bsa_numDenseBlock = kToOneTimeData.second.BSA_.numDenseBlock();
 
             sumZCX += zcx_numDenseBlock;
             sumBSA += bsa_numDenseBlock;
@@ -757,7 +799,7 @@ void evaluateReorderingWithBSA(
 
     printf("Percentage increase of dense blocks relative to BSA: %.2f%%\n", relativeIncreasePercent);
 
-    printReorderingEffectiveness(matrixFileToResultsInformationMap);
+    // printReorderingEffectiveness(matrixFileToResultsInformationMap);
 
     printSeparator();
 }
