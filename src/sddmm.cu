@@ -14,7 +14,7 @@ void sddmm(const Options &options,
     // Reordering
     RPHM rphm(matrixP, options.similarityThresholdAlpha(), options.columnNonZeroThresholdBeta());
 
-    logger.zcx_other_time_ = rphm.time();
+    logger.zcx_preprocessing_time_ = rphm.time();
 
     for (int ITER = 0; ITER < logger.numITER_; ++ITER) {
         float sddmm_time = 0.0f;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Options.hpp>
 #include <cstdio>
 #include <iostream>
 #include <string>
@@ -7,78 +8,89 @@
 #include "Matrix.hpp"
 
 struct Logger {
-  Logger() {
-
+    Logger() {
 #ifdef NDEBUG
-      buildType_ = "Release";
+        buildType_ = "Release";
 #endif
 
 #ifndef NDEBUG
-      buildType_ = "Debug";
+        buildType_ = "Debug";
 #endif
 
-      cudaDeviceProp deviceProp{};
-      cudaGetDeviceProperties(&deviceProp, 0);
-      gpu_ = deviceProp.name;
+        cudaDeviceProp deviceProp{};
+        cudaGetDeviceProperties(&deviceProp, 0);
+        gpu_ = deviceProp.name;
 
-      matrixA_type_ = typeid(MATRIX_A_TYPE).name();
-      matrixB_type_ = typeid(MATRIX_B_TYPE).name();
-      matrixC_type_ = typeid(MATRIX_C_TYPE).name();
+        matrixA_type_ = typeid(MATRIX_A_TYPE).name();
+        matrixB_type_ = typeid(MATRIX_B_TYPE).name();
+        matrixC_type_ = typeid(MATRIX_C_TYPE).name();
 
-      wmma_m_ = WMMA_M;
-      wmma_n_ = WMMA_N;
-      wmma_k_ = WMMA_K;
-  };
+        wmma_m_ = WMMA_M;
+        wmma_n_ = WMMA_N;
+        wmma_k_ = WMMA_K;
+    };
 
-  inline void getInformation(const sparseMatrix::DataBase &matrix);
+    inline void getInformation(const Options &options);
 
-  template<typename T>
-  inline void getInformation(const Matrix<T> &matrixA, const Matrix<T> &matrixB) {
-      K_ = matrixA.col();
-      matrixA_storageOrder_ = matrixA.storageOrder() == MatrixStorageOrder::row_major ? "row_major" : "col_major";
-      matrixB_storageOrder_ = matrixB.storageOrder() == MatrixStorageOrder::row_major ? "row_major" : "col_major";
-  }
+    inline void getInformation(const sparseMatrix::DataBase &matrix);
 
-  inline void printLogInformation();
+    template<typename T>
+    inline void getInformation(const Matrix<T> &matrixA, const Matrix<T> &matrixB) {
+        K_ = matrixA.col();
+        matrixA_storageOrder_ = matrixA.storageOrder() == MatrixStorageOrder::row_major ? "row_major" : "col_major";
+        matrixB_storageOrder_ = matrixB.storageOrder() == MatrixStorageOrder::row_major ? "row_major" : "col_major";
+    }
 
-  std::string inputFile_;
+    inline void printLogInformation();
 
-  std::string checkData_;
-  float errorRate_ = 0.0f;
+    std::string inputFile_;
 
-  std::string gpu_;
-  std::string buildType_;
+    std::string checkData_;
+    float errorRate_ = 0.0f;
 
-  size_t wmma_m_;
-  size_t wmma_n_;
-  size_t wmma_k_;
+    std::string gpu_;
+    std::string buildType_;
 
-  std::string matrixA_type_;
-  std::string matrixB_type_;
-  std::string matrixC_type_;
+    size_t wmma_m_;
+    size_t wmma_n_;
+    size_t wmma_k_;
 
-  std::string matrixA_storageOrder_;
-  std::string matrixB_storageOrder_;
+    std::string matrixA_type_;
+    std::string matrixB_type_;
+    std::string matrixC_type_;
 
-  size_t M_;
-  size_t N_;
-  size_t K_;
-  size_t NNZ_;
-  float sparsity_;
+    std::string matrixA_storageOrder_;
+    std::string matrixB_storageOrder_;
 
-  int numDenseBlock_;
-  float averageDensity_;
+    size_t M_;
+    size_t N_;
+    size_t K_;
+    size_t NNZ_;
+    float sparsity_;
 
-  int numSparseBlock_;
+    int numDenseBlock_;
+    float averageDensity_;
 
-  int numITER_;
+    int numSparseBlock_;
 
-  float zcx_sddmm_time_ = 0.0f;
-  float zcx_other_time_ = 0.0f;
-  float zcx_time_ = 0.0f;
+    int numITER_;
 
-  float cuSparse_sddmm_time_ = 0.0f;
+    float alpha_;
+    int beta_;
+
+    float zcx_sddmm_time_ = 0.0f;
+    float zcx_preprocessing_time_ = 0.0f;
+
+    float cuSparse_sddmm_time_ = 0.0f;
 };
+
+void Logger::getInformation(const Options &options) {
+    inputFile_ = options.inputFile();
+    K_ = options.K();
+    numITER_ = options.numIterations();
+    alpha_ = options.similarityThresholdAlpha();
+    beta_ = options.columnNonZeroThresholdBeta();
+}
 
 void Logger::getInformation(const sparseMatrix::DataBase &matrix) {
     M_ = matrix.row();
@@ -113,6 +125,9 @@ void Logger::printLogInformation() {
     printf("[zcx_averageDensity : %f]\n", averageDensity_);
     printf("[NumSparseBlock : %d]\n", numSparseBlock_);
 
+    printf("[zcx_alpha : %.2f]\n", alpha_);
+    printf("[zcx_beta : %d]\n", beta_);
+
     printf("[Num iterations : %d]\n", numITER_);
 
     cuSparse_sddmm_time_ /= numITER_;
@@ -125,9 +140,7 @@ void Logger::printLogInformation() {
 
     printf("[zcx_gflops : %.2f]\n", (flops / (zcx_sddmm_time_ * 1e6)));
     printf("[zcx_sddmm : %.2f]\n", zcx_sddmm_time_);
-    printf("[zcx_other : %.2f]\n", zcx_other_time_);
-    zcx_time_ = zcx_other_time_ + zcx_sddmm_time_;
-    printf("[zcx : %.2f]\n", zcx_time_);
+    printf("[zcx_preprocessing : %.2f]\n", zcx_preprocessing_time_);
 
     if (errorRate_ > 0) {
         printf("[checkResults : NO PASS Error rate : %2.2f%%]\n", errorRate_);
