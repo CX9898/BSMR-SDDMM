@@ -200,7 +200,8 @@ RPHM::RPHM(const sparseMatrix::CSR<float> &matrix, float similarityThresholdAlph
     timeCalculator.endClock();
     float bell_time = timeCalculator.getTime();
     printf("bell time : %f ms\n", bell_time);
-    time_ = rowReordering_time + colReordering_time + bell_time;
+
+    reorderingTime_ = rowReordering_time + colReordering_time;
 
     // Copy data to device
     h2d(reorderedRows_, reorderedRows);

@@ -43,7 +43,7 @@ public:
     const dev::vector<UIN> &sparseValues() const { return sparseValues_; }
     const dev::vector<UIN> &sparseRelativeRows() const { return sparseRelativeRows_; }
     const dev::vector<UIN> &sparseColIndices() const { return sparseColIndices_; }
-    float time() const { return time_; }
+    float time() const { return reorderingTime_; }
 
     // Calculate the rowPanelID by blockValueIndex
     UIN calculateRowPanelIdByBlockValuesIndex(UIN blockValueIndex) const;
@@ -92,7 +92,7 @@ private:
     dev::vector<UIN> sparseRelativeRows_;
     dev::vector<UIN> sparseColIndices_;
 
-    float time_;
+    float reorderingTime_;
 };
 
 void noReorderRow(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &reorderedRows, float &time);
