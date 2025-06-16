@@ -237,17 +237,20 @@ public:
     void parseLine(const std::string &line) {
         updateNumDenseBlock(tryParse<int>(getValue(line, "[" + nameToken_ + "_numDenseBlock : ")).value_or(0));
         updateGflops(tryParse<float>(getValue(line, "[" + nameToken_ + "_gflops : ")).value_or(0.0f));
+        updatePreprocessing_(tryParse<float>(getValue(line, "[" + nameToken_ + "_preprocessing : ")).value_or(0.0f));
         updateCheckResults(getValue(line, "[" + nameToken_ + "_checkResults : "));
     }
 
     float gflops() const { return gflops_; }
     int numDenseBlock() const { return numDenseBlock_; }
     const std::string &checkResults() const { return checkResults_; }
+    float preprocessing() const { return preprocessing_; }
 
 private:
     std::string nameToken_;
     float gflops_ = 0.0f;
     int numDenseBlock_ = 0;
+    float preprocessing_ = std::numeric_limits<float>::max();
     std::string checkResults_;
 
     void updateGflops(const float newValue) {
@@ -256,6 +259,13 @@ private:
 
     void updateNumDenseBlock(const int newValue) {
         numDenseBlock_ = std::max(numDenseBlock_, newValue);
+    }
+
+    void updatePreprocessing_(const float newValue) {
+        if (newValue < 1e-6) {
+            return; // Ignore very small values
+        }
+        preprocessing_ = std::min(preprocessing_, newValue);
     }
 
     void updateCheckResults(const std::string &newValue) {
@@ -409,7 +419,7 @@ std::vector<std::vector<std::string> > readResultsFile(const std::string &result
     std::ifstream inFile;
     inFile.open(resultsFile, std::ios::in); // open file
     if (!inFile.is_open()) {
-        std::cerr << "Error, Results file cannot be opened : " << resultsFile << std::endl;
+        std::cerr << "Error, results file cannot be opened : " << resultsFile << std::endl;
     }
 
     std::vector<std::string> oneTimeData;
@@ -584,6 +594,10 @@ void evaluateSddmmWithCuSDDMM(
     printf("Speedup over cuSDDMM 1.2~1.5 : %.1f%%\n", numSpeedups[4] / static_cast<float>(numResults) * 100.0f);
     printf("Speedup over cuSDDMM > 1.5 : %.1f%%\n", numSpeedups[5] / static_cast<float>(numResults) * 100.0f);
 
+    const float accelerationCoverage =
+            (numSpeedups[3] + numSpeedups[4] + numSpeedups[5]) / static_cast<float>(numResults) * 100.0f;
+    printf("Acceleration coverage: %.1f%%\n", accelerationCoverage);
+
     printSeparator();
 }
 
@@ -677,6 +691,10 @@ void evaluateSddmmWithASpT(
     printf("Speedup over ASpT 1.2~1.5 : %.1f%%\n", numSpeedups[4] / static_cast<float>(numResults) * 100.0f);
     printf("Speedup over ASpT > 1.5 : %.1f%%\n", numSpeedups[5] / static_cast<float>(numResults) * 100.0f);
 
+    const float accelerationCoverage =
+            (numSpeedups[3] + numSpeedups[4] + numSpeedups[5]) / static_cast<float>(numResults) * 100.0f;
+    printf("Acceleration coverage: %.1f%%\n", accelerationCoverage);
+
     printSeparator();
 }
 
@@ -730,6 +748,9 @@ void eliminateNullValues(std::unordered_map<std::string, ResultsInformation> &ma
 
 void printReorderingEffectiveness(
     const std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
+    printSeparator();
+    printf("Reordering Effectiveness:\n");
+
     const int numColAttributes = 3;
     // print the head of the list
     printf("\n");
@@ -750,7 +771,6 @@ void printReorderingEffectiveness(
 
     for (const auto &iter: matrixFileToResultsInformationMap) {
         for (const auto &kToOneTimeData: iter.second.kToOneTimeData_) {
-
             const int zcx_numDenseBlock = kToOneTimeData.second.zcx_.numDenseBlock();
             const int bsa_numDenseBlock = kToOneTimeData.second.BSA_.numDenseBlock();
 
@@ -760,13 +780,52 @@ void printReorderingEffectiveness(
 
             printf("|");
             std::cout << iter.second.NNZ_ << "|";
-            std::cout<< zcx_numDenseBlock << "|";
-            std::cout<< bsa_numDenseBlock << "|";
+            std::cout << zcx_numDenseBlock << "|";
+            std::cout << bsa_numDenseBlock << "|";
             printf("\n");
         }
     }
 
     printf("\n");
+    printSeparator();
+}
+
+void evaluateReorderingOverhead(
+    const std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
+    printSeparator();
+    printf("evaluateReorderingOverhead:\n");
+
+    const int numColAttributes = 2;
+    // print the head of the list
+    printf("\n");
+    printf("|");
+    printf(" rows |");
+    printf(" preprocessing |");
+
+    printf("\n");
+
+    // print the split line
+    const int numColData = numColAttributes;
+    printf("|");
+    for (int i = 0; i < numColData; ++i) {
+        printf("-|");
+    }
+    printf("\n");
+
+    for (const auto &iter: matrixFileToResultsInformationMap) {
+        const int rows = std::stoi(iter.second.M_);
+        const float preprocessingTime = iter.second.kToOneTimeData_.begin()->second.zcx_.preprocessing();
+        if (preprocessingTime == std::numeric_limits<float>::max()) {
+            continue;
+        }
+
+        printf("|");
+        std::cout << rows << "|";
+        std::cout << preprocessingTime << "|";
+        printf("\n");
+    }
+
+    printSeparator();
 }
 
 void evaluateReorderingWithBSA(
@@ -774,7 +833,6 @@ void evaluateReorderingWithBSA(
     int sumZCX = 0;
     int sumBSA = 0;
 
-    int numResults = getNumResults(matrixFileToResultsInformationMap);
     for (const auto &iter: matrixFileToResultsInformationMap) {
         for (const auto &kToOneTimeData: iter.second.kToOneTimeData_) {
             // if (kToOneTimeData.second.zcx_numDenseBlock_.empty() || kToOneTimeData.second.BSA_numDenseBlock_.empty()) {
@@ -796,7 +854,7 @@ void evaluateReorderingWithBSA(
 
     printf("Percentage increase of dense blocks relative to BSA: %.2f%%\n", relativeIncreasePercent);
 
-    // printReorderingEffectiveness(matrixFileToResultsInformationMap);
+    printReorderingEffectiveness(matrixFileToResultsInformationMap);
 
     printSeparator();
 }
@@ -847,13 +905,15 @@ int main(const int argc, const char *argv[]) {
 
     calculateAccuracy(matrixFileToResultsInformationMap);
 
-    evaluateSddmmWithCuSDDMM(matrixFileToResultsInformationMap);
-
     evaluateSddmmWithCuSparse(matrixFileToResultsInformationMap);
+
+    evaluateSddmmWithCuSDDMM(matrixFileToResultsInformationMap);
 
     evaluateSddmmWithASpT(matrixFileToResultsInformationMap);
 
     evaluateReorderingWithBSA(matrixFileToResultsInformationMap);
+
+    evaluateReorderingOverhead(matrixFileToResultsInformationMap);
 
     // Print the program setting information to Markdown format and the results information
     settingInformation.printInformation();
