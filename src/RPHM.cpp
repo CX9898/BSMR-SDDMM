@@ -816,7 +816,7 @@ void evaluationReordering(const sparseMatrix::CSR<float> &matrix, const BSMR &bs
         const int numSparseBlocksInCurrentRowPanel =
                 std::ceil(
                     (bsmr.sparseColOffsets()[rowPanelId + 1] - bsmr.sparseColOffsets()[rowPanelId]) /
-                    static_cast<float>(BLOCK_COL_SIZE));
+                    static_cast<float>(sddmm_sparse_block_each_thread_block_counts_the_number_Of_data));
 
         numDenseBlocks += numDenseBlocksInCurrentRowPanel;
         numSparseBlocks += numSparseBlocksInCurrentRowPanel;
@@ -838,19 +838,19 @@ void evaluationReordering(const sparseMatrix::CSR<float> &matrix, const BSMR &bs
 
             blockToColumnSet[colBlockId].insert(col);
         }
-        // sparse column segment loop
-        for (int indexOfReorderedCols = bsmr.sparseColOffsets()[rowPanelId];
-             indexOfReorderedCols < bsmr.sparseColOffsets()[rowPanelId + 1];
-             ++indexOfReorderedCols) {
-            const UIN col = bsmr.sparseCols()[indexOfReorderedCols];
-
-            // Calculate the block id
-            const UIN startIndexOfColsCurrentRowPanel = bsmr.sparseColOffsets()[rowPanelId];
-            const UIN colBlockId = (indexOfReorderedCols - startIndexOfColsCurrentRowPanel) / BLOCK_COL_SIZE +
-                                   numDenseBlocksInCurrentRowPanel;;
-
-            blockToColumnSet[colBlockId].insert(col);
-        }
+        // // sparse column segment loop
+        // for (int indexOfReorderedCols = bsmr.sparseColOffsets()[rowPanelId];
+        //      indexOfReorderedCols < bsmr.sparseColOffsets()[rowPanelId + 1];
+        //      ++indexOfReorderedCols) {
+        //     const UIN col = bsmr.sparseCols()[indexOfReorderedCols];
+        //
+        //     // Calculate the block id
+        //     const UIN startIndexOfColsCurrentRowPanel = bsmr.sparseColOffsets()[rowPanelId];
+        //     const UIN colBlockId = (indexOfReorderedCols - startIndexOfColsCurrentRowPanel) / BLOCK_COL_SIZE +
+        //                            numDenseBlocksInCurrentRowPanel;;
+        //
+        //     blockToColumnSet[colBlockId].insert(col);
+        // }
 
         const UIN startIndexOfReorderedRowsCurrentRowPanel = rowPanelId * ROW_PANEL_SIZE;
         const UIN endIndexOfReorderedRowsCurrentRowPanel =
@@ -893,7 +893,7 @@ void evaluationReordering(const sparseMatrix::CSR<float> &matrix, const BSMR &bs
             calculateNumDenseBlocksAndAverageDensityInOriginalMatrix(static_cast<float>(logger.beta_) / 16, matrix);
 
     logger.numDenseBlock_ = numDenseBlocks;
-    logger.averageDensity_ = totalDensity / (numDenseBlocks + numSparseBlocks);
+    logger.averageDensity_ = totalDensity / numDenseBlocks;
     logger.numSparseBlock_ = numSparseBlocks;
     logger.originalNumDenseBlock_ = numDenseBlocksInOriginalMatrix;
     logger.originalAverageDensity_ = averageDensityInOriginalMatrix;
@@ -924,7 +924,6 @@ std::pair<UIN, float> calculateNumDenseBlocksAndAverageDensityInOriginalMatrix(
     const float densityThreshold, const sparseMatrix::CSR<float> &matrix) {
     const int numRowPanels = std::ceil(static_cast<float>(matrix.row()) / ROW_PANEL_SIZE);
     const int numColBlocks = std::ceil(static_cast<float>(matrix.col()) / BLOCK_COL_SIZE);
-    UIN numBlocks = 0;
     UIN numDenseBlocks = 0;
     float totalDensity = 0.0f;
     for (int rowPanel = 0; rowPanel < numRowPanels; ++rowPanel) {
@@ -947,19 +946,16 @@ std::pair<UIN, float> calculateNumDenseBlocksAndAverageDensityInOriginalMatrix(
             }
             const float blockSize = static_cast<float>((endRow - startRow) * (endCol - startCol));
             if (numNonZero > 0) {
-                ++numBlocks;
-
                 const float density = static_cast<float>(numNonZero) / (blockSize);
-                totalDensity += density;
-
                 if (density >= densityThreshold) {
+                    totalDensity += density;
                     ++numDenseBlocks;
                 }
             }
         }
     }
 
-    float averageDensity = (numBlocks > 0) ? totalDensity / numBlocks : 0.0f;
+    float averageDensity = (numDenseBlocks > 0) ? totalDensity / numDenseBlocks : 0.0f;
 
     return std::make_pair(numDenseBlocks, averageDensity);
 }
