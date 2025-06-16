@@ -5,7 +5,7 @@
 #include "devVector.cuh"
 #include "Matrix.hpp"
 #include "TensorCoreConfig.cuh"
-#include "RPHM.hpp"
+#include "BSMR.hpp"
 #include "Logger.hpp"
 
 constexpr int each_thread_block_counts_the_number_Of_dense_blocks = 8;

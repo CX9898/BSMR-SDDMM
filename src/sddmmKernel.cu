@@ -5,7 +5,7 @@
 #include "cudaUtil.cuh"
 #include "sddmmKernel.cuh"
 #include "TensorCoreConfig.cuh"
-#include "RPHM.hpp"
+#include "BSMR.hpp"
 #include "CudaTimeCalculator.cuh"
 
 namespace kernel {

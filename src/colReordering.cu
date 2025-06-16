@@ -5,7 +5,7 @@
 #include <cuda_runtime.h>
 
 #include "CudaTimeCalculator.cuh"
-#include "RPHM.hpp"
+#include "BSMR.hpp"
 #include "TensorCoreConfig.cuh"
 #include "parallelAlgorithm.cuh"
 #include "sddmmKernel.cuh"

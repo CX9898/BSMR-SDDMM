@@ -71,6 +71,9 @@ struct Logger {
     int numDenseBlock_;
     float averageDensity_;
 
+    int originalNumDenseBlock_;
+    float originalAverageDensity_;
+
     int numSparseBlock_;
 
     int numITER_;
@@ -124,6 +127,9 @@ void Logger::printLogInformation() {
     printf("[zcx_numDenseBlock : %d]\n", numDenseBlock_);
     printf("[zcx_averageDensity : %f]\n", averageDensity_);
     printf("[NumSparseBlock : %d]\n", numSparseBlock_);
+
+    printf("[OriginalNumDenseBlock : %d]\n", originalNumDenseBlock_);
+    printf("[OriginalAverageDensity : %f]\n", originalAverageDensity_);
 
     printf("[zcx_alpha : %.2f]\n", alpha_);
     printf("[zcx_beta : %d]\n", beta_);

@@ -10,8 +10,46 @@ constexpr UIN BLOCK_COL_SIZE = WMMA_N;
 constexpr UIN BLOCK_SIZE = ROW_PANEL_SIZE * BLOCK_COL_SIZE;
 
 /**
+ * @className: BSMR
+ * @classInterpretation: Reorder the rows and columns of a sparse matrix and divide it into dense tiled and sparse tiled.
+ * @MemberVariables:
+ * `reorderedRows_`: Store the reordered row indexes.
+ * `denseCols_`: Store the reordered dense column indexes for each row panel in order.
+ * `denseColOffsets_`: Offset array of reordered dense column array in each row panel.
+ *
+ **/
+class BSMR {
+public:
+    BSMR() = default;
+
+    BSMR(const sparseMatrix::CSR<float> &matrix,
+         const float similarityThresholdAlpha,
+         const int columnNonZeroThresholdBeta);
+
+    int numRowPanels() const { return numRowPanels_; }
+    const std::vector<UIN> &reorderedRows() const { return reorderedRows_; }
+    const std::vector<UIN> &denseCols() const { return denseCols_; }
+    const std::vector<UIN> &denseColOffsets() const { return denseColOffsets_; }
+    const std::vector<UIN> &sparseCols() const { return sparseCols_; }
+    const std::vector<UIN> &sparseColOffsets() const { return sparseColOffsets_; }
+    const std::vector<UIN> &sparseValueOffsets() const { return sparseValueOffsets_; }
+    float reorderingTime() const { return reorderingTime_; }
+
+private:
+    int numRowPanels_ = 0;
+    std::vector<UIN> reorderedRows_;
+    std::vector<UIN> denseCols_;
+    std::vector<UIN> denseColOffsets_;
+    std::vector<UIN> sparseCols_;
+    std::vector<UIN> sparseColOffsets_;
+    std::vector<UIN> sparseValueOffsets_;
+
+    float reorderingTime_ = 0.0f;
+};
+
+/**
  * @className: RPHM
- * @classInterpretation: Reorder the rows and columns of a sparse matrix and divide it into dense tiled and sparse tiled. Store dense tiled in BELL format, and sparse tiled in COO format.
+ * @classInterpretation: Store dense tiled in BELL format, and sparse tiled in COO format.
  * @MemberVariables:
  * `reorderedRows_`: Store the reordered row indexes.
  * `denseCols_`: Store the reordered dense column indexes for each row panel in order.
@@ -27,9 +65,7 @@ class RPHM {
 public:
     RPHM() = default;
 
-    RPHM(const sparseMatrix::CSR<float> &matrix,
-         float similarityThresholdAlpha = 0.3,
-         int columnNonZeroThresholdBeta = 4);
+    RPHM(sparseMatrix::CSR<float> &matrix, const BSMR &bsmr);
 
     UIN numRowPanels() const { return numRowPanels_; }
     UIN maxNumDenseColBlocks() const { return maxNumDenseColBlocks_; }
@@ -65,7 +101,7 @@ public:
     UIN getNumSparseBlocks() const;
 
     // Calculate the average density of all blocks
-    float calculateAverageDensity() const;
+    float calculateDenseBlockAverageDensity() const;
 
     // Calculate the maximum and minimum density of all blocks
     std::pair<float, float> calculateMaxMinDensity() const;
@@ -168,7 +204,11 @@ void colReordering_gpu(const sparseMatrix::CSR<float> &matrix,
                        float &time);
 
 // Error checking
-bool check_rphm(const sparseMatrix::CSR<float> &matrix, const RPHM &rphm, Logger &logger);
+bool check_rphm(const sparseMatrix::CSR<float> &matrix, const BSMR &bsmr, const RPHM &rphm,
+                const float denseColSegmentThreshold);
 
 // Calculate the number of tiles and average density in the original matrix
-std::pair<UIN, float> calculateNumTilesAndAverageDensityInOriginalMatrix(const sparseMatrix::CSR<float> &matrix);
+std::pair<UIN, float> calculateNumDenseBlocksAndAverageDensityInOriginalMatrix(
+    const float densityThreshold, const sparseMatrix::CSR<float> &matrix);
+
+void evaluationReordering(const sparseMatrix::CSR<float> &matrix, const BSMR &bsmr, Logger &logger);

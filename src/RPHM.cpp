@@ -8,32 +8,22 @@
 #include <array>
 #include <omp.h>
 
-#include "RPHM.hpp"
+#include "BSMR.hpp"
 #include "CudaTimeCalculator.cuh"
 #include "parallelAlgorithm.cuh"
 #include "sddmmKernel.cuh"
 
-RPHM::RPHM(const sparseMatrix::CSR<float> &matrix, float similarityThresholdAlpha, int columnNonZeroThresholdBeta) {
-    std::vector<UIN> reorderedRows;
-
-    std::vector<UIN> denseColOffsets;
-    std::vector<UIN> denseCols;
-    std::vector<UIN> blockOffsets;
-    std::vector<UIN> blockValues;
-
-    std::vector<UIN> sparseValueOffsets;
-    std::vector<UIN> sparseValues;
-    std::vector<UIN> sparseRelativeRows;
-    std::vector<UIN> sparseColIndices;
-
+BSMR::BSMR(const sparseMatrix::CSR<float> &matrix,
+           const float similarityThresholdAlpha,
+           const int columnNonZeroThresholdBeta) {
     // Row reordering
     float rowReordering_time;
     const UIN blockSize = calculateBlockSize(matrix);
     //    noReorderRow(matrix, reorderedRows_, rowReordering_time);
-    reorderedRows = bsa_rowReordering_gpu(matrix,
-                                          similarityThresholdAlpha,
-                                          blockSize,
-                                          rowReordering_time);
+    reorderedRows_ = bsa_rowReordering_gpu(matrix,
+                                           similarityThresholdAlpha,
+                                           blockSize,
+                                           rowReordering_time);
     //    std::vector<int> rows = bsa_rowReordering_cpu(matrix,
     //                                                  row_similarity_threshold_alpha,
     //                                                  blockSize,
@@ -47,31 +37,42 @@ RPHM::RPHM(const sparseMatrix::CSR<float> &matrix, float similarityThresholdAlph
 
     printf("rowReordering time : %f ms\n", rowReordering_time);
 
-    numRowPanels_ = std::ceil(static_cast<float>(reorderedRows.size()) / ROW_PANEL_SIZE);
+    numRowPanels_ = std::ceil(static_cast<float>(reorderedRows_.size()) / ROW_PANEL_SIZE);
     printf("numRowPanels : %d\n", numRowPanels_);
 
     // Column reordering
-    std::vector<UIN> sparseCols;
-    std::vector<UIN> sparseColOffsets;
     float colReordering_time;
     colReordering_cpu(matrix,
                       numRowPanels_,
-                      reorderedRows,
+                      reorderedRows_,
                       columnNonZeroThresholdBeta,
-                      denseCols,
-                      denseColOffsets,
-                      sparseCols,
-                      sparseColOffsets,
-                      sparseValueOffsets,
+                      denseCols_,
+                      denseColOffsets_,
+                      sparseCols_,
+                      sparseColOffsets_,
+                      sparseValueOffsets_,
                       colReordering_time);
     printf("colReordering time : %f ms\n", colReordering_time);
+
+    reorderingTime_ = rowReordering_time + colReordering_time;
+}
+
+RPHM::RPHM(sparseMatrix::CSR<float> &matrix, const BSMR &bsmr) {
+    std::vector<UIN> blockOffsets;
+    std::vector<UIN> blockValues;
+
+    std::vector<UIN> sparseValues;
+    std::vector<UIN> sparseRelativeRows;
+    std::vector<UIN> sparseColIndices;
+
+    numRowPanels_ = bsmr.numRowPanels();
 
     // Calculate the maximum number of dense column blocks in a row panel
     maxNumDenseColBlocks_ = 0;
 #pragma omp parallel for reduction(max : maxNumDenseColBlocks_)
     for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
         const UIN numBlocksCurrentRowPanel = std::ceil(
-            static_cast<float>(denseColOffsets[rowPanelId + 1] - denseColOffsets[rowPanelId])
+            static_cast<float>(bsmr.denseColOffsets()[rowPanelId + 1] - bsmr.denseColOffsets()[rowPanelId])
             / BLOCK_COL_SIZE);
         maxNumDenseColBlocks_ = std::max(maxNumDenseColBlocks_, numBlocksCurrentRowPanel);
     }
@@ -83,7 +84,7 @@ RPHM::RPHM(const sparseMatrix::CSR<float> &matrix, float similarityThresholdAlph
     std::vector<UIN> numBlockInEachRowPanel(numRowPanels_);
 #pragma omp parallel for
     for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
-        const UIN numColIndices = denseColOffsets[rowPanelId + 1] - denseColOffsets[rowPanelId];
+        const UIN numColIndices = bsmr.denseColOffsets()[rowPanelId + 1] - bsmr.denseColOffsets()[rowPanelId];
         numBlockInEachRowPanel[rowPanelId] = std::ceil(static_cast<float>(numColIndices) / BLOCK_COL_SIZE);
     }
 
@@ -93,16 +94,16 @@ RPHM::RPHM(const sparseMatrix::CSR<float> &matrix, float similarityThresholdAlph
                          numBlockInEachRowPanel.data() + numBlockInEachRowPanel.size(),
                          blockOffsets.data() + 1);
 
-    sparseRelativeRows.resize(sparseValueOffsets.back());
-    sparseValues.resize(sparseValueOffsets.back());
-    sparseColIndices.resize(sparseValueOffsets.back());
+    sparseRelativeRows.resize(bsmr.sparseValueOffsets().back());
+    sparseValues.resize(bsmr.sparseValueOffsets().back());
+    sparseColIndices.resize(bsmr.sparseValueOffsets().back());
 
     // initialize blockValues_
     blockValues.resize(blockOffsets.back() * BLOCK_SIZE);
     host::fill_n(blockValues.data(), blockValues.size(), NULL_VALUE);
 #pragma omp parallel for
-    for (int indexOfReorderedRows = 0; indexOfReorderedRows < reorderedRows.size(); ++indexOfReorderedRows) {
-        const UIN row = reorderedRows[indexOfReorderedRows];
+    for (int indexOfReorderedRows = 0; indexOfReorderedRows < bsmr.reorderedRows().size(); ++indexOfReorderedRows) {
+        const UIN row = bsmr.reorderedRows()[indexOfReorderedRows];
 
         std::unordered_map<UIN, UIN> colToIndexOfOriginalMatrixMap;
         for (int idxOfOriginalMatrix = matrix.rowOffsets()[row]; idxOfOriginalMatrix < matrix.rowOffsets()[row + 1];
@@ -115,15 +116,15 @@ RPHM::RPHM(const sparseMatrix::CSR<float> &matrix, float similarityThresholdAlph
         const UIN startIndexOfBlockValuesCurrentRowPanel = blockOffsets[rowPanelId] * BLOCK_SIZE;
 
         // Iterate over the dense columns in the row panel
-        for (int count = 0, indexOfReorderedCols = denseColOffsets[rowPanelId];
-             indexOfReorderedCols < denseColOffsets[rowPanelId + 1];
+        for (int count = 0, indexOfReorderedCols = bsmr.denseColOffsets()[rowPanelId];
+             indexOfReorderedCols < bsmr.denseColOffsets()[rowPanelId + 1];
              ++count, ++indexOfReorderedCols) {
             const UIN localColId = count % BLOCK_COL_SIZE;
             const UIN colBlockId = count / BLOCK_COL_SIZE;
             const UIN idxOfBlockValues = startIndexOfBlockValuesCurrentRowPanel + colBlockId * BLOCK_SIZE +
                                          localRowId * BLOCK_COL_SIZE + localColId;
 
-            const UIN col = denseCols[indexOfReorderedCols];
+            const UIN col = bsmr.denseCols()[indexOfReorderedCols];
             const auto findIter = colToIndexOfOriginalMatrixMap.find(col);
             if (findIter != colToIndexOfOriginalMatrixMap.end()) {
                 blockValues[idxOfBlockValues] = findIter->second;
@@ -137,10 +138,10 @@ RPHM::RPHM(const sparseMatrix::CSR<float> &matrix, float similarityThresholdAlph
         std::unordered_map<UIN, std::vector<std::array<UIN, 2> > > colToRelativeRowAndOriginIndexMap;
 
         const UIN startIndex = rowPanelId * ROW_PANEL_SIZE;
-        const UIN endIndex = std::min(startIndex + ROW_PANEL_SIZE, static_cast<UIN>(reorderedRows.size()));
+        const UIN endIndex = std::min(startIndex + ROW_PANEL_SIZE, static_cast<UIN>(bsmr.reorderedRows().size()));
 
         for (int indexOfReorderedRows = startIndex; indexOfReorderedRows < endIndex; ++indexOfReorderedRows) {
-            const UIN row = reorderedRows[indexOfReorderedRows];
+            const UIN row = bsmr.reorderedRows()[indexOfReorderedRows];
             for (int idx = matrix.rowOffsets()[row]; idx < matrix.rowOffsets()[row + 1]; ++idx) {
                 const UIN col = matrix.colIndices()[idx];
                 std::array<UIN, 2> relativeRowAndOriginIndex =
@@ -156,11 +157,11 @@ RPHM::RPHM(const sparseMatrix::CSR<float> &matrix, float similarityThresholdAlph
         }
 
         UIN count = 0;
-        const UIN startSparsePartIndex = sparseValueOffsets[rowPanelId];
+        const UIN startSparsePartIndex = bsmr.sparseValueOffsets()[rowPanelId];
         // Iterate over the sparse columns in the row panel
-        for (int indexOfReorderedCols = sparseColOffsets[rowPanelId];
-             indexOfReorderedCols < sparseColOffsets[rowPanelId + 1]; ++indexOfReorderedCols) {
-            const UIN col = sparseCols[indexOfReorderedCols];
+        for (int indexOfReorderedCols = bsmr.sparseColOffsets()[rowPanelId];
+             indexOfReorderedCols < bsmr.sparseColOffsets()[rowPanelId + 1]; ++indexOfReorderedCols) {
+            const UIN col = bsmr.sparseCols()[indexOfReorderedCols];
 
             const auto findIter = colToRelativeRowAndOriginIndexMap.find(col);
             if (findIter != colToRelativeRowAndOriginIndexMap.end()) {
@@ -179,37 +180,23 @@ RPHM::RPHM(const sparseMatrix::CSR<float> &matrix, float similarityThresholdAlph
     maxNumSparseColBlocks_ = 0;
 #pragma omp parallel for reduction(max : maxNumSparseColBlocks_)
     for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
-        const UIN numSparseData = sparseValueOffsets[rowPanelId + 1] - sparseValueOffsets[rowPanelId];
+        const UIN numSparseData = bsmr.sparseValueOffsets()[rowPanelId + 1] - bsmr.sparseValueOffsets()[rowPanelId];
         const UIN numBlocksCurrentRowPanel = std::ceil(
             static_cast<float>(numSparseData) / sddmm_sparse_block_each_thread_block_counts_the_number_Of_data);
         maxNumSparseColBlocks_ = std::max(maxNumSparseColBlocks_, numBlocksCurrentRowPanel);
     }
 
-    //    // Try to optimize
-    //#pragma omp parallel for
-    //    for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
-    //        const UIN startIndex = sparseDataOffsets[rowPanelId];
-    //        const UIN endIndex = sparseDataOffsets[rowPanelId + 1];
-    //
-    //        host::sort_by_key_for_multiple_vectors(sparseColIndices_.data() + startIndex,
-    //                                               sparseColIndices_.data() + endIndex,
-    //                                               sparseRelativeRows_.data() + startIndex,
-    //                                               sparseData_.data() + startIndex);
-    //    }
-
     timeCalculator.endClock();
-    float bell_time = timeCalculator.getTime();
-    printf("bell time : %f ms\n", bell_time);
-
-    reorderingTime_ = rowReordering_time + colReordering_time;
+    float rphm_time = timeCalculator.getTime();
+    printf("rphm time : %f ms\n", rphm_time);
 
     // Copy data to device
-    h2d(reorderedRows_, reorderedRows);
-    h2d(denseColOffsets_, denseColOffsets);
-    h2d(denseCols_, denseCols);
+    h2d(reorderedRows_, bsmr.reorderedRows());
+    h2d(denseColOffsets_, bsmr.denseColOffsets());
+    h2d(denseCols_, bsmr.denseCols());
     h2d(blockOffsets_, blockOffsets);
     h2d(blockValues_, blockValues);
-    h2d(sparseValueOffsets_, sparseValueOffsets);
+    h2d(sparseValueOffsets_, bsmr.sparseValueOffsets());
     h2d(sparseValues_, sparseValues);
     h2d(sparseRelativeRows_, sparseRelativeRows);
     h2d(sparseColIndices_, sparseColIndices);
@@ -296,7 +283,7 @@ UIN RPHM::calculateColBlockIdByBlockValueIndex(UIN blockValueIndex) const {
     return std::ceil((static_cast<float>(blockValueIndex - startIndexOfBlockValueCurrentRowPanel)) / BLOCK_SIZE);
 }
 
-float RPHM::calculateAverageDensity() const {
+float RPHM::calculateDenseBlockAverageDensity() const {
     std::vector<UIN> blockOffsets;
     std::vector<UIN> blockValues;
     d2h(blockOffsets, blockOffsets_);
@@ -449,9 +436,8 @@ bool check_rowReordering(const sparseMatrix::CSR<float> &matrix, const struct RP
     return true;
 }
 
-bool check_colReordering(const sparseMatrix::CSR<float> &matrix, const struct RPHM &rphm) {
-    bool isCorrect = true;
-
+bool check_colReordering(const sparseMatrix::CSR<float> &matrix, const BSMR &bsmr, const struct RPHM &rphm,
+                         const float denseColSegmentThreshold) {
     std::vector<UIN> reorderedRows;
     std::vector<UIN> denseColOffsets;
     std::vector<UIN> denseCols;
@@ -520,18 +506,74 @@ bool check_colReordering(const sparseMatrix::CSR<float> &matrix, const struct RP
                 std::cerr << "Error! The order of column indexes in the row panel is incorrect!" << std::endl;
                 return false;
             }
+
+            // Check if the column index is not a dense column.
+            if (colToNumOfNonZeroMap.find(col)->second < denseColSegmentThreshold) {
+                fprintf(stderr,
+                        "Error! Column index is not a dense column! rowPanelId: %d, col: %d\n",
+                        rowPanelId,
+                        col);
+                return false;
+            }
+        }
+
+        // check sparse column segment
+        std::unordered_set<UIN> sparseColIndicesRecordSet;
+        int numConsecutiveDenseCols = 0;
+        for (int idxOfReorderedColIndices = bsmr.sparseColOffsets()[rowPanelId];
+             idxOfReorderedColIndices < bsmr.sparseColOffsets()[rowPanelId + 1];
+             ++idxOfReorderedColIndices) {
+            const UIN col = bsmr.sparseCols()[idxOfReorderedColIndices];
+
+            // Check if column indexes are duplicated
+            if (sparseColIndicesRecordSet.find(col) != sparseColIndicesRecordSet.end()) {
+                std::cerr << "Error! Column indexes are duplicated\n" << std::endl;
+                return false;
+            }
+            sparseColIndicesRecordSet.insert(col);
+
+            // Check if the column index in the row panel is correct
+            if (colToNumOfNonZeroMap.find(col) == colToNumOfNonZeroMap.end()) {
+                fprintf(stderr,
+                        "Error! Column index not in current row panel! rowPanelId: %d, col: %d\n",
+                        rowPanelId, col);
+                return false;
+            }
+
+            // Check if there are any groups of dense blocks
+            if (colToNumOfNonZeroMap.find(col)->second < denseColSegmentThreshold) {
+                // If the column is not a dense column, reset the consecutive dense column count
+                numConsecutiveDenseCols = 0;
+            } else {
+                // If the column is a dense column, increment the consecutive dense column count
+                ++numConsecutiveDenseCols;
+            }
+            if (numConsecutiveDenseCols >= BLOCK_COL_SIZE) {
+                // If there are more than one consecutive dense columns, it is an error
+                fprintf(stderr,
+                        "Error! 16 consecutive dense columns in sparse tile! rowPanelId: %d, idxOfReorderedColIndices: %d\n",
+                        rowPanelId,
+                        idxOfReorderedColIndices);
+                return false;
+            }
+        }
+
+        // Check if there are any dense columns in the sparse column segment
+        for (const auto &denseCol: denseColIndicesRecordSet) {
+            if (sparseColIndicesRecordSet.find(denseCol) != sparseColIndicesRecordSet.end()) {
+                printf(" Error! Dense column index is also in sparse column segment! "
+                       "rowPanelId: %d, denseCol: %d\n", rowPanelId, denseCol);
+                return false;
+            }
         }
 
         // check sparse part data
-        std::unordered_set<UIN> sparseColIndicesRecordSet;
         for (int idx = sparseValueOffsets[rowPanelId];
              idx < sparseValueOffsets[rowPanelId + 1];
              ++idx) {
             const UIN relativeRow = sparseRelativeRows[idx];
             const UIN row = reorderedRows[rowPanelId * ROW_PANEL_SIZE + relativeRow];
             const UIN col = sparseColIndices[idx];
-
-            sparseColIndicesRecordSet.insert(col);
 
             // Check if the row is in the current row panel
             if (rowIndicesCurrentRowPanelSet.find(row) == rowIndicesCurrentRowPanelSet.end()) {
@@ -548,16 +590,6 @@ bool check_colReordering(const sparseMatrix::CSR<float> &matrix, const struct RP
                         rowPanelId, idx);
                 return false;
             }
-
-            //            // Check if the column index is a dense column
-            //            if (colToNumOfNonZeroMap.find(col) != colToNumOfNonZeroMap.end()
-            //                && colToNumOfNonZeroMap.find(col)->second >= rphm.dense_column_segment_threshold()) {
-            //                fprintf(stderr,
-            //                        "Error! In sparse data, column index is not a sparse column! rowPanelId: %d, sparseData[%d]\n",
-            //                        rowPanelId,
-            //                        idx);
-            //                isCorrect = false;
-            //            }
         }
 
         // Check if the number of column indexes in the row panel is correct
@@ -580,7 +612,7 @@ bool check_colReordering(const sparseMatrix::CSR<float> &matrix, const struct RP
     return true;
 }
 
-bool check_bell(const sparseMatrix::CSR<float> &matrix, const struct RPHM &rphm) {
+bool check_rphm(const sparseMatrix::CSR<float> &matrix, const struct RPHM &rphm) {
     std::vector<UIN> reorderedRows;
 
     // Dense block data
@@ -770,61 +802,138 @@ bool check_bell(const sparseMatrix::CSR<float> &matrix, const struct RPHM &rphm)
     return true;
 }
 
-bool check_rphm(const sparseMatrix::CSR<float> &matrix, const RPHM &rphm, Logger &logger) {
-    const auto [maxDensity, minDensity] = rphm.calculateMaxMinDensity();
-    const float averageDensity = rphm.calculateAverageDensity();
-    printf("rphm : numDenseBlock = %d, average density = %f%%, max average = %f%%, min average = %f%%\n",
-           rphm.getNumDenseBlocks(),
-           averageDensity * 100,
-           maxDensity * 100,
-           minDensity * 100);
-    printf("rphm: numSparseBlock = %d\n", rphm.getNumSparseBlocks());
+void evaluationReordering(const sparseMatrix::CSR<float> &matrix, const BSMR &bsmr, Logger &logger) {
+    int numDenseBlocks = 0;
+    float totalDensity = 0.0f;
+    int numSparseBlocks = 0;
 
-    const auto [modeDensity, frequency] = rphm.calculateDensityMode();
-    printf("rphm dense block: mode density = %f%%, frequency = %d\n", modeDensity * 100, frequency);
+    // row panel loop
+    for (int rowPanelId = 0; rowPanelId < bsmr.numRowPanels(); ++rowPanelId) {
+        const int numDenseBlocksInCurrentRowPanel =
+                std::ceil(
+                    (bsmr.denseColOffsets()[rowPanelId + 1] - bsmr.denseColOffsets()[rowPanelId]) /
+                    static_cast<float>(BLOCK_COL_SIZE));
+        const int numSparseBlocksInCurrentRowPanel =
+                std::ceil(
+                    (bsmr.sparseColOffsets()[rowPanelId + 1] - bsmr.sparseColOffsets()[rowPanelId]) /
+                    static_cast<float>(BLOCK_COL_SIZE));
 
-    const auto [numTilesOriginal, averageDensityOriginal] = calculateNumTilesAndAverageDensityInOriginalMatrix(matrix);
-    printf("Number of tiles before reorder: %d, average density : %f%%\n",
-           numTilesOriginal, averageDensityOriginal * 100);
+        numDenseBlocks += numDenseBlocksInCurrentRowPanel;
+        numSparseBlocks += numSparseBlocksInCurrentRowPanel;
 
-    logger.numDenseBlock_ = rphm.getNumDenseBlocks();
-    logger.averageDensity_ = averageDensity;
-    logger.numSparseBlock_ = rphm.getNumSparseBlocks();
+        // Maps each block ID to a set of column indices contained in that block
+        std::vector<std::unordered_set<UIN> > blockToColumnSet(
+            numDenseBlocksInCurrentRowPanel + numSparseBlocksInCurrentRowPanel);
+        std::vector<UIN> nnzInEachBlock(
+            numDenseBlocksInCurrentRowPanel + numSparseBlocksInCurrentRowPanel, 0);
+        // dense column segment loop
+        for (int indexOfReorderedCols = bsmr.denseColOffsets()[rowPanelId];
+             indexOfReorderedCols < bsmr.denseColOffsets()[rowPanelId + 1];
+             ++indexOfReorderedCols) {
+            const UIN col = bsmr.denseCols()[indexOfReorderedCols];
 
+            // Calculate the block id
+            const UIN startIndexOfColsCurrentRowPanel = bsmr.denseColOffsets()[rowPanelId];
+            const UIN colBlockId = (indexOfReorderedCols - startIndexOfColsCurrentRowPanel) / BLOCK_COL_SIZE;
+
+            blockToColumnSet[colBlockId].insert(col);
+        }
+        // sparse column segment loop
+        for (int indexOfReorderedCols = bsmr.sparseColOffsets()[rowPanelId];
+             indexOfReorderedCols < bsmr.sparseColOffsets()[rowPanelId + 1];
+             ++indexOfReorderedCols) {
+            const UIN col = bsmr.sparseCols()[indexOfReorderedCols];
+
+            // Calculate the block id
+            const UIN startIndexOfColsCurrentRowPanel = bsmr.sparseColOffsets()[rowPanelId];
+            const UIN colBlockId = (indexOfReorderedCols - startIndexOfColsCurrentRowPanel) / BLOCK_COL_SIZE +
+                                   numDenseBlocksInCurrentRowPanel;;
+
+            blockToColumnSet[colBlockId].insert(col);
+        }
+
+        const UIN startIndexOfReorderedRowsCurrentRowPanel = rowPanelId * ROW_PANEL_SIZE;
+        const UIN endIndexOfReorderedRowsCurrentRowPanel =
+                std::min(startIndexOfReorderedRowsCurrentRowPanel + ROW_PANEL_SIZE,
+                         static_cast<UIN>(bsmr.reorderedRows().size()));
+        // row index loop
+        for (int indexOfReorderedRows = startIndexOfReorderedRowsCurrentRowPanel;
+             indexOfReorderedRows < endIndexOfReorderedRowsCurrentRowPanel; ++indexOfReorderedRows) {
+            const UIN row = bsmr.reorderedRows()[indexOfReorderedRows];
+
+            // column index loop
+            for (int idx = matrix.rowOffsets()[row]; idx < matrix.rowOffsets()[row + 1]; ++idx) {
+                const UIN col = matrix.colIndices()[idx];
+
+                // Calculate the block id
+                for (int blockId = 0; blockId < blockToColumnSet.size(); ++blockId) {
+                    if (blockToColumnSet[blockId].find(col) != blockToColumnSet[blockId].end()) {
+                        ++nnzInEachBlock[blockId];
+                    }
+                }
+            }
+        }
+
+        // Calculate the average density in the current row panel
+        for (int blockId = 0; blockId < blockToColumnSet.size(); ++blockId) {
+            const float blockSize = static_cast<float>(ROW_PANEL_SIZE * BLOCK_COL_SIZE);
+            if (nnzInEachBlock[blockId] > 0) {
+                const float density = static_cast<float>(nnzInEachBlock[blockId]) / blockSize;
+                totalDensity += density;
+
+                // const float densityThreshold = static_cast<float>(logger.beta_) / 16.0f;
+                // if (density >= densityThreshold) {
+                //     ++numDenseBlocks;
+                // }
+            }
+        }
+    }
+
+    const auto [numDenseBlocksInOriginalMatrix, averageDensityInOriginalMatrix] =
+            calculateNumDenseBlocksAndAverageDensityInOriginalMatrix(static_cast<float>(logger.beta_) / 16, matrix);
+
+    logger.numDenseBlock_ = numDenseBlocks;
+    logger.averageDensity_ = totalDensity / (numDenseBlocks + numSparseBlocks);
+    logger.numSparseBlock_ = numSparseBlocks;
+    logger.originalNumDenseBlock_ = numDenseBlocksInOriginalMatrix;
+    logger.originalAverageDensity_ = averageDensityInOriginalMatrix;
+}
+
+bool check_rphm(const sparseMatrix::CSR<float> &matrix, const BSMR &bsmr, const RPHM &rphm,
+                const float denseColSegmentThreshold) {
     bool isCorrect = true;
-    //    if (!check_rowReordering(matrix, rphm)) {
-    //        std::cerr << "Error! The row reordering is incorrect!" << std::endl;
-    //        isCorrect = false;
-    //    }
-    //
-    //    if (!check_colReordering(matrix, rphm)) {
-    //        std::cerr << "Error! The col reordering is incorrect!" << std::endl;
-    //        isCorrect = false;
-    //    }
-    //
-    //    if (!check_bell(matrix, rphm)) {
-    //        std::cerr << "Error! The bell is incorrect!" << std::endl;
-    //        isCorrect = false;
-    //    }
+    if (!check_rowReordering(matrix, rphm)) {
+        std::cerr << "Error! The row reordering is incorrect!" << std::endl;
+        isCorrect = false;
+    }
+
+    if (!check_colReordering(matrix, bsmr, rphm, denseColSegmentThreshold)) {
+        std::cerr << "Error! The col reordering is incorrect!" << std::endl;
+        isCorrect = false;
+    }
+
+    if (!check_rphm(matrix, rphm)) {
+        std::cerr << "Error! The rphm is incorrect!" << std::endl;
+        isCorrect = false;
+    }
 
     return isCorrect;
 }
 
-std::pair<UIN, float> calculateNumTilesAndAverageDensityInOriginalMatrix(const sparseMatrix::CSR<float> &matrix) {
-    UIN numTiles = 0;
+std::pair<UIN, float> calculateNumDenseBlocksAndAverageDensityInOriginalMatrix(
+    const float densityThreshold, const sparseMatrix::CSR<float> &matrix) {
+    const int numRowPanels = std::ceil(static_cast<float>(matrix.row()) / ROW_PANEL_SIZE);
+    const int numColBlocks = std::ceil(static_cast<float>(matrix.col()) / BLOCK_COL_SIZE);
+    UIN numBlocks = 0;
+    UIN numDenseBlocks = 0;
     float totalDensity = 0.0f;
+    for (int rowPanel = 0; rowPanel < numRowPanels; ++rowPanel) {
+        for (int colBlock = 0; colBlock < numColBlocks; ++colBlock) {
+            const UIN startRow = rowPanel * ROW_PANEL_SIZE;
+            const UIN endRow = std::min(static_cast<UIN>(startRow + ROW_PANEL_SIZE), matrix.row());
 
-    const UIN numRowTiles = std::ceil(static_cast<float>(matrix.row()) / WMMA_M);
-    const UIN numColTiles = std::ceil(static_cast<float>(matrix.col()) / WMMA_N);
-
-#pragma omp parallel for reduction(+ : numTiles, totalDensity) schedule(dynamic)
-    for (int rowTileId = 0; rowTileId < numRowTiles; ++rowTileId) {
-        for (int colTileId = 0; colTileId < numColTiles; ++colTileId) {
-            const UIN startRow = rowTileId * WMMA_M;
-            const UIN endRow = std::min(static_cast<UIN>(startRow + WMMA_M), matrix.row());
-
-            const UIN startCol = colTileId * WMMA_N;
-            const UIN endCol = std::min(static_cast<UIN>(startCol + WMMA_N), matrix.col());
+            const UIN startCol = colBlock * BLOCK_COL_SIZE;
+            const UIN endCol = std::min(static_cast<UIN>(startCol + BLOCK_COL_SIZE), matrix.col());
 
             UIN numNonZero = 0;
             for (int row = startRow; row < endRow; ++row) {
@@ -836,15 +945,21 @@ std::pair<UIN, float> calculateNumTilesAndAverageDensityInOriginalMatrix(const s
                     }
                 }
             }
-
+            const float blockSize = static_cast<float>((endRow - startRow) * (endCol - startCol));
             if (numNonZero > 0) {
-                ++numTiles;
-                totalDensity += static_cast<float>(numNonZero) / (WMMA_M * WMMA_N);
+                ++numBlocks;
+
+                const float density = static_cast<float>(numNonZero) / (blockSize);
+                totalDensity += density;
+
+                if (density >= densityThreshold) {
+                    ++numDenseBlocks;
+                }
             }
         }
     }
 
-    float averageDensity = (numTiles > 0) ? totalDensity / numTiles : 0.0f;
+    float averageDensity = (numBlocks > 0) ? totalDensity / numBlocks : 0.0f;
 
-    return std::make_pair(numTiles, averageDensity);
+    return std::make_pair(numDenseBlocks, averageDensity);
 }

@@ -6,7 +6,7 @@
 #include <queue>
 
 #include "cudaUtil.cuh"
-#include "RPHM.hpp"
+#include "BSMR.hpp"
 #include "parallelAlgorithm.cuh"
 #include "CudaTimeCalculator.cuh"
 

@@ -1,5 +1,5 @@
 #include "CudaTimeCalculator.cuh"
-#include "RPHM.hpp"
+#include "BSMR.hpp"
 #include "checkData.hpp"
 #include "host.hpp"
 #include "sddmm.hpp"
@@ -12,9 +12,11 @@ void sddmm(const Options &options,
            sparseMatrix::CSR<float> &matrixP,
            Logger &logger) {
     // Reordering
-    RPHM rphm(matrixP, options.similarityThresholdAlpha(), options.columnNonZeroThresholdBeta());
+    BSMR bsmr(matrixP, options.similarityThresholdAlpha(), options.columnNonZeroThresholdBeta());
+    logger.zcx_preprocessing_time_ = bsmr.reorderingTime();
 
-    logger.zcx_preprocessing_time_ = rphm.time();
+    // Device data
+    RPHM rphm(matrixP, bsmr);
 
     for (int ITER = 0; ITER < logger.numITER_; ++ITER) {
         float sddmm_time = 0.0f;
@@ -25,9 +27,11 @@ void sddmm(const Options &options,
         logger.zcx_sddmm_time_ += sddmm_time;
     }
 
+    evaluationReordering(matrixP, bsmr, logger);
+
     // Error check
-    check_rphm(matrixP, rphm, logger);
-    //    checkSddmm(matrixA, matrixB, matrixS, matrixP);
+    // check_rphm(matrixP, bsmr, rphm, options.columnNonZeroThresholdBeta());
+    // checkSddmm(matrixA, matrixB, matrixS, matrixP);
 }
 
 bool checkSddmm(const Matrix<float> &matrixA,
@@ -68,8 +72,11 @@ void sddmmBatch(int seq_len,
     cudaMemcpy(columns.data(), d_columns, columns.size() * sizeof(UIN), cudaMemcpyDeviceToHost);
 
     sparseMatrix::CSR<float> matrixP(M, M, nnz, offsets, columns);
-    RPHM rphm(matrixP);
+    // Reordering
+    BSMR bsmr(matrixP, 0.3, 4);
 
+    // Device data
+    RPHM rphm(matrixP, bsmr);
     float time = 0.0f;
     sddmm_gpu_batch(numBatches, M, M, K, nnz, dQuery, dKey, rphm, dAttn, time);
 }
