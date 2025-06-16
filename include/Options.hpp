@@ -9,15 +9,13 @@
 #include "util.hpp"
 
 const std::string folderPath("../dataset/");
-// const std::string folderPath("../autoTestTool/matrices/");
-// const std::string folderPath("./");
-const std::string fileName = ("nips");
+// const std::string fileName = ("nips");
 // const std::string fileName = ("test2");
 //  const std::string fileName("matrix_15000_15000_11250000");
 const std::string fileFormat(".mtx");
-const std::string filePath = folderPath + fileName + fileFormat;
+// const std::string filePath = folderPath + fileName + fileFormat;
 // const std::string filePath(
-//     "/home/chengxing/CLionProjects/sddmm-gpu/autoTestTool/results_dataset_of_1/dataset/bcsstk30/bcsstk30.mtx");
+const std::string filePath("../scripts/dataset_of_suiteSparse/bcsstk30/bcsstk30.mtx");
 
 class Options {
 public:

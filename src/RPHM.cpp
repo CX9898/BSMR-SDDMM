@@ -38,7 +38,7 @@ BSMR::BSMR(const sparseMatrix::CSR<float> &matrix,
     printf("rowReordering time : %f ms\n", rowReordering_time);
 
     numRowPanels_ = std::ceil(static_cast<float>(reorderedRows_.size()) / ROW_PANEL_SIZE);
-    printf("numRowPanels : %d\n", numRowPanels_);
+    // printf("numRowPanels : %d\n", numRowPanels_);
 
     // Column reordering
     float colReordering_time;

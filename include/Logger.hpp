@@ -68,6 +68,8 @@ struct Logger {
     size_t NNZ_;
     float sparsity_;
 
+    int numRowPanels_;
+
     int numDenseBlock_;
     float averageDensity_;
 
@@ -123,6 +125,8 @@ void Logger::printLogInformation() {
 
     printf("[matrixA storageOrder : %s]\n", matrixA_storageOrder_.c_str());
     printf("[matrixB storageOrder : %s]\n", matrixB_storageOrder_.c_str());
+
+    printf("[NumRowPanel : %d]\n", numRowPanels_);
 
     printf("[zcx_numDenseBlock : %d]\n", numDenseBlock_);
     printf("[zcx_averageDensity : %f]\n", averageDensity_);

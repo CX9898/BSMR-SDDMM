@@ -14,6 +14,7 @@ void sddmm(const Options &options,
     // Reordering
     BSMR bsmr(matrixP, options.similarityThresholdAlpha(), options.columnNonZeroThresholdBeta());
     logger.zcx_preprocessing_time_ = bsmr.reorderingTime();
+    logger.numRowPanels_ = bsmr.numRowPanels();
 
     // Device data
     RPHM rphm(matrixP, bsmr);
