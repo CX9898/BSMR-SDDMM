@@ -119,40 +119,44 @@ void sddmm_GPU(const Matrix S,
 
     checkCuda(cudaEventRecord(start), __LINE__);
 
-    for (int tile = 0; tile < n_tile; ++tile) {
-        int nnz_tile = tS.lastIdx_tile[tile + 1] - tS.lastIdx_tile[tile];
-        //grid.x = (nnz_tile + BLOCKSIZE - 1) / BLOCKSIZE;
-        int active_block_this_tile = tS.n_actv_row[tile] / actv_row_size + 1;
+    // run 10 iterations for averaging
+    for (int iter = 0; iter < ITER; ++iter) {
+        for (int tile = 0; tile < n_tile; ++tile) {
+            int nnz_tile = tS.lastIdx_tile[tile + 1] - tS.lastIdx_tile[tile];
+            //grid.x = (nnz_tile + BLOCKSIZE - 1) / BLOCKSIZE;
+            int active_block_this_tile = tS.n_actv_row[tile] / actv_row_size + 1;
 
-        grid.x = active_block_this_tile;
-        for (int t_st = 0; t_st < k; t_st += k_slice) {
-            comp_kernel_COO<<<grid, block, 0, stream[0]>>>(d_row_ind,
-                                                           d_col_ind,
-                                                           d_val,
-                                                           d_W,
-                                                           d_H,
-                                                           S.nnz,
-                                                           S.n_rows,
-                                                           S.n_cols,
-                                                           k,
-                                                           tS.lastIdx_tile[tile],
-                                                           tS.lastIdx_tile[tile + 1],
-                                                           &(d_lastIdx_block_tile[(tile) * tS.max_active_block]),
-                                                           d_active_row + sum,
-                                                           tile,
-                                                           t_st,
-                                                           tS.n_actv_row[tile],
-                                                           actv_row_size,
-                                                           k_slice);
+            grid.x = active_block_this_tile;
+            for (int t_st = 0; t_st < k; t_st += k_slice) {
+                comp_kernel_COO<<<grid, block, 0, stream[0]>>>(d_row_ind,
+                                                               d_col_ind,
+                                                               d_val,
+                                                               d_W,
+                                                               d_H,
+                                                               S.nnz,
+                                                               S.n_rows,
+                                                               S.n_cols,
+                                                               k,
+                                                               tS.lastIdx_tile[tile],
+                                                               tS.lastIdx_tile[tile + 1],
+                                                               &(d_lastIdx_block_tile[(tile) * tS.max_active_block]),
+                                                               d_active_row + sum,
+                                                               tile,
+                                                               t_st,
+                                                               tS.n_actv_row[tile],
+                                                               actv_row_size,
+                                                               k_slice);
+            }
+            sum += tS.n_actv_row[tile];
         }
-        sum += tS.n_actv_row[tile];
-
     }
     checkCuda(cudaEventRecord(stop), __LINE__);
     cudaEventSynchronize(stop);
     //cudaDeviceSynchronize();
-    checkCuda(cudaEventElapsedTime(comp_kernel_COO_time, start, stop), __LINE__);
     cudaDeviceSynchronize();
+
+    checkCuda(cudaEventElapsedTime(comp_kernel_COO_time, start, stop), __LINE__);
+    *comp_kernel_COO_time /= ITER; // average time over iterations
     cout << "\nTime for SDDMM with K = " << k << " : " << *comp_kernel_COO_time << " ms" << endl;
 
     //******** correctness check
@@ -317,16 +321,12 @@ void preprocessing(const Matrix S) {
     sddmm_CPU_COO(S.rows, S.cols, S.vals, W, H, P, S);
 
 
-    float sddmm_time = 0.0f;
-    for (int i = 0; i < ITER; ++i) {
-        float *comp_kernel_COO_time = (float *) malloc(sizeof(float));
-        /* GPU call */
-        sddmm_GPU(S, tiledS, P, W, H, comp_kernel_COO_time);
 
-        sddmm_time += *comp_kernel_COO_time;
-    }
+    float *comp_kernel_COO_time = (float *) malloc(sizeof(float));
+    /* GPU call */
+    sddmm_GPU(S, tiledS, P, W, H, comp_kernel_COO_time);
 
-    sddmm_time /= ITER;
+    const float sddmm_time = *comp_kernel_COO_time;
 
     float other_time = make_CSR_time + rewrite_matrix_1D_time;
     float sum_time = make_CSR_time + rewrite_matrix_1D_time + sddmm_time;

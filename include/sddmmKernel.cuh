@@ -20,14 +20,14 @@ void sddmm_gpu(const Matrix<float> &matrixA,
                const Matrix<float> &matrixB,
                const RPHM &rphm,
                sparseMatrix::CSR<float> &matrixP,
-               float &time);
+               Logger &logger);
 
 void sddmm_gpu(UIN M, UIN N, UIN K,
                const float *matrixA,
                const float *matrixB,
                const RPHM &rphm,
                float *matrixP,
-               float &time);
+               Logger &logger);
 
 void sddmm_gpu_batch(const UIN numBatch,
                      const UIN M, const UIN N, const UIN K, const UIN nnz,

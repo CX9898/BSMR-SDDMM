@@ -7,6 +7,7 @@
 #include "TensorCoreConfig.cuh"
 #include "BSMR.hpp"
 #include "CudaTimeCalculator.cuh"
+#include "Logger.hpp"
 
 namespace kernel {
 using namespace nvcuda;
@@ -2358,7 +2359,7 @@ void sddmm_gpu(const Matrix<float> &matrixA,
                const Matrix<float> &matrixB,
                const RPHM &rphm,
                sparseMatrix::CSR<float> &matrixP,
-               float &time) {
+               Logger &logger) {
     dev::vector<float> matrixA_dev(matrixA.values());
     dev::vector<float> matrixB_dev(matrixB.values());
     dev::vector<float> matrixP_dev(matrixP.nnz(), 0);
@@ -2370,7 +2371,7 @@ void sddmm_gpu(const Matrix<float> &matrixA,
               matrixB_dev.data(),
               rphm,
               matrixP_dev.data(),
-              time);
+              logger);
 
     // Copy the results from the device to the host
     matrixP.setValues() = d2h(matrixP_dev);
@@ -2381,7 +2382,7 @@ void sddmm_gpu(UIN M, UIN N, UIN K,
                const float *matrixB,
                const RPHM &rphm,
                float *matrixP,
-               float &time) {
+               Logger &logger) {
     //    // Convert the data type of matrix A and matrix B for use tensor core
     //    dev::vector<MATRIX_A_TYPE> matrixA_convertedType(M * K);
     //    dev::vector<MATRIX_B_TYPE> matrixB_convertedType(N * K);
@@ -2422,42 +2423,46 @@ void sddmm_gpu(UIN M, UIN N, UIN K,
 
     totalTimeCalculator.startClock();
 
+    for (int iter = 0; iter < logger.numITER_; ++iter) {
 #ifdef WMMA_16_16_8
-    if (grid_dense.x > 0 && grid_dense.y > 0) {
-        kernel::sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj<<<grid_dense, block_dense, 0,
-                denseStream>>>(M, N, K,
-                               matrixA,
-                               matrixB,
-                               rphm.reorderedRows().size(),
-                               rphm.reorderedRows().data(),
-                               rphm.denseCols().data(),
-                               rphm.denseColOffsets().data(),
-                               rphm.blockOffsets().data(),
-                               rphm.blockValues().data(),
-                               matrixP);
-    }
+        if (grid_dense.x > 0 && grid_dense.y > 0) {
+            kernel::sddmm_gpu_dense_block_m16n16k8_block256_matrixA_rowMaj_matrixB_colMaj<<<grid_dense, block_dense, 0,
+                    denseStream>>>(M, N, K,
+                                   matrixA,
+                                   matrixB,
+                                   rphm.reorderedRows().size(),
+                                   rphm.reorderedRows().data(),
+                                   rphm.denseCols().data(),
+                                   rphm.denseColOffsets().data(),
+                                   rphm.blockOffsets().data(),
+                                   rphm.blockValues().data(),
+                                   matrixP);
+        }
 #endif // WMMA_16_16_8
 
-    if (grid_sparse.x > 0 && grid_sparse.y > 0) {
-        kernel::sddmm_gpu_sparse_block_2threadOneData_shuffle<<<grid_sparse, block_sparse, 0, sparseStream>>>(M, N, K,
-            matrixA,
-            matrixB,
-            rphm.reorderedRows().size(),
-            rphm.reorderedRows().data(),
-            rphm.sparseValueOffsets().data(),
-            rphm.sparseValues().data(),
-            rphm.sparseRelativeRows().data(),
-            rphm.sparseColIndices().data(),
-            matrixP);
+        if (grid_sparse.x > 0 && grid_sparse.y > 0) {
+            kernel::sddmm_gpu_sparse_block_2threadOneData_shuffle<<<grid_sparse, block_sparse, 0, sparseStream>>>(
+                M, N, K,
+                matrixA,
+                matrixB,
+                rphm.reorderedRows().size(),
+                rphm.reorderedRows().data(),
+                rphm.sparseValueOffsets().data(),
+                rphm.sparseValues().data(),
+                rphm.sparseRelativeRows().data(),
+                rphm.sparseColIndices().data(),
+                matrixP);
+        }
     }
 
     totalTimeCalculator.endClock();
 
     const float totalTime = totalTimeCalculator.getTime();
+    const float singleTime = totalTime / logger.numITER_;
 
-    // printf("totalTime: %f ms\n", totalTime);
-
-    time = totalTime;
+    logger.gridDim_dense_ = grid_dense;
+    logger.gridDim_sparse_ = grid_sparse;
+    logger.zcx_sddmm_time_ = singleTime;
 
     cudaStreamDestroy(denseStream);
     cudaStreamDestroy(sparseStream);

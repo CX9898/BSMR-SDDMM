@@ -68,6 +68,9 @@ struct Logger {
     size_t NNZ_;
     float sparsity_;
 
+    dim3 gridDim_dense_;
+    dim3 gridDim_sparse_;
+
     int numRowPanels_;
 
     int numDenseBlock_;
@@ -126,6 +129,9 @@ void Logger::printLogInformation() {
     printf("[matrixA storageOrder : %s]\n", matrixA_storageOrder_.c_str());
     printf("[matrixB storageOrder : %s]\n", matrixB_storageOrder_.c_str());
 
+    printf(" [gridDim_dense : %d, %d, %d]\n", gridDim_dense_.x, gridDim_dense_.y, gridDim_dense_.z);
+    printf(" [gridDim_sparse : %d, %d, %d]\n", gridDim_sparse_.x, gridDim_sparse_.y, gridDim_sparse_.z);
+
     printf("[NumRowPanel : %d]\n", numRowPanels_);
 
     printf("[zcx_numDenseBlock : %d]\n", numDenseBlock_);
@@ -139,9 +145,6 @@ void Logger::printLogInformation() {
     printf("[zcx_beta : %d]\n", beta_);
 
     printf("[Num iterations : %d]\n", numITER_);
-
-    cuSparse_sddmm_time_ /= numITER_;
-    zcx_sddmm_time_ /= numITER_;
 
     const size_t flops = 2 * NNZ_ * K_;
 

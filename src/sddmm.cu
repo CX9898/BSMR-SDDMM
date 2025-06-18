@@ -19,14 +19,8 @@ void sddmm(const Options &options,
     // Device data
     RPHM rphm(matrixP, bsmr);
 
-    for (int ITER = 0; ITER < logger.numITER_; ++ITER) {
-        float sddmm_time = 0.0f;
-
-        // sddmm comp by gpu
-        sddmm_gpu(matrixA, matrixB, rphm, matrixP, sddmm_time);
-
-        logger.zcx_sddmm_time_ += sddmm_time;
-    }
+    // sddmm comp by gpu
+    sddmm_gpu(matrixA, matrixB, rphm, matrixP, logger);
 
     evaluationReordering(matrixP, bsmr, logger);
 
