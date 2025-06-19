@@ -31,13 +31,13 @@ int main(int argc, char *argv[]) {
     logger.getInformation(matrixS);
     logger.getInformation(matrixA, matrixB);
 
-    // cuSparse library
-    sparseMatrix::CSR<float> matrixP_cuSparse(matrixS);
-    cuSparseSDDMM(matrixA, matrixB, matrixS, matrixP_cuSparse, logger);
-
     // sddmm
     sparseMatrix::CSR<float> matrixP(matrixS);
     sddmm(options, matrixA, matrixB, matrixP, logger);
+
+    // cuSparse library for comparison
+    sparseMatrix::CSR<float> matrixP_cuSparse(matrixS);
+    cuSparseSDDMM(matrixA, matrixB, matrixS, matrixP_cuSparse, logger);
 
 #ifdef VALIDATE
     // Error check
