@@ -336,3 +336,6 @@ download_decompressing_move "https://sparse.tamu.edu/MM/Goodwin/Goodwin_030.tar.
 download_decompressing_move "https://sparse.tamu.edu/MM/Goodwin/Goodwin_040.tar.gz"
 download_decompressing_move "https://sparse.tamu.edu/MM/Goodwin/Goodwin_054.tar.gz"
 download_decompressing_move "https://sparse.tamu.edu/MM/TAMU_SmartGridCenter/ACTIVSg10K.tar.gz"
+
+# 生成矩阵文件列表
+bash make_matrices_list.sh ${dataset_path}
