@@ -1081,7 +1081,7 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_lianxu_matrixA_rowMaj_matrixB_col
     constexpr int kStep = 32;
 
     constexpr int aTileSMEMLd = kStep + 4; // 4 for padding
-    constexpr int bTileSMEMLd = WMMA_K + 4; // 4 for padding
+    constexpr int bTileSMEMLd = WMMA_K; // 4 for padding
 
     constexpr int aTileSMEMSize = WMMA_M * aTileSMEMLd;
     constexpr int bTileSMEMSize = (WMMA_N * each_thread_block_counts_the_number_Of_dense_blocks) * bTileSMEMLd;
