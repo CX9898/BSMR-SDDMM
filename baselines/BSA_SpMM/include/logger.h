@@ -98,6 +98,8 @@ public:
         printf("avg_density_of_tiles: %f\n", avg_density_of_tiles);
 
         printf("[File : %s]\n", infile.c_str());
+        printf("[BSA_alpha : %f]\n", alpha);
+        printf("[BSA_delta : %f]\n", delta);
         printf("[BSA_numDenseBlock : %d]\n", num_tiles);
         printf("[BSA_averageDensity : %f]\n", avg_density_of_tiles);
         printf("[BSA_reordering : %f]\n", avg_reordering_time);
