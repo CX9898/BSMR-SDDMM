@@ -86,7 +86,7 @@ struct Logger {
     int numITER_;
 
     float alpha_;
-    int beta_;
+    float beta_;
 
     float zcx_sddmm_time_ = 0.0f;
     float zcx_preprocessing_time_ = 0.0f;
@@ -99,7 +99,7 @@ void Logger::getInformation(const Options &options) {
     K_ = options.K();
     numITER_ = options.numIterations();
     alpha_ = options.similarityThresholdAlpha();
-    beta_ = options.columnNonZeroThresholdBeta();
+    beta_ = options.blockDensityThresholdDelta();
 }
 
 void Logger::getInformation(const sparseMatrix::DataBase &matrix) {
@@ -146,7 +146,7 @@ void Logger::printLogInformation() {
     printf("[OriginalAverageDensity : %f]\n", originalAverageDensity_);
 
     printf("[zcx_alpha : %.2f]\n", alpha_);
-    printf("[zcx_beta : %d]\n", beta_);
+    printf("[zcx_beta : %.2f]\n", beta_);
 
     printf("[Num iterations : %d]\n", numITER_);
 

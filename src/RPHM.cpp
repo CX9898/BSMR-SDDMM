@@ -14,14 +14,14 @@
 #include "sddmmKernel.cuh"
 
 BSMR::BSMR(const sparseMatrix::CSR<float> &matrix,
-           const float similarityThresholdAlpha,
-           const int columnNonZeroThresholdBeta) {
+           const float similarityThreshold,
+           const float blockDensityThreshold) {
     // Row reordering
     float rowReordering_time;
     const UIN blockSize = calculateBlockSize(matrix);
     //    noReorderRow(matrix, reorderedRows_, rowReordering_time);
     reorderedRows_ = bsa_rowReordering_gpu(matrix,
-                                           similarityThresholdAlpha,
+                                           similarityThreshold,
                                            blockSize,
                                            rowReordering_time);
     //    std::vector<int> rows = bsa_rowReordering_cpu(matrix,
@@ -45,7 +45,7 @@ BSMR::BSMR(const sparseMatrix::CSR<float> &matrix,
     colReordering_cpu(matrix,
                       numRowPanels_,
                       reorderedRows_,
-                      columnNonZeroThresholdBeta,
+                      blockDensityThreshold,
                       denseCols_,
                       denseColOffsets_,
                       sparseCols_,
@@ -818,7 +818,7 @@ void evaluationReordering(const sparseMatrix::CSR<float> &matrix, const BSMR &bs
                     (bsmr.sparseColOffsets()[rowPanelId + 1] - bsmr.sparseColOffsets()[rowPanelId]) /
                     static_cast<float>(sddmm_sparse_block_each_thread_block_counts_the_number_Of_data));
 
-        numDenseBlocks += numDenseBlocksInCurrentRowPanel;
+        // numDenseBlocks += numDenseBlocksInCurrentRowPanel;
         numSparseBlocks += numSparseBlocksInCurrentRowPanel;
 
         // Maps each block ID to a set of column indices contained in that block
@@ -881,16 +881,16 @@ void evaluationReordering(const sparseMatrix::CSR<float> &matrix, const BSMR &bs
                 const float density = static_cast<float>(nnzInEachBlock[blockId]) / blockSize;
                 totalDensity += density;
 
-                // const float densityThreshold = static_cast<float>(logger.beta_) / 16.0f;
-                // if (density >= densityThreshold) {
-                //     ++numDenseBlocks;
-                // }
+                const float densityThreshold = logger.beta_;
+                if (density >= densityThreshold) {
+                    ++numDenseBlocks;
+                }
             }
         }
     }
 
     const auto [numDenseBlocksInOriginalMatrix, averageDensityInOriginalMatrix] =
-            calculateNumDenseBlocksAndAverageDensityInOriginalMatrix(static_cast<float>(logger.beta_) / 16, matrix);
+            calculateNumDenseBlocksAndAverageDensityInOriginalMatrix(logger.beta_, matrix);
 
     logger.numDenseBlock_ = numDenseBlocks;
     logger.averageDensity_ = totalDensity / numDenseBlocks;

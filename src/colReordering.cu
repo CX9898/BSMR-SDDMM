@@ -260,26 +260,26 @@ void colReordering_gpu(const sparseMatrix::CSR<float> &matrix,
 }
 
 // return the number of dense column segments and the number of sparse column segments
-std::pair<UIN, UIN> analysisDescendingOrderColSegment(const UIN dense_column_segment_threshold,
+std::pair<UIN, UIN> analysisDescendingOrderColSegment(const float blockDensityThreshold,
                                                       const std::vector<UIN> &numOfNonZeroInEachColSegment) {
+    const UIN numNonZeroThreshold = static_cast<UIN>(std::ceil(blockDensityThreshold * BLOCK_SIZE));
     UIN numNonZeroColSegment = 0;
     UIN numDenseColSegment = 0;
 
+    UIN numNonZeroInBlock = 0;
     while (numNonZeroColSegment < numOfNonZeroInEachColSegment.size()
            && numOfNonZeroInEachColSegment[numNonZeroColSegment] > 0) {
-        if (numOfNonZeroInEachColSegment[numNonZeroColSegment] >= dense_column_segment_threshold) {
-            ++numDenseColSegment;
+        if (numNonZeroColSegment % BLOCK_COL_SIZE == 0) {
+            if (numNonZeroInBlock >= numNonZeroThreshold) {
+                // If the number of non-zero elements in the current block is greater than the threshold, it is a dense column segment
+                numDenseColSegment += BLOCK_COL_SIZE;
+            }
+            numNonZeroInBlock = 0;
         }
+        numNonZeroInBlock += numOfNonZeroInEachColSegment[numNonZeroColSegment];
 
         ++numNonZeroColSegment;
     }
-
-    const UIN remainderNumber = numDenseColSegment % BLOCK_COL_SIZE;
-    numDenseColSegment -= remainderNumber;
-    // if (remainderNumber > BLOCK_COL_SIZE / 2) {
-    //     numDenseColSegment = std::min(static_cast<UIN>(numOfNonZeroInEachColSegment.size()),
-    //                                   numDenseColSegment + remainderNumber);
-    // }
 
     const UIN numSparseColSegment = numNonZeroColSegment - numDenseColSegment;
     return std::make_pair(numDenseColSegment, numSparseColSegment);
@@ -289,7 +289,7 @@ std::pair<UIN, UIN> analysisDescendingOrderColSegment(const UIN dense_column_seg
 void colReordering_cpu(const sparseMatrix::CSR<float> &matrix,
                        const UIN numRowPanels,
                        const std::vector<UIN> &reorderedRows,
-                       const UIN dense_column_segment_threshold,
+                       const float blockDensityThreshold,
                        std::vector<UIN> &denseCols,
                        std::vector<UIN> &denseColOffsets,
                        std::vector<UIN> &sparseCols,
@@ -353,7 +353,7 @@ void colReordering_cpu(const sparseMatrix::CSR<float> &matrix,
         nonZeroColsInEachRowPanel[rowPanelId] = colIndices_dense;
 
         const auto [numDenseColSegment, numSparseColSegment] =
-                analysisDescendingOrderColSegment(dense_column_segment_threshold, numOfNonZeroInEachColSegment_dense);
+                analysisDescendingOrderColSegment(blockDensityThreshold, numOfNonZeroInEachColSegment_dense);
 
         UIN numSparsePartData = 0;
         for (int i = numDenseColSegment; i < numDenseColSegment + numSparseColSegment; ++i) {

@@ -27,7 +27,7 @@ public:
     size_t K() const { return K_; }
     int numIterations() const { return numIterations_; }
     float similarityThresholdAlpha() const { return similarityThresholdAlpha_; }
-    int columnNonZeroThresholdBeta() const { return columnNonZeroThresholdBeta_; }
+    float blockDensityThresholdDelta() const { return blockDensityThresholdDelta_; }
 
 private:
     std::string programPath_;
@@ -35,8 +35,8 @@ private:
     std::string inputFile_ = filePath;
     size_t K_ = 32;
     int numIterations_ = 10;
-    float similarityThresholdAlpha_ = 0.3;
-    int columnNonZeroThresholdBeta_ = 4;
+    float similarityThresholdAlpha_ = 0.3f;
+    float blockDensityThresholdDelta_ = 0.25f;
 
     inline void parsingOptionAndParameters(const std::string &option,
                                            const std::string &value);
@@ -55,7 +55,7 @@ inline void Options::parsingOptionAndParameters(const std::string &option,
             similarityThresholdAlpha_ = std::stof(value);
         }
         if (option == "-B" || option == "-b") {
-            columnNonZeroThresholdBeta_ = std::stoi(value);
+            blockDensityThresholdDelta_ = std::stof(value);
         }
     } catch (const std::invalid_argument &e) {
         std::cerr << "Invalid argument: " << e.what() << std::endl;

@@ -12,7 +12,7 @@ void sddmm(const Options &options,
            sparseMatrix::CSR<float> &matrixP,
            Logger &logger) {
     // Reordering
-    BSMR bsmr(matrixP, options.similarityThresholdAlpha(), options.columnNonZeroThresholdBeta());
+    BSMR bsmr(matrixP, options.similarityThresholdAlpha(), options.blockDensityThresholdDelta());
     logger.zcx_preprocessing_time_ = bsmr.reorderingTime();
     logger.numRowPanels_ = bsmr.numRowPanels();
 
@@ -68,7 +68,7 @@ void sddmmBatch(int seq_len,
 
     sparseMatrix::CSR<float> matrixP(M, M, nnz, offsets, columns);
     // Reordering
-    BSMR bsmr(matrixP, 0.3, 4);
+    BSMR bsmr(matrixP, 0.3, 0.5);
 
     // Device data
     RPHM rphm(matrixP, bsmr);
