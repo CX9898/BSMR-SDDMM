@@ -1015,8 +1015,9 @@ UIN calculateBlockSize(const sparseMatrix::CSR<float> &matrix) {
 }
 
 std::vector<UIN> bsa_rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
-                                       float alpha,
-                                       UIN block_size,
+                                       const float alpha,
+                                       const UIN block_size,
+                                       int &num_clusters,
                                        float &reordering_time) {
     // printf("Start bsa_rowReordering_gpu. Number of rows: %u, block_size: %u\n", matrix.row(), block_size);
     std::vector<UIN> row_permutation;
@@ -1053,16 +1054,13 @@ std::vector<UIN> bsa_rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
 
     timeCalculator.startClock();
 
-    int cluster_cnt = 0;
     row_permutation = get_permutation_gpu(matrix,
                                           ascending,
                                           Encodings_gpu,
                                           Dispersions,
                                           num_blocks_per_row,
                                           alpha,
-                                          cluster_cnt);
-
-    printf("Number of clusters: %u\n", cluster_cnt);
+                                          num_clusters);
 
     timeCalculator.endClock();
     float get_permutation_gpu_time = timeCalculator.getTime();

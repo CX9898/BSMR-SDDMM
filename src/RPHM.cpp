@@ -26,6 +26,7 @@ BSMR::BSMR(const sparseMatrix::CSR<float> &matrix,
         reorderedRows_ = bsa_rowReordering_gpu(matrix,
                                                similarityThreshold,
                                                blockSize,
+                                               numClusters_,
                                                oneIterationTime);
         rowReordering_time += oneIterationTime;
     }
@@ -883,7 +884,7 @@ void evaluationReordering(const sparseMatrix::CSR<float> &matrix, const BSMR &bs
                 const float density = static_cast<float>(nnzInEachBlock[blockId]) / blockSize;
                 totalDensity += density;
 
-                const float densityThreshold = logger.beta_;
+                const float densityThreshold = logger.delta_;
                 if (density >= densityThreshold) {
                     ++numDenseBlocks;
                 }
@@ -892,7 +893,7 @@ void evaluationReordering(const sparseMatrix::CSR<float> &matrix, const BSMR &bs
     }
 
     const auto [numDenseBlocksInOriginalMatrix, averageDensityInOriginalMatrix] =
-            calculateNumDenseBlocksAndAverageDensityInOriginalMatrix(logger.beta_, matrix);
+            calculateNumDenseBlocksAndAverageDensityInOriginalMatrix(logger.delta_, matrix);
 
     logger.numDenseBlock_ = numDenseBlocks;
     logger.averageDensity_ = totalDensity / numDenseBlocks;

@@ -34,6 +34,7 @@ public:
     const std::vector<UIN> &sparseCols() const { return sparseCols_; }
     const std::vector<UIN> &sparseColOffsets() const { return sparseColOffsets_; }
     const std::vector<UIN> &sparseValueOffsets() const { return sparseValueOffsets_; }
+    int numClusters() const { return numClusters_; }
     float reorderingTime() const { return reorderingTime_; }
 
 private:
@@ -45,6 +46,7 @@ private:
     std::vector<UIN> sparseColOffsets_;
     std::vector<UIN> sparseValueOffsets_;
 
+    int numClusters_ = 1;
     float reorderingTime_ = 0.0f;
 };
 
@@ -157,8 +159,9 @@ std::vector<int> bsa_rowReordering_cpu(const sparseMatrix::CSR<float> &matrix,
                                        float &reordering_time);
 
 std::vector<UIN> bsa_rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
-                                       float alpha,
-                                       UIN block_size,
+                                       const float alpha,
+                                       const UIN block_size,
+                                       int &num_clusters,
                                        float &reordering_time);
 
 /**

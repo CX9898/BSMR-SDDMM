@@ -2581,7 +2581,7 @@ void sddmm_gpu(UIN M, UIN N, UIN K,
     logger.gridDim_sparse_ = grid_sparse;
     logger.blockDim_dense_ = block_dense;
     logger.blockDim_sparse_ = block_sparse;
-    logger.zcx_sddmm_time_ = singleTime;
+    logger.sddmmTime_ = singleTime;
 
     cudaStreamDestroy(denseStream);
     cudaStreamDestroy(sparseStream);

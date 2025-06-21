@@ -86,12 +86,14 @@ struct Logger {
     int numITER_;
 
     float alpha_;
-    float beta_;
+    float delta_;
 
-    float zcx_sddmm_time_ = 0.0f;
-    float zcx_preprocessing_time_ = 0.0f;
+    int numClusters_ = 1;
 
-    float cuSparse_sddmm_time_ = 0.0f;
+    float sddmmTime_ = 0.0f;
+    float reorderingTime_ = 0.0f;
+
+    float sddmmTime_cuSparse_ = 0.0f;
 };
 
 void Logger::getInformation(const Options &options) {
@@ -99,7 +101,7 @@ void Logger::getInformation(const Options &options) {
     K_ = options.K();
     numITER_ = options.numIterations();
     alpha_ = options.similarityThresholdAlpha();
-    beta_ = options.blockDensityThresholdDelta();
+    delta_ = options.blockDensityThresholdDelta();
 }
 
 void Logger::getInformation(const sparseMatrix::DataBase &matrix) {
@@ -142,22 +144,24 @@ void Logger::printLogInformation() {
     printf("[zcx_averageDensity : %f]\n", averageDensity_);
     printf("[NumSparseBlock : %d]\n", numSparseBlock_);
 
-    printf("[OriginalNumDenseBlock : %d]\n", originalNumDenseBlock_);
-    printf("[OriginalAverageDensity : %f]\n", originalAverageDensity_);
+    printf("[original_numDenseBlock : %d]\n", originalNumDenseBlock_);
+    printf("[original_averageDensity : %f]\n", originalAverageDensity_);
 
     printf("[zcx_alpha : %.2f]\n", alpha_);
-    printf("[zcx_beta : %.2f]\n", beta_);
+    printf("[zcx_delta : %.2f]\n", delta_);
+
+    printf("[zcx_numClusters : %d]\n", numClusters_);
 
     printf("[Num iterations : %d]\n", numITER_);
 
     const size_t flops = 2 * NNZ_ * K_;
 
-    printf("[cuSparse_gflops : %.2f]\n", (flops / (cuSparse_sddmm_time_ * 1e6)));
-    printf("[cuSparse_sddmm : %.2f]\n", cuSparse_sddmm_time_);
+    printf("[cuSparse_gflops : %.2f]\n", (flops / (sddmmTime_cuSparse_ * 1e6)));
+    printf("[cuSparse_sddmm : %.2f]\n", sddmmTime_cuSparse_);
 
-    printf("[zcx_gflops : %.2f]\n", (flops / (zcx_sddmm_time_ * 1e6)));
-    printf("[zcx_sddmm : %.2f]\n", zcx_sddmm_time_);
-    printf("[zcx_preprocessing : %.2f]\n", zcx_preprocessing_time_);
+    printf("[zcx_gflops : %.2f]\n", (flops / (sddmmTime_ * 1e6)));
+    printf("[zcx_sddmm : %.2f]\n", sddmmTime_);
+    printf("[zcx_preprocessing : %.2f]\n", reorderingTime_);
 
     if (errorRate_ > 0) {
         printf("[checkResults : NO PASS Error rate : %2.2f%%]\n", errorRate_);

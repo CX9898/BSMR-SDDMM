@@ -130,7 +130,7 @@ void cuSparseSDDMM(const Matrix<float> &matrixA,
     }
     timer.endClock();
 
-    logger.cuSparse_sddmm_time_ = timer.getTime() / logger.numITER_;
+    logger.sddmmTime_cuSparse_ = timer.getTime() / logger.numITER_;
 
     matrixP.setValues() = d2h(mtxS_values_dev);
 
