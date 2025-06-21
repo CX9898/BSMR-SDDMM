@@ -103,7 +103,7 @@ public:
         printf("[BSA_numDenseBlock : %d]\n", num_tiles);
         printf("[BSA_averageDensity : %f]\n", avg_density_of_tiles);
         printf("[BSA_reordering : %f]\n", avg_reordering_time);
-        printf("[BSA_cluster : %d]\n", cluster_cnt);
+        printf("[BSA_numClusters : %d]\n", cluster_cnt);
     }
 };
 
