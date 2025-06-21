@@ -283,6 +283,7 @@ struct OneTimeData {
     BaseLine cuSDDMM_{"cuSDDMM"};
     BaseLine cuSparse_{"cuSparse"};
     BaseLine ASpT_{"ASpT"};
+    BaseLine RoDe_{"RoDe"};
     BaseLine BSA_{"BSA"};
 };
 
@@ -291,6 +292,7 @@ void OneTimeData::update(const std::vector<std::string> &oneTimeResults) {
     cuSDDMM_.parseLine(oneTimeResults);
     cuSparse_.parseLine(oneTimeResults);
     ASpT_.parseLine(oneTimeResults);
+    RoDe_.parseLine(oneTimeResults);
     BSA_.parseLine(oneTimeResults);
 }
 
@@ -698,6 +700,73 @@ void evaluateSddmmWithASpT(
     printSeparator();
 }
 
+// return the average speedup adn the maximum speedup
+void evaluateSddmmWithRoDe(
+    std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
+    float sumSpeedup = 0.0f;
+    float maxSpeedup = 0.0f;
+
+    // 0~0.5, 0.5~0.8, 0.8~1.0, 1.0~1.2, 1.2~1.5, 1.5~
+    std::vector<int> numSpeedups(6);
+
+    const int numResults = getNumResults(matrixFileToResultsInformationMap);
+    for (const auto &iter: matrixFileToResultsInformationMap) {
+        for (const auto &kToOneTimeData: iter.second.kToOneTimeData_) {
+            const float zcx_sddmm = kToOneTimeData.second.zcx_.gflops();
+            const float RoDe_sddmm = kToOneTimeData.second.RoDe_.gflops();
+
+            if (zcx_sddmm <= 1e-6 || RoDe_sddmm <= 1e-6) {
+                continue;
+            }
+
+            const float speedup = zcx_sddmm / RoDe_sddmm;
+            maxSpeedup = std::max(speedup, maxSpeedup);
+            sumSpeedup += speedup;
+
+            if (speedup <= 0.5) {
+                ++numSpeedups[0];
+                printf(" file: %s, k: %d, zcx_sddmm: %.2f, RoDe_sddmm: %.2f, speedup: %.2f\n",
+                       iter.first.c_str(), kToOneTimeData.first, zcx_sddmm, RoDe_sddmm, speedup);
+            }
+            if (speedup > 0.5 && speedup <= 0.8) {
+                ++numSpeedups[1];
+            }
+            if (speedup > 0.8 && speedup <= 1.0) {
+                ++numSpeedups[2];
+            }
+            if (speedup > 1.0 && speedup <= 1.2) {
+                ++numSpeedups[3];
+            }
+            if (speedup > 1.2 && speedup <= 1.5) {
+                ++numSpeedups[4];
+            }
+            if (speedup > 1.5) {
+                ++numSpeedups[5];
+            }
+        }
+    }
+
+    float averageSpeedup = sumSpeedup / numResults;
+
+    printSeparator();
+    printf("evaluateSddmmWithRoDe:\n");
+
+    printf("Average speedup over RoDe: %.2f, maximum speedup: %.2f\n", averageSpeedup, maxSpeedup);
+
+    printf("Speedup over RoDe <= 0.5 : %.1f%%\n", numSpeedups[0] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over RoDe 0.5~0.8 : %.1f%%\n", numSpeedups[1] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over RoDe 0.8~1.0 : %.1f%%\n", numSpeedups[2] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over RoDe 1.0~1.2 : %.1f%%\n", numSpeedups[3] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over RoDe 1.2~1.5 : %.1f%%\n", numSpeedups[4] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over RoDe > 1.5 : %.1f%%\n", numSpeedups[5] / static_cast<float>(numResults) * 100.0f);
+
+    const float accelerationCoverage =
+            (numSpeedups[3] + numSpeedups[4] + numSpeedups[5]) / static_cast<float>(numResults) * 100.0f;
+    printf("Acceleration coverage: %.1f%%\n", accelerationCoverage);
+
+    printSeparator();
+}
+
 
 // return the maximum sparsity and minimum sparsity
 std::pair<float, float> getMaxAndMinSparsity(
@@ -911,15 +980,17 @@ int main(const int argc, const char *argv[]) {
 
     evaluateSddmmWithASpT(matrixFileToResultsInformationMap);
 
-    evaluateReorderingWithBSA(matrixFileToResultsInformationMap);
+    evaluateSddmmWithRoDe(matrixFileToResultsInformationMap);
 
-    evaluateReorderingOverhead(matrixFileToResultsInformationMap);
+    // evaluateReorderingWithBSA(matrixFileToResultsInformationMap);
+
+    // evaluateReorderingOverhead(matrixFileToResultsInformationMap);
 
     // Print the program setting information to Markdown format and the results information
-    settingInformation.printInformation();
-    for (const auto &iter: matrixFileToResultsInformationMap) {
-        iter.second.printInformation();
-    }
+    // settingInformation.printInformation();
+    // for (const auto &iter: matrixFileToResultsInformationMap) {
+    //     iter.second.printInformation();
+    // }
 
     // // Print the bad results to Markdown format
     // if (numBadResults > 0) {
