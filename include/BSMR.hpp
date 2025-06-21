@@ -23,8 +23,9 @@ public:
     BSMR() = default;
 
     BSMR(const sparseMatrix::CSR<float> &matrix,
-         const float similarityThreshold,
-         const float blockDensityThreshold);
+           const float similarityThreshold,
+           const float blockDensityThreshold,
+           const int numIterations);
 
     int numRowPanels() const { return numRowPanels_; }
     const std::vector<UIN> &reorderedRows() const { return reorderedRows_; }
