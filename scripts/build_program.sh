@@ -25,7 +25,7 @@ RoDe_program_name="RoDe-sddmm"
 
 BSA_build_folder_path="${script_file_path}build_BSA/"
 BSA_cmake_file_path="${script_file_path}../baselines/BSA_SpMM/"
-BSA_program_path="${RoDe_build_folder_path}"
+BSA_program_path="${BSA_build_folder_path}"
 BSA_program_name="BSA-spmm"
 
 ##############################################################################################
