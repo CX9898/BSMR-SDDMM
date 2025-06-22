@@ -18,7 +18,7 @@ public:
     int n_cols = 128;
     int method = 2;
 
-    int repetitions = 10;
+    int repetitions = 1;
     int spmm = 0;
 
     int block_size = 16;
