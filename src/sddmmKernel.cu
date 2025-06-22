@@ -957,16 +957,6 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_matrixA_rowMaj_matrixB_colMaj(con
     constexpr int bTileSMEMSize = (WMMA_N * each_thread_block_counts_the_number_Of_dense_blocks) * bTileSMEMLd;
     constexpr int numWarps = each_thread_block_counts_the_number_Of_dense_blocks;
 
-    __shared__ MATRIX_A_TYPE aTileSMEM[aTileSMEMSize];
-    __shared__ MATRIX_B_TYPE bTileSMEM[bTileSMEMSize];
-
-    wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE_FRAGMENT, wmma::row_major> aFrag;
-    wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE_FRAGMENT, wmma::col_major> bFrag;
-
-    wmma::fragment<wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> accFrag;
-
-    fill_fragment(accFrag, 0.0f);
-
     const UIN laneId = threadIdx.x & 31;
     const UIN warpId = threadIdx.x >> 5;
 
@@ -977,6 +967,16 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_matrixA_rowMaj_matrixB_colMaj(con
     if (colBlockIter >= numColBlocksCurrentRowPanel) {
         return;
     }
+
+    __shared__ MATRIX_A_TYPE aTileSMEM[aTileSMEMSize];
+    __shared__ MATRIX_B_TYPE bTileSMEM[bTileSMEMSize];
+
+    wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE_FRAGMENT, wmma::row_major> aFrag;
+    wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE_FRAGMENT, wmma::col_major> bFrag;
+
+    wmma::fragment<wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> accFrag;
+
+    fill_fragment(accFrag, 0.0f);
 
     const UIN colBlockId = colBlockIter + warpId;
     const UIN startIndexOfBlockValuesCurrentBlock = (blockOffsets[rowPanelId] + colBlockId) * BLOCK_SIZE;
