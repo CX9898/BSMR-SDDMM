@@ -273,6 +273,7 @@ std::pair<UIN, UIN> analysisDescendingOrderColSegment(const float blockDensityTh
             if (numNonZeroInBlock >= numNonZeroThreshold) {
                 // If the number of non-zero elements in the current block is greater than the threshold, it is a dense column segment
                 numDenseColSegment += BLOCK_COL_SIZE;
+                numDenseColSegment = std::min(numDenseColSegment, static_cast<UIN>(numOfNonZeroInEachColSegment.size()));
             }
             numNonZeroInBlock = 0;
         }
