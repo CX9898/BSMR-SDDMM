@@ -81,7 +81,8 @@ struct Logger {
     int originalNumDenseBlock_;
     float originalAverageDensity_;
 
-    int numSparseBlock_;
+    int numDenseThreadBlocks_;
+    int numSparseThreadBlocks_;
 
     int numITER_;
 
@@ -133,26 +134,31 @@ void Logger::printLogInformation() {
     printf("[matrixA storageOrder : %s]\n", matrixA_storageOrder_.c_str());
     printf("[matrixB storageOrder : %s]\n", matrixB_storageOrder_.c_str());
 
+    printf("[Num iterations : %d]\n", numITER_);
+
+    printf("[NumRowPanel : %d]\n", numRowPanels_);
+
+    printf("[bsmr_alpha : %.2f]\n", alpha_);
+    printf("[bsmr_delta : %.2f]\n", delta_);
+
+    printf("[bsmr_numClusters : %d]\n", numClusters_);
+
+    printf("[bsmr_numDenseBlock : %d]\n", numDenseBlock_);
+    printf("[bsmr_averageDensity : %f]\n", averageDensity_);
+
+    printf("[original_numDenseBlock : %d]\n", originalNumDenseBlock_);
+    printf("[original_averageDensity : %f]\n", originalAverageDensity_);
+
     printf("[gridDim_dense : %d, %d, %d]\n", gridDim_dense_.x, gridDim_dense_.y, gridDim_dense_.z);
     printf("[gridDim_sparse : %d, %d, %d]\n", gridDim_sparse_.x, gridDim_sparse_.y, gridDim_sparse_.z);
     printf("[blockDim_dense : %d, %d, %d]\n", blockDim_dense_.x, blockDim_dense_.y, blockDim_dense_.z);
     printf("[blockDim_sparse : %d, %d, %d]\n", blockDim_sparse_.x, blockDim_sparse_.y, blockDim_sparse_.z);
 
-    printf("[NumRowPanel : %d]\n", numRowPanels_);
+    printf("[bsmr_numDenseThreadBlocks : %d]\n", numDenseThreadBlocks_);
+    printf("[bsmr_numSparseThreadBlocks : %d]\n", numSparseThreadBlocks_);
+    printf("[bsmr_threadBlockRatio : %.2f]\n", static_cast<float>(numDenseThreadBlocks_) / numSparseThreadBlocks_);
 
-    printf("[zcx_numDenseBlock : %d]\n", numDenseBlock_);
-    printf("[zcx_averageDensity : %f]\n", averageDensity_);
-    printf("[NumSparseBlock : %d]\n", numSparseBlock_);
 
-    printf("[original_numDenseBlock : %d]\n", originalNumDenseBlock_);
-    printf("[original_averageDensity : %f]\n", originalAverageDensity_);
-
-    printf("[zcx_alpha : %.2f]\n", alpha_);
-    printf("[zcx_delta : %.2f]\n", delta_);
-
-    printf("[zcx_numClusters : %d]\n", numClusters_);
-
-    printf("[Num iterations : %d]\n", numITER_);
 
     const size_t flops = 2 * NNZ_ * K_;
 
