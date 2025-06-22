@@ -15,7 +15,9 @@ void sddmm(const Options &options,
     BSMR bsmr(matrixP,
               options.similarityThresholdAlpha(),
               options.blockDensityThresholdDelta(),
-              options.numIterations());
+              1);
+    logger.rowReorderingTime_ = bsmr.rowReorderingTime();
+    logger.colReorderingTime_ = bsmr.colReorderingTime();
     logger.reorderingTime_ = bsmr.reorderingTime();
     logger.numRowPanels_ = bsmr.numRowPanels();
     logger.numClusters_ = bsmr.numClusters();

@@ -92,6 +92,8 @@ struct Logger {
     int numClusters_ = 1;
 
     float sddmmTime_ = 0.0f;
+    float rowReorderingTime_ = 0.0f;
+    float colReorderingTime_ = 0.0f;
     float reorderingTime_ = 0.0f;
 
     float sddmmTime_cuSparse_ = 0.0f;
@@ -146,6 +148,10 @@ void Logger::printLogInformation() {
     printf("[bsmr_numDenseBlock : %d]\n", numDenseBlock_);
     printf("[bsmr_averageDensity : %f]\n", averageDensity_);
 
+    printf("[bsmr_rowReordering : %.2f]\n", rowReorderingTime_);
+    printf("[bsmr_colReordering : %.2f]\n", colReorderingTime_);
+    printf("[bsmr_reordering : %.2f]\n", reorderingTime_);
+
     printf("[original_numDenseBlock : %d]\n", originalNumDenseBlock_);
     printf("[original_averageDensity : %f]\n", originalAverageDensity_);
 
@@ -158,16 +164,13 @@ void Logger::printLogInformation() {
     printf("[bsmr_numSparseThreadBlocks : %d]\n", numSparseThreadBlocks_);
     printf("[bsmr_threadBlockRatio : %.2f]\n", static_cast<float>(numDenseThreadBlocks_) / numSparseThreadBlocks_);
 
-
-
     const size_t flops = 2 * NNZ_ * K_;
 
     printf("[cuSparse_gflops : %.2f]\n", (flops / (sddmmTime_cuSparse_ * 1e6)));
     printf("[cuSparse_sddmm : %.2f]\n", sddmmTime_cuSparse_);
 
-    printf("[zcx_gflops : %.2f]\n", (flops / (sddmmTime_ * 1e6)));
-    printf("[zcx_sddmm : %.2f]\n", sddmmTime_);
-    printf("[zcx_preprocessing : %.2f]\n", reorderingTime_);
+    printf("[bsmr_gflops : %.2f]\n", (flops / (sddmmTime_ * 1e6)));
+    printf("[bsmr_sddmm : %.2f]\n", sddmmTime_);
 
     if (errorRate_ > 0) {
         printf("[checkResults : NO PASS Error rate : %2.2f%%]\n", errorRate_);

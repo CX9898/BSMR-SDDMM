@@ -32,7 +32,8 @@ BSMR::BSMR(const sparseMatrix::CSR<float> &matrix,
     }
     rowReordering_time /= numIterations;
 
-    printf("rowReordering time : %f ms\n", rowReordering_time);
+    rowReorderingTime_ = rowReordering_time;
+    // printf("rowReordering time : %f ms\n", rowReordering_time);
 
     numRowPanels_ = std::ceil(static_cast<float>(reorderedRows_.size()) / ROW_PANEL_SIZE);
     // printf("numRowPanels : %d\n", numRowPanels_);
@@ -55,7 +56,8 @@ BSMR::BSMR(const sparseMatrix::CSR<float> &matrix,
     }
     colReordering_time /= numIterations;
 
-    printf("colReordering time : %f ms\n", colReordering_time);
+    colReorderingTime_ = colReordering_time;
+    // printf("colReordering time : %f ms\n", colReordering_time);
 
     reorderingTime_ = rowReordering_time + colReordering_time;
 }
@@ -191,7 +193,7 @@ RPHM::RPHM(sparseMatrix::CSR<float> &matrix, const BSMR &bsmr) {
 
     timeCalculator.endClock();
     float rphm_time = timeCalculator.getTime();
-    printf("rphm time : %f ms\n", rphm_time);
+    // printf("rphm time : %f ms\n", rphm_time);
 
     // Copy data to device
     h2d(reorderedRows_, bsmr.reorderedRows());

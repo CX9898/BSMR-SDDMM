@@ -35,6 +35,8 @@ public:
     const std::vector<UIN> &sparseColOffsets() const { return sparseColOffsets_; }
     const std::vector<UIN> &sparseValueOffsets() const { return sparseValueOffsets_; }
     int numClusters() const { return numClusters_; }
+    float rowReorderingTime() const { return rowReorderingTime_; }
+    float colReorderingTime() const { return colReorderingTime_; }
     float reorderingTime() const { return reorderingTime_; }
 
 private:
@@ -47,6 +49,8 @@ private:
     std::vector<UIN> sparseValueOffsets_;
 
     int numClusters_ = 1;
+    float rowReorderingTime_ = 0.0f;
+    float colReorderingTime_ = 0.0f;
     float reorderingTime_ = 0.0f;
 };
 
