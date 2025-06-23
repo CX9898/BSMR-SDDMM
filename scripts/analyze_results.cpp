@@ -279,7 +279,7 @@ private:
 struct OneTimeData {
     void update(const std::vector<std::string> &oneTimeResults);
 
-    BaseLine zcx_{"zcx"};
+    BaseLine BSMR_{"bsmr"};
     BaseLine cuSDDMM_{"cuSDDMM"};
     BaseLine cuSparse_{"cuSparse"};
     BaseLine ASpT_{"ASpT"};
@@ -288,7 +288,7 @@ struct OneTimeData {
 };
 
 void OneTimeData::update(const std::vector<std::string> &oneTimeResults) {
-    zcx_.parseLine(oneTimeResults);
+    BSMR_.parseLine(oneTimeResults);
     cuSDDMM_.parseLine(oneTimeResults);
     cuSparse_.parseLine(oneTimeResults);
     ASpT_.parseLine(oneTimeResults);
@@ -375,7 +375,7 @@ void ResultsInformation::printInformation() const {
     printf(" NNZ |");
     printf(" sparsity |");
     printf(" K |");
-    printf(" zcx_gflops |");
+    printf(" bsmr_gflops |");
     printf(" cuSDDMM_gflops |");
     printf(" cuSparse_gflops |");
     printf(" ASpT_gflops |");
@@ -402,12 +402,12 @@ void ResultsInformation::printInformation() const {
         printOneLineInformation(NNZ_);
         printOneLineInformation(sparsity_);
         std::cout << iter.first << "|"; // K value
-        std::cout << iter.second.zcx_.gflops() << "|";
+        std::cout << iter.second.BSMR_.gflops() << "|";
         std::cout << iter.second.cuSDDMM_.gflops() << "|";
         std::cout << iter.second.cuSparse_.gflops() << "|";
         std::cout << iter.second.ASpT_.gflops() << "|";
 
-        std::cout << iter.second.zcx_.checkResults();
+        std::cout << iter.second.BSMR_.checkResults();
         printf("\n");
     }
 
@@ -453,19 +453,19 @@ std::unordered_map<std::string, ResultsInformation> pickTheBadResults(
         badResultsInformation.kToOneTimeData_.clear();
         for (const auto &kToOneTimeData: resultesInformation.kToOneTimeData_) {
             const int k = kToOneTimeData.first;
-            const float zcx_gflops = kToOneTimeData.second.zcx_.gflops();
+            const float bsmr_gflops = kToOneTimeData.second.BSMR_.gflops();
             const float cuSDDMM_gflops = kToOneTimeData.second.cuSDDMM_.gflops();
             const float cuSparse_gflops = kToOneTimeData.second.cuSparse_.gflops();
-            if (zcx_gflops > 1e-6) {
-                if (zcx_gflops < cuSDDMM_gflops || zcx_gflops < cuSparse_gflops) {
+            if (bsmr_gflops > 1e-6) {
+                if (bsmr_gflops < cuSDDMM_gflops || bsmr_gflops < cuSparse_gflops) {
                     OneTimeData oneTimeData = kToOneTimeData.second;
                     badResultsInformation.kToOneTimeData_[k] = oneTimeData;
                 }
             }
 
             const float ASpT_gflops = kToOneTimeData.second.ASpT_.gflops();
-            if (zcx_gflops > 1e-6) {
-                if (zcx_gflops < ASpT_gflops) {
+            if (bsmr_gflops > 1e-6) {
+                if (bsmr_gflops < ASpT_gflops) {
                     OneTimeData oneTimeData = kToOneTimeData.second;
                     badResultsInformation.kToOneTimeData_[k] = oneTimeData;
                 }
@@ -485,9 +485,9 @@ int getNumResults(const std::unordered_map<std::string, ResultsInformation> &mat
         numResults += iter.second.kToOneTimeData_.size();
 
         for (const auto &kToOneTimeData: iter.second.kToOneTimeData_) {
-            const float zcx_sddmm = kToOneTimeData.second.zcx_.gflops();
+            const float bsmr_sddmm = kToOneTimeData.second.BSMR_.gflops();
 
-            if (zcx_sddmm <= 1e-6) {
+            if (bsmr_sddmm <= 1e-6) {
                 --numResults;
             }
         }
@@ -524,7 +524,7 @@ float calculateAccuracy(const std::unordered_map<std::string,
     int numErrors = 0;
     for (const auto &iter: matrixFileToResultsInformationMap) {
         for (const auto &kToOneTimeData: iter.second.kToOneTimeData_) {
-            bool isCorrect = checkIsCorrect(kToOneTimeData.second.zcx_.checkResults());
+            bool isCorrect = checkIsCorrect(kToOneTimeData.second.BSMR_.checkResults());
 
             if (!isCorrect) {
                 ++numErrors;
@@ -550,14 +550,14 @@ void evaluateSddmmWithCuSDDMM(
     const int numResults = getNumResults(matrixFileToResultsInformationMap);
     for (const auto &iter: matrixFileToResultsInformationMap) {
         for (const auto &kToOneTimeData: iter.second.kToOneTimeData_) {
-            const float zcx_gflops = kToOneTimeData.second.zcx_.gflops();
+            const float bsmr_gflops = kToOneTimeData.second.BSMR_.gflops();
             const float cuSDDMM_gflops = kToOneTimeData.second.cuSDDMM_.gflops();
 
-            if (zcx_gflops <= 1e-6 || cuSDDMM_gflops <= 1e-6) {
+            if (bsmr_gflops <= 1e-6 || cuSDDMM_gflops <= 1e-6) {
                 continue;
             }
 
-            float speedup = zcx_gflops / cuSDDMM_gflops;
+            float speedup = bsmr_gflops / cuSDDMM_gflops;
             maxSpeedup = std::max(speedup, maxSpeedup);
             sumSpeedup += speedup;
 
@@ -612,14 +612,14 @@ void evaluateSddmmWithCuSparse(
     const int numResults = getNumResults(matrixFileToResultsInformationMap);
     for (const auto &iter: matrixFileToResultsInformationMap) {
         for (const auto &kToOneTimeData: iter.second.kToOneTimeData_) {
-            const float zcx_sddmm = kToOneTimeData.second.zcx_.gflops();
+            const float bsmr_sddmm = kToOneTimeData.second.BSMR_.gflops();
             const float cuSparse_sddmm = kToOneTimeData.second.cuSparse_.gflops();
 
-            if (zcx_sddmm <= 1e-6 || cuSparse_sddmm <= 1e-6) {
+            if (bsmr_sddmm <= 1e-6 || cuSparse_sddmm <= 1e-6) {
                 continue;
             }
 
-            float speedup = zcx_sddmm / cuSparse_sddmm;
+            float speedup = bsmr_sddmm / cuSparse_sddmm;
             maxSpeedup = std::max(speedup, maxSpeedup);
             sumSpeedup += speedup;
         }
@@ -647,14 +647,14 @@ void evaluateSddmmWithASpT(
     const int numResults = getNumResults(matrixFileToResultsInformationMap);
     for (const auto &iter: matrixFileToResultsInformationMap) {
         for (const auto &kToOneTimeData: iter.second.kToOneTimeData_) {
-            const float zcx_sddmm = kToOneTimeData.second.zcx_.gflops();
+            const float bsmr_sddmm = kToOneTimeData.second.BSMR_.gflops();
             const float ASpT_sddmm = kToOneTimeData.second.ASpT_.gflops();
 
-            if (zcx_sddmm <= 1e-6 || ASpT_sddmm <= 1e-6) {
+            if (bsmr_sddmm <= 1e-6 || ASpT_sddmm <= 1e-6) {
                 continue;
             }
 
-            const float speedup = zcx_sddmm / ASpT_sddmm;
+            const float speedup = bsmr_sddmm / ASpT_sddmm;
             maxSpeedup = std::max(speedup, maxSpeedup);
             sumSpeedup += speedup;
 
@@ -712,21 +712,21 @@ void evaluateSddmmWithRoDe(
     const int numResults = getNumResults(matrixFileToResultsInformationMap);
     for (const auto &iter: matrixFileToResultsInformationMap) {
         for (const auto &kToOneTimeData: iter.second.kToOneTimeData_) {
-            const float zcx_sddmm = kToOneTimeData.second.zcx_.gflops();
+            const float bsmr_sddmm = kToOneTimeData.second.BSMR_.gflops();
             const float RoDe_sddmm = kToOneTimeData.second.RoDe_.gflops();
 
-            if (zcx_sddmm <= 1e-6 || RoDe_sddmm <= 1e-6) {
+            if (bsmr_sddmm <= 1e-6 || RoDe_sddmm <= 1e-6) {
                 continue;
             }
 
-            const float speedup = zcx_sddmm / RoDe_sddmm;
+            const float speedup = bsmr_sddmm / RoDe_sddmm;
             maxSpeedup = std::max(speedup, maxSpeedup);
             sumSpeedup += speedup;
 
             if (speedup <= 0.5) {
                 ++numSpeedups[0];
-                printf(" file: %s, k: %d, zcx_sddmm: %.2f, RoDe_sddmm: %.2f, speedup: %.2f\n",
-                       iter.first.c_str(), kToOneTimeData.first, zcx_sddmm, RoDe_sddmm, speedup);
+                printf(" file: %s, k: %d, bsmr_sddmm: %.2f, RoDe_sddmm: %.2f, speedup: %.2f\n",
+                       iter.first.c_str(), kToOneTimeData.first, bsmr_sddmm, RoDe_sddmm, speedup);
             }
             if (speedup > 0.5 && speedup <= 0.8) {
                 ++numSpeedups[1];
@@ -825,7 +825,7 @@ void printReorderingEffectiveness(
     printf("\n");
     printf("|");
     printf(" NNZ |");
-    printf(" zcx_numDenseBlock |");
+    printf(" bsmr_numDenseBlock |");
     printf(" bsa_numDenseBlock |");
 
     printf("\n");
@@ -840,16 +840,16 @@ void printReorderingEffectiveness(
 
     for (const auto &iter: matrixFileToResultsInformationMap) {
         for (const auto &kToOneTimeData: iter.second.kToOneTimeData_) {
-            const int zcx_numDenseBlock = kToOneTimeData.second.zcx_.numDenseBlock();
+            const int bsmr_numDenseBlock = kToOneTimeData.second.BSMR_.numDenseBlock();
             const int bsa_numDenseBlock = kToOneTimeData.second.BSA_.numDenseBlock();
 
-            if (zcx_numDenseBlock <= 0 && bsa_numDenseBlock <= 0) {
+            if (bsmr_numDenseBlock <= 0 && bsa_numDenseBlock <= 0) {
                 continue;
             }
 
             printf("|");
             std::cout << iter.second.NNZ_ << "|";
-            std::cout << zcx_numDenseBlock << "|";
+            std::cout << bsmr_numDenseBlock << "|";
             std::cout << bsa_numDenseBlock << "|";
             printf("\n");
         }
@@ -883,7 +883,7 @@ void evaluateReorderingOverhead(
 
     for (const auto &iter: matrixFileToResultsInformationMap) {
         const int rows = std::stoi(iter.second.M_);
-        const float preprocessingTime = iter.second.kToOneTimeData_.begin()->second.zcx_.preprocessing();
+        const float preprocessingTime = iter.second.kToOneTimeData_.begin()->second.BSMR_.preprocessing();
         if (preprocessingTime == std::numeric_limits<float>::max()) {
             continue;
         }
@@ -904,14 +904,14 @@ void evaluateReorderingWithBSA(
 
     for (const auto &iter: matrixFileToResultsInformationMap) {
         for (const auto &kToOneTimeData: iter.second.kToOneTimeData_) {
-            // if (kToOneTimeData.second.zcx_numDenseBlock_.empty() || kToOneTimeData.second.BSA_numDenseBlock_.empty()) {
+            // if (kToOneTimeData.second.bsmr_numDenseBlock_.empty() || kToOneTimeData.second.BSA_numDenseBlock_.empty()) {
             //     continue;
             // }
 
-            const int zcx_numDenseBlock = kToOneTimeData.second.zcx_.numDenseBlock();
+            const int bsmr_numDenseBlock = kToOneTimeData.second.BSMR_.numDenseBlock();
             const int bsa_numDenseBlock = kToOneTimeData.second.BSA_.numDenseBlock();
 
-            sumZCX += zcx_numDenseBlock;
+            sumZCX += bsmr_numDenseBlock;
             sumBSA += bsa_numDenseBlock;
         }
     }

@@ -37,7 +37,7 @@ def parse_markdown_data(file_path):
                             "file": current_file,
                             "NNZ": int(parts[2]),
                             "K": int(parts[4]),
-                            "zcx_gflops": float(parts[5]) if parts[5] else None,
+                            "bsmr_gflops": float(parts[5]) if parts[5] else None,
                             "cuSDDMM_gflops": float(parts[6]) if parts[6] else None,
                             "cuSparse_gflops": float(parts[7]) if parts[7] else None,
                             "ASpT_gflops": float(parts[8]) if parts[8] else None
@@ -57,7 +57,7 @@ def main():
     df = parse_markdown_data(args.file)
     df = df.sort_values(by="NNZ").reset_index(drop=True)
     df = df[(df["NNZ"] >= 1000) & (df["NNZ"] <= 20000)]
-    df = df.dropna(subset=["K", "zcx_gflops"])
+    df = df.dropna(subset=["K", "bsmr_gflops"])
     df = df.drop_duplicates(subset=["file", "K"])
 
     output_dir = Path(args.outdir)
@@ -74,7 +74,7 @@ def main():
         fig, ax = plt.subplots()
         ax.plot(x, subset["cuSDDMM_gflops"], marker='s', label="cuSDDMM", alpha=0.7)
         ax.plot(x, subset["cuSparse_gflops"], marker='o', label="cuSparse", alpha=0.7)
-        ax.plot(x, subset["zcx_gflops"], marker='^', label="BSMR", alpha=0.7)
+        ax.plot(x, subset["bsmr_gflops"], marker='^', label="BSMR", alpha=0.7)
         ax.plot(x, subset["ASpT_gflops"], marker='d', label="ASpT", alpha=0.7)
 
         ax.set_title(f"K={k}")

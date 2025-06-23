@@ -25,7 +25,7 @@ def parse_dense_block_table(file_path):
     parsing = False
     with open(file_path, 'r', encoding='utf-8') as f:
         for line in f:
-            if re.match(r'\|\s*NNZ\s*\|\s*zcx_numDenseBlock\s*\|\s*bsa_numDenseBlock\s*\|', line):
+            if re.match(r'\|\s*NNZ\s*\|\s*bsmr_numDenseBlock\s*\|\s*bsa_numDenseBlock\s*\|', line):
                 parsing = True
                 continue
             if parsing and line.strip().startswith("|") and not line.strip().startswith("|-"):
@@ -34,7 +34,7 @@ def parse_dense_block_table(file_path):
                     try:
                         row = {
                             "NNZ": int(parts[0]),
-                            "zcx_numDenseBlock": int(parts[1]),
+                            "bsmr_numDenseBlock": int(parts[1]),
                             "bsa_numDenseBlock": int(parts[2])
                         }
                         data.append(row)
@@ -47,18 +47,18 @@ def plot_dense_blocks(ax, df):
     df = df.sort_values("NNZ").reset_index(drop=True)
 
     # 滑动平均（窗口大小=5）
-    df["zcx_smooth"] = df["zcx_numDenseBlock"].rolling(window=5, min_periods=1).mean()
+    df["bsmr_smooth"] = df["bsmr_numDenseBlock"].rolling(window=5, min_periods=1).mean()
     df["bsa_smooth"] = df["bsa_numDenseBlock"].rolling(window=5, min_periods=1).mean()
 
     # 可选：子采样
     sampled = df.iloc[::3]
 
-    # ax.plot(sampled["NNZ"], sampled["zcx_smooth"], marker='o', color='tab:blue', markersize=4,
-    #         label="zcx_numDenseBlock", linewidth=2, alpha=0.9)
+    # ax.plot(sampled["NNZ"], sampled["bsmr_smooth"], marker='o', color='tab:blue', markersize=4,
+    #         label="bsmr_numDenseBlock", linewidth=2, alpha=0.9)
     # ax.plot(sampled["NNZ"], sampled["bsa_smooth"], marker='s', color='tab:orange', markersize=4,
     #         label="bsa_numDenseBlock", linewidth=2, alpha=0.9)
 
-    ax.plot(sampled["NNZ"], sampled["zcx_smooth"],
+    ax.plot(sampled["NNZ"], sampled["bsmr_smooth"],
             linestyle='-', marker='o', color='#1f77b4', markersize=5,
             label="BSMR", linewidth=2)
     ax.plot(sampled["NNZ"], sampled["bsa_smooth"],

@@ -10,6 +10,8 @@ mkdir -p ${k32_results_path}
 mkdir -p ${k128_results_path}
 
 dataset_path="./results_dataset_of_suiteSparse/dataset/"
+
+bash make_matrices_list.sh ${dataset_path}
 matrix_list_file="${dataset_path}matrix_file_list.txt"
 
 program_cuSDDMM="./build_cuSDDMM/cuSDDMM-sddmm"
