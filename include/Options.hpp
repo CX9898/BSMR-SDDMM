@@ -8,13 +8,6 @@
 
 #include "util.hpp"
 
-const std::string folderPath("../dataset/");
-// const std::string fileName = ("nips");
-// const std::string fileName = ("test2");
-//  const std::string fileName("matrix_15000_15000_11250000");
-const std::string fileFormat(".mtx");
-// const std::string filePath = folderPath + fileName + fileFormat;
-// const std::string filePath(
 const std::string filePath("../scripts/dataset_of_suiteSparse/bcsstk30/bcsstk30.mtx");
 
 class Options {
@@ -36,7 +29,7 @@ private:
     size_t K_ = 32;
     int numIterations_ = 10;
     float similarityThresholdAlpha_ = 0.3f;
-    float blockDensityThresholdDelta_ = 0.25f;
+    float blockDensityThresholdDelta_ = 0.3f;
 
     inline void parsingOptionAndParameters(const std::string &option,
                                            const std::string &value);
