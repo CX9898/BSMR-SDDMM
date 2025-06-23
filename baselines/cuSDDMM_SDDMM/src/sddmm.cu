@@ -110,17 +110,16 @@ void sddmm_GPU(const Matrix S,
     }
 
     float copyTime = 0;
-
-    dim3 block(BLOCKSIZE, 1, 1), grid(1, 1, 1);
-    sum = 0;
-    int t_st = 0;
-
-    int k_slice = SM_CAPACITY / actv_row_size;
-
     checkCuda(cudaEventRecord(start), __LINE__);
 
     // run 10 iterations for averaging
     for (int iter = 0; iter < ITER; ++iter) {
+        dim3 block(BLOCKSIZE, 1, 1), grid(1, 1, 1);
+        sum = 0;
+        int t_st = 0;
+
+        int k_slice = SM_CAPACITY / actv_row_size;
+
         for (int tile = 0; tile < n_tile; ++tile) {
             int nnz_tile = tS.lastIdx_tile[tile + 1] - tS.lastIdx_tile[tile];
             //grid.x = (nnz_tile + BLOCKSIZE - 1) / BLOCKSIZE;
@@ -153,9 +152,9 @@ void sddmm_GPU(const Matrix S,
     checkCuda(cudaEventRecord(stop), __LINE__);
     cudaEventSynchronize(stop);
     //cudaDeviceSynchronize();
-    cudaDeviceSynchronize();
 
     checkCuda(cudaEventElapsedTime(comp_kernel_COO_time, start, stop), __LINE__);
+
     *comp_kernel_COO_time /= ITER; // average time over iterations
     cout << "\nTime for SDDMM with K = " << k << " : " << *comp_kernel_COO_time << " ms" << endl;
 
@@ -171,15 +170,15 @@ void sddmm_GPU(const Matrix S,
 
     /*Correctness check*/
     cout << "\n****** Optional correctness check *******" << endl << endl;
-    for (int i = 0; i < 3; ++i)
-        cout << "gp idx " << i << " " << " GPU " << p_ind_temp[i] << " CPU " << P[tS.tiled_ind[i]] << endl;
-    for (int i = S.nnz - 1; i > S.nnz - 3; --i)
-        cout << "gp idx " << i << " " << " GPU " << p_ind_temp[i] << " CPU " << P[tS.tiled_ind[i]] << endl;
+    // for (int i = 0; i < 3; ++i)
+    //     cout << "gp idx " << i << " " << " GPU " << p_ind_temp[i] << " CPU " << P[tS.tiled_ind[i]] << endl;
+    // for (int i = S.nnz - 1; i > S.nnz - 3; --i)
+    //     cout << "gp idx " << i << " " << " GPU " << p_ind_temp[i] << " CPU " << P[tS.tiled_ind[i]] << endl;
     long diff_tot = 0;
     for (int i = 0; i < tS.nnz; ++i) {
         //if(p_ind_temp[i] != 0)
         {
-            if (abs(p_ind_temp[i] - P[tS.tiled_ind[i]]) > .000001) {
+            if (abs(p_ind_temp[i] - (P[tS.tiled_ind[i]] * static_cast<float>(ITER))) > .000001) {
                 diff_tot++;
                 if (diff_tot < 5)
                     printf("CPU GPU diff %d:  %f %f %f \n",
@@ -323,6 +322,7 @@ void preprocessing(const Matrix S) {
 
 
     float *comp_kernel_COO_time = (float *) malloc(sizeof(float));
+    *comp_kernel_COO_time = 0.0f;
     /* GPU call */
     sddmm_GPU(S, tiledS, P, W, H, comp_kernel_COO_time);
 
