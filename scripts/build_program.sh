@@ -3,10 +3,10 @@
 ##############################################################################################
 # Script setting
 
-zcx_build_folder_path="${script_file_path}build_zcx/"
-zcx_cmake_file_path="${script_file_path}../"
-zcx_program_path="${zcx_build_folder_path}"
-zcx_program_name="sddmm-gpu"
+bsmr_build_folder_path="${script_file_path}build_bsmr/"
+bsmr_cmake_file_path="${script_file_path}../"
+bsmr_program_path="${bsmr_build_folder_path}"
+bsmr_program_name="bsmr-sddmm"
 
 cuSDDMM_build_folder_path="${script_file_path}build_cuSDDMM/"
 cuSDDMM_cmake_file_path="${script_file_path}../baselines/cuSDDMM_SDDMM/"
@@ -46,12 +46,12 @@ build_program(){
 }
 
 # 编译程序
-build_program ${zcx_build_folder_path} ${zcx_cmake_file_path}
+build_program ${bsmr_build_folder_path} ${bsmr_cmake_file_path}
 build_program ${cuSDDMM_build_folder_path} ${cuSDDMM_cmake_file_path}
 build_program ${RoDe_build_folder_path} ${RoDe_cmake_file_path}
 build_program ${BSA_build_folder_path} ${BSA_cmake_file_path}
 
 mkdir ${ASpT_build_folder_path}
-nvcc -o ${ASpT_build_folder_path}${ASpT_32_program_name} ${ASpT_file_path}sddmm_32.cu -O3 -Xcompiler -fopenmp -arch=sm_80
-nvcc -o ${ASpT_build_folder_path}${ASpT_128_program_name} ${ASpT_file_path}sddmm_128.cu -O3 -Xcompiler -fopenmp -arch=sm_80
-
+nvcc -o ${ASpT_build_folder_path}${ASpT_32_program_name} ${ASpT_file_path}sddmm_32.cu -O3 -Xcompiler -fopenmp -arch=sm_80 > /dev/null  2> /dev/null
+nvcc -o ${ASpT_build_folder_path}${ASpT_128_program_name} ${ASpT_file_path}sddmm_128.cu -O3 -Xcompiler -fopenmp -arch=sm_80 > /dev/null  2> /dev/null
+echo "${print_tag}Build complete : ${ASpT_build_folder_path}"
