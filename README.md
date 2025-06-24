@@ -45,7 +45,7 @@ Options:
 - `-f` : Input file path
 - `-k` : K value. K must be a multiple of 32 (Default 32)
 - `-a` : Row similarity threshold alpha (Default 0.3)
-- `-b` : Column non-zero threshold beta (Default 4)
+- `-d` : Block density threshold delta (Default 0.3)
 
 Example :
 
