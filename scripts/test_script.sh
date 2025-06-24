@@ -101,8 +101,12 @@ testTool(){
 
   echo -e ${test_done_symbol} >> ${autoTest_autoTestlog_file}
 
+  local hours=$(echo "$sum_time / 3600" | bc)
+  local minutes=$(echo "($sum_time % 3600) / 60" | bc)
+  local seconds=$(echo "scale=6; $sum_time - ($hours * 3600 + $minutes * 60)" | bc)
+
   echo "${print_tag}Test done"
-  echo "${print_tag}Total time spent: ${sum_time} seconds ($((sum_time / 3600)) hours, $(((sum_time % 3600) / 60)) minutes, $((sum_time % 60)) seconds)"
+  echo "${print_tag}Total time spent: ${sum_time} seconds (${hours} hours, ${minutes} minutes, ${seconds} seconds)"
   echo "${print_tag}Test program: ${autoTest_program}"
   echo "${print_tag}Test matrix list file: ${test_file_list_file}"
   echo "${print_tag}Test information file: ${autoTest_autoTestlog_file}"
