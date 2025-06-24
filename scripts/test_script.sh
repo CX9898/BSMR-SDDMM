@@ -102,7 +102,9 @@ testTool(){
   echo -e ${test_done_symbol} >> ${autoTest_autoTestlog_file}
 
   echo "${print_tag}Test done"
-  echo "${print_tag}Total time spent: ${sum_time} seconds"
+  echo "${print_tag}Total time spent: ${sum_time} seconds ($((sum_time / 3600)) hours, $(((sum_time % 3600) / 60)) minutes, $((sum_time % 60)) seconds)"
+  echo "${print_tag}Test program: ${autoTest_program}"
+  echo "${print_tag}Test matrix list file: ${test_file_list_file}"
   echo "${print_tag}Test information file: ${autoTest_autoTestlog_file}"
 
   for ((i=0; i<50; i++))
