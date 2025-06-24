@@ -25,17 +25,6 @@ std::string findWord(const std::string &line, const std::string &word) {
     return "";
 }
 
-std::string findWord(const std::vector<std::string> &multiLine, const std::string &word) {
-    std::string value;
-    for (const std::string &line: multiLine) {
-        value = findWord(line, word);
-        if (!value.empty()) {
-            break;
-        }
-    }
-    return value;
-}
-
 std::string getValue(const std::string &line, const std::string &word) {
     size_t findIdx = line.find(word);
     if (findIdx != std::string::npos) {
@@ -83,8 +72,9 @@ std::string getValue(const std::vector<std::string> &multiLine, const std::strin
     return value;
 }
 
-void printSeparator() {
-    printf("---------------------------------------------------------------------------\n");
+void printSeparator(const std::string& title = "") {
+    printf("\n---%s---\n",
+        title.c_str());
 }
 
 // Initialize variables and check if they are different
@@ -584,8 +574,7 @@ void evaluateSddmmWithCuSDDMM(
 
     float averageSpeedup = sumSpeedup / numResults;
 
-    printSeparator();
-    printf("evaluateSddmmWithCuSDDMM:\n");
+    printSeparator("Evaluate sddmm With cuSDDMM:");
 
     printf("Average speedup over cuSDDMM: %.2f, maximum speedup: %.2f\n", averageSpeedup, maxSpeedup);
 
@@ -600,7 +589,7 @@ void evaluateSddmmWithCuSDDMM(
             (numSpeedups[3] + numSpeedups[4] + numSpeedups[5]) / static_cast<float>(numResults) * 100.0f;
     printf("Acceleration coverage: %.1f%%\n", accelerationCoverage);
 
-    printSeparator();
+    printf("\n");
 }
 
 // return the average speedup adn the maximum speedup
@@ -627,12 +616,11 @@ void evaluateSddmmWithCuSparse(
 
     float averageSpeedup = sumSpeedup / numResults;
 
-    printSeparator();
-    printf("evaluateSddmmWithCuSparse:\n");
+    printSeparator("evaluateSddmmWithCuSparse:");
 
     printf("Average speedup over cuSparse: %.2f, maximum speedup: %.2f\n", averageSpeedup, maxSpeedup);
 
-    printSeparator();
+    printf("\n");
 }
 
 // return the average speedup adn the maximum speedup
@@ -681,8 +669,7 @@ void evaluateSddmmWithASpT(
 
     float averageSpeedup = sumSpeedup / numResults;
 
-    printSeparator();
-    printf("evaluateSddmmWithASpT:\n");
+    printSeparator("Evaluate sddmm With ASpT:");
 
     printf("Average speedup over ASpT: %.2f, maximum speedup: %.2f\n", averageSpeedup, maxSpeedup);
 
@@ -697,7 +684,7 @@ void evaluateSddmmWithASpT(
             (numSpeedups[3] + numSpeedups[4] + numSpeedups[5]) / static_cast<float>(numResults) * 100.0f;
     printf("Acceleration coverage: %.1f%%\n", accelerationCoverage);
 
-    printSeparator();
+    printf("\n");
 }
 
 // return the average speedup adn the maximum speedup
@@ -725,8 +712,6 @@ void evaluateSddmmWithRoDe(
 
             if (speedup <= 0.5) {
                 ++numSpeedups[0];
-                printf(" file: %s, k: %d, bsmr_sddmm: %.2f, RoDe_sddmm: %.2f, speedup: %.2f\n",
-                       iter.first.c_str(), kToOneTimeData.first, bsmr_sddmm, RoDe_sddmm, speedup);
             }
             if (speedup > 0.5 && speedup <= 0.8) {
                 ++numSpeedups[1];
@@ -748,8 +733,7 @@ void evaluateSddmmWithRoDe(
 
     float averageSpeedup = sumSpeedup / numResults;
 
-    printSeparator();
-    printf("evaluateSddmmWithRoDe:\n");
+    printSeparator("Evaluate sddmm With RoDe:");
 
     printf("Average speedup over RoDe: %.2f, maximum speedup: %.2f\n", averageSpeedup, maxSpeedup);
 
@@ -764,52 +748,28 @@ void evaluateSddmmWithRoDe(
             (numSpeedups[3] + numSpeedups[4] + numSpeedups[5]) / static_cast<float>(numResults) * 100.0f;
     printf("Acceleration coverage: %.1f%%\n", accelerationCoverage);
 
-    printSeparator();
+    printf("\n");
 }
 
+std::string extractPathPrefix(const std::string& line) {
+    // 找到最后一个 '/' 的位置
+    size_t lastSlash = line.rfind('/');
+    if (lastSlash == std::string::npos) return "";
 
-// return the maximum sparsity and minimum sparsity
-std::pair<float, float> getMaxAndMinSparsity(
-    const std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
-    float maxSparsity = 0.0f;
-    float minSparsity = 100.0f;
-
-    for (const auto &iter: matrixFileToResultsInformationMap) {
-        const float sparsity = tryParse<float>(iter.second.sparsity_).value_or(0.0f);
-
-        maxSparsity = std::max(sparsity, maxSparsity);
-        minSparsity = std::min(sparsity, minSparsity);
-    }
-
-    printf("Maximum sparsity: %.2f%%, minimum sparsity: %.2f%%\n", maxSparsity, minSparsity);
-
-    return std::make_pair(maxSparsity, minSparsity);
+    // 返回目录部分，包括最后一个 '/'
+    return line.substr(0, lastSlash + 1);
 }
 
-// return the maximum row and minimum row
-std::pair<int, int> getMaxAndMinRow(
-    const std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
-    int maxM = 0;
-    int minM = std::numeric_limits<int>::max();;
-
-    for (const auto &iter: matrixFileToResultsInformationMap) {
-        const int M = tryParse<int>(iter.second.M_).value_or(0);
-
-        maxM = std::max(M, maxM);
-        minM = std::min(M, minM);
-    }
-
-    printf("Maximum row: %d, minimum row: %d\n", maxM, minM);
-
-    return std::make_pair(maxM, minM);
-}
-
-void eliminateNullValues(std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
+void eliminateInvalidData(std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
     for (auto iter = matrixFileToResultsInformationMap.begin(); iter != matrixFileToResultsInformationMap.end();) {
-        if (iter->second.M_.empty() || iter->second.N_.empty() || iter->second.sparsity_.empty()) {
-            //            printf("[bad file] : %s\n", iter->first.c_str());
+        const int m = tryParse<int>(iter->second.M_).value_or(0);
+        const int n = tryParse<int>(iter->second.N_).value_or(0);
+        if (m < 5000 || n < 5000) {
+//            printf("[bad file] : %s\n", iter->first.c_str());
             iter = matrixFileToResultsInformationMap.erase(iter);
-        } else {
+            // ++iter;
+        }
+        else {
             ++iter;
         }
     }
@@ -817,8 +777,7 @@ void eliminateNullValues(std::unordered_map<std::string, ResultsInformation> &ma
 
 void printReorderingEffectiveness(
     const std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
-    printSeparator();
-    printf("Reordering Effectiveness:\n");
+    printSeparator("Reordering Effectiveness:");
 
     const int numColAttributes = 3;
     // print the head of the list
@@ -856,13 +815,12 @@ void printReorderingEffectiveness(
     }
 
     printf("\n");
-    printSeparator();
+    printf("\n");
 }
 
 void evaluateReorderingOverhead(
     const std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
-    printSeparator();
-    printf("evaluateReorderingOverhead:\n");
+    printSeparator("Evaluate Reordering Overhead:");
 
     const int numColAttributes = 2;
     // print the head of the list
@@ -894,7 +852,7 @@ void evaluateReorderingOverhead(
         printf("\n");
     }
 
-    printSeparator();
+    printf("\n");
 }
 
 void evaluateReorderingWithBSA(
@@ -918,14 +876,55 @@ void evaluateReorderingWithBSA(
 
     const float relativeIncreasePercent = static_cast<float>(sumZCX - sumBSA) / sumBSA * 100.0f;
 
-    printSeparator();
-    printf("evaluateReorderingWithBSA:\n");
+    printSeparator("Evaluate Reordering WithBSA:");
 
     printf("Percentage increase of dense blocks relative to BSA: %.2f%%\n", relativeIncreasePercent);
 
     printReorderingEffectiveness(matrixFileToResultsInformationMap);
 
-    printSeparator();
+    printf("\n");
+}
+
+void analyzeDataset(
+    const std::unordered_map<std::string, ResultsInformation> &matrixFileToResultsInformationMap) {
+    printSeparator("Dataset Analysis:");
+
+    printf("Number of matrix files: %d\n", static_cast<int>(matrixFileToResultsInformationMap.size()));
+
+    // Print the results Analysis information
+    const int numResults = getNumResults(matrixFileToResultsInformationMap);
+    printf("Number of data: %d\n", numResults);
+
+    float maxSparsity = 0.0f;
+    float minSparsity = 100.0f;
+
+    int maxM = 0;
+    int minM = std::numeric_limits<int>::max();;
+
+    int maxN = 0;
+    int minN = std::numeric_limits<int>::max();;
+
+    for (const auto &iter: matrixFileToResultsInformationMap) {
+        const int M = tryParse<int>(iter.second.M_).value_or(0);
+        const int N = tryParse<int>(iter.second.N_).value_or(0);
+        const float sparsity = tryParse<float>(iter.second.sparsity_).value_or(0.0f);
+
+        maxM = std::max(M, maxM);
+        minM = std::min(M, minM);
+
+        maxN = std::max(N, maxN);
+        minN = std::min(N, minN);
+
+        maxSparsity = std::max(sparsity, maxSparsity);
+        minSparsity = std::min(sparsity, minSparsity);
+    }
+
+    printf("Maximum sparsity: %.2f%%, minimum sparsity: %.2f%%\n", maxSparsity, minSparsity);
+
+    printf("Maximum m: %d, minimum m: %d\n", maxM, minM);
+    printf("Maximum n: %d, minimum n: %d\n", maxN, minN);
+
+    printf("\n");
 }
 
 int main(const int argc, const char *argv[]) {
@@ -941,7 +940,7 @@ int main(const int argc, const char *argv[]) {
             if (!settingInformation.initInformation(oneTimeResults)) {
                 return -1;
             }
-            const std::string matrixFile = findWord(oneTimeResults, "[File : ");
+            const std::string matrixFile = getValue(oneTimeResults, "[File : ");
             if (matrixFile.empty()) {
                 continue;
             }
@@ -953,24 +952,13 @@ int main(const int argc, const char *argv[]) {
             }
         }
     }
-    eliminateNullValues(matrixFileToResultsInformationMap);
+    eliminateInvalidData(matrixFileToResultsInformationMap);
 
     // Pick the bad results
     const std::unordered_map<std::string, ResultsInformation> badResults =
             pickTheBadResults(matrixFileToResultsInformationMap);
 
-    printf("Number of matrix files: %d\n", static_cast<int>(matrixFileToResultsInformationMap.size()));
-
-    // Print the results Analysis information
-    const int numResults = getNumResults(matrixFileToResultsInformationMap);
-    printf("Number of data: %d\n", numResults);
-
-    const int numBadResults = getNumResults(badResults);
-    printf("Bad results: %.2f%%\n", (static_cast<float>(numBadResults) / numResults) * 100);
-
-    getMaxAndMinSparsity(matrixFileToResultsInformationMap);
-
-    getMaxAndMinRow(matrixFileToResultsInformationMap);
+    analyzeDataset(matrixFileToResultsInformationMap);
 
     calculateAccuracy(matrixFileToResultsInformationMap);
 
@@ -987,10 +975,10 @@ int main(const int argc, const char *argv[]) {
     // evaluateReorderingOverhead(matrixFileToResultsInformationMap);
 
     // Print the program setting information to Markdown format and the results information
-    // settingInformation.printInformation();
-    // for (const auto &iter: matrixFileToResultsInformationMap) {
-    //     iter.second.printInformation();
-    // }
+//     settingInformation.printInformation();
+//     for (const auto &iter: matrixFileToResultsInformationMap) {
+//         iter.second.printInformation();
+//     }
 
     // // Print the bad results to Markdown format
     // if (numBadResults > 0) {
