@@ -62,7 +62,7 @@ BSMR::BSMR(const sparseMatrix::CSR<float> &matrix,
     reorderingTime_ = rowReordering_time + colReordering_time;
 }
 
-RPHM::RPHM(sparseMatrix::CSR<float> &matrix, const BSMR &bsmr) {
+RPHM::RPHM(const sparseMatrix::CSR<float> &matrix, const BSMR &bsmr) {
     std::vector<UIN> blockOffsets;
     std::vector<UIN> blockValues;
 
@@ -72,14 +72,16 @@ RPHM::RPHM(sparseMatrix::CSR<float> &matrix, const BSMR &bsmr) {
 
     numRowPanels_ = bsmr.numRowPanels();
 
-    // Calculate the maximum number of dense column blocks in a row panel
-    maxNumDenseColBlocks_ = 0;
-    //#pragma omp parallel for reduction(max : maxNumDenseColBlocks_)
+    maxNumDenseColBlocksInRowPanel_ = 0;
+    numDenseThreadBlocks_ = 0;
+    // #pragma omp parallel for reduction(max : maxNumDenseColBlocksInRowPanel_) reduction(+: numDenseThreadBlocks_)
     for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
         const UIN numBlocksCurrentRowPanel = std::ceil(
             static_cast<float>(bsmr.denseColOffsets()[rowPanelId + 1] - bsmr.denseColOffsets()[rowPanelId])
             / BLOCK_COL_SIZE);
-        maxNumDenseColBlocks_ = std::max(maxNumDenseColBlocks_, numBlocksCurrentRowPanel);
+        maxNumDenseColBlocksInRowPanel_ = std::max(maxNumDenseColBlocksInRowPanel_, numBlocksCurrentRowPanel);
+        numDenseThreadBlocks_ += std::ceil(
+            static_cast<float>(numBlocksCurrentRowPanel) / each_thread_block_counts_the_number_Of_dense_blocks);
     }
 
     CudaTimeCalculator timeCalculator;
@@ -181,14 +183,17 @@ RPHM::RPHM(sparseMatrix::CSR<float> &matrix, const BSMR &bsmr) {
         }
     }
 
-    // Calculate the maximum number of sparse column blocks in a row panel
-    maxNumSparseColBlocks_ = 0;
-    //#pragma omp parallel for reduction(max : maxNumSparseColBlocks_)
+    maxNumSparseColBlocksInRowPanel_ = 0;
+    numSparseThreadBlocks_ = 0;
+    //#pragma omp parallel for reduction(max : maxNumSparseColBlocksInRowPanel_)
     for (int rowPanelId = 0; rowPanelId < numRowPanels_; ++rowPanelId) {
-        const UIN numSparseData = bsmr.sparseValueOffsets()[rowPanelId + 1] - bsmr.sparseValueOffsets()[rowPanelId];
+        const UIN numSparseDataCurrentRowPanel =
+                bsmr.sparseValueOffsets()[rowPanelId + 1] - bsmr.sparseValueOffsets()[rowPanelId];
         const UIN numBlocksCurrentRowPanel = std::ceil(
-            static_cast<float>(numSparseData) / sddmm_sparse_block_each_thread_block_counts_the_number_Of_data);
-        maxNumSparseColBlocks_ = std::max(maxNumSparseColBlocks_, numBlocksCurrentRowPanel);
+            static_cast<float>(numSparseDataCurrentRowPanel) /
+            sddmm_sparse_block_each_thread_block_counts_the_number_Of_data);
+        maxNumSparseColBlocksInRowPanel_ = std::max(maxNumSparseColBlocksInRowPanel_, numBlocksCurrentRowPanel);
+        numSparseThreadBlocks_ += numBlocksCurrentRowPanel;
     }
 
     timeCalculator.endClock();

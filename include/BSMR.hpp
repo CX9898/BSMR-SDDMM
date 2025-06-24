@@ -23,9 +23,9 @@ public:
     BSMR() = default;
 
     BSMR(const sparseMatrix::CSR<float> &matrix,
-           const float similarityThreshold,
-           const float blockDensityThreshold,
-           const int numIterations);
+         const float similarityThreshold,
+         const float blockDensityThreshold,
+         const int numIterations);
 
     int numRowPanels() const { return numRowPanels_; }
     const std::vector<UIN> &reorderedRows() const { return reorderedRows_; }
@@ -72,11 +72,13 @@ class RPHM {
 public:
     RPHM() = default;
 
-    RPHM(sparseMatrix::CSR<float> &matrix, const BSMR &bsmr);
+    RPHM(const sparseMatrix::CSR<float> &matrix, const BSMR &bsmr);
 
     UIN numRowPanels() const { return numRowPanels_; }
-    UIN maxNumDenseColBlocks() const { return maxNumDenseColBlocks_; }
-    UIN maxNumSparseColBlocks() const { return maxNumSparseColBlocks_; }
+    UIN maxNumDenseColBlocksInRowPanel() const { return maxNumDenseColBlocksInRowPanel_; }
+    UIN maxNumSparseColBlocksInRowPanel() const { return maxNumSparseColBlocksInRowPanel_; }
+    UIN numDenseThreadBlocks() const { return numDenseThreadBlocks_; }
+    UIN numSparseThreadBlocks() const { return numSparseThreadBlocks_; }
     const dev::vector<UIN> &reorderedRows() const { return reorderedRows_; }
     const dev::vector<UIN> &denseCols() const { return denseCols_; }
     const dev::vector<UIN> &denseColOffsets() const { return denseColOffsets_; }
@@ -117,10 +119,13 @@ public:
     std::pair<float, UIN> calculateDensityMode() const;
 
 private:
-    UIN numRowPanels_;
-    UIN maxNumDenseColBlocks_;
-    UIN maxNumSparseColBlocks_;
+    UIN numRowPanels_ = 0;
+    UIN maxNumDenseColBlocksInRowPanel_ = 0;
+    UIN maxNumSparseColBlocksInRowPanel_ = 0;
+    UIN numDenseThreadBlocks_ = 0;
+    UIN numSparseThreadBlocks_ = 0;
 
+    // Reordered row indexes
     dev::vector<UIN> reorderedRows_;
 
     // Dense block data
@@ -135,7 +140,7 @@ private:
     dev::vector<UIN> sparseRelativeRows_;
     dev::vector<UIN> sparseColIndices_;
 
-    float reorderingTime_;
+    float reorderingTime_ = 0.0f;
 };
 
 void noReorderRow(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &reorderedRows, float &time);
