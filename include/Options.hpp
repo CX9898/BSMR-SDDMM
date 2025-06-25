@@ -47,7 +47,7 @@ inline void Options::parsingOptionAndParameters(const std::string &option,
         if (option == "-A" || option == "-a") {
             similarityThresholdAlpha_ = std::stof(value);
         }
-        if (option == "-B" || option == "-b") {
+        if (option == "-D" || option == "-d") {
             blockDensityThresholdDelta_ = std::stof(value);
         }
     } catch (const std::invalid_argument &e) {
