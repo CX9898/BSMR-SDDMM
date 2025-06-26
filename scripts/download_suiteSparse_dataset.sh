@@ -43,7 +43,6 @@ download_decompressing_move https://sparse.tamu.edu/MM/Nasa/pwt.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Ronis/xenon1.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Rothberg/3dtube.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Simon/bbmat.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/Vavasis/av41092.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Zhao/Zhao1.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Zhao/Zhao2.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Boeing/bcsstk39.tar.gz
@@ -55,17 +54,9 @@ download_decompressing_move https://sparse.tamu.edu/MM/Pothen/pwt.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/vanHeukelum/cage11.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/FEMLAB/sme3Dc.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/ND/nd12k.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/Schenk_IBMNA/c-62.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Schenk_IBMNA/c-64.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/Schenk_IBMNA/c-66.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/Schenk_IBMSDS/3D_51448_3D.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/Schenk_IBMSDS/ibm_matrix_2.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Sanghavi/ecl32.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/GHS_indef/aug3dcqp.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/GHS_indef/c-58.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/GHS_indef/c-59.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/GHS_indef/c-62ghs.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/GHS_indef/c-63.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/GHS_indef/dawson5.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/GHS_indef/mario001.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/GHS_indef/stokes128.tar.gz
@@ -83,7 +74,6 @@ download_decompressing_move https://sparse.tamu.edu/MM/GHS_psdef/jnlbrng1.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/GHS_psdef/minsurfo.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/GHS_psdef/obstclae.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/GHS_psdef/torsion1.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/Rajat/rajat15.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/PARSEC/SiO.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Rajat/rajat22.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Rajat/rajat26.tar.gz
@@ -92,13 +82,8 @@ download_decompressing_move https://sparse.tamu.edu/MM/Andrianov/net150.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/IBM_EDA/ckt11752_dc_1.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/IBM_EDA/ckt11752_tr_0.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Pajek/dictionary28.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/Schenk_IBMNA/c-56.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Schenk_IBMNA/c-57.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/Schenk_IBMNA/c-60.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/Schenk_IBMNA/c-61.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/Schenk_IBMNA/c-65.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Schenk_IBMNA/c-64b.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/Schenk_IBMNA/c-66b.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/QCD/conf5_4-8x8-05.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/QCD/conf5_4-8x8-10.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/QCD/conf5_4-8x8-15.tar.gz
@@ -118,9 +103,7 @@ download_decompressing_move https://sparse.tamu.edu/MM/TSOPF/TSOPF_RS_b2383_c1.t
 download_decompressing_move https://sparse.tamu.edu/MM/TSOPF/TSOPF_RS_b300_c3.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/TSOPF/TSOPF_RS_b39_c19.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/TSOPF/TSOPF_RS_b678_c2.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/Grund/poli4.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Belcastro/mouse_gene.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/SNAP/email-Enron.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/SNAP/cit-HepPh.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/SNAP/p2p-Gnutella30.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Rommes/juba40k.tar.gz
@@ -138,9 +121,7 @@ download_decompressing_move https://sparse.tamu.edu/MM/CPM/cz40948.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/DIMACS10/ak2010.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/DIMACS10/nh2010.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/DIMACS10/vsp_model1_crew1_cr42_south31.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/DIMACS10/vsp_sctap1-2b_and_seymourl.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/DIMACS10/vsp_south31_slptsk.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/Mycielski/mycielskian16.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Grueninger/windtunnel_evap3d.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/VLSI/mosfet2.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/ML_Graph/k49_norm_10NN.tar.gz
@@ -346,7 +327,6 @@ download_decompressing_move https://sparse.tamu.edu/MM/MathWorks/Pd.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/MathWorks/Pd_rhs.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/HB/man_5976.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/ACUSIM/Pres_Poisson.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/Rajat/rajat01.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Rajat/rajat03.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Rajat/rajat06.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Rajat/rajat07.tar.gz
@@ -667,21 +647,16 @@ download_decompressing_move https://sparse.tamu.edu/MM/TSOPF/TSOPF_FS_b162_c1.ta
 download_decompressing_move https://sparse.tamu.edu/MM/TSOPF/TSOPF_FS_b162_c3.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/TSOPF/TSOPF_FS_b300_c1.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/TSOPF/TSOPF_FS_b39_c7.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/Hamm/memplus.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/Andrianov/lpl1.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Pajek/Reuters911.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/Schenk_IBMNA/c-48.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/Schenk_IBMNA/c-50.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Meszaros/co9.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/Meszaros/cq9.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/SNAP/Oregon-1.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/SNAP/Oregon-2.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/VDOL/freeFlyingRobot_11.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/VDOL/freeFlyingRobot_14.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/VDOL/freeFlyingRobot_15.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/VDOL/freeFlyingRobot_16.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Mycielski/mycielskian14.tar.gz
 
+bash exclude_invalid_dataset.sh ${dataset_path}
 
 # 生成矩阵文件列表
 bash make_matrices_list.sh ${dataset_path}
