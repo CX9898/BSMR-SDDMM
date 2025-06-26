@@ -1,20 +1,20 @@
 #!/bin/bash
 
-dataset_name=$1
+dataset_name="${1%/}/"
 
 if [ -z "$dataset_name" ]; then
-  echo "❗ 请提供原始数据集路径（如: buchong）"
+  echo "${dataset_name} 不存在, 请提供原始数据集路径"
   exit 1
 fi
 
 log_file="excluded_dataset/${dataset_name}/excluded_files.log"
 
 if [ ! -f "$log_file" ]; then
-  echo "❗ 找不到日志文件: $log_file"
+  echo "找不到日志文件: $log_file"
   exit 1
 fi
 
-echo "🔄 正在撤销: $log_file"
+echo "正在撤销: $log_file"
 
 # 状态变量
 orig=""
@@ -37,9 +37,9 @@ while IFS= read -r line; do
       if [ -f "$moved" ]; then
         mkdir -p "$(dirname "$orig")"
         mv "$moved" "$orig"
-        echo "✔ 已还原: $moved -> $orig"
+        echo "已还原: $moved -> $orig"
       else
-        echo "⚠ 文件不存在，跳过: $moved"
+        echo "文件不存在，跳过: $moved"
       fi
     fi
     orig=""
