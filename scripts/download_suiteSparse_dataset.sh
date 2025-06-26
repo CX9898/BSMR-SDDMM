@@ -631,8 +631,6 @@ download_decompressing_move https://sparse.tamu.edu/MM/TSOPF/TSOPF_FS_b162_c3.ta
 download_decompressing_move https://sparse.tamu.edu/MM/TSOPF/TSOPF_FS_b300_c1.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/TSOPF/TSOPF_FS_b39_c7.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Pajek/Reuters911.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/SNAP/Oregon-1.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/SNAP/Oregon-2.tar.gz
 
 bash exclude_invalid_dataset.sh ${dataset_path}
 
