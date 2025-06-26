@@ -161,7 +161,12 @@ bool initializeFromMtxFile(const std::string &filePath, Matrix &S) {
         const int row = std::stoi(iterateOneWordFromLine(line, wordIter)) - 1;
         const int col = std::stoi(iterateOneWordFromLine(line, wordIter)) - 1;
         const std::string valueStr = iterateOneWordFromLine(line, wordIter);
-        const float val = valueStr.empty() ? static_cast<float>(0) : static_cast<float>(std::stod(valueStr));
+        float val = 0.0f;
+        try {
+            val = valueStr.empty() ? static_cast<float>(0) : static_cast<float>(std::stod(valueStr));
+        } catch (const std::out_of_range&) {
+            std::cout << "Warning: valueStr out of range: " << valueStr << std::endl;
+        }
 
 //        if (wordIter < line.size()) {
 //            std::cerr << "Error, mtx file " << line << " line format is incorrect!" << std::endl;
