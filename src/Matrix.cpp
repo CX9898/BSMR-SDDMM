@@ -380,7 +380,7 @@ bool getOneLineThreeData(const std::string &line, UIN &first, UIN &second, T &th
     first = std::stoi(util::iterateOneWordFromLine(line, wordIter));
     second = std::stoi(util::iterateOneWordFromLine(line, wordIter));
     const std::string valueStr = util::iterateOneWordFromLine(line, wordIter);
-    third = valueStr.empty() ? static_cast<T>(1) : static_cast<T>(std::stof(valueStr));
+    third = valueStr.empty() ? static_cast<T>(1) : static_cast<T>(std::stod(valueStr));
 
 //    if (wordIter < line.size()) {
 //        std::cerr << "Error, file \"" << line << "\" line format is incorrect!" << std::endl;
