@@ -265,7 +265,7 @@ void sddmm_CPU_COO(vector<int> row_ind,
     printf("\nomp time CPU : %.4f \n\n", CPU_time * 1000);
 }
 
-void preprocessing(const Matrix S) {
+void preprocessing(const Matrix &S) {
 
     int *row_ptr = new int[S.n_rows + 1];
     float *P = new float[S.nnz]; // output Matrix
@@ -384,10 +384,10 @@ int main(int argc, char *argv[]) {
     tile_sizeX = options.tile_sizeX();
     actv_row_size = tile_sizeY;
 
+    intialize_matrix(options.inputFile(), S);
+
     printf("[File : %s]\n", options.inputFile().c_str());
     printf("[K : %d]\n", k);
-
-    intialize_matrix(options.inputFile(), S);
 
 //    string str;
 //    fp >> str;
