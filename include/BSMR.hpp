@@ -18,26 +18,26 @@ constexpr UIN BLOCK_SIZE = ROW_PANEL_SIZE * BLOCK_COL_SIZE;
  * `denseColOffsets_`: Offset array of reordered dense column array in each row panel.
  *
  **/
-class BSMR {
+class BSMR{
 public:
     BSMR() = default;
 
-    BSMR(const sparseMatrix::CSR<float> &matrix,
+    BSMR(const sparseMatrix::CSR<float>& matrix,
          const float similarityThreshold,
          const float blockDensityThreshold,
          const int numIterations);
 
-    int numRowPanels() const { return numRowPanels_; }
-    const std::vector<UIN> &reorderedRows() const { return reorderedRows_; }
-    const std::vector<UIN> &denseCols() const { return denseCols_; }
-    const std::vector<UIN> &denseColOffsets() const { return denseColOffsets_; }
-    const std::vector<UIN> &sparseCols() const { return sparseCols_; }
-    const std::vector<UIN> &sparseColOffsets() const { return sparseColOffsets_; }
-    const std::vector<UIN> &sparseValueOffsets() const { return sparseValueOffsets_; }
-    int numClusters() const { return numClusters_; }
-    float rowReorderingTime() const { return rowReorderingTime_; }
-    float colReorderingTime() const { return colReorderingTime_; }
-    float reorderingTime() const { return reorderingTime_; }
+    int numRowPanels() const{ return numRowPanels_; }
+    const std::vector<UIN>& reorderedRows() const{ return reorderedRows_; }
+    const std::vector<UIN>& denseCols() const{ return denseCols_; }
+    const std::vector<UIN>& denseColOffsets() const{ return denseColOffsets_; }
+    const std::vector<UIN>& sparseCols() const{ return sparseCols_; }
+    const std::vector<UIN>& sparseColOffsets() const{ return sparseColOffsets_; }
+    const std::vector<UIN>& sparseValueOffsets() const{ return sparseValueOffsets_; }
+    int numClusters() const{ return numClusters_; }
+    float rowReorderingTime() const{ return rowReorderingTime_; }
+    float colReorderingTime() const{ return colReorderingTime_; }
+    float reorderingTime() const{ return reorderingTime_; }
 
 private:
     int numRowPanels_ = 0;
@@ -68,27 +68,33 @@ private:
  * `sparseRelativeRows_`: row indices in COO format, but relative to the row panel.
  * `sparseCols_`: column indices in COO format.
  **/
-class RPHM {
+class RPHM{
 public:
     RPHM() = default;
 
-    RPHM(const sparseMatrix::CSR<float> &matrix, const BSMR &bsmr);
+    RPHM(const sparseMatrix::CSR<float>& matrix, const BSMR& bsmr);
 
-    UIN numRowPanels() const { return numRowPanels_; }
-    UIN maxNumDenseColBlocksInRowPanel() const { return maxNumDenseColBlocksInRowPanel_; }
-    UIN maxNumSparseColBlocksInRowPanel() const { return maxNumSparseColBlocksInRowPanel_; }
-    UIN numDenseThreadBlocks() const { return numDenseThreadBlocks_; }
-    UIN numSparseThreadBlocks() const { return numSparseThreadBlocks_; }
-    const dev::vector<UIN> &reorderedRows() const { return reorderedRows_; }
-    const dev::vector<UIN> &denseCols() const { return denseCols_; }
-    const dev::vector<UIN> &denseColOffsets() const { return denseColOffsets_; }
-    const dev::vector<UIN> &blockValues() const { return blockValues_; }
-    const dev::vector<UIN> &blockOffsets() const { return blockOffsets_; }
-    const dev::vector<UIN> &sparseValueOffsets() const { return sparseValueOffsets_; }
-    const dev::vector<UIN> &sparseValues() const { return sparseValues_; }
-    const dev::vector<UIN> &sparseRelativeRows() const { return sparseRelativeRows_; }
-    const dev::vector<UIN> &sparseColIndices() const { return sparseColIndices_; }
-    float time() const { return reorderingTime_; }
+    UIN numRowPanels() const{ return numRowPanels_; }
+    UIN maxNumDenseColBlocksInRowPanel() const{ return maxNumDenseColBlocksInRowPanel_; }
+    UIN maxNumSparseColBlocksInRowPanel() const{ return maxNumSparseColBlocksInRowPanel_; }
+    UIN numDenseThreadBlocks() const{ return numDenseThreadBlocks_; }
+    UIN numSparseThreadBlocks() const{ return numSparseThreadBlocks_; }
+    const dev::vector<UIN>& reorderedRows() const{ return reorderedRows_; }
+    const dev::vector<UIN>& denseCols() const{ return denseCols_; }
+    const dev::vector<UIN>& denseColOffsets() const{ return denseColOffsets_; }
+    const dev::vector<UIN>& blockValues() const{ return blockValues_; }
+    const dev::vector<UIN>& blockOffsets() const{ return blockOffsets_; }
+    const dev::vector<UIN>& sparseValueOffsets() const{ return sparseValueOffsets_; }
+    const dev::vector<UIN>& sparseValues() const{ return sparseValues_; }
+    const dev::vector<UIN>& sparseRelativeRows() const{ return sparseRelativeRows_; }
+    const dev::vector<UIN>& sparseColIndices() const{ return sparseColIndices_; }
+
+    const dev::vector<UIN>& denseRowPanelIds() const{ return denseRowPanelIds_; }
+    const dev::vector<UIN> denseColBlockIters() const{ return denseColBlockIters_; }
+    const dev::vector<UIN>& sparseRowPanelIds() const{ return sparseRowPanelIds_; }
+    const dev::vector<UIN>& sparseColBlockIters() const{ return sparseColBlockIters_; }
+
+    float time() const{ return reorderingTime_; }
 
     // Calculate the rowPanelID by blockValueIndex
     UIN calculateRowPanelIdByBlockValuesIndex(UIN blockValueIndex) const;
@@ -105,7 +111,7 @@ public:
     // Calculate the colBlockId in row panel by blockValueIndex
     UIN calculateColBlockIdByBlockValueIndex(UIN blockValueIndex) const;
 
-    UIN getNumDenseBlocks() const { return blockOffsets().back_data(); }
+    UIN getNumDenseBlocks() const{ return blockOffsets().back_data(); }
 
     UIN getNumSparseBlocks() const;
 
@@ -140,10 +146,16 @@ private:
     dev::vector<UIN> sparseRelativeRows_;
     dev::vector<UIN> sparseColIndices_;
 
+    // Row panel IDs and column block iterators
+    dev::vector<UIN> denseRowPanelIds_;
+    dev::vector<UIN> denseColBlockIters_;
+    dev::vector<UIN> sparseRowPanelIds_;
+    dev::vector<UIN> sparseColBlockIters_;
+
     float reorderingTime_ = 0.0f;
 };
 
-void noReorderRow(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &reorderedRows, float &time);
+void noReorderRow(const sparseMatrix::CSR<float>& matrix, std::vector<UIN>& reorderedRows, float& time);
 
 /**
  * @funcitonName: rowReordering_cpu
@@ -152,26 +164,26 @@ void noReorderRow(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &reor
  * `matrix`: Sparse matrix data in CSR format.
  * @output: Update `reorderingRows_`.
  **/
-void rowReordering_cpu(const sparseMatrix::CSR<float> &matrix, std::vector<UIN> &rows, float &time);
+void rowReordering_cpu(const sparseMatrix::CSR<float>& matrix, std::vector<UIN>& rows, float& time);
 
-void rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
+void rowReordering_gpu(const sparseMatrix::CSR<float>& matrix,
                        const float similarity_threshold_alpha,
                        const int blockSize,
-                       std::vector<UIN> &reorderedRows,
-                       float &time);
+                       std::vector<UIN>& reorderedRows,
+                       float& time);
 
-UIN calculateBlockSize(const sparseMatrix::CSR<float> &matrix);
+UIN calculateBlockSize(const sparseMatrix::CSR<float>& matrix);
 
-std::vector<int> bsa_rowReordering_cpu(const sparseMatrix::CSR<float> &matrix,
+std::vector<int> bsa_rowReordering_cpu(const sparseMatrix::CSR<float>& matrix,
                                        const float similarity_threshold_alpha,
                                        const int block_size,
-                                       float &reordering_time);
+                                       float& reordering_time);
 
-std::vector<UIN> bsa_rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
+std::vector<UIN> bsa_rowReordering_gpu(const sparseMatrix::CSR<float>& matrix,
                                        const float alpha,
                                        const UIN block_size,
-                                       int &num_clusters,
-                                       float &reordering_time);
+                                       int& num_clusters,
+                                       float& reordering_time);
 
 /**
  * @funcitonName: colReordering
@@ -180,11 +192,11 @@ std::vector<UIN> bsa_rowReordering_gpu(const sparseMatrix::CSR<float> &matrix,
  * `matrix`: Sparse matrix data in CSR format.
  * @output: Update `reorderingColsOffset_` and `reorderingCols_`.
  **/
-void colReordering(const sparseMatrix::CSR<float> &matrix,
+void colReordering(const sparseMatrix::CSR<float>& matrix,
                    const UIN numRowPanels,
-                   const std::vector<UIN> &reorderedRows,
-                   std::vector<UIN> &reorderedCols,
-                   std::vector<UIN> &reorderedColOffsets);
+                   const std::vector<UIN>& reorderedRows,
+                   std::vector<UIN>& reorderedCols,
+                   std::vector<UIN>& reorderedColOffsets);
 
 /**
  * @funcitonName: colReordering
@@ -194,34 +206,37 @@ void colReordering(const sparseMatrix::CSR<float> &matrix,
  * `reorderedRows` : Reordered row index array.
  * @output:
  **/
-void colReordering_cpu(const sparseMatrix::CSR<float> &matrix,
+void colReordering_cpu(const sparseMatrix::CSR<float>& matrix,
                        const UIN numRowPanels,
-                       const std::vector<UIN> &reorderedRows,
+                       const std::vector<UIN>& reorderedRows,
                        const float blockDensityThreshold,
-                       std::vector<UIN> &denseCols,
-                       std::vector<UIN> &denseColOffsets,
-                       std::vector<UIN> &sparseCols,
-                       std::vector<UIN> &sparseColOffsets,
-                       std::vector<UIN> &sparseDataOffsets,
-                       float &time);
+                       std::vector<UIN>& denseCols,
+                       std::vector<UIN>& denseColOffsets,
+                       std::vector<UIN>& sparseCols,
+                       std::vector<UIN>& sparseColOffsets,
+                       std::vector<UIN>& sparseDataOffsets,
+                       float& time);
 
-void colReordering_gpu(const sparseMatrix::CSR<float> &matrix,
+void colReordering_gpu(const sparseMatrix::CSR<float>& matrix,
                        const UIN numRowPanels,
-                       const std::vector<UIN> &reorderedRows,
+                       const std::vector<UIN>& reorderedRows,
                        const UIN dense_column_segment_threshold,
-                       std::vector<UIN> &denseCols,
-                       std::vector<UIN> &denseColOffsets,
-                       std::vector<UIN> &sparseCols,
-                       std::vector<UIN> &sparseColOffsets,
-                       std::vector<UIN> &sparseDataOffsets,
-                       float &time);
+                       std::vector<UIN>& denseCols,
+                       std::vector<UIN>& denseColOffsets,
+                       std::vector<UIN>& sparseCols,
+                       std::vector<UIN>& sparseColOffsets,
+                       std::vector<UIN>& sparseDataOffsets,
+                       float& time);
 
 // Error checking
-bool check_rphm(const sparseMatrix::CSR<float> &matrix, const BSMR &bsmr, const RPHM &rphm,
+bool check_rphm(const sparseMatrix::CSR<float>& matrix,
+                const BSMR& bsmr,
+                const RPHM& rphm,
                 const float denseColSegmentThreshold);
 
 // Calculate the number of tiles and average density in the original matrix
 std::pair<UIN, float> calculateNumDenseBlocksAndAverageDensityInOriginalMatrix(
-    const float densityThreshold, const sparseMatrix::CSR<float> &matrix);
+    const float densityThreshold,
+    const sparseMatrix::CSR<float>& matrix);
 
-void evaluationReordering(const sparseMatrix::CSR<float> &matrix, const BSMR &bsmr, Logger &logger);
+void evaluationReordering(const sparseMatrix::CSR<float>& matrix, const BSMR& bsmr, Logger& logger);

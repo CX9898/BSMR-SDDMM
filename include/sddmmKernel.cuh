@@ -29,6 +29,15 @@ void sddmm_gpu(UIN M, UIN N, UIN K,
                float *matrixP,
                Logger &logger);
 
+void sddmm_gpu_k32(UIN M,
+                   UIN N,
+                   UIN K,
+                   const float* matrixA,
+                   const float* matrixB,
+                   const RPHM& rphm,
+                   float* matrixP,
+                   Logger& logger);
+
 void sddmm_gpu_batch(const UIN numBatch,
                      const UIN M, const UIN N, const UIN K, const UIN nnz,
                      const float *matrixA,
