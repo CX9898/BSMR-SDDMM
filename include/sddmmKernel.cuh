@@ -8,7 +8,7 @@
 #include "BSMR.hpp"
 #include "Logger.hpp"
 
-constexpr int each_thread_block_counts_the_number_Of_dense_blocks = 8;
+constexpr int each_thread_block_counts_the_number_Of_dense_blocks = 4;
 constexpr int each_thread_block_counts_the_number_Of_cols =
         BLOCK_COL_SIZE * each_thread_block_counts_the_number_Of_dense_blocks;
 constexpr int sddmm_dense_block_number_of_warps_per_thread_block = each_thread_block_counts_the_number_Of_dense_blocks;

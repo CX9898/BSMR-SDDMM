@@ -1192,8 +1192,7 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_matrixA_rowMaj_matrixB_colMaj(
 
     // Loop over K, one iteration 32
     for (int kIter = 0; kIter < K; kIter += kStep){
-        // Load matrix A into shared memory, each thread loads 2 elements,
-        // conflict-free access
+        // Load matrix A into shared memory
 #pragma unroll
         for (UIN smemRow = warpId; smemRow < WMMA_M; smemRow += numWarps){
             const UIN reorderedRowIndex = (rowPanelId * ROW_PANEL_SIZE) + smemRow;
@@ -1211,8 +1210,7 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_matrixA_rowMaj_matrixB_colMaj(
         __syncthreads();
 
         if (colBlockId < numColBlocksCurrentRowPanel){
-            // Load matrix B into shared memory, each thread loads 16 elements,
-            // conflict-free access
+            // Load matrix B into shared memory
 #pragma unroll 8
             for (int iter = 0; iter < 16; ++iter){
                 const UIN bRowId = kIter + laneId;
@@ -1274,6 +1272,140 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_matrixA_rowMaj_matrixB_colMaj(
 
 // m16n16k8
 // 一个warp负责row panel中的1个col block
+__global__ void sddmm_gpu_dense_block_k32_m16n16k8_matrixA_rowMaj_matrixB_colMaj(
+    const UIN M,
+    const UIN N,
+    const UIN K,
+    const MATRIX_A_TYPE* __restrict__ matrixA,
+    const MATRIX_B_TYPE* __restrict__ matrixB,
+    const UIN numNonZeroRow,
+    const UIN* __restrict__ reorderedRows,
+    const UIN* __restrict__ denseCols,
+    const UIN* __restrict__ denseColOffset,
+    const UIN* __restrict__ blockOffsets,
+    const UIN* __restrict__ blockValues,
+    MATRIX_C_TYPE* matrixP){
+    constexpr int kStep = 32;
+
+    constexpr int aTileSMEMLd = kStep + 4;
+    constexpr int bTileSMEMLd = kStep + 4;
+
+    constexpr int aTileSMEMSize = WMMA_M * aTileSMEMLd;
+    constexpr int bTileSMEMSize =
+        (WMMA_N * each_thread_block_counts_the_number_Of_dense_blocks) *
+        bTileSMEMLd;
+    constexpr int numWarps = each_thread_block_counts_the_number_Of_dense_blocks;
+
+    const UIN laneId = threadIdx.x & 31;
+    const UIN warpId = threadIdx.x >> 5;
+
+    const UIN rowPanelId = blockIdx.x;
+    const UIN numColBlocksCurrentRowPanel =
+        blockOffsets[rowPanelId + 1] - blockOffsets[rowPanelId];
+
+    const UIN colBlockIter =
+        blockIdx.y * each_thread_block_counts_the_number_Of_dense_blocks;
+    if (colBlockIter >= numColBlocksCurrentRowPanel){
+        return;
+    }
+
+    __shared__ MATRIX_A_TYPE aTileSMEM[aTileSMEMSize];
+    __shared__ MATRIX_B_TYPE bTileSMEM[bTileSMEMSize];
+
+    wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE_FRAGMENT,
+                   wmma::row_major> aFrag;
+    wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE_FRAGMENT,
+                   wmma::col_major> bFrag;
+
+    wmma::fragment<wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> accFrag;
+
+    fill_fragment(accFrag, 0.0f);
+
+    const UIN colBlockId = colBlockIter + warpId;
+    const UIN startIndexOfBlockValuesCurrentBlock =
+        (blockOffsets[rowPanelId] + colBlockId) * BLOCK_SIZE;
+
+    const UIN startIndexOfDenseColsCurrentColBlock =
+        denseColOffset[rowPanelId] + BLOCK_COL_SIZE * colBlockId;
+    const UIN endIndexOfDenseColsCurrentPanel = denseColOffset[rowPanelId + 1];
+
+#pragma unroll
+    for (UIN smemRow = warpId; smemRow < WMMA_M; smemRow += numWarps){
+        const UIN reorderedRowIndex = (rowPanelId * ROW_PANEL_SIZE) + smemRow;
+        const UIN aRowId = reorderedRowIndex < numNonZeroRow
+                               ? reorderedRows[reorderedRowIndex]
+                               : M;
+        const UIN aColId = laneId;
+
+        aTileSMEM[smemRow * aTileSMEMLd + laneId] =
+            (aRowId < M && aColId < K)
+                ? __ldg(&matrixA[aRowId * K + aColId])
+                : static_cast<MATRIX_A_TYPE>(0.0f);
+    }
+
+    __syncthreads();
+
+    if (colBlockId < numColBlocksCurrentRowPanel){
+        // Load matrix B into shared memory
+#pragma unroll
+        for (int iter = 0; iter < 16; ++iter){
+            const UIN bRowId = laneId;
+            const UIN reorderedColIndex =
+                startIndexOfDenseColsCurrentColBlock + iter;
+            const UIN bColId = reorderedColIndex < endIndexOfDenseColsCurrentPanel
+                                   ? denseCols[reorderedColIndex]
+                                   : N;
+
+            bTileSMEM[(warpId * WMMA_N + iter) * bTileSMEMLd + laneId] =
+                (bRowId < K && bColId < N)
+                    ? __ldg(&matrixB[bRowId + bColId * K])
+                    : static_cast<MATRIX_B_TYPE>(0.0f);
+        }
+
+        // Compute the matrix multiplication
+#pragma unroll
+        for (int localK = 0; localK < 32; localK += WMMA_K){
+            wmma::load_matrix_sync(aFrag, aTileSMEM + localK, aTileSMEMLd);
+            wmma::load_matrix_sync(
+                bFrag, bTileSMEM + warpId * WMMA_N * bTileSMEMLd + localK,
+                bTileSMEMLd);
+
+            // Convert to TF32
+#pragma unroll
+            for (int i = 0; i < aFrag.num_elements; ++i)
+                aFrag.x[i] = wmma::__float_to_tf32(aFrag.x[i]);
+#pragma unroll
+            for (int i = 0; i < bFrag.num_elements; ++i)
+                bFrag.x[i] = wmma::__float_to_tf32(bFrag.x[i]);
+
+            wmma::mma_sync(accFrag, aFrag, bFrag, accFrag);
+        }
+    }
+
+
+    // Store the result
+    if (colBlockId < numColBlocksCurrentRowPanel){
+#pragma unroll
+        for (int idxOfFragment = 0; idxOfFragment < accFrag.num_elements;
+             ++idxOfFragment){
+            UIN localRow, localCol;
+            calculateMatrixCFragmentCoordinates(laneId, idxOfFragment, localRow,
+                                                localCol);
+
+            const UIN idxOfMatrixP =
+                blockValues[startIndexOfBlockValuesCurrentBlock +
+                    localRow * BLOCK_COL_SIZE + localCol];
+
+            // Saved when the value is not 0
+            if (idxOfMatrixP != NULL_VALUE){
+                matrixP[idxOfMatrixP] = accFrag.x[idxOfFragment];
+            }
+        }
+    }
+}
+
+// m16n16k8
+// 一个warp负责row panel中的1个col block
 // 解决 Load imbalance的问题
 __global__ void sddmm_gpu_dense_block_2_m16n16k8_matrixA_rowMaj_matrixB_colMaj(
     const UIN M,
@@ -1293,7 +1425,7 @@ __global__ void sddmm_gpu_dense_block_2_m16n16k8_matrixA_rowMaj_matrixB_colMaj(
     constexpr int kStep = 32;
 
     constexpr int aTileSMEMLd = kStep + 4;
-    constexpr int bTileSMEMLd = kStep;
+    constexpr int bTileSMEMLd = kStep + 4;
 
     constexpr int aTileSMEMSize = WMMA_M * aTileSMEMLd;
     constexpr int bTileSMEMSize =
@@ -1347,49 +1479,6 @@ __global__ void sddmm_gpu_dense_block_2_m16n16k8_matrixA_rowMaj_matrixB_colMaj(
     const UIN startIndexOfDenseColsCurrentColBlock =
         denseColOffset[rowPanelId] + BLOCK_COL_SIZE * colBlockIdCurrentRowPanel;
     const UIN endIndexOfDenseColsCurrentPanel = denseColOffset[rowPanelId + 1];
-
-    // if (blockIdx.x < 10 && laneId == 0){
-    //     printf("blockIdx.x: %u, "
-    //            "warpId: %u, "
-    //            "rowPanelId: %u, "
-    //            "blockOffsets: %u~%u, "
-    //            "colBlockIterCurrentThreadBlock: %u, "
-    //            "numColBlocksCurrentRowPanel: %u, "
-    //            "colBlockIdCurrentRowPanel: %u, "
-    //            "\n",
-    //            blockIdx.x, warpId, rowPanelId, blockOffsets[rowPanelId],
-    //            blockOffsets[rowPanelId + 1], colBlockIterCurrentThreadBlock,
-    //            numColBlocksCurrentRowPanel, colBlockIdCurrentRowPanel);
-    // }
-    //
-    //
-    // if (laneId == 0 && rowPanelId == 22 && colBlockIdCurrentRowPanel == 69){
-    //     printf("blockIdx.x: %u, "
-    //            "warpId: %u, "
-    //            "rowPanelId: %u, "
-    //            "blockOffsets: %u~%u, "
-    //            "colBlockIterCurrentThreadBlock: %u, "
-    //            "numColBlocksCurrentRowPanel: %u, "
-    //            "colBlockIdCurrentRowPanel: %u, "
-    //            "\n",
-    //            blockIdx.x, warpId, rowPanelId, blockOffsets[rowPanelId],
-    //            blockOffsets[rowPanelId + 1], colBlockIterCurrentThreadBlock,
-    //            numColBlocksCurrentRowPanel, colBlockIdCurrentRowPanel);
-    // }
-    //
-    // if (laneId == 0 && rowPanelId == 22){
-    //     printf("blockIdx.x: %u, "
-    //            "warpId: %u, "
-    //            "rowPanelId: %u, "
-    //            "blockOffsets: %u~%u, "
-    //            "colBlockIterCurrentThreadBlock: %u, "
-    //            "numColBlocksCurrentRowPanel: %u, "
-    //            "colBlockIdCurrentRowPanel: %u, "
-    //            "\n",
-    //            blockIdx.x, warpId, rowPanelId, blockOffsets[rowPanelId],
-    //            blockOffsets[rowPanelId + 1], colBlockIterCurrentThreadBlock,
-    //            numColBlocksCurrentRowPanel, colBlockIdCurrentRowPanel);
-    // }
 
     // Loop over K, one iteration 32
     for (int kIter = 0; kIter < K; kIter += kStep){
@@ -1450,6 +1539,182 @@ __global__ void sddmm_gpu_dense_block_2_m16n16k8_matrixA_rowMaj_matrixB_colMaj(
         }
 
         __syncthreads();
+    }
+
+    // Store the result
+    if (colBlockIdCurrentRowPanel < numColBlocksCurrentRowPanel){
+#pragma unroll
+        for (int idxOfFragment = 0; idxOfFragment < accFrag.num_elements;
+             ++idxOfFragment){
+            UIN localRow, localCol;
+            calculateMatrixCFragmentCoordinates(laneId, idxOfFragment, localRow,
+                                                localCol);
+
+            const UIN idxOfMatrixP =
+                blockValues[startIndexOfBlockValuesCurrentBlock +
+                    localRow * BLOCK_COL_SIZE + localCol];
+
+            // Saved when the value is not 0
+            if (idxOfMatrixP != NULL_VALUE){
+                matrixP[idxOfMatrixP] = accFrag.x[idxOfFragment];
+            }
+
+            // if (idxOfMatrixP == 50528){
+            //     printf(" idxOfMatrixP: %u, "
+            //            "accFrag.x[%d]: %f, "
+            //            "localRow: %u, "
+            //            "localCol: %u, "
+            //            "colBlockIdCurrentRowPanel: %u, "
+            //            "numColBlocksCurrentRowPanel: %u, "
+            //            "startIndexOfBlockValuesCurrentBlock: %u, "
+            //            "rowPanelId: %u, "
+            //            "blockIdx.x: %u, "
+            //            "warpId: %u, "
+            //            "laneId: %u, "
+            //            "idxOfFragment = %d, "
+            //            "\n",
+            //            idxOfMatrixP, idxOfFragment, accFrag.x[idxOfFragment],
+            //            localRow, localCol, colBlockIdCurrentRowPanel,
+            //            numColBlocksCurrentRowPanel,
+            //            startIndexOfBlockValuesCurrentBlock,
+            //            rowPanelId,
+            //            blockIdx.x,
+            //            warpId, laneId,
+            //            idxOfFragment);
+            // }
+        }
+    }
+}
+
+// m16n16k8
+// 一个warp负责row panel中的1个col block
+// 解决 Load imbalance的问题
+__global__ void sddmm_gpu_dense_block_2_k32_m16n16k8_matrixA_rowMaj_matrixB_colMaj(
+    const UIN M,
+    const UIN N,
+    const UIN K,
+    const MATRIX_A_TYPE* __restrict__ matrixA,
+    const MATRIX_B_TYPE* __restrict__ matrixB,
+    const UIN numNonZeroRow,
+    const UIN* __restrict__ reorderedRows,
+    const UIN* __restrict__ denseCols,
+    const UIN* __restrict__ denseColOffset,
+    const UIN* __restrict__ blockOffsets,
+    const UIN* __restrict__ blockValues,
+    const UIN* __restrict__ rowPanelIds,
+    const UIN* __restrict__ colBlockIters,
+    MATRIX_C_TYPE* matrixP){
+    constexpr int kStep = 32;
+
+    constexpr int aTileSMEMLd = kStep + 4;
+    constexpr int bTileSMEMLd = kStep + 4;
+
+    constexpr int aTileSMEMSize = WMMA_M * aTileSMEMLd;
+    constexpr int bTileSMEMSize =
+        (WMMA_N * each_thread_block_counts_the_number_Of_dense_blocks) *
+        bTileSMEMLd;
+    constexpr int numWarps = each_thread_block_counts_the_number_Of_dense_blocks;
+
+    const UIN laneId = threadIdx.x & 31;
+    const UIN warpId = threadIdx.x >> 5;
+
+    const UIN rowPanelId = rowPanelIds[blockIdx.x];
+    const UIN colBlockIterCurrentThreadBlock = colBlockIters[blockIdx.x];
+    // UIN rowPanelId = 0;
+    // UIN colBlockIterCurrentThreadBlock = 0;
+    // {
+    //     UIN numBlocks = 0;
+    //
+    //     while (rowPanelId * ROW_PANEL_SIZE < numNonZeroRow){
+    //         numBlocks += (blockOffsets[rowPanelId + 1] - blockOffsets[rowPanelId] +
+    //                 each_thread_block_counts_the_number_Of_cols - 1) /
+    //             each_thread_block_counts_the_number_Of_cols;
+    //         if (numBlocks > blockIdx.x){
+    //             break;
+    //         }
+    //         ++rowPanelId;
+    //     }
+    //     colBlockIterCurrentThreadBlock = blockIdx.x - numBlocks;
+    // }
+
+
+    __shared__ MATRIX_A_TYPE aTileSMEM[aTileSMEMSize];
+    __shared__ MATRIX_B_TYPE bTileSMEM[bTileSMEMSize];
+
+    wmma::fragment<wmma::matrix_a, WMMA_M, WMMA_N, WMMA_K, MATRIX_A_TYPE_FRAGMENT,
+                   wmma::row_major> aFrag;
+    wmma::fragment<wmma::matrix_b, WMMA_M, WMMA_N, WMMA_K, MATRIX_B_TYPE_FRAGMENT,
+                   wmma::col_major> bFrag;
+
+    wmma::fragment<wmma::accumulator, WMMA_M, WMMA_N, WMMA_K, MATRIX_C_TYPE> accFrag;
+
+    fill_fragment(accFrag, 0.0f);
+
+    const UIN colBlockIdCurrentRowPanel =
+        colBlockIterCurrentThreadBlock + warpId;
+    const UIN numColBlocksCurrentRowPanel =
+        blockOffsets[rowPanelId + 1] - blockOffsets[rowPanelId];
+
+    const UIN startIndexOfBlockValuesCurrentBlock =
+        (blockOffsets[rowPanelId] + colBlockIdCurrentRowPanel) * BLOCK_SIZE;
+
+    const UIN startIndexOfDenseColsCurrentColBlock =
+        denseColOffset[rowPanelId] + BLOCK_COL_SIZE * colBlockIdCurrentRowPanel;
+    const UIN endIndexOfDenseColsCurrentPanel = denseColOffset[rowPanelId + 1];
+
+
+#pragma unroll
+    for (UIN smemRow = warpId; smemRow < WMMA_M; smemRow += numWarps){
+        const UIN reorderedRowIndex = (rowPanelId * ROW_PANEL_SIZE) + smemRow;
+        const UIN aRowId = reorderedRowIndex < numNonZeroRow
+                               ? reorderedRows[reorderedRowIndex]
+                               : M;
+        const UIN aColId = laneId;
+
+        aTileSMEM[smemRow * aTileSMEMLd + laneId] =
+            (aRowId < M && aColId < K)
+                ? __ldg(&matrixA[aRowId * K + aColId])
+                : static_cast<MATRIX_A_TYPE>(0.0f);
+    }
+
+    __syncthreads();
+
+    if (colBlockIdCurrentRowPanel < numColBlocksCurrentRowPanel){
+        // Load matrix B into shared memory, each thread loads 16 elements,
+        // conflict-free access
+#pragma unroll
+        for (int iter = 0; iter < 16; ++iter){
+            const UIN bRowId = laneId;
+            const UIN reorderedColIndex =
+                startIndexOfDenseColsCurrentColBlock + iter;
+            const UIN bColId = reorderedColIndex < endIndexOfDenseColsCurrentPanel
+                                   ? denseCols[reorderedColIndex]
+                                   : N;
+
+            bTileSMEM[(warpId * WMMA_N + iter) * bTileSMEMLd + laneId] =
+                (bRowId < K && bColId < N)
+                    ? __ldg(&matrixB[bRowId + bColId * K])
+                    : static_cast<MATRIX_B_TYPE>(0.0f);
+        }
+
+        // Compute the matrix multiplication
+#pragma unroll
+        for (int localK = 0; localK < 32; localK += WMMA_K){
+            wmma::load_matrix_sync(aFrag, aTileSMEM + localK, aTileSMEMLd);
+            wmma::load_matrix_sync(
+                bFrag, bTileSMEM + warpId * WMMA_N * bTileSMEMLd + localK,
+                bTileSMEMLd);
+
+            // Convert to TF32
+#pragma unroll
+            for (int i = 0; i < aFrag.num_elements; ++i)
+                aFrag.x[i] = wmma::__float_to_tf32(aFrag.x[i]);
+#pragma unroll
+            for (int i = 0; i < bFrag.num_elements; ++i)
+                bFrag.x[i] = wmma::__float_to_tf32(bFrag.x[i]);
+
+            wmma::mma_sync(accFrag, aFrag, bFrag, accFrag);
+        }
     }
 
     // Store the result
@@ -1566,7 +1831,6 @@ __global__ void sddmm_gpu_dense_block_rowPanel_k32_m16n16k8_matrixA_rowMaj_matri
     for (int colBlockId = startBlockCurrentRowPanel + warpId;
          colBlockId < endBlocksCurrentRowPanel;
          colBlockId += numWarps){
-
         fill_fragment(accFrag, 0.0f);
 
         const UIN startIndexOfBlockValuesCurrentBlock = colBlockId * BLOCK_SIZE;
@@ -3312,14 +3576,14 @@ void sddmm_gpu_k32(UIN M,
     for (int iter = 0; iter < 10; ++iter){
 #ifdef WMMA_16_16_8
         if (grid_dense.x > 0 && grid_dense.y > 0){
-            kernel::sddmm_gpu_dense_block_m16n16k8_matrixA_rowMaj_matrixB_colMaj<<<
+            kernel::sddmm_gpu_dense_block_k32_m16n16k8_matrixA_rowMaj_matrixB_colMaj<<<
                 grid_dense, block_dense, 0, denseStream>>>(
                     M, N, K, matrixA, matrixB, rphm.reorderedRows().size(),
                     rphm.reorderedRows().data(), rphm.denseCols().data(),
                     rphm.denseColOffsets().data(), rphm.blockOffsets().data(),
                     rphm.blockValues().data(),
                     matrixP);
-            // kernel::sddmm_gpu_dense_block_2_m16n16k8_matrixA_rowMaj_matrixB_colMaj<<<
+            // kernel::sddmm_gpu_dense_block_2_k32_m16n16k8_matrixA_rowMaj_matrixB_colMaj<<<
             //     grid_dense, block_dense, 0, denseStream>>>(
             //         M, N, K, matrixA, matrixB, rphm.reorderedRows().size(),
             //         rphm.reorderedRows().data(), rphm.denseCols().data(),
