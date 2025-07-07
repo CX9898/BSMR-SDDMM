@@ -20,9 +20,9 @@ BSMR::BSMR(const sparseMatrix::CSR<float>& matrix,
     // Row reordering
     float rowReordering_time = 0.0f;
     const UIN blockSize = calculateBlockSize(matrix);
-    //    noReorderRow(matrix, reorderedRows_, rowReordering_time);
     for (int iter = 0; iter < numIterations; ++iter){
         float oneIterationTime = 0.0f;
+        // noReorderRow(matrix,reorderedRows_,oneIterationTime);
         reorderedRows_ = bsa_rowReordering_gpu(matrix,
                                                similarityThreshold,
                                                blockSize,
@@ -856,6 +856,7 @@ void evaluationReordering(const sparseMatrix::CSR<float>& matrix, const BSMR& bs
     float totalDensity = 0.0f;
     int numDenseThreadBlocks = 0;
     int numSparseThreadBlocks = 0;
+    int numSparseData = 0;
 
     // row panel loop
     for (int rowPanelId = 0; rowPanelId < bsmr.numRowPanels(); ++rowPanelId){
@@ -893,6 +894,15 @@ void evaluationReordering(const sparseMatrix::CSR<float>& matrix, const BSMR& bs
             blockToColumnSet[colBlockId].insert(col);
         }
 
+        std::unordered_set<UIN> sparseColIndicesRecordSet;
+        // sparse column segment loop, record sparse column index
+        for (int indexOfReorderedCols = bsmr.sparseColOffsets()[rowPanelId];
+             indexOfReorderedCols < bsmr.sparseColOffsets()[rowPanelId + 1];
+             ++indexOfReorderedCols){
+            const UIN col = bsmr.sparseCols()[indexOfReorderedCols];
+            sparseColIndicesRecordSet.insert(col);
+        }
+
         const UIN startIndexOfReorderedRowsCurrentRowPanel = rowPanelId * ROW_PANEL_SIZE;
         const UIN endIndexOfReorderedRowsCurrentRowPanel =
             std::min(startIndexOfReorderedRowsCurrentRowPanel + ROW_PANEL_SIZE,
@@ -906,11 +916,15 @@ void evaluationReordering(const sparseMatrix::CSR<float>& matrix, const BSMR& bs
             for (int idx = matrix.rowOffsets()[row]; idx < matrix.rowOffsets()[row + 1]; ++idx){
                 const UIN col = matrix.colIndices()[idx];
 
-                // Calculate the block id
+                // Check if the column index is in the dense column segment, if so, increment the nnz count for the corresponding block
                 for (int blockId = 0; blockId < blockToColumnSet.size(); ++blockId){
                     if (blockToColumnSet[blockId].find(col) != blockToColumnSet[blockId].end()){
                         ++nnzInEachBlock[blockId];
                     }
+                }
+
+                if (sparseColIndicesRecordSet.find(col) != sparseColIndicesRecordSet.end()){
+                    ++numSparseData;
                 }
             }
         }
@@ -939,6 +953,8 @@ void evaluationReordering(const sparseMatrix::CSR<float>& matrix, const BSMR& bs
     logger.numSparseThreadBlocks_ = numSparseThreadBlocks;
     logger.originalNumDenseBlock_ = numDenseBlocksInOriginalMatrix;
     logger.originalAverageDensity_ = averageDensityInOriginalMatrix;
+    logger.numSparseData_ = numSparseData;
+    logger.numDenseData_ = matrix.nnz() - numSparseData;
 }
 
 bool check_rphm(const sparseMatrix::CSR<float>& matrix,

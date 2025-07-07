@@ -7,8 +7,8 @@
 
 #include "Matrix.hpp"
 
-struct Logger {
-    Logger() {
+struct Logger{
+    Logger(){
 #ifdef NDEBUG
         buildType_ = "Release";
 #endif
@@ -30,12 +30,12 @@ struct Logger {
         wmma_k_ = WMMA_K;
     };
 
-    inline void getInformation(const Options &options);
+    inline void getInformation(const Options& options);
 
-    inline void getInformation(const sparseMatrix::DataBase &matrix);
+    inline void getInformation(const sparseMatrix::DataBase& matrix);
 
-    template<typename T>
-    inline void getInformation(const Matrix<T> &matrixA, const Matrix<T> &matrixB) {
+    template <typename T>
+    inline void getInformation(const Matrix<T>& matrixA, const Matrix<T>& matrixB){
         K_ = matrixA.col();
         matrixA_storageOrder_ = matrixA.storageOrder() == MatrixStorageOrder::row_major ? "row_major" : "col_major";
         matrixB_storageOrder_ = matrixB.storageOrder() == MatrixStorageOrder::row_major ? "row_major" : "col_major";
@@ -84,6 +84,9 @@ struct Logger {
     int numDenseThreadBlocks_;
     int numSparseThreadBlocks_;
 
+    int numDenseData_;
+    int numSparseData_;
+
     int numITER_;
 
     float alpha_;
@@ -99,7 +102,7 @@ struct Logger {
     float sddmmTime_cuSparse_ = 0.0f;
 };
 
-void Logger::getInformation(const Options &options) {
+void Logger::getInformation(const Options& options){
     inputFile_ = options.inputFile();
     K_ = options.K();
     numITER_ = options.numIterations();
@@ -107,14 +110,14 @@ void Logger::getInformation(const Options &options) {
     delta_ = options.blockDensityThresholdDelta();
 }
 
-void Logger::getInformation(const sparseMatrix::DataBase &matrix) {
+void Logger::getInformation(const sparseMatrix::DataBase& matrix){
     M_ = matrix.row();
     N_ = matrix.col();
     NNZ_ = matrix.nnz();
     sparsity_ = matrix.getSparsity();
 }
 
-void Logger::printLogInformation() {
+void Logger::printLogInformation(){
     printf("[File : %s]\n", inputFile_.c_str());
 
     printf("[Build type : %s]\n", buildType_.c_str());
@@ -140,6 +143,9 @@ void Logger::printLogInformation() {
 
     printf("[NumRowPanel : %d]\n", numRowPanels_);
 
+    printf("[original_numDenseBlock : %d]\n", originalNumDenseBlock_);
+    printf("[original_averageDensity : %f]\n", originalAverageDensity_);
+
     printf("[bsmr_alpha : %.2f]\n", alpha_);
     printf("[bsmr_delta : %.2f]\n", delta_);
 
@@ -152,17 +158,19 @@ void Logger::printLogInformation() {
     printf("[bsmr_colReordering : %.2f]\n", colReorderingTime_);
     printf("[bsmr_reordering : %.2f]\n", reorderingTime_);
 
-    printf("[original_numDenseBlock : %d]\n", originalNumDenseBlock_);
-    printf("[original_averageDensity : %f]\n", originalAverageDensity_);
-
     printf("[gridDim_dense : %d, %d, %d]\n", gridDim_dense_.x, gridDim_dense_.y, gridDim_dense_.z);
-    printf("[gridDim_sparse : %d, %d, %d]\n", gridDim_sparse_.x, gridDim_sparse_.y, gridDim_sparse_.z);
     printf("[blockDim_dense : %d, %d, %d]\n", blockDim_dense_.x, blockDim_dense_.y, blockDim_dense_.z);
+
+    printf("[gridDim_sparse : %d, %d, %d]\n", gridDim_sparse_.x, gridDim_sparse_.y, gridDim_sparse_.z);
     printf("[blockDim_sparse : %d, %d, %d]\n", blockDim_sparse_.x, blockDim_sparse_.y, blockDim_sparse_.z);
 
     printf("[bsmr_numDenseThreadBlocks : %d]\n", numDenseThreadBlocks_);
     printf("[bsmr_numSparseThreadBlocks : %d]\n", numSparseThreadBlocks_);
     printf("[bsmr_threadBlockRatio : %.2f]\n", static_cast<float>(numDenseThreadBlocks_) / numSparseThreadBlocks_);
+
+    printf("[bsmr_numDenseData : %d]\n", numDenseData_);
+    printf("[bsmr_numSparseData : %d]\n", numSparseData_);
+    printf("[bsmr_dataRatio: %.2f]\n", static_cast<float>(numDenseData_) / numSparseData_);
 
     const size_t flops = 2 * NNZ_ * K_;
 
@@ -172,7 +180,7 @@ void Logger::printLogInformation() {
     printf("[bsmr_gflops : %.2f]\n", (flops / (sddmmTime_ * 1e6)));
     printf("[bsmr_sddmm : %.2f]\n", sddmmTime_);
 
-    if (errorRate_ > 0) {
+    if (errorRate_ > 0){
         printf("[checkResults : NO PASS Error rate : %2.2f%%]\n", errorRate_);
     }
 }
