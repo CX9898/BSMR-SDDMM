@@ -225,7 +225,7 @@ __global__ void sddmm_gpu_dense_block_m16n16k8_matrixA_rowMaj_matrixB_colMaj(
     constexpr int kStep = 32;
 
     constexpr int aTileSMEMLd = kStep + 4;
-    constexpr int bTileSMEMLd = kStep;
+    constexpr int bTileSMEMLd = kStep + 4;
 
     constexpr int aTileSMEMSize = WMMA_M * aTileSMEMLd;
     constexpr int bTileSMEMSize =
@@ -417,7 +417,7 @@ __global__ void sddmm_gpu_dense_block_k32_m16n16k8_matrixA_rowMaj_matrixB_colMaj
     for (UIN smemRow = warpId; smemRow < WMMA_M; smemRow += numWarps){
         const UIN reorderedRowIndex = (rowPanelId * ROW_PANEL_SIZE) + smemRow;
         const UIN aRowId = reorderedRowIndex < numNonZeroRow
-                               ? reorderedRows[reorderedRowIndex]
+                               ? __ldg(&reorderedRows[reorderedRowIndex])
                                : M;
         const UIN aColId = laneId;
 
@@ -476,8 +476,8 @@ __global__ void sddmm_gpu_dense_block_k32_m16n16k8_matrixA_rowMaj_matrixB_colMaj
                                                 localCol);
 
             const UIN idxOfMatrixP =
-                blockValues[startIndexOfBlockValuesCurrentBlock +
-                    localRow * BLOCK_COL_SIZE + localCol];
+                __ldg(&blockValues[startIndexOfBlockValuesCurrentBlock +
+                    localRow * BLOCK_COL_SIZE + localCol]);
 
             // Saved when the value is not 0
             if (idxOfMatrixP != NULL_VALUE){
