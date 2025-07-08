@@ -14,7 +14,7 @@ mkdir -p ${k128_results_path}
 bash make_matrices_list.sh ${dataset_path}
 matrix_list_file="${dataset_path}matrix_file_list_mtx.txt"
 
-program_bsma="./build_bsma/bsma-sddmm"
+program_BSMR="./build_BSMR/BSMR-sddmm"
 program_cuSDDMM="./build_cuSDDMM/cuSDDMM-sddmm"
 program_ASpT_32="./build_ASpT/ASpT-sddmm-32"
 program_ASpT_128="./build_ASpT/ASpT-sddmm-32"
@@ -36,7 +36,7 @@ done
 
 for A in "${ALPHA[@]}"; do
   for D in "${DELTA[@]}"; do
-    bash test_script.sh -f ${matrix_list_file} -p ${program_bsma} -n "${k32_results_path}bsma_32_a_${A}_d_${D}" -k 32 -a ${A} -d ${D}
+    bash test_script.sh -f ${matrix_list_file} -p ${program_BSMR} -n "${k32_results_path}BSMR_32_a_${A}_d_${D}" -k 32 -a ${A} -d ${D}
   done
 done
 
@@ -54,7 +54,7 @@ bash test_script.sh -f ${matrix_list_file} -p ${program_RoDe} -n "${k128_results
 
 for A in "${ALPHA[@]}"; do
   for D in "${DELTA[@]}"; do
-    bash test_script.sh -f ${matrix_list_file} -p ${program_bsma} -n "${k128_results_path}bsma_128_a_${A}_d_${D}" -k 128 -a ${A} -d ${D}
+    bash test_script.sh -f ${matrix_list_file} -p ${program_BSMR} -n "${k128_results_path}BSMR_128_a_${A}_d_${D}" -k 128 -a ${A} -d ${D}
   done
 done
 

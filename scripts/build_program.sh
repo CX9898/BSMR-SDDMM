@@ -3,10 +3,10 @@
 ##############################################################################################
 # Script setting
 
-bsmr_build_folder_path="${script_file_path}build_bsmr/"
-bsmr_cmake_file_path="${script_file_path}../"
-bsmr_program_path="${bsmr_build_folder_path}"
-bsmr_program_name="bsmr-sddmm"
+BSMR_build_folder_path="${script_file_path}build_BSMR/"
+BSMR_cmake_file_path="${script_file_path}../"
+BSMR_program_path="${BSMR_build_folder_path}"
+BSMR_program_name="BSMR-sddmm"
 
 cuSDDMM_build_folder_path="${script_file_path}build_cuSDDMM/"
 cuSDDMM_cmake_file_path="${script_file_path}../baselines/cuSDDMM_SDDMM/"
@@ -46,7 +46,7 @@ build_program(){
 }
 
 # 编译程序
-build_program ${bsmr_build_folder_path} ${bsmr_cmake_file_path}
+build_program ${BSMR_build_folder_path} ${BSMR_cmake_file_path}
 build_program ${cuSDDMM_build_folder_path} ${cuSDDMM_cmake_file_path}
 build_program ${RoDe_build_folder_path} ${RoDe_cmake_file_path}
 build_program ${BSA_build_folder_path} ${BSA_cmake_file_path}
