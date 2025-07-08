@@ -81,7 +81,6 @@ public:
     UIN numSparseThreadBlocks() const{ return numSparseThreadBlocks_; }
     const dev::vector<UIN>& reorderedRows() const{ return reorderedRows_; }
     const dev::vector<UIN>& denseCols() const{ return denseCols_; }
-    const dev::vector<UIN>& denseColOffsets() const{ return denseColOffsets_; }
     const dev::vector<UIN>& blockValues() const{ return blockValues_; }
     const dev::vector<UIN>& blockOffsets() const{ return blockOffsets_; }
     const dev::vector<UIN>& sparseValueOffsets() const{ return sparseValueOffsets_; }
@@ -98,9 +97,6 @@ public:
 
     // Calculate the rowPanelID by blockValueIndex
     UIN calculateRowPanelIdByBlockValuesIndex(UIN blockValueIndex) const;
-
-    // Calculate the rowPanelID by reorderedColIndex
-    UIN calculateRowPanelIdByColIndex(UIN reorderedColIndex) const;
 
     // Calculate the localRow and localCol by blockValueIndex
     std::pair<UIN, UIN> calculateLocalRowColByBlockValueIndex(UIN blockValueIndex) const;
@@ -135,7 +131,6 @@ private:
     dev::vector<UIN> reorderedRows_;
 
     // Dense block data
-    dev::vector<UIN> denseColOffsets_;
     dev::vector<UIN> denseCols_;
     dev::vector<UIN> blockOffsets_;
     dev::vector<UIN> blockValues_;

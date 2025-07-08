@@ -31,8 +31,8 @@ void sddmm(const Options &options,
     evaluationReordering(matrixP, bsmr, logger);
 
     // Error check
-    // check_rphm(matrixP, bsmr, rphm, options.columnNonZeroThresholdBeta());
-    // checkSddmm(matrixA, matrixB, matrixS, matrixP);
+    // check_rphm(matrixP, bsmr, rphm, options.blockDensityThresholdDelta());
+    // checkSddmm(matrixA, matrixB, matrixP, matrixP);
 }
 
 bool checkSddmm(const Matrix<float> &matrixA,
