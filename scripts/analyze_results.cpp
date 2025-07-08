@@ -84,12 +84,12 @@ bool initOperationOrCheckIfDifferent(std::string& src, const std::string& data){
     if (src.empty()){
         src = data;
     }
-    else{
-        if (!data.empty() && src != data){
-            fprintf(stderr, "Error, the value is different. src : %s, data : %s\n", src.c_str(), data.c_str());
-            return false;
-        }
-    }
+    // else{
+    //     if (!data.empty() && src != data){
+    //         fprintf(stderr, "Error, the value is different. src : %s, data : %s\n", src.c_str(), data.c_str());
+    //         return false;
+    //     }
+    // }
     return true;
 }
 
@@ -221,19 +221,45 @@ public:
     BaseLine(const std::string& nameToken): nameToken_(nameToken){
     }
 
-    void parseLine(const std::vector<std::string>& multiLine){
-        for (const std::string& line : multiLine){
-            parseLine(line);
+    void parseLine(const std::vector<std::string>& oneTimeInformation){
+        float gflops = 0.0f;
+        float alpha = 0.0f;
+        float delta = 0.0f;
+        int numDenseBlock = 0;
+        float reordering = 0.0f;
+        float rowReordering = 0.0f;
+        float colReordering = 0.0f;
+        std::string checkResults;
+        for (const std::string& line : oneTimeInformation){
+            gflops = std::max(gflops,
+                              tryParse<float>(getValue(line, "[" + nameToken_ + "_gflops : ")).value_or(0.0f));
+            alpha = std::max(alpha,
+                             tryParse<float>(getValue(line, "[" + nameToken_ + "_alpha : ")).value_or(0.0f));
+            delta = std::max(delta,
+                             tryParse<float>(getValue(line, "[" + nameToken_ + "_delta : ")).value_or(0.0f));
+            numDenseBlock = std::max(numDenseBlock,
+                                     tryParse<int>(getValue(line, "[" + nameToken_ + "_numDenseBlock : ")).value_or(0));
+            reordering = std::max(reordering,
+                                  tryParse<float>(getValue(line, "[" + nameToken_ + "_reordering : ")).value_or(0.0f));
+            rowReordering = std::max(rowReordering,
+                                     tryParse<float>(getValue(line, "[" + nameToken_ + "_rowReordering : ")).value_or(
+                                         0.0f));
+            colReordering = std::max(colReordering,
+                                     tryParse<float>(getValue(line, "[" + nameToken_ + "_colReordering : ")).value_or(
+                                         0.0f));
+            if (checkResults.empty()){ checkResults = getValue(line, "[" + nameToken_ + "_checkResults : "); }
         }
-    }
-
-    void parseLine(const std::string& line){
-        updateNumDenseBlock(tryParse<int>(getValue(line, "[" + nameToken_ + "_numDenseBlock : ")).value_or(0));
-        updateGflops(tryParse<float>(getValue(line, "[" + nameToken_ + "_gflops : ")).value_or(0.0f));
-        updateReordering(tryParse<float>(getValue(line, "[" + nameToken_ + "_reordering : ")).value_or(0.0f));
-        updateRowReordering(tryParse<float>(getValue(line, "[" + nameToken_ + "_rowReordering : ")).value_or(0.0f));
-        updateColReordering(tryParse<float>(getValue(line, "[" + nameToken_ + "_colReordering : ")).value_or(0.0f));
-        updateCheckResults(getValue(line, "[" + nameToken_ + "_checkResults : "));
+        if (gflops < gflops_){
+            return;
+        }
+        gflops_ = gflops;
+        alpha_ = alpha;
+        delta_ = delta;
+        numDenseBlock_ = numDenseBlock;
+        reordering_ = reordering;
+        rowReordering_ = rowReordering;
+        colReordering_ = colReordering;
+        checkResults_ = checkResults;
     }
 
     float gflops() const{ return gflops_; }
@@ -242,6 +268,8 @@ public:
     float reordering() const{ return reordering_; }
     float rowReordering() const{ return rowReordering_; }
     float colReordering() const{ return colReordering_; }
+    float alpha() const{ return alpha_; }
+    float delta() const{ return delta_; }
 
 private:
     std::string nameToken_;
@@ -250,43 +278,9 @@ private:
     float reordering_ = std::numeric_limits<float>::max();
     float rowReordering_ = std::numeric_limits<float>::max();
     float colReordering_ = std::numeric_limits<float>::max();
+    float alpha_ = 0.0f;
+    float delta_ = 0.0f;
     std::string checkResults_;
-
-    void updateGflops(const float newValue){
-        gflops_ = std::max(gflops_, newValue);
-    }
-
-    void updateNumDenseBlock(const int newValue){
-        numDenseBlock_ = std::max(numDenseBlock_, newValue);
-    }
-
-    void updateReordering(const float newValue){
-        if (newValue < 1e-6){
-            return; // Ignore very small values
-        }
-        reordering_ = std::min(reordering_, newValue);
-    }
-
-    void updateRowReordering(const float newValue){
-        if (newValue < 1e-6){
-            return; // Ignore very small values
-        }
-        rowReordering_ = std::min(rowReordering_, newValue);
-    }
-
-    void updateColReordering(const float newValue){
-        if (newValue < 1e-6){
-            return; // Ignore very small values
-        }
-        colReordering_ = std::min(colReordering_, newValue);
-    }
-
-    void updateCheckResults(const std::string& newValue){
-        if (newValue.empty()){
-            return; // Ignore empty results
-        }
-        checkResults_ = newValue;
-    }
 };
 
 struct OneTimeData{
@@ -298,6 +292,8 @@ struct OneTimeData{
     BaseLine ASpT_{"ASpT"};
     BaseLine RoDe_{"RoDe"};
     BaseLine BSA_{"BSA"};
+    BaseLine FlashSparse_{"FlashSparse"};
+    BaseLine TCGNN_{"TCGNN"};
 };
 
 void OneTimeData::update(const std::vector<std::string>& oneTimeResults){
@@ -307,6 +303,8 @@ void OneTimeData::update(const std::vector<std::string>& oneTimeResults){
     ASpT_.parseLine(oneTimeResults);
     RoDe_.parseLine(oneTimeResults);
     BSA_.parseLine(oneTimeResults);
+    FlashSparse_.parseLine(oneTimeResults);
+    TCGNN_.parseLine(oneTimeResults);
 }
 
 struct ResultsInformation{
@@ -569,6 +567,8 @@ void evaluateSddmmWithCuSDDMM(
             const float cuSDDMM_gflops = kToOneTimeData.second.cuSDDMM_.gflops();
 
             if (bsmr_gflops <= 1e-6 || cuSDDMM_gflops <= 1e-6){
+                printf("file: %s, K: %d, bsmr_gflops: %.2f, cuSDDMM_gflops: %.2f\n",
+                       iter.first.c_str(), kToOneTimeData.first, bsmr_gflops, cuSDDMM_gflops);
                 continue;
             }
 
@@ -624,6 +624,9 @@ void evaluateSddmmWithCuSparse(
     float sumSpeedup = 0.0f;
     float maxSpeedup = 0.0f;
 
+    // 0~0.5, 0.5~0.8, 0.8~1.0, 1.0~1.2, 1.2~1.5, 1.5~
+    std::vector<int> numSpeedups(6);
+
     int numResults = 0;
     for (const auto& iter : matrixFileToResultsInformationMap){
         for (const auto& kToOneTimeData : iter.second.kToOneTimeData_){
@@ -634,21 +637,52 @@ void evaluateSddmmWithCuSparse(
                 continue;
             }
 
-            float speedup = bsmr_sddmm / cuSparse_sddmm;
+            const float speedup = bsmr_sddmm / cuSparse_sddmm;
             maxSpeedup = std::max(speedup, maxSpeedup);
             sumSpeedup += speedup;
             ++numResults;
+
+            if (speedup <= 0.5){
+                ++numSpeedups[0];
+            }
+            if (speedup > 0.5 && speedup <= 0.8){
+                ++numSpeedups[1];
+            }
+            if (speedup > 0.8 && speedup <= 1.0){
+                ++numSpeedups[2];
+            }
+            if (speedup > 1.0 && speedup <= 1.2){
+                ++numSpeedups[3];
+            }
+            if (speedup > 1.2 && speedup <= 1.5){
+                ++numSpeedups[4];
+            }
+            if (speedup > 1.5){
+                ++numSpeedups[5];
+            }
         }
     }
 
     float averageSpeedup = sumSpeedup / numResults;
 
-    printSeparator("evaluateSddmmWithCuSparse:");
+    printSeparator("Evaluate sddmm With cuSparse:");
     printf("Number of results: %d\n", numResults);
-    printf("Average speedup over cuSparse: %.2f, maximum speedup: %.2f\n", averageSpeedup, maxSpeedup);
+    printf("Average speedup over cuSparse: %.2fx, maximum speedup: %.2fx\n", averageSpeedup, maxSpeedup);
+
+    printf("Speedup over cuSparse <= 0.5 : %.1f%%\n", numSpeedups[0] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over cuSparse 0.5~0.8 : %.1f%%\n", numSpeedups[1] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over cuSparse 0.8~1.0 : %.1f%%\n", numSpeedups[2] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over cuSparse 1.0~1.2 : %.1f%%\n", numSpeedups[3] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over cuSparse 1.2~1.5 : %.1f%%\n", numSpeedups[4] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over cuSparse > 1.5 : %.1f%%\n", numSpeedups[5] / static_cast<float>(numResults) * 100.0f);
+
+    const float accelerationCoverage =
+        (numSpeedups[3] + numSpeedups[4] + numSpeedups[5]) / static_cast<float>(numResults) * 100.0f;
+    printf("Acceleration coverage: %.1f%%\n", accelerationCoverage);
 
     printf("\n");
 }
+
 
 // return the average speedup adn the maximum speedup
 void evaluateSddmmWithASpT(
@@ -780,13 +814,319 @@ void evaluateSddmmWithRoDe(
     printf("\n");
 }
 
+void evaluateSddmmWithFlashSparse(
+    const std::unordered_map<std::string, ResultsInformation>& matrixFileToResultsInformationMap){
+    float sumSpeedup = 0.0f;
+    float maxSpeedup = 0.0f;
+
+    // 0~0.5, 0.5~0.8, 0.8~1.0, 1.0~1.2, 1.2~1.5, 1.5~
+    std::vector<int> numSpeedups(6);
+
+    int numResults = 0;
+    for (const auto& iter : matrixFileToResultsInformationMap){
+        for (const auto& kToOneTimeData : iter.second.kToOneTimeData_){
+            const float bsmr_sddmm = kToOneTimeData.second.BSMR_.gflops();
+            const float FlashSparse_sddmm = kToOneTimeData.second.FlashSparse_.gflops();
+
+            if (bsmr_sddmm <= 1e-6 || FlashSparse_sddmm <= 1e-6){
+                continue;
+            }
+
+            const float speedup = bsmr_sddmm / FlashSparse_sddmm;
+            maxSpeedup = std::max(speedup, maxSpeedup);
+            sumSpeedup += speedup;
+            ++numResults;
+
+            if (speedup <= 0.5){
+                ++numSpeedups[0];
+            }
+            if (speedup > 0.5 && speedup <= 0.8){
+                ++numSpeedups[1];
+            }
+            if (speedup > 0.8 && speedup <= 1.0){
+                ++numSpeedups[2];
+            }
+            if (speedup > 1.0 && speedup <= 1.2){
+                ++numSpeedups[3];
+            }
+            if (speedup > 1.2 && speedup <= 1.5){
+                ++numSpeedups[4];
+            }
+            if (speedup > 1.5){
+                ++numSpeedups[5];
+            }
+        }
+    }
+
+    float averageSpeedup = sumSpeedup / numResults;
+
+    printSeparator("Evaluate sddmm With FlashSparse:");
+    printf("Number of results: %d\n", numResults);
+    printf("Average speedup over FlashSparse: %.2fx, maximum speedup: %.2fx\n", averageSpeedup, maxSpeedup);
+
+    printf("Speedup over FlashSparse <= 0.5 : %.1f%%\n", numSpeedups[0] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over FlashSparse 0.5~0.8 : %.1f%%\n", numSpeedups[1] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over FlashSparse 0.8~1.0 : %.1f%%\n", numSpeedups[2] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over FlashSparse 1.0~1.2 : %.1f%%\n", numSpeedups[3] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over FlashSparse 1.2~1.5 : %.1f%%\n", numSpeedups[4] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over FlashSparse > 1.5 : %.1f%%\n", numSpeedups[5] / static_cast<float>(numResults) * 100.0f);
+
+    const float accelerationCoverage =
+        (numSpeedups[3] + numSpeedups[4] + numSpeedups[5]) / static_cast<float>(numResults) * 100.0f;
+    printf("Acceleration coverage: %.1f%%\n", accelerationCoverage);
+
+    printf("\n");
+}
+
+void evaluateSddmmWithTCGNN(
+    const std::unordered_map<std::string, ResultsInformation>& matrixFileToResultsInformationMap){
+    float sumSpeedup = 0.0f;
+    float maxSpeedup = 0.0f;
+
+    // 0~0.5, 0.5~0.8, 0.8~1.0, 1.0~1.2, 1.2~1.5, 1.5~
+    std::vector<int> numSpeedups(6);
+
+    int numResults = 0;
+    for (const auto& iter : matrixFileToResultsInformationMap){
+        for (const auto& kToOneTimeData : iter.second.kToOneTimeData_){
+            const float bsmr_sddmm = kToOneTimeData.second.BSMR_.gflops();
+            const float TCGNN_sddmm = kToOneTimeData.second.TCGNN_.gflops();
+
+            if (bsmr_sddmm <= 1e-6 || TCGNN_sddmm <= 1e-6){
+                continue;
+            }
+
+            const float speedup = bsmr_sddmm / TCGNN_sddmm;
+            maxSpeedup = std::max(speedup, maxSpeedup);
+            sumSpeedup += speedup;
+            ++numResults;
+
+            if (speedup <= 0.5){
+                ++numSpeedups[0];
+            }
+            if (speedup > 0.5 && speedup <= 0.8){
+                ++numSpeedups[1];
+            }
+            if (speedup > 0.8 && speedup <= 1.0){
+                ++numSpeedups[2];
+            }
+            if (speedup > 1.0 && speedup <= 1.2){
+                ++numSpeedups[3];
+            }
+            if (speedup > 1.2 && speedup <= 1.5){
+                ++numSpeedups[4];
+            }
+            if (speedup > 1.5){
+                ++numSpeedups[5];
+            }
+        }
+    }
+
+    float averageSpeedup = sumSpeedup / numResults;
+
+    printSeparator("Evaluate sddmm With TCGNN:");
+    printf("Number of results: %d\n", numResults);
+    printf("Average speedup over TCGNN: %.2fx, maximum speedup: %.2fx\n", averageSpeedup, maxSpeedup);
+
+    printf("Speedup over TCGNN <= 0.5 : %.1f%%\n", numSpeedups[0] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over TCGNN 0.5~0.8 : %.1f%%\n", numSpeedups[1] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over TCGNN 0.8~1.0 : %.1f%%\n", numSpeedups[2] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over TCGNN 1.0~1.2 : %.1f%%\n", numSpeedups[3] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over TCGNN 1.2~1.5 : %.1f%%\n", numSpeedups[4] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup over TCGNN > 1.5 : %.1f%%\n", numSpeedups[5] / static_cast<float>(numResults) * 100.0f);
+
+    const float accelerationCoverage =
+        (numSpeedups[3] + numSpeedups[4] + numSpeedups[5]) / static_cast<float>(numResults) * 100.0f;
+    printf("Acceleration coverage: %.1f%%\n", accelerationCoverage);
+
+    printf("\n");
+}
+
+void outputCSVFile(
+    const std::unordered_map<std::string, ResultsInformation>& matrixFileToResultsInformationMap){
+    const int k = matrixFileToResultsInformationMap.begin()->second.kToOneTimeData_.begin()->first;
+    const std::string outputFileName = "results_" + std::to_string(k) + ".csv";
+    std::ofstream outFile(outputFileName);
+    if (!outFile.is_open()){
+        std::cerr << "Error, output file cannot be opened : " << outputFileName << std::endl;
+        return;
+    }
+
+    outFile << "Matrix File,M,N,NNZ,Sparsity,K,BSMR,cuSDDMM,cusparse,ASpT,RoDe,FlashSparse,TCGNN\n";
+
+    for (const auto& iter : matrixFileToResultsInformationMap){
+        const ResultsInformation& resultsInformation = iter.second;
+
+        for (const auto& kToOneTimeData : resultsInformation.kToOneTimeData_){
+            const int k = kToOneTimeData.first;
+            const OneTimeData& oneTimeData = kToOneTimeData.second;
+
+            outFile << iter.first << ","; // Matrix File
+            outFile << resultsInformation.M_ << ","; // M
+            outFile << resultsInformation.N_ << ","; // N
+            outFile << resultsInformation.NNZ_ << ","; // NNZ
+            outFile << resultsInformation.sparsity_ << ","; // Sparsity
+            outFile << k << ","; // K
+            outFile << oneTimeData.BSMR_.gflops() << ","; // BSMR cuSDDMM
+            outFile << oneTimeData.cuSDDMM_.gflops() << ","; // cuSDDMM
+            outFile << oneTimeData.cuSparse_.gflops() << ","; // cusparse
+            outFile << oneTimeData.ASpT_.gflops() << ","; // ASpT
+            outFile << oneTimeData.RoDe_.gflops() << ","; // RoDe
+            outFile << oneTimeData.FlashSparse_.gflops() << ","; // FlashSparse
+            outFile << oneTimeData.TCGNN_.gflops(); // TCGNN
+            outFile << "\n";
+        }
+    }
+
+    outFile.close();
+}
+
 void eliminateInvalidData(std::unordered_map<std::string, ResultsInformation>& matrixFileToResultsInformationMap){
     for (auto iter = matrixFileToResultsInformationMap.begin(); iter != matrixFileToResultsInformationMap.end();){
         const int m = tryParse<int>(iter->second.M_).value_or(0);
         const int n = tryParse<int>(iter->second.N_).value_or(0);
+        const int nnz = tryParse<int>(iter->second.NNZ_).value_or(0);
         if (m < 5000 || n < 5000){
+            // printf("[bad file] : %s, M: %d, N: %d\n", iter->first.c_str(), m, n);
             iter = matrixFileToResultsInformationMap.erase(iter);
+            // ++iter;
         }
+        // const float bsmr_sddmm = iter->second.kToOneTimeData_.begin()->second.BSMR_.gflops();
+        // if (bsmr_sddmm < 1e-6) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // else if (iter->first.find("dataset_of_suiteSparse/mult_dcop_02") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // else if (iter->first.find("dataset_of_suiteSparse/gridgena") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // else if (iter->first.find("dataset_of_suiteSparse/freeFlyingRobot_16") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // else if (iter->first.find("dataset_of_suiteSparse/freeFlyingRobot_14") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // else if (iter->first.find("dataset_of_suiteSparse/mycielskian14") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // else if (iter->first.find("dataset_of_suiteSparse/hangGlider_4") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // else if (iter->first.find("dataset_of_suiteSparse/OPF_10000") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // else if (iter->first.find("dataset_of_suiteSparse/Oregon-1") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // else if (iter->first.find("dataset_of_suiteSparse/p05") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // else if (iter->first.find("dataset_of_suiteSparse/Oregon-2") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // else if (iter->first.find("dataset_of_suiteSparse/rajat22") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // else if (iter->first.find("dataset_of_suiteSparse/freeFlyingRobot_15") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // else if (iter->first.find("dataset_of_suiteSparse/rajat26") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // else if (iter->first.find("dataset_of_suiteSparse/hangGlider_3") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // else if (iter->first.find("dataset_of_suiteSparse/Dubcova1") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // else if (iter->first.find("dataset_of_suiteSparse/3D_28984_Tetra") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // else if (iter->first.find("dataset_of_suiteSparse/co9") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // else if (iter->first.find("dataset_of_suiteSparse/hangGlider_5") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // else if (iter->first.find("dataset_of_suiteSparse/ckt11752_tr_0") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // else if (iter->first.find("dataset_of_suiteSparse/ckt11752_dc_1") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // else if (iter->first.find("dataset_of_suiteSparse/mult_dcop_03") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // else if (iter->first.find("dataset_of_suiteSparse/pattern1") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // else if (iter->first.find("dataset_of_suiteSparse/shermanACb") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // else if (iter->first.find("dataset_of_suiteSparse/Reuters911") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // else if (iter->first.find("dataset_of_suiteSparse/3dtube") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // else if (iter->first.find("dataset_of_suiteSparse/vsp_sctap1-2b_and_seymourl/") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
         else{
             ++iter;
         }
@@ -953,6 +1293,51 @@ void analyzeDataset(
     printf("\n");
 }
 
+void analyzeParameters(
+    const std::unordered_map<std::string, ResultsInformation>& matrixFileToResultsInformationMap){
+    printSeparator("BSMR Parameter Analysis:");
+
+
+    std::unordered_map<float, int> alphaToNumResults;
+    std::unordered_map<float, int> deltaToNumResults;
+
+    for (const auto& iter : matrixFileToResultsInformationMap){
+        for (const auto& kToOneTimeData : iter.second.kToOneTimeData_){
+            const float alpha = kToOneTimeData.second.BSMR_.alpha();
+            const float delta = kToOneTimeData.second.BSMR_.delta();
+            if (alphaToNumResults.find(alpha) == alphaToNumResults.end()){
+                alphaToNumResults[alpha] = 0;
+            }
+            if (deltaToNumResults.find(delta) == deltaToNumResults.end()){
+                deltaToNumResults[delta] = 0;
+            }
+            ++alphaToNumResults[alpha];
+            ++deltaToNumResults[delta];
+        }
+    }
+
+    float modeAlpha = 0.0f;
+    int maxNumAlpha = 0;
+    float modeDelta = 0.0f;
+    int maxNumDelta = 0;
+    for (const auto& iter : alphaToNumResults){
+        if (iter.second > maxNumAlpha){
+            maxNumAlpha = iter.second;
+            modeAlpha = iter.first;
+        }
+    }
+    for (const auto& iter : deltaToNumResults){
+        if (iter.second > maxNumDelta){
+            maxNumDelta = iter.second;
+            modeDelta = iter.first;
+        }
+    }
+    printf("Mode alpha: %.2f, number of results: %d\n", modeAlpha, maxNumAlpha);
+    printf("Mode delta: %.2f, number of results: %d\n", modeDelta, maxNumDelta);
+
+    printf("\n");
+}
+
 int main(const int argc, const char* argv[]){
     // Read the results file
     SettingInformation settingInformation;
@@ -970,10 +1355,12 @@ int main(const int argc, const char* argv[]){
             if (matrixFile.empty()){
                 continue;
             }
-            if (matrixFileToResultsInformationMap.find(matrixFile) == matrixFileToResultsInformationMap.end()){
-                matrixFileToResultsInformationMap[matrixFile] = ResultsInformation();
+            const std::string fileName = getFileName(matrixFile);
+            const std::string key = fileName;
+            if (matrixFileToResultsInformationMap.find(key) == matrixFileToResultsInformationMap.end()){
+                matrixFileToResultsInformationMap[key] = ResultsInformation();
             }
-            if (!matrixFileToResultsInformationMap[matrixFile].initInformation(oneTimeResults)){
+            if (!matrixFileToResultsInformationMap[key].initInformation(oneTimeResults)){
                 return -1;
             }
         }
@@ -984,6 +1371,8 @@ int main(const int argc, const char* argv[]){
 
     calculateAccuracy(matrixFileToResultsInformationMap);
 
+    analyzeParameters(matrixFileToResultsInformationMap);
+
     evaluateSddmmWithCuSparse(matrixFileToResultsInformationMap);
 
     evaluateSddmmWithCuSDDMM(matrixFileToResultsInformationMap);
@@ -991,6 +1380,12 @@ int main(const int argc, const char* argv[]){
     evaluateSddmmWithASpT(matrixFileToResultsInformationMap);
 
     evaluateSddmmWithRoDe(matrixFileToResultsInformationMap);
+
+    evaluateSddmmWithFlashSparse(matrixFileToResultsInformationMap);
+
+    evaluateSddmmWithTCGNN(matrixFileToResultsInformationMap);
+
+    outputCSVFile(matrixFileToResultsInformationMap);
 
     // evaluateReorderingWithBSA(matrixFileToResultsInformationMap);
 
