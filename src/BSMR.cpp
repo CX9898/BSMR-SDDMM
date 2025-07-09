@@ -423,7 +423,7 @@ std::pair<float, UIN> RPHM::calculateDensityMode() const{
     return std::make_pair(modeDensity, maxNum);
 }
 
-bool check_rowReordering(const sparseMatrix::CSR<float>& matrix, const struct RPHM& rphm){
+bool check_rowReordering(const sparseMatrix::CSR<float>& matrix, const RPHM& rphm){
     std::vector<UIN> reorderedRows;
     d2h(reorderedRows, rphm.reorderedRows());
 
@@ -469,7 +469,7 @@ bool check_rowReordering(const sparseMatrix::CSR<float>& matrix, const struct RP
 
 bool check_colReordering(const sparseMatrix::CSR<float>& matrix,
                          const BSMR& bsmr,
-                         const struct RPHM& rphm,
+                         const RPHM& rphm,
                          const float blockDensityThreshold){
     std::vector<UIN> reorderedRows;
     std::vector<UIN> denseCols;
@@ -618,7 +618,7 @@ bool check_colReordering(const sparseMatrix::CSR<float>& matrix,
     return true;
 }
 
-bool check_rphm(const sparseMatrix::CSR<float>& matrix, const struct RPHM& rphm){
+bool check_rphm(const sparseMatrix::CSR<float>& matrix, const RPHM& rphm){
     std::vector<UIN> reorderedRows;
 
     // Dense block data
