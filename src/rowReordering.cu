@@ -352,7 +352,9 @@ static __global__ void bsa_clustering(const UIN* weighted_partitions,
     __syncthreads();
 
     mutex_unlock(&mutexes[start_idx]);
-    mutex_lock(&mutexes[start_idx + 1]);
+    if (start_idx + 1 < num_rows){ // if there is a next row
+        mutex_lock(&mutexes[start_idx + 1]);
+    }
     cluster_id_to_launch[0] = NULL_VALUE;
     start_idx_to_launch[0] = NULL_VALUE;
 
@@ -979,7 +981,7 @@ std::vector<UIN> get_permutation_gpu(const sparseMatrix::CSR<float>& mat,
             cudaDeviceSetLimit(cudaLimitDevRuntimePendingLaunchCount, limit);
         }
     }
-    while (cluster_id_to_launch[0] != -1);
+    while (cluster_id_to_launch[0] != NULL_VALUE);
 
     cluster_ids = d2h(cluster_ids_gpu);
 
@@ -1030,7 +1032,7 @@ std::vector<UIN> bsa_rowReordering_gpu(const sparseMatrix::CSR<float>& matrix,
     // printf("Start bsa_rowReordering_gpu. Number of rows: %u, block_size: %u\n", matrix.row(), block_size);
     std::vector<UIN> row_permutation;
     // int num_blocks_per_row = (lhs.cols + block_size - 1) / block_size;
-    int num_blocks_per_row = ceil((float)matrix.col() / (float)block_size);
+    const int num_blocks_per_row = ceil((float)matrix.col() / (float)block_size);
     // printf("num_blocks_per_row = %d\n", num_blocks_per_row);
 
     /*prepare resources -start*/
@@ -1047,17 +1049,19 @@ std::vector<UIN> bsa_rowReordering_gpu(const sparseMatrix::CSR<float>& matrix,
                         num_blocks_per_row,
                         block_size);
     timeCalculator.endClock();
-    float calculateDispersion_time = timeCalculator.getTime();
+    const float calculateDispersion_time = timeCalculator.getTime();
     // printf("calculateDispersion_time = %f ms\n", calculateDispersion_time);
 
     std::vector<UIN> Dispersions = d2h(Dispersions_gpu);
 
+    std::vector<UIN> DispersionsTmp = Dispersions;
+
     timeCalculator.startClock();
     std::vector<int> ascending(matrix.row());
     host::sequence(ascending.data(), ascending.data() + ascending.size(), 0);
-    host::sort_by_key(Dispersions.data(), Dispersions.data() + Dispersions.size(), ascending.data());
+    host::sort_by_key(DispersionsTmp.data(), DispersionsTmp.data() + DispersionsTmp.size(), ascending.data());
     timeCalculator.endClock();
-    float sort_ascending_time = timeCalculator.getTime();
+    const float sort_ascending_time = timeCalculator.getTime();
     // printf("sort_ascending_time = %f ms\n", sort_ascending_time);
 
     timeCalculator.startClock();
@@ -1071,7 +1075,7 @@ std::vector<UIN> bsa_rowReordering_gpu(const sparseMatrix::CSR<float>& matrix,
                                           num_clusters);
 
     timeCalculator.endClock();
-    float get_permutation_gpu_time = timeCalculator.getTime();
+    const float get_permutation_gpu_time = timeCalculator.getTime();
     // printf("get_permutation_gpu_time = %f ms\n", get_permutation_gpu_time);
 
     // Remove zero rows
