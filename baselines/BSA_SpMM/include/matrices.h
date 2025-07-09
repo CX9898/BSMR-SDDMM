@@ -42,7 +42,7 @@ public:
         fin.open(option.input_filename);
         if (format == mtx)
         {
-            read_from_mtx(fin, option, true);
+            read_from_mtx(fin, option, false);
         }
         else if (format == smtx)
         {

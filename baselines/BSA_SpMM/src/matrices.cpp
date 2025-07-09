@@ -29,9 +29,6 @@ void CSR::read_from_mtx(std::ifstream &fin, Option option, bool zero_base)
         else
             sin >> r >> c >> v;
 
-        r -= 1; // convert to zero-based index
-        c -= 1; // convert to zero-based index
-
         if (not zero_base)
         {
             r--;
