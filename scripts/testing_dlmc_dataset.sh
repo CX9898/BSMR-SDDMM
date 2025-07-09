@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # 设置变量
-results_path="../../dlmc/results_rn50/"
-dataset_path="../../dlmc/rn50/"
+results_path="./dlmc-dataset/results/"
+dataset_path="./dlmc-dataset/"
 
 k32_results_path="${results_path}k32/"
 k128_results_path="${results_path}k128/"
@@ -27,12 +27,6 @@ bash test_script.sh -f ${matrix_list_file} -p ${program_RoDe} -n "${k32_results_
 
 ALPHA=( 0.1 0.3 0.5 0.7 0.9 )
 DELTA=( 0.1 0.3 0.5 0.7 0.9 )
-
-for A in "${ALPHA[@]}"; do
-  for D in "${DELTA[@]}"; do
-    bash test_script.sh -f ${matrix_list_file} -p ${program_BSA} -n "${k32_results_path}BSA_32_a_${A}_d_${D}" -k 32 -a ${A} -d ${D}
-  done
-done
 
 for A in "${ALPHA[@]}"; do
   for D in "${DELTA[@]}"; do
