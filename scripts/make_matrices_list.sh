@@ -24,16 +24,21 @@ target_folder="${target_folder%/}"
 # 输出文件路径
 output_file_mtx="${target_folder}/matrix_file_list_mtx.txt"
 output_file_smtx="${target_folder}/matrix_file_list_smtx.txt"
+output_file_npz="${target_folder}/matrix_file_list_npz.txt"
 
 # 创建并清空输出文件
 > "$output_file_mtx"
 > "$output_file_smtx"
+> "$output_file_npz"
 
 # 处理 .mtx 文件
 find "$target_folder" -type f -name "*.mtx" | sed "s|^$target_folder/||" > "$output_file_mtx"
+echo ".mtx 文件路径已保存到 $output_file_mtx"
 
 # 处理 .smtx 文件
 find "$target_folder" -type f -name "*.smtx" | sed "s|^$target_folder/||" > "$output_file_smtx"
-
-echo ".mtx 文件路径已保存到 $output_file_mtx"
 echo ".smtx 文件路径已保存到 $output_file_smtx"
+
+# 处理 .npz 文件
+find "$target_folder" -type f -name "*.npz" | sed "s|^$target_folder/||" > "$output_file_npz"
+echo ".npz 文件路径已保存到 $output_file_npz"

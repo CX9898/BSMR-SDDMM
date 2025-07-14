@@ -1,13 +1,15 @@
 #!/bin/bash
 
-dataset_name="${1%/}/"
+dataset_path="${1%/}/"
+parent_path="$(dirname "$dataset_path")"
+dataset_name="$(basename "$dataset_path")"
 
-if [ -z "$dataset_name" ]; then
-  echo "${dataset_name} 不存在, 请提供原始数据集路径"
+if [ -z "$dataset_path" ]; then
+  echo "${dataset_path} 不存在, 请提供原始数据集路径"
   exit 1
 fi
 
-log_file="excluded_dataset/${dataset_name}/excluded_files.log"
+log_file="${parent_path}/excluded_dataset/${dataset_name}/excluded_files.log"
 
 if [ ! -f "$log_file" ]; then
   echo "找不到日志文件: $log_file"
