@@ -1360,7 +1360,8 @@ void evaluateReorderingWithBSA(
 void evaluateHybridSddmm(
     const std::unordered_map<std::string, ResultsInformation>& matrixFileToResultsInformationMap,
     const std::string& outputFilePath = "./"){
-    const std::string outputFileName = outputFilePath + "results_hybrid_sddmm.csv";
+    const int k = matrixFileToResultsInformationMap.begin()->second.oneTimeData_.BSMR_.K();
+    const std::string outputFileName = outputFilePath + "results_hybrid_" + std::to_string(k) + ".csv";
     std::ofstream outFile(outputFileName);
     if (!outFile.is_open()){
         std::cerr << "Error, output file cannot be opened : " << outputFileName << std::endl;
