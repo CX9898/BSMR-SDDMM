@@ -31,7 +31,6 @@ def main():
         "BSMR": "BSMR_gflops",
         "cuSDDMM": "cuSDDMM_gflops",
         "cusparse": "cuSparse_gflops",
-        "ASpT": "ASpT_gflops",
         "RoDe": "RoDe_gflops",
         "TCGNN": "TCGNN_gflops"
     }, inplace=True)
@@ -57,7 +56,7 @@ def main():
             continue
 
         numeric_cols = ["NNZ", "BSMR_gflops", "cuSDDMM_gflops", "cuSparse_gflops",
-                        "ASpT_gflops", "RoDe_gflops", "TCGNN_gflops"]
+                         "RoDe_gflops", "TCGNN_gflops"]
 
         # 滑动平均只对数值列
         avg_subset = subset[numeric_cols].rolling(window=window_size).mean().dropna().reset_index(drop=True)
@@ -68,7 +67,6 @@ def main():
         ax.plot(x, avg_subset["BSMR_gflops"], label="BSMR", alpha=0.7)
         ax.plot(x, avg_subset["cuSDDMM_gflops"], label="cuSDDMM", alpha=0.7)
         ax.plot(x, avg_subset["cuSparse_gflops"], label="cuSparse", alpha=0.7)
-        ax.plot(x, avg_subset["ASpT_gflops"], label="ASpT", alpha=0.7)
         ax.plot(x, avg_subset["RoDe_gflops"], label="RoDe", alpha=0.7)
         ax.plot(x, avg_subset["TCGNN_gflops"], label="TCGNN", alpha=0.7)
 
@@ -82,7 +80,7 @@ def main():
         plt.tight_layout()
 
         fig_path = output_dir / f"gflops_line_k{k}.png"
-        plt.savefig(fig_path, dpi=800)
+        plt.savefig(fig_path)
         plt.close()
 
         print(f"The line chart was generated successfully! The file is stored in: {fig_path}")
