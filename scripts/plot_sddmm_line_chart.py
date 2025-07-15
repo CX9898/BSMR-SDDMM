@@ -2,11 +2,9 @@ import argparse
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-import re
 from pathlib import Path
 from matplotlib.ticker import MaxNLocator
 import matplotlib
-from matplotlib.ticker import LogLocator
 
 # ✅ 设置全局样式（科研级别图表风格）
 matplotlib.rcParams.update({
@@ -21,43 +19,27 @@ matplotlib.rcParams.update({
 })
 
 
-def parse_markdown_data(file_path):
-    data = []
-    current_file = None
-    with open(file_path, 'r', encoding='utf-8') as f:
-        for line in f:
-            file_match = re.search(r'file\s*:\s*.*/(.+\.mtx)', line)
-            if file_match:
-                current_file = file_match.group(1).strip()
-            elif line.strip().startswith("|") and not line.strip().startswith("| M ") and current_file:
-                parts = [x.strip().replace('%', '') for x in line.strip().split("|")[1:-1]]
-                if len(parts) >= 9:
-                    try:
-                        row = {
-                            "file": current_file,
-                            "NNZ": int(parts[2]),
-                            "K": int(parts[4]),
-                            "bsmr_gflops": float(parts[5]) if parts[5] else None,
-                            "cuSDDMM_gflops": float(parts[6]) if parts[6] else None,
-                            "cuSparse_gflops": float(parts[7]) if parts[7] else None,
-                            "ASpT_gflops": float(parts[8]) if parts[8] else None
-                        }
-                        data.append(row)
-                    except ValueError:
-                        continue
-    return pd.DataFrame(data)
-
-
 def main():
     parser = argparse.ArgumentParser(description="测试结果可视化（折线图）")
-    parser.add_argument('-file', type=str, required=True, help="输入的 Markdown 结果文件路径")
-    parser.add_argument('-outdir', type=str, default='.', help="图表输出目录（默认当前目录）")
+    parser.add_argument('--file', type=str, required=True, help="输入的 CSV 结果文件路径")
+    parser.add_argument('--outdir', type=str, default='.', help="图表输出目录（默认当前目录）")
     args = parser.parse_args()
 
-    df = parse_markdown_data(args.file)
+    df = pd.read_csv(args.file)
+    df.rename(columns={
+        "Matrix File": "file",
+        "BSMR": "BSMR_gflops",
+        "cuSDDMM": "cuSDDMM_gflops",
+        "cusparse": "cuSparse_gflops",
+        "ASpT": "ASpT_gflops",
+        "RoDe": "RoDe_gflops",
+        "TCGNN": "TCGNN_gflops"
+    }, inplace=True)
+
+    # 过滤和清洗数据
     df = df.sort_values(by="NNZ").reset_index(drop=True)
-    df = df[(df["NNZ"] >= 1000) & (df["NNZ"] <= 20000)]
-    df = df.dropna(subset=["K", "bsmr_gflops"])
+    df = df[(df["NNZ"] >= 10000) & (df["NNZ"] <= 2000000)]
+    df = df.dropna(subset=["K", "BSMR_gflops"])
     df = df.drop_duplicates(subset=["file", "K"])
 
     output_dir = Path(args.outdir)
@@ -67,31 +49,43 @@ def main():
 
     for k in unique_K:
         subset = df[df["K"] == k].copy().reset_index(drop=True)
-        subset = subset.iloc[::3].copy().reset_index(drop=True)  # 子采样
+        subset = subset.sort_values(by="NNZ").reset_index(drop=True)
 
-        x = subset["NNZ"].values
+        window_size = 5
+        if len(subset) < window_size:
+            print(f"Skipping K={k} due to insufficient data points (<{window_size})")
+            continue
+
+        numeric_cols = ["NNZ", "BSMR_gflops", "cuSDDMM_gflops", "cuSparse_gflops",
+                        "ASpT_gflops", "RoDe_gflops", "TCGNN_gflops"]
+
+        # 滑动平均只对数值列
+        avg_subset = subset[numeric_cols].rolling(window=window_size).mean().dropna().reset_index(drop=True)
+
+        x = avg_subset["NNZ"].values
 
         fig, ax = plt.subplots()
-        ax.plot(x, subset["cuSDDMM_gflops"], marker='s', label="cuSDDMM", alpha=0.7)
-        ax.plot(x, subset["cuSparse_gflops"], marker='o', label="cuSparse", alpha=0.7)
-        ax.plot(x, subset["bsmr_gflops"], marker='^', label="BSMR", alpha=0.7)
-        ax.plot(x, subset["ASpT_gflops"], marker='d', label="ASpT", alpha=0.7)
+        ax.plot(x, avg_subset["BSMR_gflops"], label="BSMR", alpha=0.7)
+        ax.plot(x, avg_subset["cuSDDMM_gflops"], label="cuSDDMM", alpha=0.7)
+        ax.plot(x, avg_subset["cuSparse_gflops"], label="cuSparse", alpha=0.7)
+        ax.plot(x, avg_subset["ASpT_gflops"], label="ASpT", alpha=0.7)
+        ax.plot(x, avg_subset["RoDe_gflops"], label="RoDe", alpha=0.7)
+        ax.plot(x, avg_subset["TCGNN_gflops"], label="TCGNN", alpha=0.7)
 
-        ax.set_title(f"K={k}")
+        ax.set_title(f"K = {k}")
         ax.set_ylabel("GFLOPS")
         ax.set_xlabel("NNZ")
-
-        ax.set_xscale('linear')  # 可切换为 log
+        ax.set_xscale('linear')
         ax.xaxis.set_major_locator(MaxNLocator(nbins=10))
-        ax.set_ylim(0, 150)  # Y轴范围（可选）
+        ax.set_ylim(bottom=0)
         ax.legend()
         plt.tight_layout()
 
         fig_path = output_dir / f"gflops_line_k{k}.png"
-        plt.savefig(fig_path, dpi=600)
+        plt.savefig(fig_path, dpi=800)
         plt.close()
 
-        print(f"The line chart was generated successfully! The file is stored in:{fig_path}")
+        print(f"The line chart was generated successfully! The file is stored in: {fig_path}")
 
 
 if __name__ == "__main__":

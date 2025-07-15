@@ -11,6 +11,7 @@
 #include <utility>
 #include <limits>
 #include <optional>
+#include <tuple>
 
 const std::string dataSplitSymbol("---New data---");
 
@@ -231,6 +232,9 @@ public:
         float rowReordering = 0.0f;
         float colReordering = 0.0f;
         std::string checkResults;
+        float averageDensity = 0.0f;
+        int original_numDenseBlock = 0;
+        float original_averageDensity = 0.0f;
         for (const std::string& line : oneTimeInformation){
             gflops = std::max(gflops,
                               tryParse<float>(getValue(line, "[" + nameToken_ + "_gflops : ")).value_or(0.0f));
@@ -248,19 +252,46 @@ public:
             colReordering = std::max(colReordering,
                                      tryParse<float>(getValue(line, "[" + nameToken_ + "_colReordering : ")).value_or(
                                          0.0f));
+            averageDensity = std::max(
+                averageDensity,
+                tryParse<float>(getValue(line, "[" + nameToken_ + "_averageDensity : ")).value_or(0.0f));
+            original_numDenseBlock = std::max(
+                original_numDenseBlock,
+                tryParse<int>(getValue(line, "[original_numDenseBlock : ")).value_or(0));
+            original_averageDensity = std::max(
+                original_averageDensity,
+                tryParse<float>(getValue(line, "[original_averageDensity : ")).value_or(0.0f));
             if (checkResults.empty()){ checkResults = getValue(line, "[" + nameToken_ + "_checkResults : "); }
         }
-        if (gflops < gflops_){
-            return;
+        if (gflops > gflops_){
+            gflops_ = gflops;
+            alpha_ = alpha;
+            delta_ = delta;
+            numDenseBlock_ = numDenseBlock;
+            reordering_ = reordering;
+            rowReordering_ = rowReordering;
+            colReordering_ = colReordering;
+            checkResults_ = checkResults;
         }
-        gflops_ = gflops;
-        alpha_ = alpha;
-        delta_ = delta;
-        numDenseBlock_ = numDenseBlock;
-        reordering_ = reordering;
-        rowReordering_ = rowReordering;
-        colReordering_ = colReordering;
-        checkResults_ = checkResults;
+
+        const auto tuple = std::make_tuple(gflops, numDenseBlock, averageDensity, original_numDenseBlock,
+                                           original_averageDensity);
+        if (alpha_to_delta_to_tuple_.find(alpha) == alpha_to_delta_to_tuple_.end()){
+            std::unordered_map<float, std::tuple<float, int, float, int, float>> delta_to_tuple;
+            delta_to_tuple[delta] = tuple;
+            alpha_to_delta_to_tuple_[alpha] = std::move(delta_to_tuple);
+        }
+        else{
+            auto& delta_to_tuple = alpha_to_delta_to_tuple_[alpha];
+            if (delta_to_tuple.find(delta) == delta_to_tuple.end()){
+                delta_to_tuple[delta] = tuple;
+            }
+            else{
+                // if the tuple is already exist, then update the tuple
+                auto& existingTuple = delta_to_tuple[delta];
+                existingTuple = std::max(existingTuple, tuple);
+            }
+        }
     }
 
     float gflops() const{ return gflops_; }
@@ -272,6 +303,11 @@ public:
     float alpha() const{ return alpha_; }
     float delta() const{ return delta_; }
 
+    const std::unordered_map<float, std::unordered_map<float, std::tuple<float, int, float, int, float>>>&
+    alphaToDeltaToTuple() const{
+        return alpha_to_delta_to_tuple_;
+    }
+
 private:
     std::string nameToken_;
     float gflops_ = 0.0f;
@@ -282,6 +318,10 @@ private:
     float alpha_ = 0.0f;
     float delta_ = 0.0f;
     std::string checkResults_;
+
+    // alpha -> delta -> (gflops, numDenseBlock, averageDensity, original_numDenseBlock, original_averageDensity)
+    std::unordered_map<float, std::unordered_map<float, std::tuple<float, int, float, int, float>>>
+    alpha_to_delta_to_tuple_;
 };
 
 struct OneTimeData{
@@ -1267,29 +1307,87 @@ void evaluateReorderingOverhead(
 
 void evaluateReorderingWithBSA(
     const std::unordered_map<std::string, ResultsInformation>& matrixFileToResultsInformationMap){
-    int sumZCX = 0;
-    int sumBSA = 0;
+    std::unordered_map<float, std::unordered_map<float, uint32_t>> alpha_to_delta_to_BSMR_numDenseBlock;
+    std::unordered_map<float, std::unordered_map<float, uint32_t>> alpha_to_delta_to_BSA_numDenseBlock;
+    std::unordered_map<float, std::unordered_map<float, uint32_t>> alpha_to_delta_to_original_numDenseBlock;
 
+    std::unordered_map<float, std::unordered_map<float, float>> alpha_to_delta_to_BSMR_averageDensity;
+    std::unordered_map<float, std::unordered_map<float, float>> alpha_to_delta_to_BSA_averageDensity;
+    std::unordered_map<float, std::unordered_map<float, float>> alpha_to_delta_to_original_averageDensity;
+
+    int numResults = 0;
     for (const auto& iter : matrixFileToResultsInformationMap){
         for (const auto& kToOneTimeData : iter.second.kToOneTimeData_){
-            // if (kToOneTimeData.second.bsmr_numDenseBlock_.empty() || kToOneTimeData.second.BSA_numDenseBlock_.empty()) {
-            //     continue;
-            // }
+            for (const auto& pair : kToOneTimeData.second.BSMR_.alphaToDeltaToTuple()){
+                const float alpha = pair.first;
+                for (const auto& deltaToTuple : pair.second){
+                    const float delta = deltaToTuple.first;
 
-            const int bsmr_numDenseBlock = kToOneTimeData.second.BSMR_.numDenseBlock();
-            const int bsa_numDenseBlock = kToOneTimeData.second.BSA_.numDenseBlock();
+                    const float BSMR_gflops = std::get<0>(deltaToTuple.second);
+                    if (BSMR_gflops <= 1e-6){
+                        continue; // skip if the result is not valid
+                    }
 
-            sumZCX += bsmr_numDenseBlock;
-            sumBSA += bsa_numDenseBlock;
+                    ++numResults;
+                    const int BSMR_numDenseBlock = std::get<1>(deltaToTuple.second);
+                    const float BSMR_averageDensity = std::get<2>(deltaToTuple.second);
+                    const int original_numDenseBlock = std::get<3>(deltaToTuple.second);
+                    const float original_averageDensity = std::get<4>(deltaToTuple.second);
+
+                    alpha_to_delta_to_BSMR_averageDensity[alpha][delta] += BSMR_averageDensity;
+                    alpha_to_delta_to_BSMR_numDenseBlock[alpha][delta] += BSMR_numDenseBlock;
+
+                    alpha_to_delta_to_original_numDenseBlock[alpha][delta] += original_numDenseBlock;
+                    alpha_to_delta_to_original_averageDensity[alpha][delta] += original_averageDensity;
+
+                    int BSA_numDenseBlock = 0;
+                    float BSA_averageDensity = 0.0f;
+                    try{
+                        BSA_numDenseBlock = std::get<1>(kToOneTimeData.second.BSA_.alphaToDeltaToTuple()
+                                                                      .at(alpha)
+                                                                      .at(delta));
+                        BSA_averageDensity = std::get<2>(kToOneTimeData.second.BSA_.alphaToDeltaToTuple()
+                                                                       .at(alpha)
+                                                                       .at(delta));
+                    }
+                    catch (...){
+                        continue;
+                    }
+                    alpha_to_delta_to_BSA_numDenseBlock[alpha][delta] += BSA_numDenseBlock;
+                    alpha_to_delta_to_BSA_averageDensity[alpha][delta] += BSA_averageDensity;
+                }
+            }
         }
     }
 
-    const float relativeIncreasePercent = static_cast<float>(sumZCX - sumBSA) / sumBSA * 100.0f;
-
     printSeparator("Evaluate Reordering With BSA:");
 
-    printf("Percent increase in the number of dense blocks generated relative to BSA: %.2f%%\n",
-           relativeIncreasePercent);
+    for (const auto& alphaToDelta : alpha_to_delta_to_BSMR_numDenseBlock){
+        const float alpha = alphaToDelta.first;
+        for (const auto& deltaToNumDenseBlock : alphaToDelta.second){
+            const float delta = deltaToNumDenseBlock.first;
+
+            const uint32_t BSMR_numDenseBlock = alpha_to_delta_to_BSMR_numDenseBlock[alpha][delta];
+            const uint32_t BSA_numDenseBlock = alpha_to_delta_to_BSA_numDenseBlock[alpha][delta];
+            const uint32_t original_numDenseBlock = alpha_to_delta_to_original_numDenseBlock[alpha][delta];
+
+            const float BSMR_averageDensity =
+                alpha_to_delta_to_BSMR_averageDensity[alpha][delta] / numResults;
+            const float BSA_averageDensity =
+                alpha_to_delta_to_BSA_averageDensity[alpha][delta] / numResults;
+            const float original_averageDensity =
+                alpha_to_delta_to_original_averageDensity[alpha][delta] / numResults;
+
+            printf("Alpha: %.2f, Delta: %.2f, BSMR num dense blocks: %d, BSA num dense blocks: %d, "
+                   "original num dense blocks: %d\n",
+                   alpha, delta, BSMR_numDenseBlock, BSA_numDenseBlock, original_numDenseBlock);
+            printf("BSMR average density: %.2f, BSA average density: %.2f, original average density: %.2f\n",
+                   BSMR_averageDensity, BSA_averageDensity, original_averageDensity);
+        }
+    }
+
+    // printf("Percent increase in the number of dense blocks generated relative to BSA: %.2f%%\n",
+    //        relativeIncreasePercent);
 
     // printReorderingEffectiveness(matrixFileToResultsInformationMap);
 
@@ -1430,7 +1528,7 @@ int main(const int argc, const char* argv[]){
 
     outputCSVFile(resultsPath, matrixFileToResultsInformationMap);
 
-    // evaluateReorderingWithBSA(matrixFileToResultsInformationMap);
+    evaluateReorderingWithBSA(matrixFileToResultsInformationMap);
 
     // evaluateReorderingOverhead(matrixFileToResultsInformationMap);
 
