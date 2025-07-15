@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 设置变量
-results_path="./dlmc-dataset/results/"
+results_path="./results_dlmc_dataset/"
 dataset_path="./dlmc-dataset/"
 
 k32_results_path="${results_path}k32/"
@@ -37,7 +37,6 @@ done
 g++ analyze_results.cpp -o analyze_results
 
 log_files_k32=$(find "${k32_results_path}" -type f -name "*.log")
-log_files_k128=$(find "${k128_results_path}" -type f -name "*.log")
 
 ./analyze_results ${log_files_k32} > ${results_path}analysis_results_k32.log
 echo "Analysis for k=32 results saved to ${results_path}analysis_results_k32.log"
@@ -51,6 +50,8 @@ for A in "${ALPHA[@]}"; do
     bash test_script.sh -f ${matrix_list_file} -p ${program_BSMR} -n "${k128_results_path}BSMR_128_a_${A}_d_${D}" -k 128 -a ${A} -d ${D}
   done
 done
+
+log_files_k128=$(find "${k128_results_path}" -type f -name "*.log")
 
 ./analyze_results ${log_files_k128} > ${results_path}analysis_results_k128.log
 echo "Analysis for k=128 results saved to ${results_path}analysis_results_k128.log"

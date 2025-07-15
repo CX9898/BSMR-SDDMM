@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cmath>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -221,7 +222,7 @@ public:
     BaseLine(const std::string& nameToken): nameToken_(nameToken){
     }
 
-    void parseLine(const std::vector<std::string>& oneTimeInformation){
+    void parse(const std::vector<std::string>& oneTimeInformation){
         float gflops = 0.0f;
         float alpha = 0.0f;
         float delta = 0.0f;
@@ -297,14 +298,14 @@ struct OneTimeData{
 };
 
 void OneTimeData::update(const std::vector<std::string>& oneTimeResults){
-    BSMR_.parseLine(oneTimeResults);
-    cuSDDMM_.parseLine(oneTimeResults);
-    cuSparse_.parseLine(oneTimeResults);
-    ASpT_.parseLine(oneTimeResults);
-    RoDe_.parseLine(oneTimeResults);
-    BSA_.parseLine(oneTimeResults);
-    FlashSparse_.parseLine(oneTimeResults);
-    TCGNN_.parseLine(oneTimeResults);
+    BSMR_.parse(oneTimeResults);
+    cuSDDMM_.parse(oneTimeResults);
+    cuSparse_.parse(oneTimeResults);
+    ASpT_.parse(oneTimeResults);
+    RoDe_.parse(oneTimeResults);
+    BSA_.parse(oneTimeResults);
+    FlashSparse_.parse(oneTimeResults);
+    TCGNN_.parse(oneTimeResults);
 }
 
 struct ResultsInformation{
@@ -365,11 +366,22 @@ std::string getFileName(const std::string& path){
     if (path.empty()) return "";
 
     const size_t pos = path.find_last_of("/\\");
-    if (pos == std::string::npos){
-        std::cerr << "Warning. The input path has no parent folder" << std::endl;
-    }
+    // if (pos == std::string::npos){
+    //     std::cerr << "Warning. The input path has no parent folder" << std::endl;
+    // }
     const std::string filename = (pos == std::string::npos) ? path : path.substr(pos + 1);
     return filename;
+}
+
+std::string getParentFolderPath(const std::string& path){
+    if (path.empty()) return "";
+
+    const size_t pos = path.find_last_of("/\\");
+    // if (pos == std::string::npos){
+    //     std::cerr << "Warning. The input path has no parent folder" << std::endl;
+    // }
+    const std::string directory = (pos == std::string::npos) ? "" : path.substr(0, pos + 1);
+    return directory;
 }
 
 void ResultsInformation::printInformation() const{
@@ -567,8 +579,6 @@ void evaluateSddmmWithCuSDDMM(
             const float cuSDDMM_gflops = kToOneTimeData.second.cuSDDMM_.gflops();
 
             if (bsmr_gflops <= 1e-6 || cuSDDMM_gflops <= 1e-6){
-                printf("file: %s, K: %d, bsmr_gflops: %.2f, cuSDDMM_gflops: %.2f\n",
-                       iter.first.c_str(), kToOneTimeData.first, bsmr_gflops, cuSDDMM_gflops);
                 continue;
             }
 
@@ -600,7 +610,7 @@ void evaluateSddmmWithCuSDDMM(
 
     float averageSpeedup = sumSpeedup / numResults;
 
-    printSeparator("Evaluate sddmm With cuSDDMM:");
+    printSeparator("Evaluate BSMR With cuSDDMM:");
     printf("Number of results: %d\n", numResults);
     printf("Average speedup over cuSDDMM: %.2fx, maximum speedup: %.2fx\n", averageSpeedup, maxSpeedup);
 
@@ -665,7 +675,7 @@ void evaluateSddmmWithCuSparse(
 
     float averageSpeedup = sumSpeedup / numResults;
 
-    printSeparator("Evaluate sddmm With cuSparse:");
+    printSeparator("Evaluate BSMR With cuSparse:");
     printf("Number of results: %d\n", numResults);
     printf("Average speedup over cuSparse: %.2fx, maximum speedup: %.2fx\n", averageSpeedup, maxSpeedup);
 
@@ -731,7 +741,7 @@ void evaluateSddmmWithASpT(
 
     float averageSpeedup = sumSpeedup / numResults;
 
-    printSeparator("Evaluate sddmm With ASpT:");
+    printSeparator("Evaluate BSMR With ASpT:");
     printf("Number of results: %d\n", numResults);
     printf("Average speedup over ASpT: %.2fx, maximum speedup: %.2fx\n", averageSpeedup, maxSpeedup);
 
@@ -796,7 +806,7 @@ void evaluateSddmmWithRoDe(
 
     float averageSpeedup = sumSpeedup / numResults;
 
-    printSeparator("Evaluate sddmm With RoDe:");
+    printSeparator("Evaluate BSMR With RoDe:");
     printf("Number of results: %d\n", numResults);
     printf("Average speedup over RoDe: %.2fx, maximum speedup: %.2fx\n", averageSpeedup, maxSpeedup);
 
@@ -860,7 +870,7 @@ void evaluateSddmmWithFlashSparse(
 
     float averageSpeedup = sumSpeedup / numResults;
 
-    printSeparator("Evaluate sddmm With FlashSparse:");
+    printSeparator("Evaluate BSMR With FlashSparse:");
     printf("Number of results: %d\n", numResults);
     printf("Average speedup over FlashSparse: %.2fx, maximum speedup: %.2fx\n", averageSpeedup, maxSpeedup);
 
@@ -900,6 +910,21 @@ void evaluateSddmmWithTCGNN(
             maxSpeedup = std::max(speedup, maxSpeedup);
             sumSpeedup += speedup;
             ++numResults;
+            //
+            //
+            // const int m = tryParse<int>(iter.second.M_).value_or(0);
+            // const int n = tryParse<int>(iter.second.N_).value_or(0);
+            // const int nnz = tryParse<int>(iter.second.NNZ_).value_or(0);
+            // const float sparsity = tryParse<float>(iter.second.sparsity_).value_or(0.0f);
+            // if (speedup > 30000){
+            //     printf("file: %s, M: %d, N: %d, nnz: %d, sparsity: %f, speedup is too large: %.2f, bsmr_sddmm: %.2f, TCGNN_sddmm: %.2f\n",
+            //            iter.first.c_str(), m, n, nnz, sparsity, speedup, bsmr_sddmm, TCGNN_sddmm);
+            // }
+            //
+            // if ( m != n){
+            //     printf("file: %s, M: %d, N: %d, speedup is too large: %.2f, bsmr_sddmm: %.2f, TCGNN_sddmm: %.2f\n",
+            //            iter.first.c_str(), m, n, speedup, bsmr_sddmm, TCGNN_sddmm);
+            // }
 
             if (speedup <= 0.5){
                 ++numSpeedups[0];
@@ -924,7 +949,7 @@ void evaluateSddmmWithTCGNN(
 
     float averageSpeedup = sumSpeedup / numResults;
 
-    printSeparator("Evaluate sddmm With TCGNN:");
+    printSeparator("Evaluate BSMR With TCGNN:");
     printf("Number of results: %d\n", numResults);
     printf("Average speedup over TCGNN: %.2fx, maximum speedup: %.2fx\n", averageSpeedup, maxSpeedup);
 
@@ -942,17 +967,17 @@ void evaluateSddmmWithTCGNN(
     printf("\n");
 }
 
-void outputCSVFile(
-    const std::unordered_map<std::string, ResultsInformation>& matrixFileToResultsInformationMap){
+void outputCSVFile(const std::string& outputFilePath,
+                   const std::unordered_map<std::string, ResultsInformation>& matrixFileToResultsInformationMap){
     const int k = matrixFileToResultsInformationMap.begin()->second.kToOneTimeData_.begin()->first;
-    const std::string outputFileName = "results_" + std::to_string(k) + ".csv";
+    const std::string outputFileName = outputFilePath + "results_" + std::to_string(k) + ".csv";
     std::ofstream outFile(outputFileName);
     if (!outFile.is_open()){
         std::cerr << "Error, output file cannot be opened : " << outputFileName << std::endl;
         return;
     }
 
-    outFile << "Matrix File,M,N,NNZ,Sparsity,K,BSMR,cuSDDMM,cusparse,ASpT,RoDe,FlashSparse,TCGNN\n";
+    outFile << "Matrix File,M,N,NNZ,Sparsity,K,BSMR,cuSDDMM,cusparse,ASpT,RoDe,TCGNN\n";
 
     for (const auto& iter : matrixFileToResultsInformationMap){
         const ResultsInformation& resultsInformation = iter.second;
@@ -972,8 +997,8 @@ void outputCSVFile(
             outFile << oneTimeData.cuSparse_.gflops() << ","; // cusparse
             outFile << oneTimeData.ASpT_.gflops() << ","; // ASpT
             outFile << oneTimeData.RoDe_.gflops() << ","; // RoDe
-            outFile << oneTimeData.FlashSparse_.gflops() << ","; // FlashSparse
             outFile << oneTimeData.TCGNN_.gflops(); // TCGNN
+            // outFile << oneTimeData.FlashSparse_.gflops() << ","; // FlashSparse
             outFile << "\n";
         }
     }
@@ -986,13 +1011,33 @@ void eliminateInvalidData(std::unordered_map<std::string, ResultsInformation>& m
         const int m = tryParse<int>(iter->second.M_).value_or(0);
         const int n = tryParse<int>(iter->second.N_).value_or(0);
         const int nnz = tryParse<int>(iter->second.NNZ_).value_or(0);
-        if (m < 5000 || n < 5000){
+        if (m <= 0 || n <= 0){
             // printf("[bad file] : %s, M: %d, N: %d\n", iter->first.c_str(), m, n);
             iter = matrixFileToResultsInformationMap.erase(iter);
             // ++iter;
         }
         // const float bsmr_sddmm = iter->second.kToOneTimeData_.begin()->second.BSMR_.gflops();
-        // if (bsmr_sddmm < 1e-6) {
+        // if (iter->first.find("case39") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // if (iter->first.find("TSOPF_FS") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // if (iter->first.find("case39_A_09") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // if (iter->first.find("case39_A_07") != std::string::npos) {
+        //     //            printf("[bad file] : %s\n", iter->first.c_str());
+        //     iter = matrixFileToResultsInformationMap.erase(iter);
+        //     // ++iter;
+        // }
+        // if (iter->first.find("case39") != std::string::npos) {
         //     //            printf("[bad file] : %s\n", iter->first.c_str());
         //     iter = matrixFileToResultsInformationMap.erase(iter);
         //     // ++iter;
@@ -1246,7 +1291,7 @@ void evaluateReorderingWithBSA(
     printf("Percent increase in the number of dense blocks generated relative to BSA: %.2f%%\n",
            relativeIncreasePercent);
 
-    printReorderingEffectiveness(matrixFileToResultsInformationMap);
+    // printReorderingEffectiveness(matrixFileToResultsInformationMap);
 
     printf("\n");
 }
@@ -1256,10 +1301,6 @@ void analyzeDataset(
     printSeparator("Dataset Analysis:");
 
     printf("Number of matrix files: %d\n", static_cast<int>(matrixFileToResultsInformationMap.size()));
-
-    // Print the results Analysis information
-    const int numResults = getNumResults(matrixFileToResultsInformationMap);
-    printf("Number of data: %d\n", numResults);
 
     float maxSparsity = 0.0f;
     float minSparsity = 100.0f;
@@ -1340,9 +1381,11 @@ void analyzeParameters(
 
 int main(const int argc, const char* argv[]){
     // Read the results file
+    std::string resultsPath = "results/";
     SettingInformation settingInformation;
     std::unordered_map<std::string, ResultsInformation> matrixFileToResultsInformationMap;
     for (int fileIdx = 1; fileIdx < argc; ++fileIdx){
+        resultsPath = getParentFolderPath(argv[fileIdx]);
         const std::string resultsFile = argv[fileIdx];
 
         const std::vector<std::vector<std::string>> allData = readResultsFile(resultsFile);
@@ -1385,7 +1428,7 @@ int main(const int argc, const char* argv[]){
 
     evaluateSddmmWithTCGNN(matrixFileToResultsInformationMap);
 
-    outputCSVFile(matrixFileToResultsInformationMap);
+    outputCSVFile(resultsPath, matrixFileToResultsInformationMap);
 
     // evaluateReorderingWithBSA(matrixFileToResultsInformationMap);
 
