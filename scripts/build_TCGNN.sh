@@ -15,10 +15,12 @@ conda activate TCGNN
 # 安装 PyTorch + CUDA
 conda install pytorch=2.5.1 torchvision=0.20.1 torchaudio=2.5.1 pytorch-cuda=12.4 -c pytorch -c nvidia -y
 
+conda install scipy -y
+
 # 可选：安装 ninja 加快编译速度
 conda install ninja -y
 
 # 安装 TCGNN 模块（推荐方式）
 cd ../baselines/TCGNN_kernel
-rm -rf build/
 pip install .
+rm -rf build/ *.egg-info
