@@ -18,3 +18,6 @@ analyze_results
 
 # Download the dataset for testing
 **/*dataset*/
+
+# Python cache files
+**/*.egg-info/
