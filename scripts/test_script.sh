@@ -84,7 +84,7 @@ testTool(){
 
     echo -e ${data_split_symbol} >> ${autoTest_autoTestlog_file}
 
-    echo -e "${print_tag}\t\"${autoTest_program} -f ${file} -k ${k} -a ${similarityThresholdAlpha} -d ${blockDensityThresholdDelta}\" start testing... [Remaining: $((${numTestFiles} - ${file_id}))]"
+    echo -e "${print_tag}\"${autoTest_program} -f ${file} -k ${k} -a ${similarityThresholdAlpha} -d ${blockDensityThresholdDelta}\" start testing... [Remaining: $((${numTestFiles} - ${file_id}))]"
 
     local execution_time=0
 
@@ -93,7 +93,7 @@ testTool(){
     local end_time=$(date +%s.%N)
 
     execution_time=$(echo "$end_time - $start_time" | bc)
-    echo -e "${print_tag}\t\tExecution time: ${execution_time} seconds"
+    echo -e "${print_tag}\tExecution time: ${execution_time} seconds"
     sum_time=$(echo "$sum_time + $execution_time" | bc)
 
     ((file_id++))
@@ -154,7 +154,7 @@ if [ -f "$test_file_list_file" ]; then
 
     # 遍历数组, 将绝对路径添加到文件名
     for i in "${!test_file_list[@]}"; do
-        test_file_list[$i]="${script_file_path}${matrixPath}${test_file_list[$i]}"
+        test_file_list[$i]="${matrixPath}${test_file_list[$i]}"
     done
 else
     echo "Error: 文件 $test_file_list_file 不存在!请提供有效的列表文件."
