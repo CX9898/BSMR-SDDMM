@@ -1,9 +1,9 @@
 #!/bin/bash
 
 dataset_path="${1%/}/"
-parent_path="$(dirname "$dataset_path")"
+parent_path_name="$(dirname "$dataset_path")"
 dataset_name="$(basename "$dataset_path")"
-excluded_dataset_path="${parent_path}/excluded_dataset/${dataset_name}/"
+excluded_dataset_path="${parent_path_name}/excluded_dataset/${dataset_name}/"
 echo "正在处理数据集路径: $dataset_path"
 echo "排除无效数据集的路径: $excluded_dataset_path"
 
@@ -12,7 +12,7 @@ mkdir -p "${excluded_dataset_path}"
 log_file="${excluded_dataset_path}excluded_files.log"
 
 bash make_matrices_list.sh "${dataset_path}"
-list_file="${dataset_path}/matrix_file_list.txt"
+list_file="${dataset_path}matrix_file_list_mtx.txt"
 
 if [ ! -f "$list_file" ]; then
   echo "找不到文件: $list_file"

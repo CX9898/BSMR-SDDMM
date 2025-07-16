@@ -976,7 +976,7 @@ void outputCSVFile(
         return;
     }
 
-    outFile << "Matrix File,M,N,NNZ,Sparsity,K,BSMR,cuSDDMM,cusparse,RoDe,TCGNN\n";
+    outFile << "Matrix File,M,N,NNZ,Sparsity,K,BSMR,cuSDDMM,cusparse,RoDe,TCGNN,FlashSparse\n";
 
     for (const auto& iter : matrixFileToResultsInformationMap){
         const ResultsInformation& resultsInformation = iter.second;
@@ -988,13 +988,13 @@ void outputCSVFile(
         outFile << resultsInformation.N_ << ","; // N
         outFile << resultsInformation.NNZ_ << ","; // NNZ
         outFile << resultsInformation.sparsity_ << ","; // Sparsity
-        outFile << k << ","; // K
-        outFile << oneTimeData.BSMR_.gflops() << ","; // BSMR cuSDDMM
-        outFile << oneTimeData.cuSDDMM_.gflops() << ","; // cuSDDMM
-        outFile << oneTimeData.cuSparse_.gflops() << ","; // cusparse
-        outFile << oneTimeData.RoDe_.gflops() << ","; // RoDe
-        outFile << oneTimeData.TCGNN_.gflops(); // TCGNN
-        // outFile << oneTimeData.FlashSparse_.gflops() << ","; // FlashSparse
+        outFile << k; // K
+        outFile << "," << oneTimeData.BSMR_.gflops(); // BSMR cuSDDMM
+        outFile << "," << oneTimeData.cuSDDMM_.gflops(); // cuSDDMM
+        outFile << "," << oneTimeData.cuSparse_.gflops(); // cusparse
+        outFile << "," << oneTimeData.RoDe_.gflops(); // RoDe
+        outFile << "," << oneTimeData.TCGNN_.gflops(); // TCGNN
+        outFile << "," << oneTimeData.FlashSparse_.gflops(); // FlashSparse
         outFile << "\n";
     }
 
@@ -1342,8 +1342,13 @@ void evaluateReorderingWithBSA(
             const float original_averageDensity =
                 alpha_to_delta_to_original_averageDensity[alpha][delta] / alpha_to_delta_to_numResults[alpha][delta];
 
-            printf("Alpha: %.2f, Delta: %.2f, BSMR num dense blocks: %d, BSA num dense blocks: %d, "
-                   "original num dense blocks: %d, BSMR average density: %.2f, BSA average density: %.2f, original average density: %.2f\n",
+            printf("Alpha: %.2f, Delta: %.2f, "
+                   "BSMR average num dense blocks: %d, "
+                   "BSA average num dense blocks: %d, "
+                   "original average num dense blocks: %d, "
+                   "BSMR average density: %.2f, "
+                   "BSA average density: %.2f, "
+                   "original average density: %.2f\n",
                    alpha, delta, BSMR_numDenseBlock, BSA_numDenseBlock, original_numDenseBlock,
                    BSMR_averageDensity, BSA_averageDensity, original_averageDensity);
         }
@@ -1465,10 +1470,10 @@ void analyzeDataset(
         minSparsity = std::min(sparsity, minSparsity);
     }
 
-    printf("Maximum sparsity: %.2f%%, minimum sparsity: %.2f%%\n", maxSparsity, minSparsity);
+    printf("Minimum sparsity: %.2f%%, maximum sparsity: %.2f%%\n", minSparsity, maxSparsity);
 
-    printf("Maximum m: %d, minimum m: %d\n", maxM, minM);
-    printf("Maximum n: %d, minimum n: %d\n", maxN, minN);
+    printf("Minimum m: %d, maximum m: %d\n", minM, maxM);
+    printf("Minimum n: %d, maximum n: %d\n", minN, maxN);
 
     printf("\n");
 }

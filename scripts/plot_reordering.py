@@ -7,7 +7,7 @@ from collections import defaultdict
 def parse_data(filepath):
     pattern = re.compile(
         r"Alpha: ([\d.]+), Delta: ([\d.]+), "
-        r"BSMR num dense blocks: (\d+), BSA num dense blocks: (\d+), original num dense blocks: (\d+), "
+        r"BSMR average num dense blocks: (\d+), BSA average num dense blocks: (\d+), original average num dense blocks: (\d+), "
         r"BSMR average density: ([\d.]+), BSA average density: ([\d.]+), original average density: ([\d.]+)"
     )
 
