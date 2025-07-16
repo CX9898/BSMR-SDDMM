@@ -247,20 +247,22 @@ std::pair<UIN, UIN> analysisDescendingOrderColSegment(const float blockDensityTh
     UIN numNonZeroColSegment = 0;
     UIN numDenseColSegment = 0;
 
-    UIN numNonZeroInBlock = 0;
-    while (numNonZeroColSegment < numOfNonZeroInEachColSegment.size()
-        && numOfNonZeroInEachColSegment[numNonZeroColSegment] > 0){
-        if (numNonZeroColSegment % BLOCK_COL_SIZE == 0){
-            if (numNonZeroInBlock >= numNonZeroThreshold){
-                // If the number of non-zero elements in the current block is greater than the threshold, it is a dense column segment
-                numDenseColSegment += BLOCK_COL_SIZE;
-                numDenseColSegment = std::min(numDenseColSegment,
-                                              static_cast<UIN>(numOfNonZeroInEachColSegment.size()));
-            }
-            numNonZeroInBlock = 0;
+    while (numNonZeroColSegment + BLOCK_COL_SIZE <= numOfNonZeroInEachColSegment.size()){
+        UIN numNonZeroInBlock = 0;
+        for (UIN i = 0; i < BLOCK_COL_SIZE; ++i){
+            numNonZeroInBlock += numOfNonZeroInEachColSegment[numNonZeroColSegment + i];
         }
-        numNonZeroInBlock += numOfNonZeroInEachColSegment[numNonZeroColSegment];
 
+        if (numNonZeroInBlock >= numNonZeroThreshold){
+            numDenseColSegment += BLOCK_COL_SIZE;
+        }
+
+        numNonZeroColSegment += BLOCK_COL_SIZE;
+    }
+
+    // 处理最后不足一个 BLOCK_COL_SIZE 的残余 segment
+    while (numNonZeroColSegment < numOfNonZeroInEachColSegment.size() &&
+        numOfNonZeroInEachColSegment[numNonZeroColSegment] > 0){
         ++numNonZeroColSegment;
     }
 
@@ -332,6 +334,13 @@ void colReordering_cpu(const sparseMatrix::CSR<float>& matrix,
                                            numOfNonZeroInEachColSegment_dense.data()
                                            + numOfNonZeroInEachColSegment_dense.size(),
                                            colIndices_dense.data());
+
+        if (colIndices_dense.size() % BLOCK_COL_SIZE != 0){
+            // If the number of columns is not a multiple of BLOCK_COL_SIZE, fill the remaining columns with matrix numCols
+            colIndices_dense.resize(colIndices_dense.size() + BLOCK_COL_SIZE - colIndices_dense.size() % BLOCK_COL_SIZE,
+                                    matrix.col());
+            numOfNonZeroInEachColSegment_dense.resize(colIndices_dense.size(), 0);
+        }
 
         nonZeroColsInEachRowPanel[rowPanelId] = colIndices_dense;
 
