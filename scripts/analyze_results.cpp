@@ -1541,7 +1541,7 @@ int main(const int argc, const char* argv[]){
                 continue;
             }
             const std::string fileName = getFileName(matrixFile);
-            const std::string key = fileName;
+            const std::string key = matrixFile;
             if (matrixFileToResultsInformationMap.find(key) == matrixFileToResultsInformationMap.end()){
                 matrixFileToResultsInformationMap[key] = ResultsInformation();
             }

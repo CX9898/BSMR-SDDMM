@@ -161,7 +161,6 @@ if __name__ == "__main__":
     with open(matrix_lists_file, 'r', encoding='utf-8') as f:
         for line in f:
             file_path = matrix_dir_path + line.strip()
-            # file_name = os.path.splitext(file_path.split('/')[-1])[0]
             print('Loading file: ' + file_path)
             print('K: ' + str(K))
 
@@ -181,6 +180,10 @@ if __name__ == "__main__":
 
             print('success')
             print()
+
+
+    with open(log_file, 'w', newline='') as write_file:
+        write_file.write('\n---Test done---\n')
 
     print('All is success')
 

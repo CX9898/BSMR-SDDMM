@@ -5,26 +5,23 @@ import subprocess
 
 def is_valid_triplet(line):
     parts = line.strip().split()
-    return len(parts) == 3 and all(p.isdigit() for p in parts)
+    return len(parts) == 3 and all(p.isdigit() for p in parts[:2])
 
 def clean_data_lines(lines):
     cleaned = []
     for line in lines:
-        if not line.strip():
-            continue
         parts = line.strip().split()
-        if len(parts) < 2:
-            continue  # skip invalid
-        elif len(parts) == 2:
-            parts.append("1")
-        elif len(parts) > 3:
-            parts = parts[:3]
-        cleaned.append(" ".join(parts))
+        row, col = parts[0], parts[1]
+        cleaned.append(f"{row} {col} 1")
     return cleaned
 
 def process_matrix_file(filepath, excluded_path, log_file):
     with open(filepath, 'r') as f:
         lines = f.readlines()
+
+    # 修改文件头，如果包含 complex 则替换为 real（可选）
+    if lines and "complex" in lines[0]:
+        lines[0] = lines[0].replace("complex", "real")
 
     comments = [line for line in lines if line.strip().startswith('%')]
     content = [line for line in lines if not line.strip().startswith('%') and line.strip()]
@@ -53,14 +50,22 @@ def process_matrix_file(filepath, excluded_path, log_file):
         move_file(filepath, excluded_path, log_file, reason)
         return
 
-    # 修正数据格式并写回
+    # 检查每行是否至少包含两个字段（行列）
+    for i, line in enumerate(data_lines):
+        parts = line.strip().split()
+        if len(parts) < 2:
+            reason = f"第 {i+2} 行非法数据: 少于两个字段 -> {line.strip()}"
+            move_file(filepath, excluded_path, log_file, reason)
+            return
+
+    # 清理数据行：仅保留前两个字段 + 设置值为 1
     cleaned_data = clean_data_lines(data_lines)
     with open(filepath, 'w') as f:
         f.writelines(comments)
         f.write(f"{m} {n} {nnz}\n")
         f.writelines(line + '\n' for line in cleaned_data)
 
-    print(f"{filepath} -> 合法，已修正数据格式")
+    print(f"{filepath} -> 合法，已将所有数值设置为: row col 1")
 
 def move_file(src, excluded_base, log_file, reason):
     rel_path = os.path.relpath(src, start=dataset_path)
