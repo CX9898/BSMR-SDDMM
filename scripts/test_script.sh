@@ -106,6 +106,9 @@ testTool(){
   local minutes=$(echo "($sum_time % 3600) / 60" | bc)
   local seconds=$(echo "scale=6; $sum_time - ($hours * 3600 + $minutes * 60)" | bc)
 
+  # Record execution time.
+  echo -e "Total time spent: ${sum_time} seconds (${hours} hours, ${minutes} minutes, ${seconds} seconds)" >> ${autoTest_autoTestlog_file}
+
   echo "${print_tag}Test done"
   echo "${print_tag}Total time spent: ${sum_time} seconds (${hours} hours, ${minutes} minutes, ${seconds} seconds)"
   echo "${print_tag}Test program: ${autoTest_program}"

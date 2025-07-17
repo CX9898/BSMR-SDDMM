@@ -187,7 +187,7 @@ if __name__ == "__main__":
             print('success\n')
 
 
-    with open(log_file, 'w', newline='') as write_file:
+    with open(log_file, 'a', newline='') as write_file:
         write_file.write('\n---Test done---\n')
 
     print('All is success')
@@ -196,5 +196,6 @@ if __name__ == "__main__":
     execution_time = end_time - start_time
 
     # Record execution time.
-    with open(args.outdir + "/execution_time_base.txt", "a") as file_path:
-        file_path.write("Baseline-FlashSparse-" + str(K) + "-" + str(round(execution_time / 60, 2)) + " minutes\n")
+    with open(log_file, 'a', newline='') as write_file:
+        write_file.write(str(round(execution_time / 60, 2)) + " minutes\n")
+
