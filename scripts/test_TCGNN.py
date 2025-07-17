@@ -159,16 +159,21 @@ if __name__ == "__main__":
             write_file.write('[numTestFiles : ' + str(line_count) + ' ]\n')
 
     with open(matrix_lists_file, 'r', encoding='utf-8') as f:
-        for line in f:
-            file_path = matrix_dir_path + line.strip()
-            # file_name = os.path.splitext(file_path.split('/')[-1])[0]
+        lines = [line.strip() for line in f if line.strip()]
+        total_lines = len(lines)
+
+        for idx, line in enumerate(lines):
+            remaining = total_lines - idx - 1
+            print(f'TCGNN SDDMM Test: [Remaining: {remaining} ]')
+
+            file_path = matrix_dir_path + line
             print('Loading file: ' + file_path)
             print('K: ' + str(K))
 
             # tcgnn
-            spmm_tcgnn, nnz = tcgnn_test(K, epoches, file_path)
+            sdmm, nnz = tcgnn_test(K, epoches, file_path)
 
-            gflops = (nnz * K * 2) / (spmm_tcgnn * 1e6)
+            gflops = (nnz * K * 2) / (sdmm * 1e6)
 
             with open(log_file, 'a', newline='') as f:
                 f.write('---New data---\n')
@@ -176,8 +181,10 @@ if __name__ == "__main__":
                 f.write('[K : ' + str(K) + ' ]\n')
                 f.write('[TCGNN_gflops : ' + str(gflops) + ' ]\n')
 
-            print('success')
-            print()
+            print('success\n')
+
+    with open(log_file, 'w', newline='') as write_file:
+        write_file.write('\n---Test done---\n')
 
     print('All is success')
 

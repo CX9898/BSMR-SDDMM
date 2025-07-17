@@ -159,8 +159,13 @@ if __name__ == "__main__":
             write_file.write('[numTestFiles : ' + str(line_count) + ' ]\n')
 
     with open(matrix_lists_file, 'r', encoding='utf-8') as f:
-        for line in f:
-            file_path = matrix_dir_path + line.strip()
+        lines = [line.strip() for line in f if line.strip()]
+        total_lines = len(lines)
+
+        for line_idx, line in enumerate(lines):
+            remaining = total_lines - line_idx - 1
+            print(f'FlashSparse SDDMM Test: [Remaining: {remaining} ]')
+            file_path = matrix_dir_path + line
             print('Loading file: ' + file_path)
             print('K: ' + str(K))
 
@@ -172,14 +177,13 @@ if __name__ == "__main__":
 
             gflops = (nnz * K * 2) / (sddmm_tcu_8_1 * 1e6)
 
-            with open(log_file, 'a', newline='') as f:
-                f.write('---New data---\n')
-                f.write('[File : ' + file_path + ']\n')
-                f.write('[K : ' + str(K) + ' ]\n')
-                f.write('[FlashSparse_gflops : ' + str(gflops) + ' ]\n')
+            with open(log_file, 'a', newline='') as f_log:
+                f_log.write('---New data---\n')
+                f_log.write('[File : ' + file_path + ']\n')
+                f_log.write('[K : ' + str(K) + ' ]\n')
+                f_log.write('[FlashSparse_gflops : ' + str(gflops) + ' ]\n')
 
-            print('success')
-            print()
+            print('success\n')
 
 
     with open(log_file, 'w', newline='') as write_file:
