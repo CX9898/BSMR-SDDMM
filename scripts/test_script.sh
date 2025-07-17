@@ -83,6 +83,7 @@ testTool(){
   for file in "${test_file_list[@]}"; do
 
     echo -e ${data_split_symbol} >> ${autoTest_autoTestlog_file}
+    echo -e "[Remaining: $((${numTestFiles} - ${file_id}))]\n" >> ${autoTest_autoTestlog_file}
 
     echo -e "${print_tag}\"${autoTest_program} -f ${file} -k ${k} -a ${similarityThresholdAlpha} -d ${blockDensityThresholdDelta}\" start testing... [Remaining: $((${numTestFiles} - ${file_id}))]"
 

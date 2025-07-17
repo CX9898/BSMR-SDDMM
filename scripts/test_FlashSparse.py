@@ -179,6 +179,7 @@ if __name__ == "__main__":
 
             with open(log_file, 'a', newline='') as f_log:
                 f_log.write('---New data---\n')
+                f_log.write(f'[Remaining: {remaining} ]')
                 f_log.write('[File : ' + file_path + ']\n')
                 f_log.write('[K : ' + str(K) + ' ]\n')
                 f_log.write('[FlashSparse_gflops : ' + str(gflops) + ' ]\n')

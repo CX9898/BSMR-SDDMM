@@ -153,13 +153,13 @@ if __name__ == "__main__":
 
     start_time = time.time()
 
-    with open(matrix_lists_file, 'r') as f:
-        line_count = sum(1 for _ in f)
+    with open(matrix_lists_file, 'r') as f_log:
+        line_count = sum(1 for _ in f_log)
         with open(log_file, 'w', newline='') as write_file:
             write_file.write('[numTestFiles : ' + str(line_count) + ' ]\n')
 
-    with open(matrix_lists_file, 'r', encoding='utf-8') as f:
-        lines = [line.strip() for line in f if line.strip()]
+    with open(matrix_lists_file, 'r', encoding='utf-8') as f_log:
+        lines = [line.strip() for line in f_log if line.strip()]
         total_lines = len(lines)
 
         for idx, line in enumerate(lines):
@@ -175,11 +175,12 @@ if __name__ == "__main__":
 
             gflops = (nnz * K * 2) / (sdmm * 1e6)
 
-            with open(log_file, 'a', newline='') as f:
-                f.write('---New data---\n')
-                f.write('[File : ' + file_path + ']\n')
-                f.write('[K : ' + str(K) + ' ]\n')
-                f.write('[TCGNN_gflops : ' + str(gflops) + ' ]\n')
+            with open(log_file, 'a', newline='') as f_log:
+                f_log.write('---New data---\n')
+                f_log.write(f'[Remaining: {remaining} ]')
+                f_log.write('[File : ' + file_path + ']\n')
+                f_log.write('[K : ' + str(K) + ' ]\n')
+                f_log.write('[TCGNN_gflops : ' + str(gflops) + ' ]\n')
 
             print('success\n')
 
