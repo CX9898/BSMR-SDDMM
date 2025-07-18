@@ -79,6 +79,12 @@ class dataSet_tf32(torch.nn.Module):
                                                                                    self.num_nodes, self.num_edges,
                                                                                    window, wide, partSize)
 
+        # self.row_pointers, self.column_index, tcvalues, self.t_window_rowTensor, _, _ = FS_Block_gpu.preprocess_gpu_fs_balance(
+        #     self.row_pointers, self.column_index,
+        #     self.num_nodes, self.num_edges,
+        #     window, wide, partSize)
+        # self.degrees = self.row_pointers[1:] - self.row_pointers[:-1]
+
         max_vectors = torch.max(self.row_pointers[1:] - self.row_pointers[:-1])
         if max_vectors % wide > 0:
             max_vectors += (wide - (max_vectors % wide))
@@ -122,6 +128,13 @@ def fs_tf32_8_1(epoches, dimN, partsize_t, data_path, window, wide):
     if inputInfo.num_edges == 0:
         print("Warning: num_edges is empty! file =", data_path)
         return 0, inputInfo.num_edges
+
+    # print(f"[调试] file = {data_path}")
+    # print(f"[调试] row_pointers.shape = {inputInfo.row_pointers.shape}")
+    # print(f"[调试] column_index.shape = {inputInfo.column_index.shape}")
+    # print(f"[调试] degrees.shape = {inputInfo.degrees.shape}")
+    # print(f"[调试] t_window_rowTensor.shape = {inputInfo.t_window_rowTensor.shape}")
+    # print(f"[调试] max = {inputInfo.max}")
 
     X_prime, sddmm_ms_avg = FS_SDDMM.forward_gen_tf32(
         inputInfo.x.size(1),

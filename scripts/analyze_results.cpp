@@ -372,6 +372,7 @@ struct OneTimeData{
     BaseLineWithParameter BSA_{"BSA"};
     BaseLine FlashSparse_{"FlashSparse"};
     BaseLine TCGNN_{"TCGNN"};
+    BaseLine Sputnik_{"Sputnik"};
 };
 
 void OneTimeData::update(const std::vector<std::string>& oneTimeResults){
@@ -383,6 +384,7 @@ void OneTimeData::update(const std::vector<std::string>& oneTimeResults){
     BSA_.parse(oneTimeResults);
     FlashSparse_.parse(oneTimeResults);
     TCGNN_.parse(oneTimeResults);
+    Sputnik_.parse(oneTimeResults);
 }
 
 struct ResultsInformation{
@@ -466,7 +468,7 @@ void ResultsInformation::printInformation() const{
     printf(" NNZ |");
     printf(" sparsity |");
     printf(" K |");
-    printf(" bsmr_gflops |");
+    printf(" BSMR_gflops |");
     printf(" cuSDDMM_gflops |");
     printf(" cuSparse_gflops |");
     printf(" ASpT_gflops |");
@@ -573,8 +575,67 @@ float calculateAccuracy(const std::unordered_map<std::string,
     return accuracy;
 }
 
+auto evaluateBaseLine = [](const float BSMR_gflops,
+                           const float baseLine_gflops,
+                           std::vector<int>& numSpeedups,
+                           float& maxSpeedup,
+                           float& sumSpeedup,
+                           int& numResults) -> void{
+    if (BSMR_gflops <= 1e-6 || baseLine_gflops <= 1e-6){
+        return;
+    }
+    const float speedup = BSMR_gflops / baseLine_gflops;
+    maxSpeedup = std::max(speedup, maxSpeedup);
+    sumSpeedup += speedup;
+    ++numResults;
+
+    if (speedup <= 0.5){
+        ++numSpeedups[0];
+    }
+    if (speedup > 0.5 && speedup <= 0.8){
+        ++numSpeedups[1];
+    }
+    if (speedup > 0.8 && speedup <= 1.0){
+        ++numSpeedups[2];
+    }
+    if (speedup > 1.0 && speedup <= 1.2){
+        ++numSpeedups[3];
+    }
+    if (speedup > 1.2 && speedup <= 1.5){
+        ++numSpeedups[4];
+    }
+    if (speedup > 1.5){
+        ++numSpeedups[5];
+    }
+};
+
+auto printEvaluateResults = [](const std::string& baseLineName,
+                               const int numResults,
+                               const float sumSpeedup,
+                               const float maxSpeedup,
+                               const std::vector<int>& numSpeedups) -> void{
+    const float averageSpeedup = sumSpeedup / numResults;
+
+    printSeparator("Evaluate BSMR With " + baseLineName + ":");
+    printf("Number of results: %d\n", numResults);
+    printf("Average speedup: %.2fx, maximum speedup: %.2fx\n", averageSpeedup, maxSpeedup);
+
+    printf("Speedup <= 0.5 : %.1f%%\n", numSpeedups[0] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup 0.5~0.8 : %.1f%%\n", numSpeedups[1] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup 0.8~1.0 : %.1f%%\n", numSpeedups[2] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup 1.0~1.2 : %.1f%%\n", numSpeedups[3] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup 1.2~1.5 : %.1f%%\n", numSpeedups[4] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup > 1.5 : %.1f%%\n", numSpeedups[5] / static_cast<float>(numResults) * 100.0f);
+
+    const float accelerationCoverage =
+        (numSpeedups[3] + numSpeedups[4] + numSpeedups[5]) / static_cast<float>(numResults) * 100.0f;
+    printf("Acceleration coverage: %.1f%%\n", accelerationCoverage);
+
+    printf("\n");
+};
+
 // return the average speedup adn the maximum speedup
-void evaluateSddmmWithCuSDDMM(
+void evaluateBSMRWithCuSDDMM(
     const std::unordered_map<std::string, ResultsInformation>& matrixFileToResultsInformationMap){
     float sumSpeedup = 0.0f;
     float maxSpeedup = 0.0f;
@@ -584,60 +645,17 @@ void evaluateSddmmWithCuSDDMM(
 
     int numResults = 0;
     for (const auto& iter : matrixFileToResultsInformationMap){
-        const float bsmr_gflops = iter.second.oneTimeData_.BSMR_.gflops();
+        const float BSMR_gflops = iter.second.oneTimeData_.BSMR_.gflops();
         const float cuSDDMM_gflops = iter.second.oneTimeData_.cuSDDMM_.gflops();
 
-        if (bsmr_gflops <= 1e-6 || cuSDDMM_gflops <= 1e-6){
-            continue;
-        }
-
-        float speedup = bsmr_gflops / cuSDDMM_gflops;
-        maxSpeedup = std::max(speedup, maxSpeedup);
-        sumSpeedup += speedup;
-        ++numResults;
-
-        if (speedup <= 0.5){
-            ++numSpeedups[0];
-        }
-        if (speedup > 0.5 && speedup <= 0.8){
-            ++numSpeedups[1];
-        }
-        if (speedup > 0.8 && speedup <= 1.0){
-            ++numSpeedups[2];
-        }
-        if (speedup > 1.0 && speedup <= 1.2){
-            ++numSpeedups[3];
-        }
-        if (speedup > 1.2 && speedup <= 1.5){
-            ++numSpeedups[4];
-        }
-        if (speedup > 1.5){
-            ++numSpeedups[5];
-        }
+        evaluateBaseLine(BSMR_gflops, cuSDDMM_gflops, numSpeedups, maxSpeedup, sumSpeedup, numResults);
     }
 
-    float averageSpeedup = sumSpeedup / numResults;
-
-    printSeparator("Evaluate BSMR With cuSDDMM:");
-    printf("Number of results: %d\n", numResults);
-    printf("Average speedup over cuSDDMM: %.2fx, maximum speedup: %.2fx\n", averageSpeedup, maxSpeedup);
-
-    printf("Speedup over cuSDDMM <= 0.5 : %.1f%%\n", numSpeedups[0] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over cuSDDMM 0.5~0.8 : %.1f%%\n", numSpeedups[1] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over cuSDDMM 0.8~1.0 : %.1f%%\n", numSpeedups[2] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over cuSDDMM 1.0~1.2 : %.1f%%\n", numSpeedups[3] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over cuSDDMM 1.2~1.5 : %.1f%%\n", numSpeedups[4] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over cuSDDMM > 1.5 : %.1f%%\n", numSpeedups[5] / static_cast<float>(numResults) * 100.0f);
-
-    const float accelerationCoverage =
-        (numSpeedups[3] + numSpeedups[4] + numSpeedups[5]) / static_cast<float>(numResults) * 100.0f;
-    printf("Acceleration coverage: %.1f%%\n", accelerationCoverage);
-
-    printf("\n");
+    printEvaluateResults("cuSDDMM", numResults, sumSpeedup, maxSpeedup, numSpeedups);
 }
 
 // return the average speedup adn the maximum speedup
-void evaluateSddmmWithCuSparse(
+void evaluateBSMRWithCuSparse(
     std::unordered_map<std::string, ResultsInformation>& matrixFileToResultsInformationMap){
     float sumSpeedup = 0.0f;
     float maxSpeedup = 0.0f;
@@ -647,61 +665,18 @@ void evaluateSddmmWithCuSparse(
 
     int numResults = 0;
     for (const auto& iter : matrixFileToResultsInformationMap){
-        const float bsmr_sddmm = iter.second.oneTimeData_.BSMR_.gflops();
-        const float cuSparse_sddmm = iter.second.oneTimeData_.cuSparse_.gflops();
+        const float BSMR_gflops = iter.second.oneTimeData_.BSMR_.gflops();
+        const float cuSparse_gflops = iter.second.oneTimeData_.cuSparse_.gflops();
 
-        if (bsmr_sddmm <= 1e-6 || cuSparse_sddmm <= 1e-6){
-            continue;
-        }
-
-        const float speedup = bsmr_sddmm / cuSparse_sddmm;
-        maxSpeedup = std::max(speedup, maxSpeedup);
-        sumSpeedup += speedup;
-        ++numResults;
-
-        if (speedup <= 0.5){
-            ++numSpeedups[0];
-        }
-        if (speedup > 0.5 && speedup <= 0.8){
-            ++numSpeedups[1];
-        }
-        if (speedup > 0.8 && speedup <= 1.0){
-            ++numSpeedups[2];
-        }
-        if (speedup > 1.0 && speedup <= 1.2){
-            ++numSpeedups[3];
-        }
-        if (speedup > 1.2 && speedup <= 1.5){
-            ++numSpeedups[4];
-        }
-        if (speedup > 1.5){
-            ++numSpeedups[5];
-        }
+        evaluateBaseLine(BSMR_gflops, cuSparse_gflops, numSpeedups, maxSpeedup, sumSpeedup, numResults);
     }
 
-    float averageSpeedup = sumSpeedup / numResults;
-
-    printSeparator("Evaluate BSMR With cuSparse:");
-    printf("Number of results: %d\n", numResults);
-    printf("Average speedup over cuSparse: %.2fx, maximum speedup: %.2fx\n", averageSpeedup, maxSpeedup);
-
-    printf("Speedup over cuSparse <= 0.5 : %.1f%%\n", numSpeedups[0] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over cuSparse 0.5~0.8 : %.1f%%\n", numSpeedups[1] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over cuSparse 0.8~1.0 : %.1f%%\n", numSpeedups[2] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over cuSparse 1.0~1.2 : %.1f%%\n", numSpeedups[3] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over cuSparse 1.2~1.5 : %.1f%%\n", numSpeedups[4] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over cuSparse > 1.5 : %.1f%%\n", numSpeedups[5] / static_cast<float>(numResults) * 100.0f);
-
-    const float accelerationCoverage =
-        (numSpeedups[3] + numSpeedups[4] + numSpeedups[5]) / static_cast<float>(numResults) * 100.0f;
-    printf("Acceleration coverage: %.1f%%\n", accelerationCoverage);
-
-    printf("\n");
+    printEvaluateResults("cuSparse", numResults, sumSpeedup, maxSpeedup, numSpeedups);
 }
 
 
 // return the average speedup adn the maximum speedup
-void evaluateSddmmWithASpT(
+void evaluateBSMRWithASpT(
     std::unordered_map<std::string, ResultsInformation>& matrixFileToResultsInformationMap){
     float sumSpeedup = 0.0f;
     float maxSpeedup = 0.0f;
@@ -711,60 +686,17 @@ void evaluateSddmmWithASpT(
 
     int numResults = 0;
     for (const auto& iter : matrixFileToResultsInformationMap){
-        const float bsmr_sddmm = iter.second.oneTimeData_.BSMR_.gflops();
-        const float ASpT_sddmm = iter.second.oneTimeData_.ASpT_.gflops();
+        const float BSMR_gflops = iter.second.oneTimeData_.BSMR_.gflops();
+        const float ASpT_gflops = iter.second.oneTimeData_.ASpT_.gflops();
 
-        if (bsmr_sddmm <= 1e-6 || ASpT_sddmm <= 1e-6){
-            continue;
-        }
-
-        const float speedup = bsmr_sddmm / ASpT_sddmm;
-        maxSpeedup = std::max(speedup, maxSpeedup);
-        sumSpeedup += speedup;
-        ++numResults;
-
-        if (speedup <= 0.5){
-            ++numSpeedups[0];
-        }
-        if (speedup > 0.5 && speedup <= 0.8){
-            ++numSpeedups[1];
-        }
-        if (speedup > 0.8 && speedup <= 1.0){
-            ++numSpeedups[2];
-        }
-        if (speedup > 1.0 && speedup <= 1.2){
-            ++numSpeedups[3];
-        }
-        if (speedup > 1.2 && speedup <= 1.5){
-            ++numSpeedups[4];
-        }
-        if (speedup > 1.5){
-            ++numSpeedups[5];
-        }
+        evaluateBaseLine(BSMR_gflops, ASpT_gflops, numSpeedups, maxSpeedup, sumSpeedup, numResults);
     }
 
-    float averageSpeedup = sumSpeedup / numResults;
-
-    printSeparator("Evaluate BSMR With ASpT:");
-    printf("Number of results: %d\n", numResults);
-    printf("Average speedup over ASpT: %.2fx, maximum speedup: %.2fx\n", averageSpeedup, maxSpeedup);
-
-    printf("Speedup over ASpT <= 0.5 : %.1f%%\n", numSpeedups[0] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over ASpT 0.5~0.8 : %.1f%%\n", numSpeedups[1] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over ASpT 0.8~1.0 : %.1f%%\n", numSpeedups[2] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over ASpT 1.0~1.2 : %.1f%%\n", numSpeedups[3] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over ASpT 1.2~1.5 : %.1f%%\n", numSpeedups[4] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over ASpT > 1.5 : %.1f%%\n", numSpeedups[5] / static_cast<float>(numResults) * 100.0f);
-
-    const float accelerationCoverage =
-        (numSpeedups[3] + numSpeedups[4] + numSpeedups[5]) / static_cast<float>(numResults) * 100.0f;
-    printf("Acceleration coverage: %.1f%%\n", accelerationCoverage);
-
-    printf("\n");
+    printEvaluateResults("ASpT", numResults, sumSpeedup, maxSpeedup, numSpeedups);
 }
 
 // return the average speedup adn the maximum speedup
-void evaluateSddmmWithRoDe(
+void evaluateBSMRWithRoDe(
     const std::unordered_map<std::string, ResultsInformation>& matrixFileToResultsInformationMap){
     float sumSpeedup = 0.0f;
     float maxSpeedup = 0.0f;
@@ -774,59 +706,16 @@ void evaluateSddmmWithRoDe(
 
     int numResults = 0;
     for (const auto& iter : matrixFileToResultsInformationMap){
-        const float bsmr_sddmm = iter.second.oneTimeData_.BSMR_.gflops();
-        const float RoDe_sddmm = iter.second.oneTimeData_.RoDe_.gflops();
+        const float BSMR_gflops = iter.second.oneTimeData_.BSMR_.gflops();
+        const float RoDe_gflops = iter.second.oneTimeData_.RoDe_.gflops();
 
-        if (bsmr_sddmm <= 1e-6 || RoDe_sddmm <= 1e-6){
-            continue;
-        }
-
-        const float speedup = bsmr_sddmm / RoDe_sddmm;
-        maxSpeedup = std::max(speedup, maxSpeedup);
-        sumSpeedup += speedup;
-        ++numResults;
-
-        if (speedup <= 0.5){
-            ++numSpeedups[0];
-        }
-        if (speedup > 0.5 && speedup <= 0.8){
-            ++numSpeedups[1];
-        }
-        if (speedup > 0.8 && speedup <= 1.0){
-            ++numSpeedups[2];
-        }
-        if (speedup > 1.0 && speedup <= 1.2){
-            ++numSpeedups[3];
-        }
-        if (speedup > 1.2 && speedup <= 1.5){
-            ++numSpeedups[4];
-        }
-        if (speedup > 1.5){
-            ++numSpeedups[5];
-        }
+        evaluateBaseLine(BSMR_gflops, RoDe_gflops, numSpeedups, maxSpeedup, sumSpeedup, numResults);
     }
 
-    float averageSpeedup = sumSpeedup / numResults;
-
-    printSeparator("Evaluate BSMR With RoDe:");
-    printf("Number of results: %d\n", numResults);
-    printf("Average speedup over RoDe: %.2fx, maximum speedup: %.2fx\n", averageSpeedup, maxSpeedup);
-
-    printf("Speedup over RoDe <= 0.5 : %.1f%%\n", numSpeedups[0] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over RoDe 0.5~0.8 : %.1f%%\n", numSpeedups[1] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over RoDe 0.8~1.0 : %.1f%%\n", numSpeedups[2] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over RoDe 1.0~1.2 : %.1f%%\n", numSpeedups[3] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over RoDe 1.2~1.5 : %.1f%%\n", numSpeedups[4] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over RoDe > 1.5 : %.1f%%\n", numSpeedups[5] / static_cast<float>(numResults) * 100.0f);
-
-    const float accelerationCoverage =
-        (numSpeedups[3] + numSpeedups[4] + numSpeedups[5]) / static_cast<float>(numResults) * 100.0f;
-    printf("Acceleration coverage: %.1f%%\n", accelerationCoverage);
-
-    printf("\n");
+    printEvaluateResults("RoDe", numResults, sumSpeedup, maxSpeedup, numSpeedups);
 }
 
-void evaluateSddmmWithFlashSparse(
+void evaluateBSMRWithFlashSparse(
     const std::unordered_map<std::string, ResultsInformation>& matrixFileToResultsInformationMap){
     float sumSpeedup = 0.0f;
     float maxSpeedup = 0.0f;
@@ -836,59 +725,16 @@ void evaluateSddmmWithFlashSparse(
 
     int numResults = 0;
     for (const auto& iter : matrixFileToResultsInformationMap){
-        const float bsmr_sddmm = iter.second.oneTimeData_.BSMR_.gflops();
-        const float FlashSparse_sddmm = iter.second.oneTimeData_.FlashSparse_.gflops();
+        const float BSMR_gflops = iter.second.oneTimeData_.BSMR_.gflops();
+        const float FlashSparse_gflops = iter.second.oneTimeData_.FlashSparse_.gflops();
 
-        if (bsmr_sddmm <= 1e-6 || FlashSparse_sddmm <= 1e-6){
-            continue;
-        }
-
-        const float speedup = bsmr_sddmm / FlashSparse_sddmm;
-        maxSpeedup = std::max(speedup, maxSpeedup);
-        sumSpeedup += speedup;
-        ++numResults;
-
-        if (speedup <= 0.5){
-            ++numSpeedups[0];
-        }
-        if (speedup > 0.5 && speedup <= 0.8){
-            ++numSpeedups[1];
-        }
-        if (speedup > 0.8 && speedup <= 1.0){
-            ++numSpeedups[2];
-        }
-        if (speedup > 1.0 && speedup <= 1.2){
-            ++numSpeedups[3];
-        }
-        if (speedup > 1.2 && speedup <= 1.5){
-            ++numSpeedups[4];
-        }
-        if (speedup > 1.5){
-            ++numSpeedups[5];
-        }
+        evaluateBaseLine(BSMR_gflops, FlashSparse_gflops, numSpeedups, maxSpeedup, sumSpeedup, numResults);
     }
 
-    float averageSpeedup = sumSpeedup / numResults;
-
-    printSeparator("Evaluate BSMR With FlashSparse:");
-    printf("Number of results: %d\n", numResults);
-    printf("Average speedup over FlashSparse: %.2fx, maximum speedup: %.2fx\n", averageSpeedup, maxSpeedup);
-
-    printf("Speedup over FlashSparse <= 0.5 : %.1f%%\n", numSpeedups[0] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over FlashSparse 0.5~0.8 : %.1f%%\n", numSpeedups[1] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over FlashSparse 0.8~1.0 : %.1f%%\n", numSpeedups[2] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over FlashSparse 1.0~1.2 : %.1f%%\n", numSpeedups[3] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over FlashSparse 1.2~1.5 : %.1f%%\n", numSpeedups[4] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over FlashSparse > 1.5 : %.1f%%\n", numSpeedups[5] / static_cast<float>(numResults) * 100.0f);
-
-    const float accelerationCoverage =
-        (numSpeedups[3] + numSpeedups[4] + numSpeedups[5]) / static_cast<float>(numResults) * 100.0f;
-    printf("Acceleration coverage: %.1f%%\n", accelerationCoverage);
-
-    printf("\n");
+    printEvaluateResults("FlashSparse", numResults, sumSpeedup, maxSpeedup, numSpeedups);
 }
 
-void evaluateSddmmWithTCGNN(
+void evaluateBSMRWithTCGNN(
     const std::unordered_map<std::string, ResultsInformation>& matrixFileToResultsInformationMap){
     float sumSpeedup = 0.0f;
     float maxSpeedup = 0.0f;
@@ -898,71 +744,32 @@ void evaluateSddmmWithTCGNN(
 
     int numResults = 0;
     for (const auto& iter : matrixFileToResultsInformationMap){
-        const float bsmr_sddmm = iter.second.oneTimeData_.BSMR_.gflops();
-        const float TCGNN_sddmm = iter.second.oneTimeData_.TCGNN_.gflops();
+        const float BSMR_gflops = iter.second.oneTimeData_.BSMR_.gflops();
+        const float TCGNN_gflops = iter.second.oneTimeData_.TCGNN_.gflops();
 
-        if (bsmr_sddmm <= 1e-6 || TCGNN_sddmm <= 1e-6){
-            continue;
-        }
-
-        const float speedup = bsmr_sddmm / TCGNN_sddmm;
-        maxSpeedup = std::max(speedup, maxSpeedup);
-        sumSpeedup += speedup;
-        ++numResults;
-        //
-        //
-        // const int m = tryParse<int>(iter.second.M_).value_or(0);
-        // const int n = tryParse<int>(iter.second.N_).value_or(0);
-        // const int nnz = tryParse<int>(iter.second.NNZ_).value_or(0);
-        // const float sparsity = tryParse<float>(iter.second.sparsity_).value_or(0.0f);
-        // if (speedup > 30000){
-        //     printf("file: %s, M: %d, N: %d, nnz: %d, sparsity: %f, speedup is too large: %.2f, bsmr_sddmm: %.2f, TCGNN_sddmm: %.2f\n",
-        //            iter.first.c_str(), m, n, nnz, sparsity, speedup, bsmr_sddmm, TCGNN_sddmm);
-        // }
-        //
-        // if ( m != n){
-        //     printf("file: %s, M: %d, N: %d, speedup is too large: %.2f, bsmr_sddmm: %.2f, TCGNN_sddmm: %.2f\n",
-        //            iter.first.c_str(), m, n, speedup, bsmr_sddmm, TCGNN_sddmm);
-        // }
-
-        if (speedup <= 0.5){
-            ++numSpeedups[0];
-        }
-        if (speedup > 0.5 && speedup <= 0.8){
-            ++numSpeedups[1];
-        }
-        if (speedup > 0.8 && speedup <= 1.0){
-            ++numSpeedups[2];
-        }
-        if (speedup > 1.0 && speedup <= 1.2){
-            ++numSpeedups[3];
-        }
-        if (speedup > 1.2 && speedup <= 1.5){
-            ++numSpeedups[4];
-        }
-        if (speedup > 1.5){
-            ++numSpeedups[5];
-        }
+        evaluateBaseLine(BSMR_gflops, TCGNN_gflops, numSpeedups, maxSpeedup, sumSpeedup, numResults);
     }
 
-    float averageSpeedup = sumSpeedup / numResults;
+    printEvaluateResults("TCGNN", numResults, sumSpeedup, maxSpeedup, numSpeedups);
+}
 
-    printSeparator("Evaluate BSMR With TCGNN:");
-    printf("Number of results: %d\n", numResults);
-    printf("Average speedup over TCGNN: %.2fx, maximum speedup: %.2fx\n", averageSpeedup, maxSpeedup);
+void evaluateBSMRWithSputnik(
+    const std::unordered_map<std::string, ResultsInformation>& matrixFileToResultsInformationMap){
+    float sumSpeedup = 0.0f;
+    float maxSpeedup = 0.0f;
 
-    printf("Speedup over TCGNN <= 0.5 : %.1f%%\n", numSpeedups[0] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over TCGNN 0.5~0.8 : %.1f%%\n", numSpeedups[1] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over TCGNN 0.8~1.0 : %.1f%%\n", numSpeedups[2] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over TCGNN 1.0~1.2 : %.1f%%\n", numSpeedups[3] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over TCGNN 1.2~1.5 : %.1f%%\n", numSpeedups[4] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup over TCGNN > 1.5 : %.1f%%\n", numSpeedups[5] / static_cast<float>(numResults) * 100.0f);
+    // 0~0.5, 0.5~0.8, 0.8~1.0, 1.0~1.2, 1.2~1.5, 1.5~
+    std::vector<int> numSpeedups(6);
 
-    const float accelerationCoverage =
-        (numSpeedups[3] + numSpeedups[4] + numSpeedups[5]) / static_cast<float>(numResults) * 100.0f;
-    printf("Acceleration coverage: %.1f%%\n", accelerationCoverage);
+    int numResults = 0;
+    for (const auto& iter : matrixFileToResultsInformationMap){
+        const float BSMR_gflops = iter.second.oneTimeData_.BSMR_.gflops();
+        const float Sputnik_gflops = iter.second.oneTimeData_.Sputnik_.gflops();
 
-    printf("\n");
+        evaluateBaseLine(BSMR_gflops, Sputnik_gflops, numSpeedups, maxSpeedup, sumSpeedup, numResults);
+    }
+
+    printEvaluateResults("Sputnik", numResults, sumSpeedup, maxSpeedup, numSpeedups);
 }
 
 void outputCSVFile(
@@ -976,7 +783,7 @@ void outputCSVFile(
         return;
     }
 
-    outFile << "Matrix File,M,N,NNZ,Sparsity,K,BSMR,cuSDDMM,cusparse,RoDe,TCGNN,FlashSparse\n";
+    outFile << "Matrix File,M,N,NNZ,Sparsity,K,BSMR,cuSDDMM,cusparse,RoDe,ASpT,TCGNN,FlashSparse,Sputnik\n";
 
     for (const auto& iter : matrixFileToResultsInformationMap){
         const ResultsInformation& resultsInformation = iter.second;
@@ -993,8 +800,10 @@ void outputCSVFile(
         outFile << "," << oneTimeData.cuSDDMM_.gflops(); // cuSDDMM
         outFile << "," << oneTimeData.cuSparse_.gflops(); // cusparse
         outFile << "," << oneTimeData.RoDe_.gflops(); // RoDe
+        outFile << "," << oneTimeData.ASpT_.gflops(); // ASpT
         outFile << "," << oneTimeData.TCGNN_.gflops(); // TCGNN
         outFile << "," << oneTimeData.FlashSparse_.gflops(); // FlashSparse
+        outFile << "," << oneTimeData.Sputnik_.gflops(); // Sputnik
         outFile << "\n";
     }
 
@@ -1378,6 +1187,10 @@ void evaluateHybridSddmm(
     float sumSpeedupWithOnlyTensorCore = 0.0f;
     float sumSpeedupWithOnlyCudaCore = 0.0f;
     int numResults = 0;
+    float maxSpeedupWithOnlyTensorCore = 0;
+    float maxSpeedupWithOnlyCudaCore = 0;
+    std::vector<int> numSpeedupsWithOnlyTC(6); // 0~0.5, 0.5~0.8, 0.8~1.0, 1.0~1.2, 1.2~1.5, 1.5~
+    std::vector<int> numSpeedupsWithOnlyCUDA(6); // 0~0.5, 0.5~0.8, 0.8~1.0, 1.0~1.2, 1.2~1.5, 1.5~
     for (const auto& iter : matrixFileToResultsInformationMap){
         for (const auto& pair : iter.second.oneTimeData_.BSMR_.alphaToDeltaToTuple()){
             const float curAlpha = pair.first;
@@ -1399,16 +1212,22 @@ void evaluateHybridSddmm(
                 BSMR_gflops_only_CUDA_core <= 1e-6){
                 continue; // skip if the result is not valid
             }
+            evaluateBaseLine(BSMR_gflops, BSMR_gflops_only_Tensor_core,
+                             numSpeedupsWithOnlyTC, maxSpeedupWithOnlyTensorCore,
+                             sumSpeedupWithOnlyTensorCore, numResults);
+            evaluateBaseLine(BSMR_gflops, BSMR_gflops_only_CUDA_core,
+                             numSpeedupsWithOnlyCUDA, maxSpeedupWithOnlyCudaCore,
+                             sumSpeedupWithOnlyCudaCore, numResults);
+            --numResults; // Adjust for the double counting of results
 
-            ++numResults;
-            sumSpeedupWithOnlyTensorCore += BSMR_gflops / BSMR_gflops_only_Tensor_core;
-            sumSpeedupWithOnlyCudaCore += BSMR_gflops / BSMR_gflops_only_CUDA_core;
+            // ++numResults;
+            // sumSpeedupWithOnlyTensorCore += BSMR_gflops / BSMR_gflops_only_Tensor_core;
+            // sumSpeedupWithOnlyCudaCore += BSMR_gflops / BSMR_gflops_only_CUDA_core;
 
             const int M = tryParse<int>(iter.second.M_).value_or(0);
             const int N = tryParse<int>(iter.second.N_).value_or(0);
             const int NNZ = tryParse<int>(iter.second.NNZ_).value_or(0);
             const float sparsity = tryParse<float>(iter.second.sparsity_).value_or(0.0f);
-            const int k = iter.second.oneTimeData_.BSMR_.K();
 
             outFile << iter.first << ","; // Matrix File
             outFile << M << ","; // M
@@ -1558,17 +1377,19 @@ int main(const int argc, const char* argv[]){
 
     analyzeParameters(matrixFileToResultsInformationMap);
 
-    evaluateSddmmWithCuSparse(matrixFileToResultsInformationMap);
+    evaluateBSMRWithCuSparse(matrixFileToResultsInformationMap);
 
-    evaluateSddmmWithCuSDDMM(matrixFileToResultsInformationMap);
+    evaluateBSMRWithCuSDDMM(matrixFileToResultsInformationMap);
 
-    evaluateSddmmWithASpT(matrixFileToResultsInformationMap);
+    evaluateBSMRWithASpT(matrixFileToResultsInformationMap);
 
-    evaluateSddmmWithRoDe(matrixFileToResultsInformationMap);
+    evaluateBSMRWithRoDe(matrixFileToResultsInformationMap);
 
-    evaluateSddmmWithFlashSparse(matrixFileToResultsInformationMap);
+    evaluateBSMRWithFlashSparse(matrixFileToResultsInformationMap);
 
-    evaluateSddmmWithTCGNN(matrixFileToResultsInformationMap);
+    evaluateBSMRWithTCGNN(matrixFileToResultsInformationMap);
+
+    evaluateBSMRWithSputnik(matrixFileToResultsInformationMap);
 
     outputCSVFile(matrixFileToResultsInformationMap, resultsPath);
 
