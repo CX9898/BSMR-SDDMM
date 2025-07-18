@@ -20,7 +20,6 @@ matplotlib.rcParams.update({
 
 
 def preprocess(df, k):
-    df = df.rename(columns={"Matrix File": "file"})
     df = df.sort_values(by="NNZ").reset_index(drop=True)
     df = df[(df["NNZ"] >= 10000) & (df["NNZ"] <= 2000000)]
     df = df.dropna(subset=["K", "BSMR"])
@@ -71,10 +70,10 @@ def plot_hybrid_subplots(k_data_list, output_dir, output_name_suffix):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="测试结果可视化（可支持单个或多个K）")
-    parser.add_argument('--file_k32', type=str, help="输入的 CSV 文件路径（K=32）")
-    parser.add_argument('--file_k128', type=str, help="输入的 CSV 文件路径（K=128）")
-    parser.add_argument('--outdir', type=str, default='.', help="图表输出目录（默认当前目录）")
+    parser = argparse.ArgumentParser(description="测试结果可视化(可支持单个或多个K)")
+    parser.add_argument('--k32', type=str, help="输入的 CSV 文件路径(K=32)")
+    parser.add_argument('--k128', type=str, help="输入的 CSV 文件路径(K=128)")
+    parser.add_argument('--outdir', type=str, default='.', help="图表输出目录(默认当前目录)")
     args = parser.parse_args()
 
     output_dir = Path(args.outdir)
@@ -82,14 +81,14 @@ def main():
 
     k_data_list = []
 
-    if args.file_k32:
-        df_k32 = pd.read_csv(args.file_k32)
+    if args.k32:
+        df_k32 = pd.read_csv(args.k32)
         avg_k32 = preprocess(df_k32, 32)
         if avg_k32 is not None:
             k_data_list.append((32, avg_k32))
 
-    if args.file_k128:
-        df_k128 = pd.read_csv(args.file_k128)
+    if args.k128:
+        df_k128 = pd.read_csv(args.k128)
         avg_k128 = preprocess(df_k128, 128)
         if avg_k128 is not None:
             k_data_list.append((128, avg_k128))
