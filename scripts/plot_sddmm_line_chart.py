@@ -21,7 +21,7 @@ matplotlib.rcParams.update({
 def preprocess(df, k):
 
     df = df.sort_values(by="NNZ").reset_index(drop=True)
-    df = df[(df["NNZ"] >= 10000) & (df["NNZ"] <= 2000000)]
+    # df = df[(df["NNZ"] >= 10000) & (df["NNZ"] <= 2000000)]
     df = df.dropna(subset=["BSMR"])
     df = df.drop_duplicates(subset=["file"])
 

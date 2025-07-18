@@ -40,8 +40,8 @@ def process_matrix_file(filepath, excluded_path, log_file):
     m, n, nnz = map(int, first_line.split())
     data_lines = content[1:]
 
-    if m < 5000 or n < 5000:
-        reason = f"尺寸过小 m={m}, n={n}"
+    if m < 10000 or n < 10000 or nnz < 100000:
+        reason = f"尺寸过小 m={m}, n={n}, nnz={nnz} (至少需要 m, n >= 10000 且 nnz >= 100000)"
         move_file(filepath, excluded_path, log_file, reason)
         return
 

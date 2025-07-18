@@ -728,12 +728,6 @@ void evaluateBSMRWithFlashSparse(
         const float BSMR_gflops = iter.second.oneTimeData_.BSMR_.gflops();
         const float FlashSparse_gflops = iter.second.oneTimeData_.FlashSparse_.gflops();
 
-        // const float speedup = BSMR_gflops / FlashSparse_gflops;
-        // if (speedup <= 0.8f){
-        //     printf("%s\n",
-        //            iter.first.c_str());
-        // }
-
         evaluateBaseLine(BSMR_gflops, FlashSparse_gflops, numSpeedups, maxSpeedup, sumSpeedup, numResults);
     }
 
@@ -821,167 +815,12 @@ void eliminateInvalidData(std::unordered_map<std::string, ResultsInformation>& m
         const int m = tryParse<int>(iter->second.M_).value_or(0);
         const int n = tryParse<int>(iter->second.N_).value_or(0);
         const int nnz = tryParse<int>(iter->second.NNZ_).value_or(0);
-        if (m <= 0 || n <= 0){
+        if (m <= 10000 || n <= 10000 || nnz <= 100000){
             // printf("[bad file] : %s, M: %d, N: %d\n", iter->first.c_str(), m, n);
             iter = matrixFileToResultsInformationMap.erase(iter);
             // ++iter;
         }
-        // const float bsmr_sddmm = iter->second.kToOneTimeData_.begin()->second.BSMR_.gflops();
-        // if (iter->first.find("case39") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // if (iter->first.find("TSOPF_FS") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // if (iter->first.find("case39_A_09") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // if (iter->first.find("case39_A_07") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // if (iter->first.find("case39") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // else if (iter->first.find("dataset_of_suiteSparse/mult_dcop_02") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // else if (iter->first.find("dataset_of_suiteSparse/gridgena") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // else if (iter->first.find("dataset_of_suiteSparse/freeFlyingRobot_16") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // else if (iter->first.find("dataset_of_suiteSparse/freeFlyingRobot_14") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // else if (iter->first.find("dataset_of_suiteSparse/mycielskian14") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // else if (iter->first.find("dataset_of_suiteSparse/hangGlider_4") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // else if (iter->first.find("dataset_of_suiteSparse/OPF_10000") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // else if (iter->first.find("dataset_of_suiteSparse/Oregon-1") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // else if (iter->first.find("dataset_of_suiteSparse/p05") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // else if (iter->first.find("dataset_of_suiteSparse/Oregon-2") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // else if (iter->first.find("dataset_of_suiteSparse/rajat22") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // else if (iter->first.find("dataset_of_suiteSparse/freeFlyingRobot_15") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // else if (iter->first.find("dataset_of_suiteSparse/rajat26") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // else if (iter->first.find("dataset_of_suiteSparse/hangGlider_3") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // else if (iter->first.find("dataset_of_suiteSparse/Dubcova1") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // else if (iter->first.find("dataset_of_suiteSparse/3D_28984_Tetra") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // else if (iter->first.find("dataset_of_suiteSparse/co9") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // else if (iter->first.find("dataset_of_suiteSparse/hangGlider_5") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // else if (iter->first.find("dataset_of_suiteSparse/ckt11752_tr_0") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // else if (iter->first.find("dataset_of_suiteSparse/ckt11752_dc_1") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // else if (iter->first.find("dataset_of_suiteSparse/mult_dcop_03") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // else if (iter->first.find("dataset_of_suiteSparse/pattern1") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // else if (iter->first.find("dataset_of_suiteSparse/shermanACb") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // else if (iter->first.find("dataset_of_suiteSparse/Reuters911") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // else if (iter->first.find("dataset_of_suiteSparse/3dtube") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
-        // else if (iter->first.find("dataset_of_suiteSparse/vsp_sctap1-2b_and_seymourl/") != std::string::npos) {
-        //     //            printf("[bad file] : %s\n", iter->first.c_str());
-        //     iter = matrixFileToResultsInformationMap.erase(iter);
-        //     // ++iter;
-        // }
+
         else{
             ++iter;
         }
@@ -1266,18 +1105,22 @@ void analyzeDataset(
 
     printf("Number of matrix files: %d\n", static_cast<int>(matrixFileToResultsInformationMap.size()));
 
-    float maxSparsity = 0.0f;
-    float minSparsity = 100.0f;
-
     int maxM = 0;
-    int minM = std::numeric_limits<int>::max();;
+    int minM = std::numeric_limits<int>::max();
 
     int maxN = 0;
-    int minN = std::numeric_limits<int>::max();;
+    int minN = std::numeric_limits<int>::max();
+
+    uint64_t maxNNZ = 0;
+    uint64_t minNNZ = std::numeric_limits<int>::max();
+
+    float minSparsity = 100.0f;
+    float maxSparsity = 0.0f;
 
     for (const auto& iter : matrixFileToResultsInformationMap){
         const int M = tryParse<int>(iter.second.M_).value_or(0);
         const int N = tryParse<int>(iter.second.N_).value_or(0);
+        const uint64_t NNZ = tryParse<int>(iter.second.NNZ_).value_or(0);
         const float sparsity = tryParse<float>(iter.second.sparsity_).value_or(0.0f);
 
         maxM = std::max(M, maxM);
@@ -1286,14 +1129,17 @@ void analyzeDataset(
         maxN = std::max(N, maxN);
         minN = std::min(N, minN);
 
-        maxSparsity = std::max(sparsity, maxSparsity);
-        minSparsity = std::min(sparsity, minSparsity);
-    }
+        maxNNZ = std::max(NNZ, maxNNZ);
+        minNNZ = std::min(NNZ, minNNZ);
 
-    printf("Minimum sparsity: %.2f%%, maximum sparsity: %.2f%%\n", minSparsity, maxSparsity);
+        minSparsity = std::min(sparsity, minSparsity);
+        maxSparsity = std::max(sparsity, maxSparsity);
+    }
 
     printf("Minimum m: %d, maximum m: %d\n", minM, maxM);
     printf("Minimum n: %d, maximum n: %d\n", minN, maxN);
+    printf("Minimum nnz: %lu, maximum nnz: %lu\n", minNNZ, maxNNZ);
+    printf("Minimum sparsity: %.2f%%, maximum sparsity: %.2f%%\n", minSparsity, maxSparsity);
 
     printf("\n");
 }
