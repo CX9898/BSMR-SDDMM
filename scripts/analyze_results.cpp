@@ -728,6 +728,12 @@ void evaluateBSMRWithFlashSparse(
         const float BSMR_gflops = iter.second.oneTimeData_.BSMR_.gflops();
         const float FlashSparse_gflops = iter.second.oneTimeData_.FlashSparse_.gflops();
 
+        // const float speedup = BSMR_gflops / FlashSparse_gflops;
+        // if (speedup <= 0.8f){
+        //     printf("%s\n",
+        //            iter.first.c_str());
+        // }
+
         evaluateBaseLine(BSMR_gflops, FlashSparse_gflops, numSpeedups, maxSpeedup, sumSpeedup, numResults);
     }
 
@@ -783,7 +789,7 @@ void outputCSVFile(
         return;
     }
 
-    outFile << "Matrix File,M,N,NNZ,Sparsity,K,BSMR,cuSDDMM,cusparse,RoDe,ASpT,TCGNN,FlashSparse,Sputnik\n";
+    outFile << "file,M,N,NNZ,Sparsity,K,BSMR,cuSDDMM,cuSparse,RoDe,ASpT,TCGNN,FlashSparse,Sputnik\n";
 
     for (const auto& iter : matrixFileToResultsInformationMap){
         const ResultsInformation& resultsInformation = iter.second;
@@ -1163,11 +1169,6 @@ void evaluateReorderingWithBSA(
         }
     }
 
-    // printf("Percent increase in the number of dense blocks generated relative to BSA: %.2f%%\n",
-    //        relativeIncreasePercent);
-
-    // printReorderingEffectiveness(matrixFileToResultsInformationMap);
-
     printf("\n");
 }
 
@@ -1182,7 +1183,7 @@ void evaluateHybridSddmm(
         return;
     }
 
-    outFile << "Matrix File,M,N,NNZ,Sparsity,alpha,K,BSMR,BSMR_Only_Tensor_core,BSMR_Only_CUDA_Core\n";
+    outFile << "file,M,N,NNZ,Sparsity,alpha,K,BSMR,BSMR_Only_Tensor_core,BSMR_Only_CUDA_Core\n";
 
     float sumSpeedupWithOnlyTensorCore = 0.0f;
     float sumSpeedupWithOnlyCudaCore = 0.0f;

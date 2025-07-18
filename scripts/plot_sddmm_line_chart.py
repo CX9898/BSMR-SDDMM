@@ -19,19 +19,10 @@ matplotlib.rcParams.update({
 
 
 def preprocess(df, k):
-    df.rename(columns={
-        "Matrix File": "file",
-        "BSMR": "BSMR_gflops",
-        "cuSDDMM": "cuSDDMM_gflops",
-        "cusparse": "cuSparse_gflops",
-        "RoDe": "RoDe_gflops",
-        "TCGNN": "TCGNN_gflops",
-        "FlashSparse": "FlashSparse_gflops"
-    }, inplace=True)
 
     df = df.sort_values(by="NNZ").reset_index(drop=True)
     df = df[(df["NNZ"] >= 10000) & (df["NNZ"] <= 2000000)]
-    df = df.dropna(subset=["BSMR_gflops"])
+    df = df.dropna(subset=["BSMR"])
     df = df.drop_duplicates(subset=["file"])
 
     window_size = 5
@@ -39,8 +30,8 @@ def preprocess(df, k):
         print(f"Skipping K={k} due to insufficient data points (<{window_size})")
         return None
 
-    numeric_cols = ["NNZ", "BSMR_gflops", "cuSDDMM_gflops", "cuSparse_gflops",
-                    "RoDe_gflops", "TCGNN_gflops", "FlashSparse_gflops"]
+    numeric_cols = ["NNZ", "BSMR", "cuSDDMM", "cuSparse",
+                    "RoDe", "TCGNN", "FlashSparse", "ASpT", "Sputnik"]
 
     avg_df = df[numeric_cols].rolling(window=window_size).mean().dropna().reset_index(drop=True)
     return avg_df
@@ -57,12 +48,14 @@ def plot_gflops_comparison(k_data_list, output_dir, output_name_suffix):
         axes = [axes]
 
     algo_columns = {
-        "BSMR_gflops": "BSMR",
-        "cuSDDMM_gflops": "cuSDDMM",
-        "cuSparse_gflops": "cuSparse",
-        "RoDe_gflops": "RoDe",
-        "TCGNN_gflops": "TCGNN",
-        "FlashSparse_gflops": "FlashSparse"
+        "BSMR": "BSMR",
+        "cuSDDMM": "cuSDDMM",
+        "cuSparse": "cuSparse",
+        "RoDe": "RoDe",
+        "TCGNN": "TCGNN",
+        "FlashSparse": "FlashSparse",
+        "ASpT": "ASpT",
+        "Sputnik": "Sputnik"
     }
 
     handles_dict = {}
@@ -95,8 +88,8 @@ def plot_gflops_comparison(k_data_list, output_dir, output_name_suffix):
 
 def main():
     parser = argparse.ArgumentParser(description="K=32/128 分别输入，绘制 GFLOPS 子图")
-    parser.add_argument('--file_k32', type=str, help="CSV 文件路径（K=32）")
-    parser.add_argument('--file_k128', type=str, help="CSV 文件路径（K=128）")
+    parser.add_argument('--k32', type=str, help="CSV 文件路径(K=32)")
+    parser.add_argument('--k128', type=str, help="CSV 文件路径(K=128)")
     parser.add_argument('--outdir', type=str, default='.', help="输出图像目录")
     args = parser.parse_args()
 
@@ -105,14 +98,14 @@ def main():
 
     k_data_list = []
 
-    if args.file_k32:
-        df_k32 = pd.read_csv(args.file_k32)
+    if args.k32:
+        df_k32 = pd.read_csv(args.k32)
         avg_k32 = preprocess(df_k32, 32)
         if avg_k32 is not None:
             k_data_list.append((32, avg_k32))
 
-    if args.file_k128:
-        df_k128 = pd.read_csv(args.file_k128)
+    if args.k128:
+        df_k128 = pd.read_csv(args.k128)
         avg_k128 = preprocess(df_k128, 128)
         if avg_k128 is not None:
             k_data_list.append((128, avg_k128))
