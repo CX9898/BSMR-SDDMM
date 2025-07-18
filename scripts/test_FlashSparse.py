@@ -34,6 +34,11 @@ class dataSet_tf32(torch.nn.Module):
         else:
             raise ValueError(f"Unsupported file format: {ext}")
 
+        if self.graph.nnz == 0:
+            self.num_edges = 0
+            print("Warning: The graph has no edges! file =", data_path)
+            return
+
         self.num_features = K
         self.init_edges(partsize, window, wide)
         self.init_embedding()
@@ -94,6 +99,9 @@ class dataSet_tf32(torch.nn.Module):
 # 8x1
 def fs_tf32_16_1(epoches, K, partsize_t, data_path, window, wide):
     inputInfo = dataSet_tf32(K, partsize_t, data_path, window, wide)
+    if inputInfo.num_edges == 0:
+        print("Warning: num_edges is empty! file =", data_path)
+        return 0, inputInfo.num_edges
 
     X_prime, sddmm_ms_avg = FS_SDDMM.forward_gen_tf32_16(
         inputInfo.x.size(1),
@@ -111,6 +119,9 @@ def fs_tf32_16_1(epoches, K, partsize_t, data_path, window, wide):
 # 8x1
 def fs_tf32_8_1(epoches, dimN, partsize_t, data_path, window, wide):
     inputInfo = dataSet_tf32(dimN, partsize_t, data_path, window, wide)
+    if inputInfo.num_edges == 0:
+        print("Warning: num_edges is empty! file =", data_path)
+        return 0, inputInfo.num_edges
 
     X_prime, sddmm_ms_avg = FS_SDDMM.forward_gen_tf32(
         inputInfo.x.size(1),
@@ -164,8 +175,9 @@ if __name__ == "__main__":
 
         for line_idx, line in enumerate(lines):
             remaining = total_lines - line_idx - 1
-            print(f'FlashSparse SDDMM Test: [Remaining: {remaining} ]')
             file_path = matrix_dir_path + line
+
+            print(f'FlashSparse SDDMM Test: [Remaining: {remaining} ]')
             print('Loading file: ' + file_path)
             print('K: ' + str(K))
 
@@ -175,7 +187,10 @@ if __name__ == "__main__":
             # 8x1
             sddmm_tcu_8_1, nnz = fs_tf32_8_1(epoches, K, partsize_t, file_path, 8, 16)
 
-            gflops = (nnz * K * 2) / (sddmm_tcu_8_1 * 1e6)
+            if nnz == 0:
+                gflops = 0
+            else:
+                gflops = (nnz * K * 2) / (sddmm_tcu_8_1 * 1e6)
 
             with open(log_file, 'a', newline='') as f_log:
                 f_log.write('---New data---\n')
@@ -185,7 +200,6 @@ if __name__ == "__main__":
                 f_log.write('[FlashSparse_gflops : ' + str(gflops) + ' ]\n')
 
             print('success\n')
-
 
     with open(log_file, 'a', newline='') as write_file:
         write_file.write('\n---Test done---\n')
@@ -198,4 +212,3 @@ if __name__ == "__main__":
     # Record execution time.
     with open(log_file, 'a', newline='') as write_file:
         write_file.write(str(round(execution_time / 60, 2)) + " minutes\n")
-
