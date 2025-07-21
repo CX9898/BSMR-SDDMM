@@ -496,14 +496,13 @@ __global__ void sddmm_gpu_dense_block_k32_lianxu_m16n16k8_matrixA_rowMaj_matrixB
     const UIN numNonZeroRow,
     const UIN* __restrict__ reorderedRows,
     const UIN* __restrict__ denseCols,
-    const UIN* __restrict__ denseColOffset,
     const UIN* __restrict__ blockOffsets,
     const UIN* __restrict__ blockValues,
     MATRIX_C_TYPE* matrixP){
     constexpr int kStep = 32;
 
     constexpr int aTileSMEMLd = kStep + 4;
-    constexpr int bTileSMEMLd = WMMA_K;
+    constexpr int bTileSMEMLd = kStep + 4;
 
     constexpr int aTileSMEMSize = WMMA_M * aTileSMEMLd;
     constexpr int bTileSMEMSize =
@@ -515,12 +514,19 @@ __global__ void sddmm_gpu_dense_block_k32_lianxu_m16n16k8_matrixA_rowMaj_matrixB
     const UIN warpId = threadIdx.x >> 5;
 
     const UIN rowPanelId = blockIdx.x;
-    const UIN numColBlocksCurrentRowPanel =
-        __ldg(&blockOffsets[rowPanelId + 1]) - __ldg(&blockOffsets[rowPanelId]);
+    // __shared__ UIN startBlockIdCurrentRowPanel;
+    // __shared__ UIN endBlockIdCurrentRowPanel;
+    // if (threadIdx.x == 0){
+    //     startBlockIdCurrentRowPanel = __ldg(&blockOffsets[rowPanelId]);
+    //     endBlockIdCurrentRowPanel = __ldg(&blockOffsets[rowPanelId + 1]);
+    // }
+    // __syncthreads();
+    const UIN startBlockIdCurrentRowPanel = __ldg(&blockOffsets[rowPanelId]);
+    const UIN endBlockIdCurrentRowPanel = __ldg(&blockOffsets[rowPanelId + 1]);
 
     const UIN colBlockIter =
         blockIdx.y * each_thread_block_counts_the_number_Of_dense_blocks;
-    if (colBlockIter >= numColBlocksCurrentRowPanel){
+    if (colBlockIter >= endBlockIdCurrentRowPanel - startBlockIdCurrentRowPanel){
         return;
     }
 
@@ -536,13 +542,11 @@ __global__ void sddmm_gpu_dense_block_k32_lianxu_m16n16k8_matrixA_rowMaj_matrixB
 
     fill_fragment(accFrag, 0.0f);
 
-    const UIN colBlockId = colBlockIter + warpId;
-    const UIN startIndexOfBlockValuesCurrentBlock =
-        (__ldg(&blockOffsets[rowPanelId]) + colBlockId) * BLOCK_SIZE;
+    const UIN colBlockId = startBlockIdCurrentRowPanel + colBlockIter + warpId;
+    const UIN startIndexOfBlockValuesCurrentBlock = colBlockId * BLOCK_SIZE;
 
-    const UIN startIndexOfDenseColsCurrentColBlock =
-        __ldg(&denseColOffset[rowPanelId]) + BLOCK_COL_SIZE * colBlockId;
-    const UIN endIndexOfDenseColsCurrentPanel = __ldg(&denseColOffset[rowPanelId + 1]);
+    const UIN startIndexOfDenseColsCurrentColBlock = BLOCK_COL_SIZE * colBlockId;
+    const UIN endIndexOfDenseColsCurrentPanel = endBlockIdCurrentRowPanel * BLOCK_COL_SIZE;
 
 #pragma unroll
     for (UIN smemRow = warpId; smemRow < WMMA_M; smemRow += numWarps){
@@ -560,7 +564,7 @@ __global__ void sddmm_gpu_dense_block_k32_lianxu_m16n16k8_matrixA_rowMaj_matrixB
 
     __syncthreads();
 
-    if (colBlockId < numColBlocksCurrentRowPanel){
+    if (colBlockId < endBlockIdCurrentRowPanel){
 #pragma unroll
         for (int iter = 0; iter < 4; ++iter){
             const UIN localK = iter * WMMA_K;
@@ -596,7 +600,7 @@ __global__ void sddmm_gpu_dense_block_k32_lianxu_m16n16k8_matrixA_rowMaj_matrixB
 
 
     // Store the result
-    if (colBlockId < numColBlocksCurrentRowPanel){
+    if (colBlockId < endBlockIdCurrentRowPanel){
 #pragma unroll
         for (int idxOfFragment = 0; idxOfFragment < accFrag.num_elements;
              ++idxOfFragment){
@@ -2680,42 +2684,8 @@ void sddmm_gpu_k32(UIN M,
                    const RPHM& rphm,
                    float* matrixP,
                    Logger& logger){
-    //    // Convert the data type of matrix A and matrix B for use tensor core
-    //    dev::vector<MATRIX_A_TYPE> matrixA_convertedType(M * K);
-    //    dev::vector<MATRIX_B_TYPE> matrixB_convertedType(N * K);
-    //    {
-    //        const int numThreadPerBlock = 1024;
-    //        kernel::convertDataType<<< (M * K + numThreadPerBlock - 1) /
-    //        numThreadPerBlock, numThreadPerBlock>>>(
-    //            M * K, matrixA, matrixA_convertedType.data());
-    //        kernel::convertDataType<<< (N * K + numThreadPerBlock - 1) /
-    //        numThreadPerBlock, numThreadPerBlock>>>(
-    //            N * K, matrixB, matrixB_convertedType.data());
-    //    }
 
     dim3 grid_dense, block_dense, grid_sparse, block_sparse;
-
-    block_dense.x = WARP_SIZE *
-        sddmm_dense_block_number_of_warps_per_thread_block;
-    // Assign row panel to x-axis of grid, and assign col block to y-axis of grid
-    grid_dense.x = rphm.numRowPanels();
-    grid_dense.y = std::ceil(
-        static_cast<float>(rphm.maxNumDenseColBlocksInRowPanel()) /
-        each_thread_block_counts_the_number_Of_dense_blocks);
-
-    // block_dense.x =
-    //     WARP_SIZE * sddmm_dense_block_number_of_warps_per_thread_block;
-    // grid_dense.x = rphm.numDenseThreadBlocks();
-
-    block_sparse.x = sddmm_sparse_block_number_of_thread_per_thread_block;
-    grid_sparse.x = rphm.numRowPanels();
-
-    // printf("grid_dense: [%u, %u, %u], block_dense: [%u, %u, %u]\n", grid_dense.x,
-    //        grid_dense.y, grid_dense.z, block_dense.x, block_dense.y,
-    //        block_dense.z);
-    // printf("grid_sparse: [%u, %u, %u], block_sparse: [%u, %u, %u]\n",
-    //        grid_sparse.x, grid_sparse.y, grid_sparse.z, block_sparse.x,
-    //        block_sparse.y, block_sparse.z);
 
     cudaStream_t denseStream;
     cudaStream_t sparseStream;
@@ -2730,33 +2700,54 @@ void sddmm_gpu_k32(UIN M,
     for (int iter = 0; iter < 10; ++iter){
 #ifdef WMMA_16_16_8
         if (grid_dense.x > 0 && grid_dense.y > 0){
-            kernel::sddmm_gpu_dense_block_k32_m16n16k8_matrixA_rowMaj_matrixB_colMaj<<<
-                grid_dense, block_dense, 0, denseStream>>>(
-                    M, N, K, matrixA, matrixB, rphm.reorderedRows().size(),
-                    rphm.reorderedRows().data(), rphm.denseCols().data(),
-                    rphm.blockOffsets().data(),
-                    rphm.blockValues().data(),
-                    matrixP);
-            // kernel::sddmm_gpu_dense_block_2_k32_m16n16k8_matrixA_rowMaj_matrixB_colMaj<<<
-            //     grid_dense, block_dense, 0, denseStream>>>(
-            //         M, N, K, matrixA, matrixB, rphm.reorderedRows().size(),
-            //         rphm.reorderedRows().data(), rphm.denseCols().data(),
-            //         rphm.blockOffsets().data(),
-            //         rphm.blockValues().data(),
-            //         rphm.denseRowPanelIds().data(),
-            //         rphm.denseColBlockIters().data(),
-            //         matrixP);
-            // kernel::sddmm_gpu_dense_block_rowPanel_k32_m16n16k8_matrixA_rowMaj_matrixB_colMaj<<<
-            //     grid_dense, block_dense, 0, denseStream>>>(
-            //         M, N, K, matrixA, matrixB, rphm.reorderedRows().size(),
-            //         rphm.reorderedRows().data(), rphm.denseCols().data(),
-            //         rphm.blockOffsets().data(),
-            //         rphm.blockValues().data(),
-            //         matrixP);
+            {
+                block_dense.x = WARP_SIZE *
+                    sddmm_dense_block_number_of_warps_per_thread_block;
+                // Assign row panel to x-axis of grid, and assign col block to y-axis of grid
+                grid_dense.x = rphm.numRowPanels();
+                grid_dense.y = std::ceil(
+                    static_cast<float>(rphm.maxNumDenseColBlocksInRowPanel()) /
+                    each_thread_block_counts_the_number_Of_dense_blocks);
+                kernel::sddmm_gpu_dense_block_k32_m16n16k8_matrixA_rowMaj_matrixB_colMaj<<<
+                    grid_dense, block_dense, 0, denseStream>>>(
+                        M, N, K, matrixA, matrixB, rphm.reorderedRows().size(),
+                        rphm.reorderedRows().data(), rphm.denseCols().data(),
+                        rphm.blockOffsets().data(),
+                        rphm.blockValues().data(),
+                        matrixP);
+            }
+            // {
+            //     block_dense.x = WARP_SIZE *
+            //         sddmm_dense_block_number_of_warps_per_thread_block;
+            //     grid_dense.x = rphm.numDenseThreadBlocks();
+            //     kernel::sddmm_gpu_dense_block_2_k32_m16n16k8_matrixA_rowMaj_matrixB_colMaj<<<
+            //         grid_dense, block_dense, 0, denseStream>>>(
+            //             M, N, K, matrixA, matrixB, rphm.reorderedRows().size(),
+            //             rphm.reorderedRows().data(), rphm.denseCols().data(),
+            //             rphm.blockOffsets().data(),
+            //             rphm.blockValues().data(),
+            //             rphm.denseRowPanelIds().data(),
+            //             rphm.denseColBlockIters().data(),
+            //             matrixP);
+            // }
+            // {
+            //     block_dense.x = WARP_SIZE *
+            //         sddmm_dense_block_number_of_warps_per_thread_block;
+            //     grid_dense.x = rphm.numRowPanels();
+            //     kernel::sddmm_gpu_dense_block_rowPanel_k32_m16n16k8_matrixA_rowMaj_matrixB_colMaj<<<
+            //         grid_dense, block_dense, 0, denseStream>>>(
+            //             M, N, K, matrixA, matrixB, rphm.reorderedRows().size(),
+            //             rphm.reorderedRows().data(), rphm.denseCols().data(),
+            //             rphm.blockOffsets().data(),
+            //             rphm.blockValues().data(),
+            //             matrixP);
+            // }
         }
 #endif // WMMA_16_16_8
 
         if (grid_sparse.x > 0 && grid_sparse.y > 0){
+            block_sparse.x = sddmm_sparse_block_number_of_thread_per_thread_block;
+            grid_sparse.x = rphm.numRowPanels();
             kernel::sddmm_gpu_sparse_remainder_k32_2threadOneData_shuffle<<<grid_sparse,
                 block_sparse, 0, sparseStream>>>(
                     M, N, K,
