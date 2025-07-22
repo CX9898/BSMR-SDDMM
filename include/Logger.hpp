@@ -4,6 +4,9 @@
 #include <cstdio>
 #include <iostream>
 #include <string>
+#include <fstream>
+#include <iomanip>
+#include <cmath>
 
 #include "Matrix.hpp"
 
@@ -41,7 +44,7 @@ struct Logger{
         matrixB_storageOrder_ = matrixB.storageOrder() == MatrixStorageOrder::row_major ? "row_major" : "col_major";
     }
 
-    inline void printLogInformation();
+    inline void printLogInformation(std::ostream& out = std::cout) const;
 
     std::string inputFile_;
 
@@ -117,70 +120,73 @@ void Logger::getInformation(const sparseMatrix::DataBase& matrix){
     sparsity_ = matrix.getSparsity();
 }
 
-void Logger::printLogInformation(){
-    printf("[File : %s]\n", inputFile_.c_str());
+void Logger::printLogInformation(std::ostream& out) const{
+    out << "[File : " << inputFile_ << "]\n";
 
-    printf("[Build type : %s]\n", buildType_.c_str());
-    printf("[Device : %s]\n", gpu_.c_str());
+    out << "[Build type : " << buildType_ << "]\n";
+    out << "[Device : " << gpu_ << "]\n";
 
-    printf("[WMMA_M : %zu], [WMMA_N : %zu], [WMMA_K : %zu]\n", wmma_m_, wmma_n_, wmma_k_);
+    out << "[WMMA_M : " << wmma_m_ << "], [WMMA_N : " << wmma_n_ << "], [WMMA_K : " << wmma_k_ << "]\n";
 
-    printf("[K : %ld], ", K_);
+    out << "[K : " << K_ << "], ";
+    out << "[M : " << M_ << "], ";
+    out << "[N : " << N_ << "], ";
+    out << "[NNZ : " << NNZ_ << "], ";
+    out << "[sparsity : " << std::fixed << std::setprecision(2) << (std::floor(sparsity_ * 10000) / 100.0) << "%]\n";
 
-    printf("[M : %ld], ", M_);
-    printf("[N : %ld], ", N_);
-    printf("[NNZ : %ld], ", NNZ_);
-    printf("[sparsity : %.2f%%]\n", floor(sparsity_ * 10000) / 100.0);
+    out << "[matrixA type : " << matrixA_type_ << "]\n";
+    out << "[matrixB type : " << matrixB_type_ << "]\n";
+    out << "[matrixC type : " << matrixC_type_ << "]\n";
 
-    printf("[matrixA type : %s]\n", matrixA_type_.c_str());
-    printf("[matrixB type : %s]\n", matrixB_type_.c_str());
-    printf("[matrixC type : %s]\n", matrixC_type_.c_str());
+    out << "[matrixA storageOrder : " << matrixA_storageOrder_ << "]\n";
+    out << "[matrixB storageOrder : " << matrixB_storageOrder_ << "]\n";
 
-    printf("[matrixA storageOrder : %s]\n", matrixA_storageOrder_.c_str());
-    printf("[matrixB storageOrder : %s]\n", matrixB_storageOrder_.c_str());
+    out << "[Num iterations : " << numITER_ << "]\n";
 
-    printf("[Num iterations : %d]\n", numITER_);
+    out << "[NumRowPanel : " << numRowPanels_ << "]\n";
 
-    printf("[NumRowPanel : %d]\n", numRowPanels_);
+    out << "[original_numDenseBlock : " << originalNumDenseBlock_ << "]\n";
+    out << "[original_averageDensity : " << originalAverageDensity_ << "]\n";
 
-    printf("[original_numDenseBlock : %d]\n", originalNumDenseBlock_);
-    printf("[original_averageDensity : %f]\n", originalAverageDensity_);
+    out << "[bsmr_alpha : " << alpha_ << "]\n";
+    out << "[bsmr_delta : " << delta_ << "]\n";
 
-    printf("[bsmr_alpha : %.2f]\n", alpha_);
-    printf("[bsmr_delta : %.2f]\n", delta_);
+    out << "[bsmr_numClusters : " << numClusters_ << "]\n";
+    out << "[bsmr_numDenseBlock : " << numDenseBlock_ << "]\n";
+    out << "[bsmr_averageDensity : " << averageDensity_ << "]\n";
 
-    printf("[bsmr_numClusters : %d]\n", numClusters_);
+    out << "[bsmr_rowReordering : " << rowReorderingTime_ << "]\n";
+    out << "[bsmr_colReordering : " << colReorderingTime_ << "]\n";
+    out << "[bsmr_reordering : " << reorderingTime_ << "]\n";
 
-    printf("[bsmr_numDenseBlock : %d]\n", numDenseBlock_);
-    printf("[bsmr_averageDensity : %f]\n", averageDensity_);
+    out << "[gridDim_dense : " << gridDim_dense_.x << ", " << gridDim_dense_.y << ", " << gridDim_dense_.z << "]\n";
+    out << "[blockDim_dense : " << blockDim_dense_.x << ", " << blockDim_dense_.y << ", " << blockDim_dense_.z << "]\n";
 
-    printf("[bsmr_rowReordering : %.2f]\n", rowReorderingTime_);
-    printf("[bsmr_colReordering : %.2f]\n", colReorderingTime_);
-    printf("[bsmr_reordering : %.2f]\n", reorderingTime_);
+    out << "[gridDim_sparse : " << gridDim_sparse_.x << ", " << gridDim_sparse_.y << ", " << gridDim_sparse_.z << "]\n";
+    out << "[blockDim_sparse : " << blockDim_sparse_.x << ", " << blockDim_sparse_.y << ", " << blockDim_sparse_.z <<
+        "]\n";
 
-    printf("[gridDim_dense : %d, %d, %d]\n", gridDim_dense_.x, gridDim_dense_.y, gridDim_dense_.z);
-    printf("[blockDim_dense : %d, %d, %d]\n", blockDim_dense_.x, blockDim_dense_.y, blockDim_dense_.z);
+    out << "[bsmr_numDenseThreadBlocks : " << numDenseThreadBlocks_ << "]\n";
+    out << "[bsmr_numSparseThreadBlocks : " << numSparseThreadBlocks_ << "]\n";
+    out << "[bsmr_threadBlockRatio : " << std::fixed << std::setprecision(2)
+        << static_cast<float>(numDenseThreadBlocks_) / numSparseThreadBlocks_ << "]\n";
 
-    printf("[gridDim_sparse : %d, %d, %d]\n", gridDim_sparse_.x, gridDim_sparse_.y, gridDim_sparse_.z);
-    printf("[blockDim_sparse : %d, %d, %d]\n", blockDim_sparse_.x, blockDim_sparse_.y, blockDim_sparse_.z);
-
-    printf("[bsmr_numDenseThreadBlocks : %d]\n", numDenseThreadBlocks_);
-    printf("[bsmr_numSparseThreadBlocks : %d]\n", numSparseThreadBlocks_);
-    printf("[bsmr_threadBlockRatio : %.2f]\n", static_cast<float>(numDenseThreadBlocks_) / numSparseThreadBlocks_);
-
-    printf("[bsmr_numDenseData : %d]\n", numDenseData_);
-    printf("[bsmr_numSparseData : %d]\n", numSparseData_);
-    printf("[bsmr_dataRatio: %.2f]\n", static_cast<float>(numDenseData_) / numSparseData_);
+    out << "[bsmr_numDenseData : " << numDenseData_ << "]\n";
+    out << "[bsmr_numSparseData : " << numSparseData_ << "]\n";
+    out << "[bsmr_dataRatio: " << std::fixed << std::setprecision(2)
+        << static_cast<float>(numDenseData_) / numSparseData_ << "]\n";
 
     const size_t flops = 2 * NNZ_ * K_;
 
-    printf("[cuSparse_gflops : %.2f]\n", (flops / (sddmmTime_cuSparse_ * 1e6)));
-    printf("[cuSparse_sddmm : %.2f]\n", sddmmTime_cuSparse_);
+    out << "[cuSparse_gflops : " << std::fixed << std::setprecision(2)
+        << (flops / (sddmmTime_cuSparse_ * 1e6)) << "]\n";
+    out << "[cuSparse_sddmm : " << sddmmTime_cuSparse_ << "]\n";
 
-    printf("[bsmr_gflops : %.2f]\n", (flops / (sddmmTime_ * 1e6)));
-    printf("[bsmr_sddmm : %.2f]\n", sddmmTime_);
+    out << "[bsmr_gflops : " << (flops / (sddmmTime_ * 1e6)) << "]\n";
+    out << "[bsmr_sddmm : " << sddmmTime_ << "]\n";
 
     if (errorRate_ > 0){
-        printf("[checkResults : NO PASS Error rate : %2.2f%%]\n", errorRate_);
+        out << "[checkResults : NO PASS Error rate : " << std::fixed << std::setprecision(2)
+            << errorRate_ << "%]\n";
     }
 }
