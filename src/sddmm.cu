@@ -4,17 +4,18 @@
 #include "host.hpp"
 #include "sddmm.hpp"
 #include "sddmmKernel.cuh"
+#include "cuSparseSDDMM.cuh"
 
 // Reordering method
-void sddmm(const Options &options,
-           const Matrix<float> &matrixA,
-           const Matrix<float> &matrixB,
-           sparseMatrix::CSR<float> &matrixP,
-           Logger &logger) {
+void sddmm(const Options& options,
+           const Matrix<float>& matrixA,
+           const Matrix<float>& matrixB,
+           sparseMatrix::CSR<float>& matrixP,
+           Logger& logger){
     // Reordering
-    BSMR bsmr(matrixP,
-              options.similarityThresholdAlpha(),
+    BSMR bsmr(options.similarityThresholdAlpha(),
               options.blockDensityThresholdDelta(),
+              matrixP,
               1);
     logger.rowReorderingTime_ = bsmr.rowReorderingTime();
     logger.colReorderingTime_ = bsmr.colReorderingTime();
@@ -35,10 +36,10 @@ void sddmm(const Options &options,
     // checkSddmm(matrixA, matrixB, matrixP, matrixP);
 }
 
-bool checkSddmm(const Matrix<float> &matrixA,
-                const Matrix<float> &matrixB,
-                const sparseMatrix::CSR<float> &matrixS,
-                const sparseMatrix::CSR<float> &matrixP) {
+bool checkSddmm(const Matrix<float>& matrixA,
+                const Matrix<float>& matrixB,
+                const sparseMatrix::CSR<float>& matrixS,
+                const sparseMatrix::CSR<float>& matrixP){
     // sddmm comp by cpu
     sparseMatrix::CSR<MATRIX_C_TYPE> matrixP_cpu_res(matrixS);
     sddmm_cpu(matrixA, matrixB, matrixS, matrixP_cpu_res);
@@ -46,7 +47,7 @@ bool checkSddmm(const Matrix<float> &matrixA,
     // Error check
     printf("check cpu sddmm and BSMR sddmm: \n");
     size_t numError = 0;
-    if (!checkData(matrixP_cpu_res.values(), matrixP.values(), numError)) {
+    if (!checkData(matrixP_cpu_res.values(), matrixP.values(), numError)){
         printf("[checkData : NO PASS Error rate : %2.2f%%]\n",
                static_cast<float>(numError) / static_cast<float>(matrixP.values().size()) * 100);
         return false;
@@ -55,54 +56,64 @@ bool checkSddmm(const Matrix<float> &matrixA,
     return true;
 }
 
-void sddmmBatch(int seq_len,
-                int emb_dim,
-                int nnz,
-                int numBatches,
-                const float *dQuery,
-                const float *dKey,
-                const UIN *d_offsets,
-                const UIN *d_columns,
-                float *dAttn) {
-    const int M = seq_len;
-    const int K = emb_dim;
 
-    std::vector<UIN> offsets(M + 1);
-    std::vector<UIN> columns(nnz);
-    cudaMemcpy(offsets.data(), d_offsets, offsets.size() * sizeof(UIN), cudaMemcpyDeviceToHost);
-    cudaMemcpy(columns.data(), d_columns, columns.size() * sizeof(UIN), cudaMemcpyDeviceToHost);
+void sddmm_testMode(const Options& options,
+                    sparseMatrix::CSR<float>& matrixP){
+    std::vector<float> similarityThresholdAlpha = {0.1f, 0.3f, 0.5f, 0.7f, 0.9f};
+    std::vector<float> blockDensityThresholdDelta = {0.0f, 0.1f, 0.3f, 0.5f, 0.7f, 0.9f, 1.1f};
+    std::vector<UIN> K = {32, 64, 128, 256};
 
-    sparseMatrix::CSR<float> matrixP(M, M, nnz, offsets, columns);
-    // Reordering
-    BSMR bsmr(matrixP, 0.3, 0.5, 1);
+    BSMR bsmr;
 
-    // Device data
-    RPHM rphm(matrixP, bsmr);
-    float time = 0.0f;
-    sddmm_gpu_batch(numBatches, M, M, K, nnz, dQuery, dKey, rphm, dAttn, time);
-}
+    for (const auto& alpha : similarityThresholdAlpha){
+        bsmr.rowReordering(alpha, matrixP);
+        for (const auto& delta : blockDensityThresholdDelta){
+            for (const auto& k : K){
+                Matrix<float> matrixA(matrixP.row(), k, MatrixStorageOrder::row_major);
+                matrixA.makeData();
 
-void sddmmBatch(int seq_len,
-                int emb_dim,
-                int nnz,
-                int numBatches,
-                const float *dQuery,
-                const float *dKey,
-                const int *d_offsets,
-                const int *d_columns,
-                float *dAttn) {
-    dev::vector<UIN> converted_offsets(seq_len + 1);
-    cudaMemcpy(converted_offsets.data(), d_offsets, converted_offsets.size() * sizeof(int), cudaMemcpyDeviceToDevice);
-    dev::vector<UIN> converted_columns(nnz);
-    cudaMemcpy(converted_columns.data(), d_columns, converted_columns.size() * sizeof(int), cudaMemcpyDeviceToDevice);
+                Matrix<float> matrixB(k, matrixP.col(), MatrixStorageOrder::col_major);
+                matrixB.makeData();
 
-    sddmmBatch(seq_len,
-               emb_dim,
-               nnz,
-               numBatches,
-               dQuery,
-               dKey,
-               converted_offsets.data(),
-               converted_columns.data(),
-               dAttn);
+                // Result information logger
+                Logger logger;
+                logger.getInformation(options);
+                logger.getInformation(matrixP);
+                logger.getInformation(matrixA, matrixB);
+                logger.alpha_ = alpha;
+                logger.delta_ = delta;
+
+                // Reordering
+                bsmr.colReordering(delta, matrixP);
+                logger.rowReorderingTime_ = bsmr.rowReorderingTime();
+                logger.colReorderingTime_ = bsmr.colReorderingTime();
+                logger.reorderingTime_ = bsmr.reorderingTime();
+                logger.numRowPanels_ = bsmr.numRowPanels();
+                logger.numClusters_ = bsmr.numClusters();
+
+                // Device data
+                RPHM rphm(matrixP, bsmr);
+
+                // sddmm comp by gpu
+                sddmm_gpu(matrixA, matrixB, rphm, matrixP, logger);
+
+                evaluationReordering(matrixP, bsmr, logger);
+
+                sparseMatrix::CSR<float> matrixP_cuSparse(matrixP);
+                cuSparseSDDMM(matrixA, matrixB, matrixP_cuSparse, logger);
+
+                const std::string logFile = options.outputLogDirectory() + "BSMR_" +
+                    "k_" + util::to_trimmed_string(k) + "_" +
+                    "a_" + util::to_trimmed_string(alpha) + "_" +
+                    "d_" + util::to_trimmed_string(delta) + ".log";
+                std::ofstream fout(logFile, std::ios::app);
+                if (fout .fail()){
+                    fprintf(stderr, "Error, failed to open log file: %s\n", logFile.c_str());
+                    return;
+                }
+                fout << "\n---New data---\n";
+                logger.printLogInformation(fout);
+            }
+        }
+    }
 }
