@@ -12,6 +12,7 @@
 # - -k : k值(可选)
 # - -a : similarityThresholdAlpha值(可选)
 # - -d : blockDensityThresholdDelta值(可选)
+# - -l : output_log_directory(可选)
 # Notes:
 # -
 #
@@ -65,17 +66,15 @@ testTool(){
   done
   echo ""
 
-  echo "${print_tag}Start test..."
+  echo -e "${print_tag}Start test..." | tee -a ${autoTest_autoTestlog_file}
 
   echo "${print_tag}K = ${k}"
 
-  echo "${print_tag}Test program: ${autoTest_program}"
-  echo "${print_tag}Test log file: ${autoTest_autoTestlog_file}"
+  echo -e "${print_tag}Test program: ${autoTest_program}" | tee -a ${autoTest_autoTestlog_file}
+  echo -e "${print_tag}Test log file: ${autoTest_autoTestlog_file}" | tee -a ${autoTest_autoTestlog_file}
 
   local numTestFiles=${#test_file_list[@]}
-  echo "${print_tag}Number of test files: ${numTestFiles}"
-
-  echo -e "[numTestFiles : ${numTestFiles}]\n" >> ${autoTest_autoTestlog_file}
+  echo -e "${print_tag}Number of test files: ${numTestFiles}" | tee -a ${autoTest_autoTestlog_file}
 
   local sum_time=0
 
@@ -90,11 +89,11 @@ testTool(){
     local execution_time=0
 
     local start_time=$(date +%s.%N)
-    ${autoTest_program} -f ${file} -k ${k} -a ${similarityThresholdAlpha} -d ${blockDensityThresholdDelta} >> ${autoTest_autoTestlog_file}
+    ${autoTest_program} -f ${file} -k ${k} -a ${similarityThresholdAlpha} -d ${blockDensityThresholdDelta} -t 1 -l ${output_log_directory} >> ${autoTest_autoTestlog_file}
     local end_time=$(date +%s.%N)
 
     execution_time=$(echo "$end_time - $start_time" | bc)
-    echo -e "${print_tag}\tExecution time: ${execution_time} seconds"
+    echo -e "${print_tag}\tExecution time: ${execution_time} seconds" | tee -a ${autoTest_autoTestlog_file}
     sum_time=$(echo "$sum_time + $execution_time" | bc)
 
     ((file_id++))
@@ -106,14 +105,11 @@ testTool(){
   local minutes=$(echo "($sum_time % 3600) / 60" | bc)
   local seconds=$(echo "scale=6; $sum_time - ($hours * 3600 + $minutes * 60)" | bc)
 
-  # Record execution time.
-  echo -e "Total time spent: ${sum_time} seconds (${hours} hours, ${minutes} minutes, ${seconds} seconds)" >> ${autoTest_autoTestlog_file}
-
-  echo "${print_tag}Test done"
-  echo "${print_tag}Total time spent: ${sum_time} seconds (${hours} hours, ${minutes} minutes, ${seconds} seconds)"
-  echo "${print_tag}Test program: ${autoTest_program}"
-  echo "${print_tag}Test matrix list file: ${test_file_list_file}"
-  echo "${print_tag}Test information file: ${autoTest_autoTestlog_file}"
+  echo -e "${print_tag}Test done"
+  echo -e "${print_tag}Total time spent: ${sum_time} seconds (${hours} hours, ${minutes} minutes, ${seconds} seconds)"  | tee -a ${autoTest_autoTestlog_file}
+  echo -e "${print_tag}Test program: ${autoTest_program}"
+  echo -e "${print_tag}Test matrix list file: ${test_file_list_file}"
+  echo -e "${print_tag}Test information file: ${autoTest_autoTestlog_file}"
 
   for ((i=0; i<50; i++))
   do
@@ -132,7 +128,8 @@ target_log_filename="results"
 k=32
 similarityThresholdAlpha=0.3
 blockDensityThresholdDelta=0.3
-while getopts "f:p:k:n:a:d:" opt; do
+output_log_directory="./"
+while getopts "f:p:k:n:a:d:l:" opt; do
     case ${opt} in
         f) test_file_list_file="$OPTARG" ;;   # 处理 -f 选项(列表文件)
         p) target_program="$OPTARG" ;;  # 处理 -p 选项(程序路径)
@@ -140,6 +137,7 @@ while getopts "f:p:k:n:a:d:" opt; do
         k) k="$OPTARG" ;;  # 处理 -k 选项(k值)
         a) similarityThresholdAlpha="$OPTARG" ;;  # 处理 -a 选项(similarityThresholdAlpha值)
         d) blockDensityThresholdDelta="$OPTARG" ;;  # 处理 -d 选项(columnNonZeroThresholdBeta值)
+        l) output_log_directory="$OPTARG" ;;  # 处理 -l 选项(输出日志目录)
         ?) echo "用法: $0 -f <列表文件> -p <程序> -n <日志文件名> -k <k值>"
            exit 1 ;;
     esac
