@@ -23,6 +23,10 @@ def process_matrix_file(filepath, excluded_path, log_file):
     if lines and "complex" in lines[0]:
         lines[0] = lines[0].replace("complex", "real")
 
+    # 修改文件头，如果包含 pattern 则替换为 real（可选）
+    if lines and "pattern" in lines[0]:
+        lines[0] = lines[0].replace("pattern", "real")
+
     comments = [line for line in lines if line.strip().startswith('%')]
     content = [line for line in lines if not line.strip().startswith('%') and line.strip()]
 
@@ -61,10 +65,14 @@ def process_matrix_file(filepath, excluded_path, log_file):
     # 清理数据行：仅保留前两个字段 + 设置值为 1
     cleaned_data = clean_data_lines(data_lines)
     with open(filepath, 'w') as f:
-        f.writelines(comments)
+        for line in comments:
+            f.write(line if line.endswith('\n') else line + '\n')
         f.write(f"{m} {n} {nnz}\n")
-        f.writelines(line + '\n' for line in cleaned_data)
-
+        for line in cleaned_data:
+            fields = line.strip().split()
+            if len(fields) != 3:
+                raise ValueError(f"Bad line format: {line}")
+            f.write(f"{fields[0]} {fields[1]} {fields[2]}\n")
     print(f"{filepath} -> 合法，已将所有数值设置为: row col 1")
 
 def move_file(src, excluded_base, log_file, reason):
