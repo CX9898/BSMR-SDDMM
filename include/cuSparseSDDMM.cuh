@@ -24,9 +24,8 @@
     }                                                                          \
 }
 
-void cuSparseSDDMM(const Matrix<float> &matrixA,
+inline void cuSparseSDDMM(const Matrix<float> &matrixA,
                    const Matrix<float> &matrixB,
-                   const sparseMatrix::CSR<float> &matrixS,
                    sparseMatrix::CSR<float> &matrixP,
                    Logger &logger) {
 
@@ -88,10 +87,10 @@ void cuSparseSDDMM(const Matrix<float> &matrixA,
     }
 
     // Create sparse matrix S in CSR format
-    dev::vector<UIN> mtxS_offsets_dev(matrixS.rowOffsets());
-    dev::vector<UIN> mtxS_colIndices_dev(matrixS.colIndices());
-    dev::vector<float> mtxS_values_dev(matrixS.values());
-    CHECK_CUSPARSE(cusparseCreateCsr(&_mtxS, matrixS.row(), matrixS.col(), matrixS.nnz(),
+    dev::vector<UIN> mtxS_offsets_dev(matrixP.rowOffsets());
+    dev::vector<UIN> mtxS_colIndices_dev(matrixP.colIndices());
+    dev::vector<float> mtxS_values_dev(matrixP.values());
+    CHECK_CUSPARSE(cusparseCreateCsr(&_mtxS, matrixP.row(), matrixP.col(), matrixP.nnz(),
                                      mtxS_offsets_dev.data(), mtxS_colIndices_dev.data(), mtxS_values_dev.data(),
                                      CUSPARSE_INDEX_TYPE, CUSPARSE_INDEX_TYPE,
                                      CUSPARSE_INDEX_BASE_ZERO, CUDA_R_32F))
@@ -135,8 +134,8 @@ void cuSparseSDDMM(const Matrix<float> &matrixA,
     matrixP.setValues() = d2h(mtxS_values_dev);
 
 //    // Error check
-//    sparseMatrix::CSR<float> matrixP_cpu_res(matrixS);
-//    sddmm_cpu(matrixA, matrixB, matrixS, matrixP_cpu_res);
+//    sparseMatrix::CSR<float> matrixP_cpu_res(matrixP);
+//    sddmm_cpu(matrixA, matrixB, matrixP, matrixP_cpu_res);
 //    printf("check cusparseSDDMM");
 //    size_t numError = 0;
 //    if (!checkData(matrixP_cpu_res.values(), matrixP.values(), numError)) {
