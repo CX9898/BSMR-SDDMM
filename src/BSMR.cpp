@@ -13,10 +13,20 @@
 #include "parallelAlgorithm.cuh"
 #include "sddmmKernel.cuh"
 
-BSMR::BSMR(const sparseMatrix::CSR<float>& matrix,
-           const float similarityThreshold,
+BSMR::BSMR(const float similarityThreshold,
            const float blockDensityThreshold,
+           const sparseMatrix::CSR<float>& matrix,
            const int numIterations){
+    // Row reordering
+    rowReordering(similarityThreshold, matrix, numIterations);
+
+    // Column reordering
+    colReordering(blockDensityThreshold, matrix, reorderedRows_, numIterations);
+}
+
+void BSMR::rowReordering(const float similarityThreshold,
+                         const sparseMatrix::CSR<float>& matrix,
+                         const int numIterations){
     // Row reordering
     float rowReordering_time = 0.0f;
     const UIN blockSize = calculateBlockSize(matrix);
@@ -37,7 +47,17 @@ BSMR::BSMR(const sparseMatrix::CSR<float>& matrix,
 
     numRowPanels_ = std::ceil(static_cast<float>(reorderedRows_.size()) / ROW_PANEL_SIZE);
     // printf("numRowPanels : %d\n", numRowPanels_);
+}
 
+void BSMR::colReordering(const float blockDensityThreshold,
+                         const sparseMatrix::CSR<float>& matrix,
+                         const std::vector<UIN>& reorderedRows,
+                         const int numIterations){
+    if (!reorderedRows.empty()){
+        reorderedRows_ = reorderedRows;
+        numRowPanels_ = std::ceil(static_cast<float>(reorderedRows_.size()) / ROW_PANEL_SIZE);
+        // printf("numRowPanels : %d\n", numRowPanels_);
+    }
     // Column reordering
     float colReordering_time = 0.0f;
     for (int iter = 0; iter < numIterations; ++iter){
@@ -58,8 +78,6 @@ BSMR::BSMR(const sparseMatrix::CSR<float>& matrix,
 
     colReorderingTime_ = colReordering_time;
     // printf("colReordering time : %f ms\n", colReordering_time);
-
-    reorderingTime_ = rowReordering_time + colReordering_time;
 }
 
 RPHM::RPHM(const sparseMatrix::CSR<float>& matrix, const BSMR& bsmr){
@@ -902,7 +920,7 @@ void evaluationReordering(const sparseMatrix::CSR<float>& matrix, const BSMR& bs
         calculateNumDenseBlocksAndAverageDensityInOriginalMatrix(logger.delta_, matrix);
 
     logger.numDenseBlock_ = numDenseBlocks;
-    logger.averageDensity_ = totalDensity / numDenseBlocks;
+    logger.averageDensity_ = totalDensity / numDenseBlocks > 0 ? totalDensity / numDenseBlocks : 0.0f;
     logger.numDenseThreadBlocks_ = numDenseThreadBlocks;
     logger.numSparseThreadBlocks_ = numSparseThreadBlocks;
     logger.originalNumDenseBlock_ = numDenseBlocksInOriginalMatrix;

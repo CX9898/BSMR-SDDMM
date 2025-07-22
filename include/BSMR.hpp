@@ -22,10 +22,19 @@ class BSMR{
 public:
     BSMR() = default;
 
-    BSMR(const sparseMatrix::CSR<float>& matrix,
-         const float similarityThreshold,
+    BSMR(const float similarityThreshold,
          const float blockDensityThreshold,
-         const int numIterations);
+         const sparseMatrix::CSR<float>& matrix,
+         const int numIterations = 1);
+
+    void rowReordering(const float similarityThreshold,
+                       const sparseMatrix::CSR<float>& matrix,
+                       const int numIterations = 1);
+
+    void colReordering(const float blockDensityThreshold,
+                       const sparseMatrix::CSR<float>& matrix,
+                       const std::vector<UIN>& reorderedRows = std::vector<UIN>(),
+                       const int numIterations = 1);
 
     int numRowPanels() const{ return numRowPanels_; }
     const std::vector<UIN>& reorderedRows() const{ return reorderedRows_; }
@@ -37,7 +46,7 @@ public:
     int numClusters() const{ return numClusters_; }
     float rowReorderingTime() const{ return rowReorderingTime_; }
     float colReorderingTime() const{ return colReorderingTime_; }
-    float reorderingTime() const{ return reorderingTime_; }
+    float reorderingTime() const{ return rowReorderingTime_ + colReorderingTime_; }
 
 private:
     int numRowPanels_ = 0;
@@ -51,7 +60,6 @@ private:
     int numClusters_ = 1;
     float rowReorderingTime_ = 0.0f;
     float colReorderingTime_ = 0.0f;
-    float reorderingTime_ = 0.0f;
 };
 
 /**
