@@ -73,7 +73,7 @@ def process_matrix_file(filepath, excluded_path, log_file):
             if len(fields) != 3:
                 raise ValueError(f"Bad line format: {line}")
             f.write(f"{fields[0]} {fields[1]} {fields[2]}\n")
-    print(f"{filepath} -> 合法，已将所有数值设置为: row col 1")
+    print(f"{filepath} -> 合法, 已将所有非零值设置为: row col 1")
 
 def move_file(src, excluded_base, log_file, reason):
     rel_path = os.path.relpath(src, start=dataset_path)
@@ -119,3 +119,5 @@ if __name__ == "__main__":
             print(f"文件不存在: {abs_path}")
             continue
         process_matrix_file(abs_path, excluded_path, log_file)
+
+    print("处理完成. 请检查 excluded_dataset 目录中的无效数据集")
