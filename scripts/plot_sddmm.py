@@ -20,7 +20,7 @@ matplotlib.rcParams.update({
 
 def preprocess(df, k):
     df = df.sort_values(by="NNZ").reset_index(drop=True)
-    df = df[(df["NNZ"] >= 10000) & (df["NNZ"] <= 2000000)]
+    df = df[(df["NNZ"] >= 100000) & (df["NNZ"] <= 2000000)]
     df = df.dropna(subset=["BSMR"])
     df = df.drop_duplicates(subset=["file"])
 
@@ -48,21 +48,21 @@ def plot_gflops_comparison(k_data_list, output_dir, output_name_suffix):
 
     algo_columns = {
         "BSMR": "BSMR",
+        "FlashSparse": "FlashSparse",
+        "RoDe": "RoDe",
         "cuSDDMM": "cuSDDMM",
         "cuSparse": "cuSparse",
-        "RoDe": "RoDe",
         "TCGNN": "TCGNN",
-        "FlashSparse": "FlashSparse",
         "Sputnik": "Sputnik"
     }
 
     custom_colors = {
         "BSMR": "#1f77b4",  # blue
+        "FlashSparse": "#d62728",  # red
+        "RoDe": "#9467bd",  # purple
         "cuSDDMM": "#17becf",  # cyan
         "cuSparse": "#2ca02c",  # green
-        "RoDe": "#9467bd",  # purple
         "TCGNN": "#ff7f0e",  # orange
-        "FlashSparse": "#d62728",  # red
         "Sputnik": "#e377c2"  # pink
     }
 
@@ -97,7 +97,7 @@ def plot_gflops_comparison(k_data_list, output_dir, output_name_suffix):
         ax.set_ylim(bottom=0)
 
     # 统一 legend
-    fig.legend(handles_dict.values(), handles_dict.keys(), loc='upper center', bbox_to_anchor=(0.5, 1.05), ncol=6)
+    fig.legend(handles_dict.values(), handles_dict.keys(), loc='upper center', bbox_to_anchor=(0.5, 1.05), ncol=7)
 
     plt.tight_layout(rect=[0, 0, 1, 0.95])  # 给顶部 legend 留空间
     fig_path = output_dir / f"sddmm_{output_name_suffix}.png"

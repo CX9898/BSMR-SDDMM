@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dataset_path="./dataset_of_suiteSparse/"
+dataset_path="./suiteSparse_dataset/"
 
 mkdir -p ${dataset_path}
 
