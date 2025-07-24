@@ -19,9 +19,8 @@ matplotlib.rcParams.update({
 
 
 def preprocess(df, k):
-
     df = df.sort_values(by="NNZ").reset_index(drop=True)
-    # df = df[(df["NNZ"] >= 10000) & (df["NNZ"] <= 2000000)]
+    df = df[(df["NNZ"] >= 10000) & (df["NNZ"] <= 2000000)]
     df = df.dropna(subset=["BSMR"])
     df = df.drop_duplicates(subset=["file"])
 
@@ -31,7 +30,7 @@ def preprocess(df, k):
         return None
 
     numeric_cols = ["NNZ", "BSMR", "cuSDDMM", "cuSparse",
-                    "RoDe", "TCGNN", "FlashSparse", "ASpT", "Sputnik"]
+                    "RoDe", "TCGNN", "FlashSparse", "Sputnik"]
 
     avg_df = df[numeric_cols].rolling(window=window_size).mean().dropna().reset_index(drop=True)
     return avg_df
@@ -54,17 +53,38 @@ def plot_gflops_comparison(k_data_list, output_dir, output_name_suffix):
         "RoDe": "RoDe",
         "TCGNN": "TCGNN",
         "FlashSparse": "FlashSparse",
-        "ASpT": "ASpT",
         "Sputnik": "Sputnik"
+    }
+
+    custom_colors = {
+        "BSMR": "#1f77b4",  # blue
+        "cuSDDMM": "#17becf",  # cyan
+        "cuSparse": "#2ca02c",  # green
+        "RoDe": "#9467bd",  # purple
+        "TCGNN": "#ff7f0e",  # orange
+        "FlashSparse": "#d62728",  # red
+        "Sputnik": "#e377c2"  # pink
     }
 
     handles_dict = {}
     for idx, (ax, (k, avg_df)) in enumerate(zip(axes, k_data_list)):
         x = avg_df["NNZ"].values
 
+        # for col, label in algo_columns.items():
+        #     if col in avg_df.columns and not avg_df[col].isna().all():
+        #         line, = ax.plot(x, avg_df[col], label=label, alpha=0.7)
+        #         if label not in handles_dict:
+        #             handles_dict[label] = line
+
         for col, label in algo_columns.items():
             if col in avg_df.columns and not avg_df[col].isna().all():
-                line, = ax.plot(x, avg_df[col], label=label, alpha=0.7)
+                # 仅绘制非0数据点
+                mask = avg_df[col] != 0
+                x_filtered = x[mask]
+                y_filtered = avg_df[col][mask]
+                if len(x_filtered) == 0:
+                    continue  # 全部为0就不画
+                line, = ax.plot(x_filtered, y_filtered, label=label, color=custom_colors[label], alpha=0.7)
                 if label not in handles_dict:
                     handles_dict[label] = line
 
@@ -87,9 +107,11 @@ def plot_gflops_comparison(k_data_list, output_dir, output_name_suffix):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="K=32/128 分别输入，绘制 GFLOPS 子图")
+    parser = argparse.ArgumentParser(description="K=32/64/128/256 分别输入，绘制 GFLOPS 子图")
     parser.add_argument('--k32', type=str, help="CSV 文件路径(K=32)")
+    parser.add_argument('--k64', type=str, help="CSV 文件路径(K=64)")
     parser.add_argument('--k128', type=str, help="CSV 文件路径(K=128)")
+    parser.add_argument('--k256', type=str, help="CSV 文件路径(K=256)")
     parser.add_argument('--outdir', type=str, default='.', help="输出图像目录")
     args = parser.parse_args()
 
@@ -104,11 +126,23 @@ def main():
         if avg_k32 is not None:
             k_data_list.append((32, avg_k32))
 
+    if args.k64:
+        df_k64 = pd.read_csv(args.k64)
+        avg_k64 = preprocess(df_k64, 64)
+        if avg_k64 is not None:
+            k_data_list.append((64, avg_k64))
+
     if args.k128:
         df_k128 = pd.read_csv(args.k128)
         avg_k128 = preprocess(df_k128, 128)
         if avg_k128 is not None:
             k_data_list.append((128, avg_k128))
+
+    if args.k256:
+        df_k256 = pd.read_csv(args.k256)
+        avg_k256 = preprocess(df_k256, 256)
+        if avg_k256 is not None:
+            k_data_list.append((256, avg_k256))
 
     # 自动生成文件名后缀
     suffix_parts = [f'k{k}' for (k, _) in k_data_list]
