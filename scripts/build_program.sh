@@ -28,6 +28,11 @@ Sputnik_cmake_file_path="${script_file_path}../baselines/Sputnik_SDDMM/"
 Sputnik_program_path="${Sputnik_build_folder_path}"
 Sputnik_program_name="Sputnik-sddmm"
 
+cuSPARSE_build_folder_path="${script_file_path}build_cuSPARSE/"
+cuSPARSE_cmake_file_path="${script_file_path}../baselines/cuSPARSE_SDDMM/"
+cuSPARSE_program_path="${cuSPARSE_build_folder_path}"
+cuSPARSE_program_name="cuSPARSE-sddmm"
+
 BSA_build_folder_path="${script_file_path}build_BSA/"
 BSA_cmake_file_path="${script_file_path}../baselines/BSA_SpMM/"
 BSA_program_path="${BSA_build_folder_path}"
@@ -55,6 +60,7 @@ build_program ${BSMR_build_folder_path} ${BSMR_cmake_file_path}
 build_program ${cuSDDMM_build_folder_path} ${cuSDDMM_cmake_file_path}
 build_program ${RoDe_build_folder_path} ${RoDe_cmake_file_path}
 build_program ${Sputnik_build_folder_path} ${Sputnik_cmake_file_path}
+build_program ${cuSPARSE_build_folder_path} ${cuSPARSE_cmake_file_path}
 build_program ${BSA_build_folder_path} ${BSA_cmake_file_path}
 
 mkdir ${ASpT_build_folder_path}
