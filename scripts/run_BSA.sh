@@ -14,10 +14,5 @@ matrix_list_file="${dataset_path}matrix_file_list_mtx.txt"
 
 # run BSA
 program_BSA="./build_BSA/BSA-spmm"
-ALPHA=( 0.1 0.3 0.5 0.7 0.9 )
-DELTA=( 0.1 0.3 0.5 0.7 0.9 )
-for A in "${ALPHA[@]}"; do
-  for D in "${DELTA[@]}"; do
-    bash test_script.sh -f ${matrix_list_file} -p ${program_BSA} -n "${BSA_results_path}BSA_a_${A}_d_${D}" -a ${A} -d ${D}
-  done
-done
+bash test_script.sh -f ${matrix_list_file} -p ${program_BSA} -n "${BSA_results_path}results_log" -l ${BSA_results_path}
+
