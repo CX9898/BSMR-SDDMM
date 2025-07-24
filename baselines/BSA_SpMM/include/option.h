@@ -5,11 +5,10 @@
 #ifndef OPTION_H
 #define OPTION_H
 
-class Option
-{
+class Option{
 public:
     std::string input_filename =
-        "File : ../../.././results_dataset_of_1/dataset/Zewail/Zewail.mtx";
+        "../../../scripts/./suiteSparse_dataset/192bit/192bit.mtx";
     std::string output_filename = "./bsa.csv";
 
     int input_format = 1;
@@ -18,7 +17,7 @@ public:
     int n_cols = 128;
     int method = 2;
 
-    int repetitions = 1;
+    int repetitions = 10;
     int spmm = 0;
 
     int block_size = 16;
@@ -27,25 +26,23 @@ public:
     bool compress_rows = true;
     bool valid = false;
 
-    Option(int argc, char* argv[])
-    {
-        if (argc == 3)
-        {
+    bool test_mode = false;
+    std::string output_log_directory;
+
+    Option(int argc, char* argv[]){
+        if (argc == 3){
             input_filename = argv[1];
             const int k = atoi(argv[2]);
             printf("[K : %d]\n", k);
         }
 
-         parse(argc, argv);
+        parse(argc, argv);
     }
 
-    void parse(int argc, char* argv[])
-    {
+    void parse(int argc, char* argv[]){
         char param_opt;
-        while ((param_opt = getopt(argc, argv, "d:t:c:n:x:p:f:o:i:b:z:a:v:m:s:k:")) != -1)
-        {
-            switch (param_opt)
-            {
+        while ((param_opt = getopt(argc, argv, "d:t:c:n:x:p:f:o:i:b:z:a:v:m:s:k:t:l:")) != -1){
+            switch (param_opt){
             case 'a':
                 alpha = std::stof(optarg);
                 break;
@@ -85,12 +82,18 @@ public:
             case 'm':
                 method = std::stoi(optarg);
                 break;
+            case 't':
+                test_mode = std::stoi(optarg);
+                break;
+            case 'l':
+                output_log_directory = optarg;
+                break;
             case 's':
                 spmm = std::stoi(optarg);
                 break;
             case 'k':
                 printf("[K : %d]\n", std::stoi(optarg));
-            break;
+                break;
             }
         }
     }

@@ -6,8 +6,7 @@ using namespace std;
 #ifndef LOGGER_H
 #define LOGGER_H
 
-class LOGGER
-{
+class LOGGER{
 public:
     float avg_reordering_time = 0;
     float avg_csr_spmm_time = 0;
@@ -31,8 +30,7 @@ public:
     string infile;
     string outfile;
 
-    LOGGER(Option option)
-    {
+    LOGGER(Option option){
         infile = option.input_filename;
         outfile = option.output_filename;
         n_cols = option.n_cols;
@@ -56,8 +54,7 @@ public:
         block_size = 0;
     }
 
-    void save_logfile()
-    {
+    void save_logfile(){
         std::ofstream fout;
         fout.open(outfile, std::ios_base::app);
         // string header = "matrix,avg_reordering_time,avg_csr_spmm_time,avg_bellpack_spmm_time,avg_total_time,avg_density_of_tiles,num_tiles,nnz_in_bellpack,nnz_in_csr,cluster_cnt,n_cols,rows,cols,block_size,method";
@@ -84,26 +81,18 @@ public:
         fout << spmm << endl;
     }
 
-    void print_logfile()
-    {
-        printf("input filename: %s\n", infile.c_str());
-        printf("alpha: %f\n", alpha);
-        printf("delta: %f\n", delta);
-        printf("block_size: %d\n", block_size);
-
-        printf("num_tiles: %d\n", num_tiles);
-        printf("nnz_in_bellpack: %d\n", nnz_in_bellpack);
-        printf("nnz_in_csr: %d\n", nnz_in_csr);
-        printf("cluster_cnt: %d\n", cluster_cnt);
-        printf("avg_density_of_tiles: %f\n", avg_density_of_tiles);
-
-        printf("[File : %s]\n", infile.c_str());
-        printf("[BSA_alpha : %f]\n", alpha);
-        printf("[BSA_delta : %f]\n", delta);
-        printf("[BSA_numDenseBlock : %d]\n", num_tiles);
-        printf("[BSA_averageDensity : %f]\n", avg_density_of_tiles);
-        printf("[BSA_reordering : %f]\n", avg_reordering_time);
-        printf("[BSA_numClusters : %d]\n", cluster_cnt);
+    void print_logfile(std::ostream& out = std::cout) const{
+        out << "[File : " << infile << "]\n";
+        out << "[K : 32]\n";
+        out << "[BSA_alpha : " << alpha << "]\n";
+        out << "[BSA_delta : " << delta << "]\n";
+        out << "[BSA_block_size : " << block_size << "]\n";
+        out << "[BSA_numDenseBlock : " << num_tiles << "]\n";
+        out << "[BSA_averageDensity : " << avg_density_of_tiles << "]\n";
+        out << "[BSA_reordering : " << avg_reordering_time << "]\n";
+        out << "[BSA_numClusters : " << cluster_cnt << "]\n";
+        out << "[BSA_numNNZ_bellpack : " << nnz_in_bellpack << "]\n";
+        out << "[BSA_numNNZ_csr : " << nnz_in_csr << "]\n";
     }
 };
 
