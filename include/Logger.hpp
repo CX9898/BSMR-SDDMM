@@ -102,7 +102,6 @@ struct Logger{
     float colReorderingTime_ = 0.0f;
     float reorderingTime_ = 0.0f;
 
-    float sddmmTime_cuSparse_ = 0.0f;
 };
 
 void Logger::getInformation(const Options& options){
@@ -177,10 +176,6 @@ void Logger::printLogInformation(std::ostream& out) const{
         << static_cast<float>(numDenseData_) / numSparseData_ << "]\n";
 
     const size_t flops = 2 * NNZ_ * K_;
-
-    out << "[cuSparse_gflops : " << std::fixed << std::setprecision(2)
-        << (flops / (sddmmTime_cuSparse_ * 1e6)) << "]\n";
-    out << "[cuSparse_sddmm : " << sddmmTime_cuSparse_ << "]\n";
 
     out << "[bsmr_gflops : " << (flops / (sddmmTime_ * 1e6)) << "]\n";
     out << "[bsmr_sddmm : " << sddmmTime_ << "]\n";

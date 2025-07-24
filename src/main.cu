@@ -1,11 +1,7 @@
 #include "Matrix.hpp"
-#include "TensorCoreConfig.cuh"
-#include "cuSparseSDDMM.cuh"
 #include "sddmm.hpp"
 #include "Logger.hpp"
 #include "Options.hpp"
-
-#define VALIDATE
 
 int main(int argc, char* argv[]){
     // Parsing option and parameter
@@ -39,21 +35,6 @@ int main(int argc, char* argv[]){
     // sddmm
     sparseMatrix::CSR<float> matrixP(matrixS);
     sddmm(options, matrixA, matrixB, matrixP, logger);
-
-    // cuSparse library for comparison
-    sparseMatrix::CSR<float> matrixP_cuSparse(matrixS);
-    cuSparseSDDMM(matrixA, matrixB, matrixP_cuSparse, logger);
-
-#ifdef VALIDATE
-    // Error check
-    printf("check cuSparseSDDMM and sddmm : \n");
-    size_t numError = 0;
-    if (!checkData(matrixP_cuSparse.values(), matrixP.values(), numError)){
-        const float errorRate = static_cast<float>(numError) / static_cast<float>(matrixP.values().size()) * 100;
-        printf("[checkResults : NO PASS Error rate : %2.2f%%]\n", errorRate);
-        logger.errorRate_ = errorRate;
-    }
-#endif // VALIDATE
 
     logger.printLogInformation();
 

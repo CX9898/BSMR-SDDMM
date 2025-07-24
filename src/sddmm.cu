@@ -1,10 +1,10 @@
-#include "CudaTimeCalculator.cuh"
 #include "BSMR.hpp"
 #include "checkData.hpp"
 #include "host.hpp"
 #include "sddmm.hpp"
 #include "sddmmKernel.cuh"
-#include "cuSparseSDDMM.cuh"
+
+// #define VALIDATE
 
 // Reordering method
 void sddmm(const Options& options,
@@ -32,8 +32,10 @@ void sddmm(const Options& options,
     evaluationReordering(matrixP, bsmr, logger);
 
     // Error check
-    // check_rphm(matrixP, bsmr, rphm, options.blockDensityThresholdDelta());
-    // checkSddmm(matrixA, matrixB, matrixP, matrixP);
+#ifdef VALIDATE
+    check_rphm(matrixP, bsmr, rphm, options.blockDensityThresholdDelta());
+    checkSddmm(matrixA, matrixB, matrixP, matrixP);
+#endif
 }
 
 bool checkSddmm(const Matrix<float>& matrixA,
@@ -99,15 +101,12 @@ void sddmm_testMode(const Options& options,
 
                 evaluationReordering(matrixP, bsmr, logger);
 
-                sparseMatrix::CSR<float> matrixP_cuSparse(matrixP);
-                cuSparseSDDMM(matrixA, matrixB, matrixP_cuSparse, logger);
-
                 const std::string logFile = options.outputLogDirectory() + "BSMR_" +
                     "k_" + util::to_trimmed_string(k) + "_" +
                     "a_" + util::to_trimmed_string(alpha) + "_" +
                     "d_" + util::to_trimmed_string(delta) + ".log";
                 std::ofstream fout(logFile, std::ios::app);
-                if (fout .fail()){
+                if (fout.fail()){
                     fprintf(stderr, "Error, failed to open log file: %s\n", logFile.c_str());
                     return;
                 }
