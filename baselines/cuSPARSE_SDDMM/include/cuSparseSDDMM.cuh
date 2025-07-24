@@ -18,23 +18,6 @@
     }                                                                          \
 }
 
-template <typename T>
-__global__ void convertDataType(const size_t n, const float* in, T* out){
-    const size_t idx = blockDim.x * blockIdx.x + threadIdx.x;
-    if (idx < n){
-        out[idx] = static_cast<T>(in[idx]);
-        //        printf("in[%d] = %f, static_cast<float>out[%d] = %f\n", idx, in[idx], idx, static_cast<float>(out[idx]));
-    }
-}
-
-template __global__ void convertDataType<int>(const size_t n, const float* in, int* out);
-
-template __global__ void convertDataType<float>(const size_t n, const float* in, float* out);
-
-template __global__ void convertDataType<double>(const size_t n, const float* in, double* out);
-
-template __global__ void convertDataType<half>(const size_t n, const float* in, half* out);
-
 inline void cuSparseSDDMM(const Matrix<float>& matrixA,
                           const Matrix<float>& matrixB,
                           sparseMatrix::CSR<float>& matrixP){
@@ -43,28 +26,12 @@ inline void cuSparseSDDMM(const Matrix<float>& matrixA,
     cusparseDnMatDescr_t _mtxB;
     cusparseSpMatDescr_t _mtxS;
 
-    using MATRIX_A_TYPE = float;
-    using MATRIX_B_TYPE = float;
-
     CHECK_CUSPARSE(cusparseCreate(&handle))
 
-    dev::vector<MATRIX_A_TYPE> matrixA_values_convertedType_dev(matrixA.size());
-    dev::vector<MATRIX_B_TYPE> matrixB_values_convertedType_dev(matrixB.size());
-    {
-        dev::vector<float> matrixA_values_dev(matrixA.values());
-        dev::vector<float> matrixB_values_dev(matrixB.values());
+    dev::vector<float> matrixA_values(matrixA.values());
+    dev::vector<float> matrixB_values(matrixB.values());
 
-        const int numThreadPerBlock = 1024;
-        convertDataType<<< (matrixA.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
-            matrixA.size(), matrixA_values_dev.data(), matrixA_values_convertedType_dev.data());
-        convertDataType<<< (matrixB.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
-            matrixB.size(), matrixB_values_dev.data(), matrixB_values_convertedType_dev.data());
-    }
-
-    cudaDataType_t CUSPARSE_MATRIX_A_TYPE = CUDA_R_32F;
-    if (typeid(MATRIX_A_TYPE) == typeid(half)){
-        CUSPARSE_MATRIX_A_TYPE = CUDA_R_16F;
-    }
+    constexpr cudaDataType_t CUSPARSE_MATRIX_A_TYPE = CUDA_R_32F;
     const auto CUSPARSE_ORDER_A = matrixA.storageOrder() == row_major ? CUSPARSE_ORDER_ROW : CUSPARSE_ORDER_COL;
 
     // Create dense matrix A
@@ -72,14 +39,11 @@ inline void cuSparseSDDMM(const Matrix<float>& matrixA,
         matrixA.row(),
         matrixA.col(),
         matrixA.leadingDimension(),
-        matrixA_values_convertedType_dev.data(),
+        matrixA_values.data(),
         CUSPARSE_MATRIX_A_TYPE,
         CUSPARSE_ORDER_A))
 
-    cudaDataType_t CUSPARSE_MATRIX_B_TYPE = CUDA_R_32F;
-    if (typeid(MATRIX_B_TYPE) == typeid(half)){
-        CUSPARSE_MATRIX_B_TYPE = CUDA_R_16F;
-    }
+    constexpr cudaDataType_t CUSPARSE_MATRIX_B_TYPE = CUDA_R_32F;
     const auto CUSPARSE_ORDER_B = matrixB.storageOrder() == row_major ? CUSPARSE_ORDER_ROW : CUSPARSE_ORDER_COL;
 
     // Create dense matrix B
@@ -87,7 +51,7 @@ inline void cuSparseSDDMM(const Matrix<float>& matrixA,
         matrixB.row(),
         matrixB.col(),
         matrixB.leadingDimension(),
-        matrixB_values_convertedType_dev.data(),
+        matrixB_values.data(),
         CUSPARSE_MATRIX_B_TYPE,
         CUSPARSE_ORDER_B))
 
@@ -123,7 +87,7 @@ inline void cuSparseSDDMM(const Matrix<float>& matrixA,
         &alpha, _mtxA, _mtxB, &beta, _mtxS, CUDA_R_32F,
         CUSPARSE_SDDMM_ALG_DEFAULT, dBuffer.data()))
 
-    const int numITER = 10; // Number of iterations for timing
+    constexpr int numITER = 10; // Number of iterations for timing
     CudaTimeCalculator timer;
     timer.startClock();
     for (int i = 0; i < numITER; ++i){
@@ -136,11 +100,11 @@ inline void cuSparseSDDMM(const Matrix<float>& matrixA,
     }
     timer.endClock();
 
-    const float sddmm_time = timer.getTime() / numITER;
-    const float gflops = static_cast<float>(2 * matrixP.nnz() * matrixA.col()) / (sddmm_time * 1e9f);
+    const float sddmm_time = timer.getTime() / static_cast<float>(numITER);
+    const float gflops = static_cast<float>(2 * matrixP.nnz() * matrixA.col()) / (sddmm_time * 1e6);
 
     printf("[cuSPARSE_gflops : %.2f]\n", gflops);
-    printf("[cuSPARSE_time : %.2f ms]\n", sddmm_time * 1000.0f);
+    printf("[cuSPARSE_time : %.2f]\n", sddmm_time);
 
     matrixP.setValues() = d2h(mtxS_values_dev);
 }
