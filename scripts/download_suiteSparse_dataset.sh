@@ -477,8 +477,3 @@ download_decompressing_move https://sparse.tamu.edu/MM/VLSI/mosfet2.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/ML_Graph/k49_norm_10NN.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/ML_Graph/worms20_10NN.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/FlowIPM22/uni_chimera_i2.tar.gz
-
-bash exclude_invalid_dataset.sh ${dataset_path}
-
-# 生成矩阵文件列表
-bash make_matrices_list.sh ${dataset_path}
