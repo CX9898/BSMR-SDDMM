@@ -1,6 +1,8 @@
 #ifndef SPC_COMMON_UTILS_H_
 #define SPC_COMMON_UTILS_H_
 
+#include <cstdint>
+
 #include "basic_utils.h"
 namespace SPC {
 

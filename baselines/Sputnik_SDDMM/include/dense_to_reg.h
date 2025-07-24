@@ -5,6 +5,8 @@
 #include "basic_utils.h"
 #include "common_utils.h"
 
+using SPC::Store;
+
 template <typename LoadType, int kBlockItemsK, int kBlockItemsX,
           int kBlockWidth>
 struct DenseToReg {
