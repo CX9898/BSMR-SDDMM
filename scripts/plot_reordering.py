@@ -3,8 +3,6 @@ import argparse
 import re
 from collections import defaultdict
 
-import matplotlib.gridspec as gridspec
-
 
 def parse_data(filepath):
     pattern = re.compile(
@@ -43,36 +41,10 @@ def plot_data(data, output_file):
     alphas = sorted(data.keys())
     num_subplots = len(alphas)
 
-    # fig, axes = plt.subplots(1, num_subplots, figsize=(5 * num_subplots, 5), constrained_layout=True)
-    #
-    # if num_subplots == 1:
-    #     axes = [axes]
+    fig, axes = plt.subplots(1, num_subplots, figsize=(5 * num_subplots, 5), constrained_layout=True)
 
-    cols = 3
-    rows = (num_subplots + cols - 1) // cols  # 向上取整
-    # fig, axes = plt.subplots(rows, cols, figsize=(5 * cols, 5 * rows), constrained_layout=True)
-    #
-    # # 扁平化 axes 并转为 list，便于索引
-    # axes = axes.flatten().tolist()
-
-    fig = plt.figure(figsize=(5 * cols, 5 * rows), constrained_layout=True)
-    import matplotlib.gridspec as gridspec
-    gs = gridspec.GridSpec(rows, cols, figure=fig)
-
-    axes = []
-
-    for i in range(len(alphas)):
-        row = i // cols
-        col = i % cols
-
-        # 如果最后一行不满，重新计算 col 使其居中
-        if row == rows - 1 and num_subplots % cols != 0:
-            # 子图数在最后一行的位置偏移量
-            offset = (cols - num_subplots % cols) // 2
-            col = (i % cols) + offset
-
-        ax = fig.add_subplot(gs[row, col])
-        axes.append(ax)
+    if num_subplots == 1:
+        axes = [axes]
 
     legend_handles = []
     legend_labels = []
@@ -133,10 +105,7 @@ def plot_data(data, output_file):
                 legend_labels.append(label)
                 added_labels.add(label)
 
-    # 隐藏多余空子图（当 alpha 数量不是 3 的倍数时）
-    for j in range(num_subplots, len(axes)):
-        fig.delaxes(axes[j])
-
+    # 顶部居中图例
     fig.legend(
         legend_handles,
         legend_labels,
@@ -144,7 +113,7 @@ def plot_data(data, output_file):
         ncol=3,  # 设置一行显示几个图例项
         fontsize='medium',
         bbox_transform=fig.transFigure,
-        bbox_to_anchor=(0.5, 1.10)  # 微调高度让 legend 更居中
+        bbox_to_anchor=(0.5, 1.15)  # 微调高度让 legend 更居中
     )
 
     # 不再调用 tight_layout
