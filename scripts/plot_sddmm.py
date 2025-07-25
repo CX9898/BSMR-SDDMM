@@ -41,9 +41,16 @@ def plot_gflops_comparison(k_data_list, output_dir, output_name_suffix):
         print("没有有效数据用于绘图。")
         return
 
-    fig, axes = plt.subplots(1, len(k_data_list), figsize=(8 * len(k_data_list), 6))
+    num_plots = len(k_data_list)
+    cols = 2  # 每行最多两个子图
+    rows = (num_plots + cols - 1) // cols  # 向上取整
 
-    if len(k_data_list) == 1:
+    fig, axes = plt.subplots(rows, cols, figsize=(8 * cols, 6 * rows))
+
+    # 修正 axes 结构为列表
+    if isinstance(axes, np.ndarray):
+        axes = axes.flatten().tolist()
+    else:
         axes = [axes]
 
     algo_columns = {
@@ -57,53 +64,51 @@ def plot_gflops_comparison(k_data_list, output_dir, output_name_suffix):
     }
 
     custom_colors = {
-        "BSMR": "#1f77b4",  # blue
-        "FlashSparse": "#d62728",  # red
-        "RoDe": "#9467bd",  # purple
-        "cuSDDMM": "#17becf",  # cyan
-        "cuSparse": "#2ca02c",  # green
-        "TCGNN": "#ff7f0e",  # orange
-        "Sputnik": "#e377c2"  # pink
+        "BSMR": "#1f77b4",
+        "FlashSparse": "#d62728",
+        "RoDe": "#9467bd",
+        "cuSDDMM": "#17becf",
+        "cuSparse": "#2ca02c",
+        "TCGNN": "#ff7f0e",
+        "Sputnik": "#e377c2"
     }
 
     handles_dict = {}
-    for idx, (ax, (k, avg_df)) in enumerate(zip(axes, k_data_list)):
+    for idx, (k, avg_df) in enumerate(k_data_list):
+        ax = axes[idx]  # 正确获取当前子图
         x = avg_df["NNZ"].values
-
-        # for col, label in algo_columns.items():
-        #     if col in avg_df.columns and not avg_df[col].isna().all():
-        #         line, = ax.plot(x, avg_df[col], label=label, alpha=0.7)
-        #         if label not in handles_dict:
-        #             handles_dict[label] = line
 
         for col, label in algo_columns.items():
             if col in avg_df.columns and not avg_df[col].isna().all():
-                # 仅绘制非0数据点
                 mask = avg_df[col] != 0
                 x_filtered = x[mask]
                 y_filtered = avg_df[col][mask]
                 if len(x_filtered) == 0:
-                    continue  # 全部为0就不画
+                    continue
                 line, = ax.plot(x_filtered, y_filtered, label=label, color=custom_colors[label], alpha=0.7)
                 if label not in handles_dict:
                     handles_dict[label] = line
 
         ax.set_title(f"K = {k}")
         ax.set_xlabel("NNZ")
-        if idx == 0:
-            ax.set_ylabel("GFLOPS")  # 只设置最左边的 y 轴标签
+        if idx % cols == 0:
+            ax.set_ylabel("GFLOPS")
         ax.set_xscale('linear')
         ax.xaxis.set_major_locator(MaxNLocator(nbins=10))
         ax.set_ylim(bottom=0)
 
-    # 统一 legend
-    fig.legend(handles_dict.values(), handles_dict.keys(), loc='upper center', bbox_to_anchor=(0.5, 1.05), ncol=7)
+    # 隐藏多余的空子图
+    for j in range(len(k_data_list), len(axes)):
+        fig.delaxes(axes[j])
 
-    plt.tight_layout(rect=[0, 0, 1, 0.95])  # 给顶部 legend 留空间
+    fig.legend(handles_dict.values(), handles_dict.keys(),
+               loc='upper center', bbox_to_anchor=(0.5, 1.02), ncol=7)
+    plt.tight_layout(rect=[0, 0, 1, 0.97])
     fig_path = output_dir / f"sddmm_{output_name_suffix}.png"
     plt.savefig(fig_path, bbox_inches='tight')
     plt.close()
     print(f"图像已保存: {fig_path}")
+
 
 
 def main():
