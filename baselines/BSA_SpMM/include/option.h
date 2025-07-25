@@ -7,8 +7,7 @@
 
 class Option{
 public:
-    std::string input_filename =
-        "../../../scripts/./suiteSparse_dataset/192bit/192bit.mtx";
+    std::string input_filename = "";
     std::string output_filename = "./bsa.csv";
 
     int input_format = 1;
@@ -17,7 +16,7 @@ public:
     int n_cols = 128;
     int method = 2;
 
-    int repetitions = 10;
+    int repetitions = 1;
     int spmm = 0;
 
     int block_size = 16;
