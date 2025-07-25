@@ -138,7 +138,6 @@ download_decompressing_move https://sparse.tamu.edu/MM/Chen/pkustk09.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Chen/pkustk11.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Chen/pkustk13.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Kim/kim1.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/Pothen/onera_dual.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Pothen/pwt.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Pothen/skirt.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Pothen/tandem_vtx.tar.gz
@@ -163,7 +162,6 @@ download_decompressing_move https://sparse.tamu.edu/MM/Schenk_IBMNA/c-66.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Schenk_IBMNA/c-67.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Schenk_IBMSDS/2D_27628_bjtcai.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Schenk_IBMSDS/2D_54019_highK.tar.gz
-download_decompressing_move https://sparse.tamu.edu/MM/Schenk_IBMSDS/3D_28984_Tetra.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Schenk_ISEI/igbt3.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Schenk_ISEI/nmos3.tar.gz
 download_decompressing_move https://sparse.tamu.edu/MM/Sumner/graphics.tar.gz
