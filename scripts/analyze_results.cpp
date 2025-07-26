@@ -85,12 +85,12 @@ bool initOperationOrCheckIfDifferent(std::string& src, const std::string& data){
     if (src.empty()){
         src = data;
     }
-    // else{
-    //     if (!data.empty() && src != data){
-    //         fprintf(stderr, "Error, the value is different. src : %s, data : %s\n", src.c_str(), data.c_str());
-    //         return false;
-    //     }
-    // }
+    else{
+        if (!data.empty() && src != data){
+            fprintf(stderr, "Error, the value is different. src : %s, data : %s\n", src.c_str(), data.c_str());
+            return false;
+        }
+    }
     return true;
 }
 
@@ -248,6 +248,17 @@ protected:
     float gflops_ = 0.0f;
 };
 
+// alpha -> delta -> (gflops, numDenseBlock, averageDensity, original_numDenseBlock, original_averageDensity, rowReorderingTime, colReorderingTime)
+struct reorderingData{
+    float gflops = 0.0f;
+    uint64_t numDenseBlock = 0;
+    float averageDensity = 0.0f;
+    uint64_t original_numDenseBlock = 0;
+    float original_averageDensity = 0.0f;
+    float rowReorderingTime = 0.0f;
+    float colReorderingTime = 0.0f;
+};
+
 class BaseLineWithParameter : public BaseLine{
 public:
     BaseLineWithParameter(const std::string& nameToken): nameToken_(nameToken){
@@ -295,11 +306,8 @@ public:
                 tryParse<float>(getValue(line, "[original_averageDensity : ")).value_or(0.0f));
             if (checkResults.empty()){ checkResults = getValue(line, "[" + nameToken_ + "_checkResults : "); }
         }
-        // if (gflops < 1e-6f){
-        //     // if the gflops is too small, then return
-        //     return;
-        // }
-        if (gflops > gflops_ && delta > 0.0f && delta <= 1.0f){
+
+        if (gflops > gflops_){
             K_ = K;
             gflops_ = gflops;
             alpha_ = alpha;
@@ -356,7 +364,7 @@ protected:
     float delta_ = 0.0f;
     std::string checkResults_;
 
-    // alpha -> delta -> (gflops, numDenseBlock, averageDensity, original_numDenseBlock, original_averageDensity)
+    // alpha -> delta -> (gflops, numDenseBlock, averageDensity, original_numDenseBlock, original_averageDensity, rowReorderingTime, colReorderingTime)
     std::unordered_map<float, std::unordered_map<float, std::tuple<float, int, float, int, float>>>
     alpha_to_delta_to_tuple_;
 };
@@ -366,7 +374,7 @@ struct OneTimeData{
 
     BaseLineWithParameter BSMR_{"bsmr"};
     BaseLine cuSDDMM_{"cuSDDMM"};
-    BaseLine cuSparse_{"cuSparse"};
+    BaseLine cuSPARSE_{"cuSPARSE"};
     BaseLine ASpT_{"ASpT"};
     BaseLine RoDe_{"RoDe"};
     BaseLineWithParameter BSA_{"BSA"};
@@ -378,7 +386,7 @@ struct OneTimeData{
 void OneTimeData::update(const std::vector<std::string>& oneTimeResults){
     BSMR_.parse(oneTimeResults);
     cuSDDMM_.parse(oneTimeResults);
-    cuSparse_.parse(oneTimeResults);
+    cuSPARSE_.parse(oneTimeResults);
     ASpT_.parse(oneTimeResults);
     RoDe_.parse(oneTimeResults);
     BSA_.parse(oneTimeResults);
@@ -389,8 +397,6 @@ void OneTimeData::update(const std::vector<std::string>& oneTimeResults){
 
 struct ResultsInformation{
     bool initInformation(const std::vector<std::string>& oneTimeResults);
-
-    void printInformation() const;
 
     std::string file_;
     std::string M_;
@@ -452,60 +458,6 @@ std::string getParentFolderPath(const std::string& path){
     // }
     const std::string directory = (pos == std::string::npos) ? "" : path.substr(0, pos + 1);
     return directory;
-}
-
-void ResultsInformation::printInformation() const{
-    printf("## M : %s, N: %s, sparsity: %s, file: %s\n",
-           M_.c_str(), N_.c_str(), sparsity_.c_str(), file_.c_str());
-
-    const int numColAttributes = 10;
-
-    // print the head of the list
-    printf("\n");
-    printf("|");
-    printf(" M |");
-    printf(" N |");
-    printf(" NNZ |");
-    printf(" sparsity |");
-    printf(" K |");
-    printf(" BSMR_gflops |");
-    printf(" cuSDDMM_gflops |");
-    printf(" cuSparse_gflops |");
-    printf(" ASpT_gflops |");
-    printf(" RoDe_gflops |");
-
-    printf("\n");
-
-    // print the split line
-    const int numColData = numColAttributes;
-    printf("|");
-    for (int i = 0; i < numColData; ++i){
-        printf("-|");
-    }
-    printf("\n");
-
-    auto printOneLineInformation = [](const std::string& information) -> void{
-        std::cout << information << "|";
-    };
-
-    // Print data line by line
-    printf("|");
-    printOneLineInformation(M_);
-    printOneLineInformation(N_);
-    printOneLineInformation(NNZ_);
-    printOneLineInformation(sparsity_);
-    std::cout << oneTimeData_.BSMR_.K() << "|"; // K value
-    std::cout << oneTimeData_.BSMR_.gflops() << "|";
-    std::cout << oneTimeData_.cuSDDMM_.gflops() << "|";
-    std::cout << oneTimeData_.cuSparse_.gflops() << "|";
-    std::cout << oneTimeData_.ASpT_.gflops() << "|";
-    std::cout << oneTimeData_.RoDe_.gflops() << "|";
-
-    std::cout << oneTimeData_.BSMR_.checkResults();
-    printf("\n");
-
-
-    printf("\n");
 }
 
 // return the data in the file
@@ -588,24 +540,46 @@ auto evaluateBaseLine = [](const float BSMR_gflops,
     maxSpeedup = std::max(speedup, maxSpeedup);
     sumSpeedup += speedup;
     ++numResults;
-
-    if (speedup <= 0.5){
+    // [0,1.0), [1.0,1.5), [1.5,2.0), [2.0, )
+    if (speedup < 1.0f){
         ++numSpeedups[0];
     }
-    if (speedup > 0.5 && speedup <= 0.8){
+    if (speedup >= 1.0f && speedup < 1.5f){
         ++numSpeedups[1];
     }
-    if (speedup > 0.8 && speedup <= 1.0){
+    if (speedup >= 1.5f && speedup < 2.0f){
         ++numSpeedups[2];
     }
-    if (speedup > 1.0 && speedup <= 1.2){
+    if (speedup >= 2.0f){
         ++numSpeedups[3];
     }
-    if (speedup > 1.2 && speedup <= 1.5){
-        ++numSpeedups[4];
+};
+
+auto evaluateHybrid = [](const float BSMR_gflops,
+                         const float baseLine_gflops,
+                         std::vector<int>& numSpeedups,
+                         float& maxSpeedup,
+                         float& sumSpeedup,
+                         int& numResults) -> void{
+    if (BSMR_gflops <= 1e-6 || baseLine_gflops <= 1e-6){
+        return;
     }
-    if (speedup > 1.5){
-        ++numSpeedups[5];
+    const float speedup = BSMR_gflops / baseLine_gflops;
+    maxSpeedup = std::max(speedup, maxSpeedup);
+    sumSpeedup += speedup;
+    ++numResults;
+    // [0.0,1.0), [1.0,1.2), [1.2,1.5), [1.5, )
+    if (speedup < 1.0f){
+        ++numSpeedups[0];
+    }
+    if (speedup >= 1.0f && speedup < 1.2f){
+        ++numSpeedups[1];
+    }
+    if (speedup >= 1.2f && speedup < 1.5f){
+        ++numSpeedups[2];
+    }
+    if (speedup >= 1.5f){
+        ++numSpeedups[3];
     }
 };
 
@@ -620,15 +594,36 @@ auto printEvaluateResults = [](const std::string& baseLineName,
     printf("Number of results: %d\n", numResults);
     printf("Average speedup: %.2fx, maximum speedup: %.2fx\n", averageSpeedup, maxSpeedup);
 
-    printf("Speedup <= 0.5 : %.1f%%\n", numSpeedups[0] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup 0.5~0.8 : %.1f%%\n", numSpeedups[1] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup 0.8~1.0 : %.1f%%\n", numSpeedups[2] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup 1.0~1.2 : %.1f%%\n", numSpeedups[3] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup 1.2~1.5 : %.1f%%\n", numSpeedups[4] / static_cast<float>(numResults) * 100.0f);
-    printf("Speedup > 1.5 : %.1f%%\n", numSpeedups[5] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup < 1.0x : %.1f%%\n", numSpeedups[0] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup 1.0~1.5x : %.1f%%\n", numSpeedups[1] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup 1.5~2.0x : %.1f%%\n", numSpeedups[2] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup >= 2.0x : %.1f%%\n", numSpeedups[3] / static_cast<float>(numResults) * 100.0f);
 
     const float accelerationCoverage =
-        (numSpeedups[3] + numSpeedups[4] + numSpeedups[5]) / static_cast<float>(numResults) * 100.0f;
+        (numSpeedups[1] + numSpeedups[2] + numSpeedups[3]) / static_cast<float>(numResults) * 100.0f;
+    printf("Acceleration coverage: %.1f%%\n", accelerationCoverage);
+
+    printf("\n");
+};
+
+auto printEvaluateHybridResults = [](const std::string& baseLineName,
+                                     const int numResults,
+                                     const float sumSpeedup,
+                                     const float maxSpeedup,
+                                     const std::vector<int>& numSpeedups) -> void{
+    const float averageSpeedup = sumSpeedup / numResults;
+
+    printSeparator("Evaluate BSMR With " + baseLineName + ":");
+    printf("Number of results: %d\n", numResults);
+    printf("Average speedup: %.2fx, maximum speedup: %.2fx\n", averageSpeedup, maxSpeedup);
+
+    printf("Speedup < 1.0x : %.1f%%\n", numSpeedups[0] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup 1.0~1.2x : %.1f%%\n", numSpeedups[1] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup 1.2~1.5x : %.1f%%\n", numSpeedups[2] / static_cast<float>(numResults) * 100.0f);
+    printf("Speedup >= 1.5x : %.1f%%\n", numSpeedups[3] / static_cast<float>(numResults) * 100.0f);
+
+    const float accelerationCoverage =
+        (numSpeedups[1] + numSpeedups[2] + numSpeedups[3]) / static_cast<float>(numResults) * 100.0f;
     printf("Acceleration coverage: %.1f%%\n", accelerationCoverage);
 
     printf("\n");
@@ -640,8 +635,8 @@ void evaluateBSMRWithCuSDDMM(
     float sumSpeedup = 0.0f;
     float maxSpeedup = 0.0f;
 
-    // 0~0.5, 0.5~0.8, 0.8~1.0, 1.0~1.2, 1.2~1.5, 1.5~
-    std::vector<int> numSpeedups(6);
+    // [0,1.0), [1.0,1.5), [1.5,2.0), [2.0, )
+    std::vector<int> numSpeedups(4);
 
     int numResults = 0;
     for (const auto& iter : matrixFileToResultsInformationMap){
@@ -660,15 +655,15 @@ void evaluateBSMRWithCuSparse(
     float sumSpeedup = 0.0f;
     float maxSpeedup = 0.0f;
 
-    // 0~0.5, 0.5~0.8, 0.8~1.0, 1.0~1.2, 1.2~1.5, 1.5~
-    std::vector<int> numSpeedups(6);
+    // [0,1.0), [1.0,1.5), [1.5,2.0), [2.0, )
+    std::vector<int> numSpeedups(4);
 
     int numResults = 0;
     for (const auto& iter : matrixFileToResultsInformationMap){
         const float BSMR_gflops = iter.second.oneTimeData_.BSMR_.gflops();
-        const float cuSparse_gflops = iter.second.oneTimeData_.cuSparse_.gflops();
+        const float cuSPARSE_gflops = iter.second.oneTimeData_.cuSPARSE_.gflops();
 
-        evaluateBaseLine(BSMR_gflops, cuSparse_gflops, numSpeedups, maxSpeedup, sumSpeedup, numResults);
+        evaluateBaseLine(BSMR_gflops, cuSPARSE_gflops, numSpeedups, maxSpeedup, sumSpeedup, numResults);
     }
 
     printEvaluateResults("cuSparse", numResults, sumSpeedup, maxSpeedup, numSpeedups);
@@ -681,8 +676,8 @@ void evaluateBSMRWithASpT(
     float sumSpeedup = 0.0f;
     float maxSpeedup = 0.0f;
 
-    // 0~0.5, 0.5~0.8, 0.8~1.0, 1.0~1.2, 1.2~1.5, 1.5~
-    std::vector<int> numSpeedups(6);
+    // [0,1.0), [1.0,1.5), [1.5,2.0), [2.0, )
+    std::vector<int> numSpeedups(4);
 
     int numResults = 0;
     for (const auto& iter : matrixFileToResultsInformationMap){
@@ -701,8 +696,8 @@ void evaluateBSMRWithRoDe(
     float sumSpeedup = 0.0f;
     float maxSpeedup = 0.0f;
 
-    // 0~0.5, 0.5~0.8, 0.8~1.0, 1.0~1.2, 1.2~1.5, 1.5~
-    std::vector<int> numSpeedups(6);
+    // [0,1.0), [1.0,1.5), [1.5,2.0), [2.0, )
+    std::vector<int> numSpeedups(4);
 
     int numResults = 0;
     for (const auto& iter : matrixFileToResultsInformationMap){
@@ -720,8 +715,8 @@ void evaluateBSMRWithFlashSparse(
     float sumSpeedup = 0.0f;
     float maxSpeedup = 0.0f;
 
-    // 0~0.5, 0.5~0.8, 0.8~1.0, 1.0~1.2, 1.2~1.5, 1.5~
-    std::vector<int> numSpeedups(6);
+    // [0,1.0), [1.0,1.5), [1.5,2.0), [2.0, )
+    std::vector<int> numSpeedups(4);
 
     int numResults = 0;
     for (const auto& iter : matrixFileToResultsInformationMap){
@@ -729,6 +724,12 @@ void evaluateBSMRWithFlashSparse(
         const float FlashSparse_gflops = iter.second.oneTimeData_.FlashSparse_.gflops();
 
         evaluateBaseLine(BSMR_gflops, FlashSparse_gflops, numSpeedups, maxSpeedup, sumSpeedup, numResults);
+
+        const float speedup = BSMR_gflops / FlashSparse_gflops;
+        if (speedup < 0.6f){
+            printf(" Warning, FlashSparse is slower than BSMR for %s, speedup: %.2fx\n",
+                   iter.first.c_str(), speedup);
+        }
     }
 
     printEvaluateResults("FlashSparse", numResults, sumSpeedup, maxSpeedup, numSpeedups);
@@ -739,8 +740,8 @@ void evaluateBSMRWithTCGNN(
     float sumSpeedup = 0.0f;
     float maxSpeedup = 0.0f;
 
-    // 0~0.5, 0.5~0.8, 0.8~1.0, 1.0~1.2, 1.2~1.5, 1.5~
-    std::vector<int> numSpeedups(6);
+    // [0,1.0), [1.0,1.5), [1.5,2.0), [2.0, )
+    std::vector<int> numSpeedups(4);
 
     int numResults = 0;
     for (const auto& iter : matrixFileToResultsInformationMap){
@@ -758,8 +759,8 @@ void evaluateBSMRWithSputnik(
     float sumSpeedup = 0.0f;
     float maxSpeedup = 0.0f;
 
-    // 0~0.5, 0.5~0.8, 0.8~1.0, 1.0~1.2, 1.2~1.5, 1.5~
-    std::vector<int> numSpeedups(6);
+    // [0,1.0), [1.0,1.5), [1.5,2.0), [2.0, )
+    std::vector<int> numSpeedups(4);
 
     int numResults = 0;
     for (const auto& iter : matrixFileToResultsInformationMap){
@@ -798,7 +799,7 @@ void outputCSVFile(
         outFile << k; // K
         outFile << "," << oneTimeData.BSMR_.gflops(); // BSMR cuSDDMM
         outFile << "," << oneTimeData.cuSDDMM_.gflops(); // cuSDDMM
-        outFile << "," << oneTimeData.cuSparse_.gflops(); // cusparse
+        outFile << "," << oneTimeData.cuSPARSE_.gflops(); // cusparse
         outFile << "," << oneTimeData.RoDe_.gflops(); // RoDe
         outFile << "," << oneTimeData.ASpT_.gflops(); // ASpT
         outFile << "," << oneTimeData.TCGNN_.gflops(); // TCGNN
@@ -814,16 +815,14 @@ void eliminateInvalidData(std::unordered_map<std::string, ResultsInformation>& m
     for (auto iter = matrixFileToResultsInformationMap.begin(); iter != matrixFileToResultsInformationMap.end();){
         const int m = tryParse<int>(iter->second.M_).value_or(0);
         const int n = tryParse<int>(iter->second.N_).value_or(0);
-        const int nnz = tryParse<int>(iter->second.NNZ_).value_or(0);
-        if (m <= 10000 || n <= 10000 || nnz <= 100000){
+        const uint64_t nnz = tryParse<int>(iter->second.NNZ_).value_or(0);
+        if (m <= 0 || n <= 0 || nnz <= 0){
             // printf("[bad file] : %s, M: %d, N: %d\n", iter->first.c_str(), m, n);
             iter = matrixFileToResultsInformationMap.erase(iter);
-            // ++iter;
+            continue;
         }
 
-        else{
-            ++iter;
-        }
+        ++iter;
     }
 }
 
@@ -922,6 +921,9 @@ void evaluateReorderingWithBSA(
     std::map<float, std::map<float, float>> alpha_to_delta_to_BSA_averageDensity;
     std::map<float, std::map<float, float>> alpha_to_delta_to_original_averageDensity;
 
+    std::map<float, std::map<float, float>> alpha_to_delta_to_BSMR_reordering;
+    std::map<float, std::map<float, float>> alpha_to_delta_to_BSA_reordering;
+
     std::map<float, std::map<float, float>> alpha_to_delta_to_numResults;
     for (const auto& iter : matrixFileToResultsInformationMap){
         for (const auto& pair : iter.second.oneTimeData_.BSMR_.alphaToDeltaToTuple()){
@@ -932,6 +934,7 @@ void evaluateReorderingWithBSA(
                 if (alpha == 0.0f || delta == 0.0f){
                     continue; // skip if alpha or delta is zero
                 }
+
 
                 const float BSMR_gflops = std::get<0>(deltaToTuple.second);
                 if (BSMR_gflops <= 1e-6){
@@ -1029,8 +1032,8 @@ void evaluateHybridSddmm(
     int numResults = 0;
     float maxSpeedupWithOnlyTensorCore = 0;
     float maxSpeedupWithOnlyCudaCore = 0;
-    std::vector<int> numSpeedupsWithOnlyTC(6); // 0~0.5, 0.5~0.8, 0.8~1.0, 1.0~1.2, 1.2~1.5, 1.5~
-    std::vector<int> numSpeedupsWithOnlyCUDA(6); // 0~0.5, 0.5~0.8, 0.8~1.0, 1.0~1.2, 1.2~1.5, 1.5~
+    std::vector<int> numSpeedupsWithOnlyTC(4); // [0,1.0), [1.0,1.2), [1.2,1.5), [1.5, )
+    std::vector<int> numSpeedupsWithOnlyCUDA(4); // [0,1.0), [1.0,1.2), [1.2,1.5), [1.5, )
     for (const auto& iter : matrixFileToResultsInformationMap){
         for (const auto& pair : iter.second.oneTimeData_.BSMR_.alphaToDeltaToTuple()){
             const float curAlpha = pair.first;
@@ -1052,17 +1055,13 @@ void evaluateHybridSddmm(
                 BSMR_gflops_only_CUDA_core <= 1e-6){
                 continue; // skip if the result is not valid
             }
-            evaluateBaseLine(BSMR_gflops, BSMR_gflops_only_Tensor_core,
-                             numSpeedupsWithOnlyTC, maxSpeedupWithOnlyTensorCore,
-                             sumSpeedupWithOnlyTensorCore, numResults);
-            evaluateBaseLine(BSMR_gflops, BSMR_gflops_only_CUDA_core,
-                             numSpeedupsWithOnlyCUDA, maxSpeedupWithOnlyCudaCore,
-                             sumSpeedupWithOnlyCudaCore, numResults);
+            evaluateHybrid(BSMR_gflops, BSMR_gflops_only_Tensor_core,
+                           numSpeedupsWithOnlyTC, maxSpeedupWithOnlyTensorCore,
+                           sumSpeedupWithOnlyTensorCore, numResults);
+            evaluateHybrid(BSMR_gflops, BSMR_gflops_only_CUDA_core,
+                           numSpeedupsWithOnlyCUDA, maxSpeedupWithOnlyCudaCore,
+                           sumSpeedupWithOnlyCudaCore, numResults);
             --numResults; // Adjust for the double counting of results
-
-            // ++numResults;
-            // sumSpeedupWithOnlyTensorCore += BSMR_gflops / BSMR_gflops_only_Tensor_core;
-            // sumSpeedupWithOnlyCudaCore += BSMR_gflops / BSMR_gflops_only_CUDA_core;
 
             const int M = tryParse<int>(iter.second.M_).value_or(0);
             const int N = tryParse<int>(iter.second.N_).value_or(0);
@@ -1083,20 +1082,10 @@ void evaluateHybridSddmm(
     }
     outFile.close();
 
-    printSeparator("Evaluate Hybrid SDDMM:");
-    printf("Number of results: %d\n", numResults);
-    if (numResults > 0){
-        const float averageSpeedupWithOnlyTensorCore =
-            sumSpeedupWithOnlyTensorCore / static_cast<float>(numResults);
-        const float averageSpeedupWithOnlyCudaCore =
-            sumSpeedupWithOnlyCudaCore / static_cast<float>(numResults);
-
-        printf("Average speedup with only Tensor core: %.2fx\n", averageSpeedupWithOnlyTensorCore);
-        printf("Average speedup with only CUDA core: %.2fx\n", averageSpeedupWithOnlyCudaCore);
-    }
-    else{
-        printf("No valid results found.\n");
-    }
+    printEvaluateHybridResults("Only CUDA core", numResults, sumSpeedupWithOnlyCudaCore,
+                               maxSpeedupWithOnlyCudaCore, numSpeedupsWithOnlyCUDA);
+    printEvaluateHybridResults("Only Tensor core", numResults, sumSpeedupWithOnlyTensorCore,
+                               maxSpeedupWithOnlyTensorCore, numSpeedupsWithOnlyTC);
 }
 
 void analyzeDataset(
@@ -1230,13 +1219,13 @@ int main(const int argc, const char* argv[]){
 
     evaluateBSMRWithASpT(matrixFileToResultsInformationMap);
 
-    evaluateBSMRWithRoDe(matrixFileToResultsInformationMap);
-
-    evaluateBSMRWithFlashSparse(matrixFileToResultsInformationMap);
-
     evaluateBSMRWithTCGNN(matrixFileToResultsInformationMap);
 
     evaluateBSMRWithSputnik(matrixFileToResultsInformationMap);
+
+    evaluateBSMRWithRoDe(matrixFileToResultsInformationMap);
+
+    evaluateBSMRWithFlashSparse(matrixFileToResultsInformationMap);
 
     outputCSVFile(matrixFileToResultsInformationMap, resultsPath);
 
