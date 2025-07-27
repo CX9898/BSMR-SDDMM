@@ -1,0 +1,5563 @@
+* Start test...
+* Test program: ./build_cuSPARSE/cuSPARSE-sddmm
+* Test log file: ./results_suiteSparse_dataset/k32/cuSPARSE_32.log
+* Number of test files: 505
+
+---New data---
+
+[Remaining: 504]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ch7-8-b3/ch7-8-b3.mtx
+[File : ./suiteSparse_dataset/ch7-8-b3/ch7-8-b3.mtx]
+[K : 32]
+[cuSPARSE_gflops : 13.43]
+[cuSPARSE_time : 1.12]
+* 	Execution time: .323612477 seconds
+
+---New data---
+
+[Remaining: 503]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/skirt/skirt.mtx
+[File : ./suiteSparse_dataset/skirt/skirt.mtx]
+[K : 32]
+[cuSPARSE_gflops : 6.37]
+[cuSPARSE_time : 1.05]
+* 	Execution time: .253351700 seconds
+
+---New data---
+
+[Remaining: 502]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/sctap1-2r/sctap1-2r.mtx
+[File : ./suiteSparse_dataset/sctap1-2r/sctap1-2r.mtx]
+[K : 32]
+[cuSPARSE_gflops : 11.04]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .278712267 seconds
+
+---New data---
+
+[Remaining: 501]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/sctap1-2r/sctap1-2r_A_11.mtx
+[File : ./suiteSparse_dataset/sctap1-2r/sctap1-2r_A_11.mtx]
+[K : 32]
+[cuSPARSE_gflops : 11.12]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .282963768 seconds
+
+---New data---
+
+[Remaining: 500]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/OPF_6000/OPF_6000.mtx
+[File : ./suiteSparse_dataset/OPF_6000/OPF_6000.mtx]
+[K : 32]
+[cuSPARSE_gflops : 10.13]
+[cuSPARSE_time : 1.05]
+* 	Execution time: .267592187 seconds
+
+---New data---
+
+[Remaining: 499]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/trdheim/trdheim.mtx
+[File : ./suiteSparse_dataset/trdheim/trdheim.mtx]
+[K : 32]
+[cuSPARSE_gflops : 86.39]
+[cuSPARSE_time : 0.73]
+* 	Execution time: .412058787 seconds
+
+---New data---
+
+[Remaining: 498]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/xenon1/xenon1.mtx
+[File : ./suiteSparse_dataset/xenon1/xenon1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 92.38]
+[cuSPARSE_time : 0.82]
+* 	Execution time: .533530265 seconds
+
+---New data---
+
+[Remaining: 497]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/pkustk13/pkustk13.mtx
+[File : ./suiteSparse_dataset/pkustk13/pkustk13.mtx]
+[K : 32]
+[cuSPARSE_gflops : 526.95]
+[cuSPARSE_time : 0.41]
+* 	Execution time: 1.118471267 seconds
+
+---New data---
+
+[Remaining: 496]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ABACUS_shell_ud/ABACUS_shell_ud_M.mtx
+[File : ./suiteSparse_dataset/ABACUS_shell_ud/ABACUS_shell_ud_M.mtx]
+[K : 32]
+[cuSPARSE_gflops : 12.10]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .278708659 seconds
+
+---New data---
+
+[Remaining: 495]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ABACUS_shell_ud/ABACUS_shell_ud_K.mtx
+[File : ./suiteSparse_dataset/ABACUS_shell_ud/ABACUS_shell_ud_K.mtx]
+[K : 32]
+[cuSPARSE_gflops : 13.23]
+[cuSPARSE_time : 1.05]
+* 	Execution time: .264561756 seconds
+
+---New data---
+
+[Remaining: 494]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ABACUS_shell_ud/ABACUS_shell_ud.mtx
+[File : ./suiteSparse_dataset/ABACUS_shell_ud/ABACUS_shell_ud.mtx]
+[K : 32]
+[cuSPARSE_gflops : 13.00]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .281738069 seconds
+
+---New data---
+
+[Remaining: 493]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/pattern1/pattern1.mtx
+[File : ./suiteSparse_dataset/pattern1/pattern1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 692.24]
+[cuSPARSE_time : 0.43]
+* 	Execution time: 1.445158869 seconds
+
+---New data---
+
+[Remaining: 492]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/nv1/nv1.mtx
+[File : ./suiteSparse_dataset/nv1/nv1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 375.73]
+[cuSPARSE_time : 0.42]
+* 	Execution time: .980338502 seconds
+
+---New data---
+
+[Remaining: 491]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/crystk03/crystk03.mtx
+[File : ./suiteSparse_dataset/crystk03/crystk03.mtx]
+[K : 32]
+[cuSPARSE_gflops : 67.45]
+[cuSPARSE_time : 0.84]
+* 	Execution time: .412612575 seconds
+
+---New data---
+
+[Remaining: 490]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_6.mtx
+[File : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_6.mtx]
+[K : 32]
+[cuSPARSE_gflops : 23.08]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .315379059 seconds
+
+---New data---
+
+[Remaining: 489]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_3.mtx
+[File : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_3.mtx]
+[K : 32]
+[cuSPARSE_gflops : 22.49]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .325852546 seconds
+
+---New data---
+
+[Remaining: 488]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_7.mtx
+[File : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_7.mtx]
+[K : 32]
+[cuSPARSE_gflops : 22.75]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .323463327 seconds
+
+---New data---
+
+[Remaining: 487]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_5.mtx
+[File : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_5.mtx]
+[K : 32]
+[cuSPARSE_gflops : 22.11]
+[cuSPARSE_time : 1.10]
+* 	Execution time: .324607581 seconds
+
+---New data---
+
+[Remaining: 486]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/viscoplastic2/viscoplastic2.mtx
+[File : ./suiteSparse_dataset/viscoplastic2/viscoplastic2.mtx]
+[K : 32]
+[cuSPARSE_gflops : 22.93]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .312302512 seconds
+
+---New data---
+
+[Remaining: 485]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_2.mtx
+[File : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_2.mtx]
+[K : 32]
+[cuSPARSE_gflops : 23.21]
+[cuSPARSE_time : 1.05]
+* 	Execution time: .311513082 seconds
+
+---New data---
+
+[Remaining: 484]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_1.mtx
+[File : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 22.05]
+[cuSPARSE_time : 1.11]
+* 	Execution time: .318800845 seconds
+
+---New data---
+
+[Remaining: 483]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_4.mtx
+[File : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_4.mtx]
+[K : 32]
+[cuSPARSE_gflops : 22.45]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .330167767 seconds
+
+---New data---
+
+[Remaining: 482]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ABACUS_shell_md/ABACUS_shell_md_K.mtx
+[File : ./suiteSparse_dataset/ABACUS_shell_md/ABACUS_shell_md_K.mtx]
+[K : 32]
+[cuSPARSE_gflops : 12.76]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .281728811 seconds
+
+---New data---
+
+[Remaining: 481]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ABACUS_shell_md/ABACUS_shell_md.mtx
+[File : ./suiteSparse_dataset/ABACUS_shell_md/ABACUS_shell_md.mtx]
+[K : 32]
+[cuSPARSE_gflops : 12.98]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .286660638 seconds
+
+---New data---
+
+[Remaining: 480]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ABACUS_shell_md/ABACUS_shell_md_M.mtx
+[File : ./suiteSparse_dataset/ABACUS_shell_md/ABACUS_shell_md_M.mtx]
+[K : 32]
+[cuSPARSE_gflops : 12.13]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .273872412 seconds
+
+---New data---
+
+[Remaining: 479]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/Dubcova1/Dubcova1.mtx
+[File : ./suiteSparse_dataset/Dubcova1/Dubcova1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 8.11]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .258965274 seconds
+
+---New data---
+
+[Remaining: 478]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ted_A/ted_A.mtx
+[File : ./suiteSparse_dataset/ted_A/ted_A.mtx]
+[K : 32]
+[cuSPARSE_gflops : 25.60]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .311835718 seconds
+
+---New data---
+
+[Remaining: 477]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/mk12-b4/mk12-b4.mtx
+[File : ./suiteSparse_dataset/mk12-b4/mk12-b4.mtx]
+[K : 32]
+[cuSPARSE_gflops : 18.43]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .315615954 seconds
+
+---New data---
+
+[Remaining: 476]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/std1_Jac3_db/std1_Jac3_db.mtx
+[File : ./suiteSparse_dataset/std1_Jac3_db/std1_Jac3_db.mtx]
+[K : 32]
+[cuSPARSE_gflops : 32.87]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .348821068 seconds
+
+---New data---
+
+[Remaining: 475]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/OPF_10000/OPF_10000.mtx
+[File : ./suiteSparse_dataset/OPF_10000/OPF_10000.mtx]
+[K : 32]
+[cuSPARSE_gflops : 15.15]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .283035652 seconds
+
+---New data---
+
+[Remaining: 474]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/worms20_10NN/worms20_10NN.mtx
+[File : ./suiteSparse_dataset/worms20_10NN/worms20_10NN.mtx]
+[K : 32]
+[cuSPARSE_gflops : 7.14]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .272807356 seconds
+
+---New data---
+
+[Remaining: 473]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/cbuckle/cbuckle.mtx
+[File : ./suiteSparse_dataset/cbuckle/cbuckle.mtx]
+[K : 32]
+[cuSPARSE_gflops : 20.10]
+[cuSPARSE_time : 1.10]
+* 	Execution time: .316200100 seconds
+
+---New data---
+
+[Remaining: 472]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/cbuckle/cbuckle_G.mtx
+[File : ./suiteSparse_dataset/cbuckle/cbuckle_G.mtx]
+[K : 32]
+[cuSPARSE_gflops : 15.70]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .282073428 seconds
+
+---New data---
+
+[Remaining: 471]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/c-71/c-71.mtx
+[File : ./suiteSparse_dataset/c-71/c-71.mtx]
+[K : 32]
+[cuSPARSE_gflops : 25.55]
+[cuSPARSE_time : 1.17]
+* 	Execution time: .344525154 seconds
+
+---New data---
+
+[Remaining: 470]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/std1_Jac2/std1_Jac2.mtx
+[File : ./suiteSparse_dataset/std1_Jac2/std1_Jac2.mtx]
+[K : 32]
+[cuSPARSE_gflops : 166.02]
+[cuSPARSE_time : 0.48]
+* 	Execution time: .528721829 seconds
+
+---New data---
+
+[Remaining: 469]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ifiss_mat/ifiss_mat.mtx
+[File : ./suiteSparse_dataset/ifiss_mat/ifiss_mat.mtx]
+[K : 32]
+[cuSPARSE_gflops : 554.89]
+[cuSPARSE_time : 0.42]
+* 	Execution time: 1.207162146 seconds
+
+---New data---
+
+[Remaining: 468]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/TSOPF_RS_b678_c1/TSOPF_RS_b678_c1.mtx
+[File : ./suiteSparse_dataset/TSOPF_RS_b678_c1/TSOPF_RS_b678_c1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 780.56]
+[cuSPARSE_time : 0.36]
+* 	Execution time: 1.118233871 seconds
+
+---New data---
+
+[Remaining: 467]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/Zd_Jac2_db/Zd_Jac2_db.mtx
+[File : ./suiteSparse_dataset/Zd_Jac2_db/Zd_Jac2_db.mtx]
+[K : 32]
+[cuSPARSE_gflops : 42.58]
+[cuSPARSE_time : 1.02]
+* 	Execution time: .382534826 seconds
+
+---New data---
+
+[Remaining: 466]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/scfxm1-2b/scfxm1-2b_A_3.mtx
+[File : ./suiteSparse_dataset/scfxm1-2b/scfxm1-2b_A_3.mtx]
+[K : 32]
+[cuSPARSE_gflops : 6.38]
+[cuSPARSE_time : 1.11]
+* 	Execution time: .256988658 seconds
+
+---New data---
+
+[Remaining: 465]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/scfxm1-2b/scfxm1-2b.mtx
+[File : ./suiteSparse_dataset/scfxm1-2b/scfxm1-2b.mtx]
+[K : 32]
+[cuSPARSE_gflops : 6.72]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .257382598 seconds
+
+---New data---
+
+[Remaining: 464]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/mario001/mario001.mtx
+[File : ./suiteSparse_dataset/mario001/mario001.mtx]
+[K : 32]
+[cuSPARSE_gflops : 6.57]
+[cuSPARSE_time : 1.12]
+* 	Execution time: .268938211 seconds
+
+---New data---
+
+[Remaining: 463]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/e18/e18.mtx
+[File : ./suiteSparse_dataset/e18/e18.mtx]
+[K : 32]
+[cuSPARSE_gflops : 9.34]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .272745119 seconds
+
+---New data---
+
+[Remaining: 462]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/nsct/nsct_A_1.mtx
+[File : ./suiteSparse_dataset/nsct/nsct_A_1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 42.83]
+[cuSPARSE_time : 1.01]
+* 	Execution time: .395699146 seconds
+
+---New data---
+
+[Remaining: 461]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/nsct/nsct.mtx
+[File : ./suiteSparse_dataset/nsct/nsct.mtx]
+[K : 32]
+[cuSPARSE_gflops : 43.66]
+[cuSPARSE_time : 1.02]
+* 	Execution time: .411306706 seconds
+
+---New data---
+
+[Remaining: 460]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/nsct/nsct_A_2.mtx
+[File : ./suiteSparse_dataset/nsct/nsct_A_2.mtx]
+[K : 32]
+[cuSPARSE_gflops : 43.16]
+[cuSPARSE_time : 1.03]
+* 	Execution time: .393886637 seconds
+
+---New data---
+
+[Remaining: 459]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/lowThrust_10/lowThrust_10.mtx
+[File : ./suiteSparse_dataset/lowThrust_10/lowThrust_10.mtx]
+[K : 32]
+[cuSPARSE_gflops : 6.92]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .250928355 seconds
+
+---New data---
+
+[Remaining: 458]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/2D_27628_bjtcai/2D_27628_bjtcai.mtx
+[File : ./suiteSparse_dataset/2D_27628_bjtcai/2D_27628_bjtcai.mtx]
+[K : 32]
+[cuSPARSE_gflops : 24.12]
+[cuSPARSE_time : 1.18]
+* 	Execution time: .337560817 seconds
+
+---New data---
+
+[Remaining: 457]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/Si10H16/Si10H16.mtx
+[File : ./suiteSparse_dataset/Si10H16/Si10H16.mtx]
+[K : 32]
+[cuSPARSE_gflops : 26.27]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .331304176 seconds
+
+---New data---
+
+[Remaining: 456]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/af23560/af23560.mtx
+[File : ./suiteSparse_dataset/af23560/af23560.mtx]
+[K : 32]
+[cuSPARSE_gflops : 28.77]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .317820407 seconds
+
+---New data---
+
+[Remaining: 455]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/m_t1/m_t1.mtx
+[File : ./suiteSparse_dataset/m_t1/m_t1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 750.32]
+[cuSPARSE_time : 0.42]
+* 	Execution time: 1.439522580 seconds
+
+---New data---
+
+[Remaining: 454]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/cit-HepPh/cit-HepPh.mtx
+[File : ./suiteSparse_dataset/cit-HepPh/cit-HepPh.mtx]
+[K : 32]
+[cuSPARSE_gflops : 25.38]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .364783053 seconds
+
+---New data---
+
+[Remaining: 453]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/rma10/rma10.mtx
+[File : ./suiteSparse_dataset/rma10/rma10.mtx]
+[K : 32]
+[cuSPARSE_gflops : 391.77]
+[cuSPARSE_time : 0.39]
+* 	Execution time: .772042854 seconds
+
+---New data---
+
+[Remaining: 452]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/GaAsH6/GaAsH6.mtx
+[File : ./suiteSparse_dataset/GaAsH6/GaAsH6.mtx]
+[K : 32]
+[cuSPARSE_gflops : 239.47]
+[cuSPARSE_time : 0.46]
+* 	Execution time: .676027002 seconds
+
+---New data---
+
+[Remaining: 451]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/c-67/c-67.mtx
+[File : ./suiteSparse_dataset/c-67/c-67.mtx]
+[K : 32]
+[cuSPARSE_gflops : 17.41]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .288690484 seconds
+
+---New data---
+
+[Remaining: 450]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/nv2010/nv2010.mtx
+[File : ./suiteSparse_dataset/nv2010/nv2010.mtx]
+[K : 32]
+[cuSPARSE_gflops : 12.56]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .314021966 seconds
+
+---New data---
+
+[Remaining: 449]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/bcircuit/bcircuit.mtx
+[File : ./suiteSparse_dataset/bcircuit/bcircuit.mtx]
+[K : 32]
+[cuSPARSE_gflops : 22.97]
+[cuSPARSE_time : 1.05]
+* 	Execution time: .320137953 seconds
+
+---New data---
+
+[Remaining: 448]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/shyy161/shyy161.mtx
+[File : ./suiteSparse_dataset/shyy161/shyy161.mtx]
+[K : 32]
+[cuSPARSE_gflops : 20.03]
+[cuSPARSE_time : 1.05]
+* 	Execution time: .288155070 seconds
+
+---New data---
+
+[Remaining: 447]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/c-64b/c-64b.mtx
+[File : ./suiteSparse_dataset/c-64b/c-64b.mtx]
+[K : 32]
+[cuSPARSE_gflops : 23.27]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .311067938 seconds
+
+---New data---
+
+[Remaining: 446]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/c-59/c-59.mtx
+[File : ./suiteSparse_dataset/c-59/c-59.mtx]
+[K : 32]
+[cuSPARSE_gflops : 14.63]
+[cuSPARSE_time : 1.14]
+* 	Execution time: .299595659 seconds
+
+---New data---
+
+[Remaining: 445]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/vsp_c-60_data_cti_cs4/vsp_c-60_data_cti_cs4.mtx
+[File : ./suiteSparse_dataset/vsp_c-60_data_cti_cs4/vsp_c-60_data_cti_cs4.mtx]
+[K : 32]
+[cuSPARSE_gflops : 13.82]
+[cuSPARSE_time : 1.12]
+* 	Execution time: .310914940 seconds
+
+---New data---
+
+[Remaining: 444]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/cond-mat-2005/cond-mat-2005.mtx
+[File : ./suiteSparse_dataset/cond-mat-2005/cond-mat-2005.mtx]
+[K : 32]
+[cuSPARSE_gflops : 10.07]
+[cuSPARSE_time : 1.12]
+* 	Execution time: .291354719 seconds
+
+---New data---
+
+[Remaining: 443]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/mark3jac040/mark3jac040.mtx
+[File : ./suiteSparse_dataset/mark3jac040/mark3jac040.mtx]
+[K : 32]
+[cuSPARSE_gflops : 7.01]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .256676233 seconds
+
+---New data---
+
+[Remaining: 442]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/kim1/kim1.mtx
+[File : ./suiteSparse_dataset/kim1/kim1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 64.42]
+[cuSPARSE_time : 0.93]
+* 	Execution time: .429431698 seconds
+
+---New data---
+
+[Remaining: 441]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/juba40k/juba40k.mtx
+[File : ./suiteSparse_dataset/juba40k/juba40k.mtx]
+[K : 32]
+[cuSPARSE_gflops : 8.57]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .283424772 seconds
+
+---New data---
+
+[Remaining: 440]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/TSOPF_FS_b300_c1/TSOPF_FS_b300_c1.mtx
+[File : ./suiteSparse_dataset/TSOPF_FS_b300_c1/TSOPF_FS_b300_c1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 402.72]
+[cuSPARSE_time : 0.35]
+* 	Execution time: .647538691 seconds
+
+---New data---
+
+[Remaining: 439]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/pfinan512/pfinan512.mtx
+[File : ./suiteSparse_dataset/pfinan512/pfinan512.mtx]
+[K : 32]
+[cuSPARSE_gflops : 19.84]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .314677475 seconds
+
+---New data---
+
+[Remaining: 438]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/case39/case39_A_12.mtx
+[File : ./suiteSparse_dataset/case39/case39_A_12.mtx]
+[K : 32]
+[cuSPARSE_gflops : 31.27]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .333345183 seconds
+
+---New data---
+
+[Remaining: 437]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/case39/case39_A_13.mtx
+[File : ./suiteSparse_dataset/case39/case39_A_13.mtx]
+[K : 32]
+[cuSPARSE_gflops : 30.96]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .342140643 seconds
+
+---New data---
+
+[Remaining: 436]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/case39/case39_A_09.mtx
+[File : ./suiteSparse_dataset/case39/case39_A_09.mtx]
+[K : 32]
+[cuSPARSE_gflops : 31.10]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .331072132 seconds
+
+---New data---
+
+[Remaining: 435]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/case39/case39.mtx
+[File : ./suiteSparse_dataset/case39/case39.mtx]
+[K : 32]
+[cuSPARSE_gflops : 31.05]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .346570049 seconds
+
+---New data---
+
+[Remaining: 434]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/case39/case39_A_07.mtx
+[File : ./suiteSparse_dataset/case39/case39_A_07.mtx]
+[K : 32]
+[cuSPARSE_gflops : 30.74]
+[cuSPARSE_time : 1.10]
+* 	Execution time: .342921918 seconds
+
+---New data---
+
+[Remaining: 433]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/case39/case39_A_03.mtx
+[File : ./suiteSparse_dataset/case39/case39_A_03.mtx]
+[K : 32]
+[cuSPARSE_gflops : 31.44]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .343287172 seconds
+
+---New data---
+
+[Remaining: 432]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/case39/case39_A_11.mtx
+[File : ./suiteSparse_dataset/case39/case39_A_11.mtx]
+[K : 32]
+[cuSPARSE_gflops : 31.51]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .316205770 seconds
+
+---New data---
+
+[Remaining: 431]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/case39/case39_A_02.mtx
+[File : ./suiteSparse_dataset/case39/case39_A_02.mtx]
+[K : 32]
+[cuSPARSE_gflops : 31.78]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .333406849 seconds
+
+---New data---
+
+[Remaining: 430]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/case39/case39_A_05.mtx
+[File : ./suiteSparse_dataset/case39/case39_A_05.mtx]
+[K : 32]
+[cuSPARSE_gflops : 30.95]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .323941263 seconds
+
+---New data---
+
+[Remaining: 429]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/case39/case39_A_04.mtx
+[File : ./suiteSparse_dataset/case39/case39_A_04.mtx]
+[K : 32]
+[cuSPARSE_gflops : 31.07]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .322737826 seconds
+
+---New data---
+
+[Remaining: 428]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/case39/case39_A_06.mtx
+[File : ./suiteSparse_dataset/case39/case39_A_06.mtx]
+[K : 32]
+[cuSPARSE_gflops : 30.91]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .347667486 seconds
+
+---New data---
+
+[Remaining: 427]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/case39/case39_A_08.mtx
+[File : ./suiteSparse_dataset/case39/case39_A_08.mtx]
+[K : 32]
+[cuSPARSE_gflops : 31.78]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .348182630 seconds
+
+---New data---
+
+[Remaining: 426]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/case39/case39_A_10.mtx
+[File : ./suiteSparse_dataset/case39/case39_A_10.mtx]
+[K : 32]
+[cuSPARSE_gflops : 31.70]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .334947698 seconds
+
+---New data---
+
+[Remaining: 425]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/case39/case39_A_01.mtx
+[File : ./suiteSparse_dataset/case39/case39_A_01.mtx]
+[K : 32]
+[cuSPARSE_gflops : 31.58]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .326384543 seconds
+
+---New data---
+
+[Remaining: 424]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ncvxqp7/ncvxqp7.mtx
+[File : ./suiteSparse_dataset/ncvxqp7/ncvxqp7.mtx]
+[K : 32]
+[cuSPARSE_gflops : 18.23]
+[cuSPARSE_time : 1.10]
+* 	Execution time: .334718428 seconds
+
+---New data---
+
+[Remaining: 423]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_18.mtx
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_18.mtx]
+[K : 32]
+[cuSPARSE_gflops : 26.19]
+[cuSPARSE_time : 1.10]
+* 	Execution time: .417246925 seconds
+
+---New data---
+
+[Remaining: 422]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_02.mtx
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_02.mtx]
+[K : 32]
+[cuSPARSE_gflops : 26.44]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .394681288 seconds
+
+---New data---
+
+[Remaining: 421]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_14.mtx
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_14.mtx]
+[K : 32]
+[cuSPARSE_gflops : 26.43]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .411430339 seconds
+
+---New data---
+
+[Remaining: 420]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_10.mtx
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_10.mtx]
+[K : 32]
+[cuSPARSE_gflops : 26.60]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .388480663 seconds
+
+---New data---
+
+[Remaining: 419]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_17.mtx
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_17.mtx]
+[K : 32]
+[cuSPARSE_gflops : 27.07]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .400699642 seconds
+
+---New data---
+
+[Remaining: 418]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2.mtx
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2.mtx]
+[K : 32]
+[cuSPARSE_gflops : 25.32]
+[cuSPARSE_time : 1.13]
+* 	Execution time: .385467944 seconds
+
+---New data---
+
+[Remaining: 417]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_16.mtx
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_16.mtx]
+[K : 32]
+[cuSPARSE_gflops : 26.20]
+[cuSPARSE_time : 1.10]
+* 	Execution time: .423780494 seconds
+
+---New data---
+
+[Remaining: 416]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_07.mtx
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_07.mtx]
+[K : 32]
+[cuSPARSE_gflops : 26.54]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .411381158 seconds
+
+---New data---
+
+[Remaining: 415]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_22.mtx
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_22.mtx]
+[K : 32]
+[cuSPARSE_gflops : 26.92]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .403480545 seconds
+
+---New data---
+
+[Remaining: 414]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_20.mtx
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_20.mtx]
+[K : 32]
+[cuSPARSE_gflops : 27.08]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .407876836 seconds
+
+---New data---
+
+[Remaining: 413]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_01.mtx
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_01.mtx]
+[K : 32]
+[cuSPARSE_gflops : 26.25]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .416076981 seconds
+
+---New data---
+
+[Remaining: 412]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_19.mtx
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_19.mtx]
+[K : 32]
+[cuSPARSE_gflops : 26.04]
+[cuSPARSE_time : 1.10]
+* 	Execution time: .413634451 seconds
+
+---New data---
+
+[Remaining: 411]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_04.mtx
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_04.mtx]
+[K : 32]
+[cuSPARSE_gflops : 26.82]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .407178988 seconds
+
+---New data---
+
+[Remaining: 410]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_09.mtx
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_09.mtx]
+[K : 32]
+[cuSPARSE_gflops : 26.79]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .385656107 seconds
+
+---New data---
+
+[Remaining: 409]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_06.mtx
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_06.mtx]
+[K : 32]
+[cuSPARSE_gflops : 26.79]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .405797979 seconds
+
+---New data---
+
+[Remaining: 408]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_13.mtx
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_13.mtx]
+[K : 32]
+[cuSPARSE_gflops : 26.00]
+[cuSPARSE_time : 1.11]
+* 	Execution time: .423766588 seconds
+
+---New data---
+
+[Remaining: 407]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_03.mtx
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_03.mtx]
+[K : 32]
+[cuSPARSE_gflops : 26.20]
+[cuSPARSE_time : 1.10]
+* 	Execution time: .414881900 seconds
+
+---New data---
+
+[Remaining: 406]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_15.mtx
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_15.mtx]
+[K : 32]
+[cuSPARSE_gflops : 26.27]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .412710620 seconds
+
+---New data---
+
+[Remaining: 405]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_24.mtx
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_24.mtx]
+[K : 32]
+[cuSPARSE_gflops : 26.09]
+[cuSPARSE_time : 1.10]
+* 	Execution time: .419792056 seconds
+
+---New data---
+
+[Remaining: 404]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_05.mtx
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_05.mtx]
+[K : 32]
+[cuSPARSE_gflops : 26.64]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .413336283 seconds
+
+---New data---
+
+[Remaining: 403]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_08.mtx
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_08.mtx]
+[K : 32]
+[cuSPARSE_gflops : 26.34]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .408767987 seconds
+
+---New data---
+
+[Remaining: 402]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_11.mtx
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_11.mtx]
+[K : 32]
+[cuSPARSE_gflops : 26.15]
+[cuSPARSE_time : 1.10]
+* 	Execution time: .411383311 seconds
+
+---New data---
+
+[Remaining: 401]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_21.mtx
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_21.mtx]
+[K : 32]
+[cuSPARSE_gflops : 26.59]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .393203337 seconds
+
+---New data---
+
+[Remaining: 400]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_12.mtx
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_12.mtx]
+[K : 32]
+[cuSPARSE_gflops : 26.13]
+[cuSPARSE_time : 1.10]
+* 	Execution time: .391769168 seconds
+
+---New data---
+
+[Remaining: 399]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_23.mtx
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_23.mtx]
+[K : 32]
+[cuSPARSE_gflops : 26.48]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .408382115 seconds
+
+---New data---
+
+[Remaining: 398]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/venkat25/venkat25.mtx
+[File : ./suiteSparse_dataset/venkat25/venkat25.mtx]
+[K : 32]
+[cuSPARSE_gflops : 250.28]
+[cuSPARSE_time : 0.44]
+* 	Execution time: .599134431 seconds
+
+---New data---
+
+[Remaining: 397]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/stokes128/stokes128.mtx
+[File : ./suiteSparse_dataset/stokes128/stokes128.mtx]
+[K : 32]
+[cuSPARSE_gflops : 17.91]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .289337186 seconds
+
+---New data---
+
+[Remaining: 396]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/finan512/finan512.mtx
+[File : ./suiteSparse_dataset/finan512/finan512.mtx]
+[K : 32]
+[cuSPARSE_gflops : 20.17]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .297381668 seconds
+
+---New data---
+
+[Remaining: 395]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/poisson3Db/poisson3Db.mtx
+[File : ./suiteSparse_dataset/poisson3Db/poisson3Db.mtx]
+[K : 32]
+[cuSPARSE_gflops : 343.01]
+[cuSPARSE_time : 0.44]
+* 	Execution time: 1.473893861 seconds
+
+---New data---
+
+[Remaining: 394]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/preferentialAttachment/preferentialAttachment.mtx
+[File : ./suiteSparse_dataset/preferentialAttachment/preferentialAttachment.mtx]
+[K : 32]
+[cuSPARSE_gflops : 31.32]
+[cuSPARSE_time : 1.02]
+* 	Execution time: .433976088 seconds
+
+---New data---
+
+[Remaining: 393]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/F2/F2.mtx
+[File : ./suiteSparse_dataset/F2/F2.mtx]
+[K : 32]
+[cuSPARSE_gflops : 430.79]
+[cuSPARSE_time : 0.40]
+* 	Execution time: .976061903 seconds
+
+---New data---
+
+[Remaining: 392]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/dbir2/dbir2.mtx
+[File : ./suiteSparse_dataset/dbir2/dbir2.mtx]
+[K : 32]
+[cuSPARSE_gflops : 96.53]
+[cuSPARSE_time : 0.77]
+* 	Execution time: .553595324 seconds
+
+---New data---
+
+[Remaining: 391]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ca-AstroPh/ca-AstroPh.mtx
+[File : ./suiteSparse_dataset/ca-AstroPh/ca-AstroPh.mtx]
+[K : 32]
+[cuSPARSE_gflops : 11.32]
+[cuSPARSE_time : 1.12]
+* 	Execution time: .292921095 seconds
+
+---New data---
+
+[Remaining: 390]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/g7jac080sc/g7jac080sc.mtx
+[File : ./suiteSparse_dataset/g7jac080sc/g7jac080sc.mtx]
+[K : 32]
+[cuSPARSE_gflops : 17.73]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .290364672 seconds
+
+---New data---
+
+[Remaining: 389]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/vsp_south31_slptsk/vsp_south31_slptsk.mtx
+[File : ./suiteSparse_dataset/vsp_south31_slptsk/vsp_south31_slptsk.mtx]
+[K : 32]
+[cuSPARSE_gflops : 11.56]
+[cuSPARSE_time : 1.05]
+* 	Execution time: .269205572 seconds
+
+---New data---
+
+[Remaining: 388]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/pkustk08/pkustk08.mtx
+[File : ./suiteSparse_dataset/pkustk08/pkustk08.mtx]
+[K : 32]
+[cuSPARSE_gflops : 273.34]
+[cuSPARSE_time : 0.38]
+* 	Execution time: .603689742 seconds
+
+---New data---
+
+[Remaining: 387]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/deltaX/deltaX.mtx
+[File : ./suiteSparse_dataset/deltaX/deltaX.mtx]
+[K : 32]
+[cuSPARSE_gflops : 14.89]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .301044646 seconds
+
+---New data---
+
+[Remaining: 386]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/TSOPF_FS_b39_c7/TSOPF_FS_b39_c7.mtx
+[File : ./suiteSparse_dataset/TSOPF_FS_b39_c7/TSOPF_FS_b39_c7.mtx]
+[K : 32]
+[cuSPARSE_gflops : 21.69]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .308682074 seconds
+
+---New data---
+
+[Remaining: 385]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/lhr71c/lhr71c.mtx
+[File : ./suiteSparse_dataset/lhr71c/lhr71c.mtx]
+[K : 32]
+[cuSPARSE_gflops : 167.10]
+[cuSPARSE_time : 0.59]
+* 	Execution time: .590296382 seconds
+
+---New data---
+
+[Remaining: 384]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/mod2/mod2.mtx
+[File : ./suiteSparse_dataset/mod2/mod2.mtx]
+[K : 32]
+[cuSPARSE_gflops : 11.49]
+[cuSPARSE_time : 1.11]
+* 	Execution time: .299635944 seconds
+
+---New data---
+
+[Remaining: 383]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/raefsky4/raefsky4.mtx
+[File : ./suiteSparse_dataset/raefsky4/raefsky4.mtx]
+[K : 32]
+[cuSPARSE_gflops : 43.41]
+[cuSPARSE_time : 0.99]
+* 	Execution time: .390881725 seconds
+
+---New data---
+
+[Remaining: 382]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/cat_ears_4_4/cat_ears_4_4.mtx
+[File : ./suiteSparse_dataset/cat_ears_4_4/cat_ears_4_4.mtx]
+[K : 32]
+[cuSPARSE_gflops : 7.87]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .271846154 seconds
+
+---New data---
+
+[Remaining: 381]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ckt11752_tr_0/ckt11752_tr_0.mtx
+[File : ./suiteSparse_dataset/ckt11752_tr_0/ckt11752_tr_0.mtx]
+[K : 32]
+[cuSPARSE_gflops : 19.54]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .318154784 seconds
+
+---New data---
+
+[Remaining: 380]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/gyro_k/gyro_k.mtx
+[File : ./suiteSparse_dataset/gyro_k/gyro_k.mtx]
+[K : 32]
+[cuSPARSE_gflops : 33.07]
+[cuSPARSE_time : 1.00]
+* 	Execution time: .342617287 seconds
+
+---New data---
+
+[Remaining: 379]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/pkustk09/pkustk09.mtx
+[File : ./suiteSparse_dataset/pkustk09/pkustk09.mtx]
+[K : 32]
+[cuSPARSE_gflops : 51.40]
+[cuSPARSE_time : 1.01]
+* 	Execution time: .414530542 seconds
+
+---New data---
+
+[Remaining: 378]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/Zd_Jac3_db/Zd_Jac3_db.mtx
+[File : ./suiteSparse_dataset/Zd_Jac3_db/Zd_Jac3_db.mtx]
+[K : 32]
+[cuSPARSE_gflops : 47.34]
+[cuSPARSE_time : 0.97]
+* 	Execution time: .392141576 seconds
+
+---New data---
+
+[Remaining: 377]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/g7jac120sc/g7jac120sc.mtx
+[File : ./suiteSparse_dataset/g7jac120sc/g7jac120sc.mtx]
+[K : 32]
+[cuSPARSE_gflops : 29.19]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .355817185 seconds
+
+---New data---
+
+[Remaining: 376]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/mouse_gene/mouse_gene.mtx
+[File : ./suiteSparse_dataset/mouse_gene/mouse_gene.mtx]
+[K : 32]
+[cuSPARSE_gflops : 1206.78]
+[cuSPARSE_time : 0.77]
+* 	Execution time: 8.231595800 seconds
+
+---New data---
+
+[Remaining: 375]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/Trefethen_20000b/Trefethen_20000b.mtx
+[File : ./suiteSparse_dataset/Trefethen_20000b/Trefethen_20000b.mtx]
+[K : 32]
+[cuSPARSE_gflops : 17.37]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .310938475 seconds
+
+---New data---
+
+[Remaining: 374]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/3D_28984_Tetra/3D_28984_Tetra.mtx
+[File : ./suiteSparse_dataset/3D_28984_Tetra/3D_28984_Tetra.mtx]
+[K : 32]
+[cuSPARSE_gflops : 35.82]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .360877952 seconds
+
+---New data---
+
+[Remaining: 373]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/bcsstk29/bcsstk29.mtx
+[File : ./suiteSparse_dataset/bcsstk29/bcsstk29.mtx]
+[K : 32]
+[cuSPARSE_gflops : 20.73]
+[cuSPARSE_time : 0.98]
+* 	Execution time: .293640154 seconds
+
+---New data---
+
+[Remaining: 372]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/mark3jac140/mark3jac140.mtx
+[File : ./suiteSparse_dataset/mark3jac140/mark3jac140.mtx]
+[K : 32]
+[cuSPARSE_gflops : 25.14]
+[cuSPARSE_time : 1.02]
+* 	Execution time: .357841830 seconds
+
+---New data---
+
+[Remaining: 371]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/bcsstm36/bcsstm36.mtx
+[File : ./suiteSparse_dataset/bcsstm36/bcsstm36.mtx]
+[K : 32]
+[cuSPARSE_gflops : 10.64]
+[cuSPARSE_time : 1.00]
+* 	Execution time: .270072337 seconds
+
+---New data---
+
+[Remaining: 370]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/mycielskian16/mycielskian16.mtx
+[File : ./suiteSparse_dataset/mycielskian16/mycielskian16.mtx]
+[K : 32]
+[cuSPARSE_gflops : 1228.50]
+[cuSPARSE_time : 0.87]
+* 	Execution time: 7.314839864 seconds
+
+---New data---
+
+[Remaining: 369]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/olesnik0/olesnik0.mtx
+[File : ./suiteSparse_dataset/olesnik0/olesnik0.mtx]
+[K : 32]
+[cuSPARSE_gflops : 24.28]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .352971309 seconds
+
+---New data---
+
+[Remaining: 368]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/c-52/c-52.mtx
+[File : ./suiteSparse_dataset/c-52/c-52.mtx]
+[K : 32]
+[cuSPARSE_gflops : 6.28]
+[cuSPARSE_time : 1.15]
+* 	Execution time: .270520208 seconds
+
+---New data---
+
+[Remaining: 367]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/c-50/c-50.mtx
+[File : ./suiteSparse_dataset/c-50/c-50.mtx]
+[K : 32]
+[cuSPARSE_gflops : 5.94]
+[cuSPARSE_time : 1.16]
+* 	Execution time: .272453843 seconds
+
+---New data---
+
+[Remaining: 366]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/pkustk05/pkustk05.mtx
+[File : ./suiteSparse_dataset/pkustk05/pkustk05.mtx]
+[K : 32]
+[cuSPARSE_gflops : 98.51]
+[cuSPARSE_time : 0.73]
+* 	Execution time: .491386904 seconds
+
+---New data---
+
+[Remaining: 365]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/conf6_0-8x8-80/conf6_0-8x8-80.mtx
+[File : ./suiteSparse_dataset/conf6_0-8x8-80/conf6_0-8x8-80.mtx]
+[K : 32]
+[cuSPARSE_gflops : 315.07]
+[cuSPARSE_time : 0.39]
+* 	Execution time: .755197101 seconds
+
+---New data---
+
+[Remaining: 364]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/vanbody/vanbody.mtx
+[File : ./suiteSparse_dataset/vanbody/vanbody.mtx]
+[K : 32]
+[cuSPARSE_gflops : 99.39]
+[cuSPARSE_time : 0.77]
+* 	Execution time: .533637846 seconds
+
+---New data---
+
+[Remaining: 363]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/EAT_SR/EAT_SR.mtx
+[File : ./suiteSparse_dataset/EAT_SR/EAT_SR.mtx]
+[K : 32]
+[cuSPARSE_gflops : 19.87]
+[cuSPARSE_time : 1.05]
+* 	Execution time: .366264651 seconds
+
+---New data---
+
+[Remaining: 362]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/c-62/c-62.mtx
+[File : ./suiteSparse_dataset/c-62/c-62.mtx]
+[K : 32]
+[cuSPARSE_gflops : 18.23]
+[cuSPARSE_time : 1.05]
+* 	Execution time: .326732686 seconds
+
+---New data---
+
+[Remaining: 361]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ns3Da/ns3Da.mtx
+[File : ./suiteSparse_dataset/ns3Da/ns3Da.mtx]
+[K : 32]
+[cuSPARSE_gflops : 281.45]
+[cuSPARSE_time : 0.38]
+* 	Execution time: .864787474 seconds
+
+---New data---
+
+[Remaining: 360]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/pcrystk02/pcrystk02.mtx
+[File : ./suiteSparse_dataset/pcrystk02/pcrystk02.mtx]
+[K : 32]
+[cuSPARSE_gflops : 32.24]
+[cuSPARSE_time : 0.98]
+* 	Execution time: .324942160 seconds
+
+---New data---
+
+[Remaining: 359]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/windscreen/windscreen.mtx
+[File : ./suiteSparse_dataset/windscreen/windscreen.mtx]
+[K : 32]
+[cuSPARSE_gflops : 54.89]
+[cuSPARSE_time : 0.88]
+* 	Execution time: .381853077 seconds
+
+---New data---
+
+[Remaining: 358]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/windscreen/windscreen_M.mtx
+[File : ./suiteSparse_dataset/windscreen/windscreen_M.mtx]
+[K : 32]
+[cuSPARSE_gflops : 56.11]
+[cuSPARSE_time : 0.86]
+* 	Execution time: .385317282 seconds
+
+---New data---
+
+[Remaining: 357]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/HEP-th-new/HEP-th-new.mtx
+[File : ./suiteSparse_dataset/HEP-th-new/HEP-th-new.mtx]
+[K : 32]
+[cuSPARSE_gflops : 22.34]
+[cuSPARSE_time : 1.01]
+* 	Execution time: .324337325 seconds
+
+---New data---
+
+[Remaining: 356]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/bcsstk37/bcsstk37.mtx
+[File : ./suiteSparse_dataset/bcsstk37/bcsstk37.mtx]
+[K : 32]
+[cuSPARSE_gflops : 40.51]
+[cuSPARSE_time : 0.92]
+* 	Execution time: .350009896 seconds
+
+---New data---
+
+[Remaining: 355]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/crystk02/crystk02.mtx
+[File : ./suiteSparse_dataset/crystk02/crystk02.mtx]
+[K : 32]
+[cuSPARSE_gflops : 32.55]
+[cuSPARSE_time : 0.97]
+* 	Execution time: .328946627 seconds
+
+---New data---
+
+[Remaining: 354]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/dbir1/dbir1.mtx
+[File : ./suiteSparse_dataset/dbir1/dbir1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 95.72]
+[cuSPARSE_time : 0.72]
+* 	Execution time: .494118055 seconds
+
+---New data---
+
+[Remaining: 353]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/fem_filter/fem_filter.mtx
+[File : ./suiteSparse_dataset/fem_filter/fem_filter.mtx]
+[K : 32]
+[cuSPARSE_gflops : 245.25]
+[cuSPARSE_time : 0.45]
+* 	Execution time: .659358451 seconds
+
+---New data---
+
+[Remaining: 352]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/flower_7_4/flower_7_4.mtx
+[File : ./suiteSparse_dataset/flower_7_4/flower_7_4.mtx]
+[K : 32]
+[cuSPARSE_gflops : 13.38]
+[cuSPARSE_time : 0.97]
+* 	Execution time: .301653777 seconds
+
+---New data---
+
+[Remaining: 351]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/p2p-Gnutella31/p2p-Gnutella31.mtx
+[File : ./suiteSparse_dataset/p2p-Gnutella31/p2p-Gnutella31.mtx]
+[K : 32]
+[cuSPARSE_gflops : 9.70]
+[cuSPARSE_time : 0.98]
+* 	Execution time: .290134200 seconds
+
+---New data---
+
+[Remaining: 350]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/tsyl201/tsyl201.mtx
+[File : ./suiteSparse_dataset/tsyl201/tsyl201.mtx]
+[K : 32]
+[cuSPARSE_gflops : 172.75]
+[cuSPARSE_time : 0.46]
+* 	Execution time: .505855619 seconds
+
+---New data---
+
+[Remaining: 349]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/mark3jac100sc/mark3jac100sc.mtx
+[File : ./suiteSparse_dataset/mark3jac100sc/mark3jac100sc.mtx]
+[K : 32]
+[cuSPARSE_gflops : 18.64]
+[cuSPARSE_time : 0.98]
+* 	Execution time: .315099385 seconds
+
+---New data---
+
+[Remaining: 348]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/copter2/copter2.mtx
+[File : ./suiteSparse_dataset/copter2/copter2.mtx]
+[K : 32]
+[cuSPARSE_gflops : 26.75]
+[cuSPARSE_time : 0.98]
+* 	Execution time: .333044349 seconds
+
+---New data---
+
+[Remaining: 347]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/cz40948/cz40948.mtx
+[File : ./suiteSparse_dataset/cz40948/cz40948.mtx]
+[K : 32]
+[cuSPARSE_gflops : 27.11]
+[cuSPARSE_time : 0.97]
+* 	Execution time: .317138749 seconds
+
+---New data---
+
+[Remaining: 346]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/vibrobox/vibrobox.mtx
+[File : ./suiteSparse_dataset/vibrobox/vibrobox.mtx]
+[K : 32]
+[cuSPARSE_gflops : 11.65]
+[cuSPARSE_time : 0.98]
+* 	Execution time: .274109898 seconds
+
+---New data---
+
+[Remaining: 345]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/TF16/TF16.mtx
+[File : ./suiteSparse_dataset/TF16/TF16.mtx]
+[K : 32]
+[cuSPARSE_gflops : 14.27]
+[cuSPARSE_time : 0.97]
+* 	Execution time: .279548284 seconds
+
+---New data---
+
+[Remaining: 344]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/TSOPF_RS_b162_c3/TSOPF_RS_b162_c3.mtx
+[File : ./suiteSparse_dataset/TSOPF_RS_b162_c3/TSOPF_RS_b162_c3.mtx]
+[K : 32]
+[cuSPARSE_gflops : 41.91]
+[cuSPARSE_time : 0.93]
+* 	Execution time: .349893439 seconds
+
+---New data---
+
+[Remaining: 343]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/sme3Db/sme3Db.mtx
+[File : ./suiteSparse_dataset/sme3Db/sme3Db.mtx]
+[K : 32]
+[cuSPARSE_gflops : 375.96]
+[cuSPARSE_time : 0.35]
+* 	Execution time: 1.069573462 seconds
+
+---New data---
+
+[Remaining: 342]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/venkat01/venkat01.mtx
+[File : ./suiteSparse_dataset/venkat01/venkat01.mtx]
+[K : 32]
+[cuSPARSE_gflops : 253.34]
+[cuSPARSE_time : 0.43]
+* 	Execution time: .599010779 seconds
+
+---New data---
+
+[Remaining: 341]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/human_gene2/human_gene2.mtx
+[File : ./suiteSparse_dataset/human_gene2/human_gene2.mtx]
+[K : 32]
+[cuSPARSE_gflops : 997.92]
+[cuSPARSE_time : 0.58]
+* 	Execution time: 4.552557041 seconds
+
+---New data---
+
+[Remaining: 340]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/nmos3/nmos3.mtx
+[File : ./suiteSparse_dataset/nmos3/nmos3.mtx]
+[K : 32]
+[cuSPARSE_gflops : 22.73]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .306302674 seconds
+
+---New data---
+
+[Remaining: 339]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/jan99jac120/jan99jac120.mtx
+[File : ./suiteSparse_dataset/jan99jac120/jan99jac120.mtx]
+[K : 32]
+[cuSPARSE_gflops : 15.36]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .296878224 seconds
+
+---New data---
+
+[Remaining: 338]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/p010/p010.mtx
+[File : ./suiteSparse_dataset/p010/p010.mtx]
+[K : 32]
+[cuSPARSE_gflops : 7.07]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .256304286 seconds
+
+---New data---
+
+[Remaining: 337]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/gyro/gyro_M.mtx
+[File : ./suiteSparse_dataset/gyro/gyro_M.mtx]
+[K : 32]
+[cuSPARSE_gflops : 10.19]
+[cuSPARSE_time : 1.12]
+* 	Execution time: .276756069 seconds
+
+---New data---
+
+[Remaining: 336]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/gyro/gyro.mtx
+[File : ./suiteSparse_dataset/gyro/gyro.mtx]
+[K : 32]
+[cuSPARSE_gflops : 33.09]
+[cuSPARSE_time : 1.00]
+* 	Execution time: .339879183 seconds
+
+---New data---
+
+[Remaining: 335]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/pkustk02/pkustk02.mtx
+[File : ./suiteSparse_dataset/pkustk02/pkustk02.mtx]
+[K : 32]
+[cuSPARSE_gflops : 25.60]
+[cuSPARSE_time : 1.03]
+* 	Execution time: .303761800 seconds
+
+---New data---
+
+[Remaining: 334]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/jan99jac100sc/jan99jac100sc.mtx
+[File : ./suiteSparse_dataset/jan99jac100sc/jan99jac100sc.mtx]
+[K : 32]
+[cuSPARSE_gflops : 13.04]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .284870192 seconds
+
+---New data---
+
+[Remaining: 333]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ch7-7-b5/ch7-7-b5.mtx
+[File : ./suiteSparse_dataset/ch7-7-b5/ch7-7-b5.mtx]
+[K : 32]
+[cuSPARSE_gflops : 12.79]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .280521869 seconds
+
+---New data---
+
+[Remaining: 332]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/pkustk01/pkustk01.mtx
+[File : ./suiteSparse_dataset/pkustk01/pkustk01.mtx]
+[K : 32]
+[cuSPARSE_gflops : 30.28]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .334472918 seconds
+
+---New data---
+
+[Remaining: 331]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/finance256/finance256.mtx
+[File : ./suiteSparse_dataset/finance256/finance256.mtx]
+[K : 32]
+[cuSPARSE_gflops : 9.91]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .272591371 seconds
+
+---New data---
+
+[Remaining: 330]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/fxm3_16/fxm3_16.mtx
+[File : ./suiteSparse_dataset/fxm3_16/fxm3_16.mtx]
+[K : 32]
+[cuSPARSE_gflops : 23.82]
+[cuSPARSE_time : 1.05]
+* 	Execution time: .341881608 seconds
+
+---New data---
+
+[Remaining: 329]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/jan99jac060/jan99jac060.mtx
+[File : ./suiteSparse_dataset/jan99jac060/jan99jac060.mtx]
+[K : 32]
+[cuSPARSE_gflops : 7.57]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .265236250 seconds
+
+---New data---
+
+[Remaining: 328]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/pwt/pwt.mtx
+[File : ./suiteSparse_dataset/pwt/pwt.mtx]
+[K : 32]
+[cuSPARSE_gflops : 10.73]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .274867819 seconds
+
+---New data---
+
+[Remaining: 327]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/mark3jac080/mark3jac080.mtx
+[File : ./suiteSparse_dataset/mark3jac080/mark3jac080.mtx]
+[K : 32]
+[cuSPARSE_gflops : 13.04]
+[cuSPARSE_time : 1.12]
+* 	Execution time: .292273712 seconds
+
+---New data---
+
+[Remaining: 326]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/Ill_Stokes/Ill_Stokes.mtx
+[File : ./suiteSparse_dataset/Ill_Stokes/Ill_Stokes.mtx]
+[K : 32]
+[cuSPARSE_gflops : 11.30]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .292591327 seconds
+
+---New data---
+
+[Remaining: 325]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/SiO/SiO.mtx
+[File : ./suiteSparse_dataset/SiO/SiO.mtx]
+[K : 32]
+[cuSPARSE_gflops : 43.32]
+[cuSPARSE_time : 1.00]
+* 	Execution time: .385219599 seconds
+
+---New data---
+
+[Remaining: 324]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/2D_54019_highK/2D_54019_highK.mtx
+[File : ./suiteSparse_dataset/2D_54019_highK/2D_54019_highK.mtx]
+[K : 32]
+[cuSPARSE_gflops : 66.49]
+[cuSPARSE_time : 0.96]
+* 	Execution time: .455868763 seconds
+
+---New data---
+
+[Remaining: 323]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/rlfprim/rlfprim.mtx
+[File : ./suiteSparse_dataset/rlfprim/rlfprim.mtx]
+[K : 32]
+[cuSPARSE_gflops : 19.73]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .321882783 seconds
+
+---New data---
+
+[Remaining: 322]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/g7jac200sc/g7jac200sc.mtx
+[File : ./suiteSparse_dataset/g7jac200sc/g7jac200sc.mtx]
+[K : 32]
+[cuSPARSE_gflops : 51.67]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .467364205 seconds
+
+---New data---
+
+[Remaining: 321]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/astro-ph/astro-ph.mtx
+[File : ./suiteSparse_dataset/astro-ph/astro-ph.mtx]
+[K : 32]
+[cuSPARSE_gflops : 7.14]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .269401070 seconds
+
+---New data---
+
+[Remaining: 320]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/TSOPF_FS_b39_c19/TSOPF_FS_b39_c19.mtx
+[File : ./suiteSparse_dataset/TSOPF_FS_b39_c19/TSOPF_FS_b39_c19.mtx]
+[K : 32]
+[cuSPARSE_gflops : 65.80]
+[cuSPARSE_time : 0.97]
+* 	Execution time: .469148089 seconds
+
+---New data---
+
+[Remaining: 319]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/bcsstk35/bcsstk35.mtx
+[File : ./suiteSparse_dataset/bcsstk35/bcsstk35.mtx]
+[K : 32]
+[cuSPARSE_gflops : 48.81]
+[cuSPARSE_time : 0.97]
+* 	Execution time: .390817193 seconds
+
+---New data---
+
+[Remaining: 318]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/TSOPF_FS_b162_c4/TSOPF_FS_b162_c4.mtx
+[File : ./suiteSparse_dataset/TSOPF_FS_b162_c4/TSOPF_FS_b162_c4.mtx]
+[K : 32]
+[cuSPARSE_gflops : 118.48]
+[cuSPARSE_time : 0.65]
+* 	Execution time: .459965684 seconds
+
+---New data---
+
+[Remaining: 317]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/lowThrust_12/lowThrust_12.mtx
+[File : ./suiteSparse_dataset/lowThrust_12/lowThrust_12.mtx]
+[K : 32]
+[cuSPARSE_gflops : 7.22]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .251822834 seconds
+
+---New data---
+
+[Remaining: 316]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/g7jac100/g7jac100.mtx
+[File : ./suiteSparse_dataset/g7jac100/g7jac100.mtx]
+[K : 32]
+[cuSPARSE_gflops : 24.16]
+[cuSPARSE_time : 1.02]
+* 	Execution time: .327883393 seconds
+
+---New data---
+
+[Remaining: 315]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/g7jac050sc/g7jac050sc.mtx
+[File : ./suiteSparse_dataset/g7jac050sc/g7jac050sc.mtx]
+[K : 32]
+[cuSPARSE_gflops : 9.71]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .267036927 seconds
+
+---New data---
+
+[Remaining: 314]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/mycielskian14/mycielskian14.mtx
+[File : ./suiteSparse_dataset/mycielskian14/mycielskian14.mtx]
+[K : 32]
+[cuSPARSE_gflops : 286.24]
+[cuSPARSE_time : 0.41]
+* 	Execution time: .741140287 seconds
+
+---New data---
+
+[Remaining: 313]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/gupta1/gupta1.mtx
+[File : ./suiteSparse_dataset/gupta1/gupta1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 99.62]
+[cuSPARSE_time : 0.71]
+* 	Execution time: .514337681 seconds
+
+---New data---
+
+[Remaining: 312]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/bayer04/bayer04.mtx
+[File : ./suiteSparse_dataset/bayer04/bayer04.mtx]
+[K : 32]
+[cuSPARSE_gflops : 9.78]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .257373921 seconds
+
+---New data---
+
+[Remaining: 311]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/Goodwin_071/Goodwin_071.mtx
+[File : ./suiteSparse_dataset/Goodwin_071/Goodwin_071.mtx]
+[K : 32]
+[cuSPARSE_gflops : 274.28]
+[cuSPARSE_time : 0.42]
+* 	Execution time: .626403086 seconds
+
+---New data---
+
+[Remaining: 310]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/cyl6/cyl6.mtx
+[File : ./suiteSparse_dataset/cyl6/cyl6.mtx]
+[K : 32]
+[cuSPARSE_gflops : 22.85]
+[cuSPARSE_time : 1.02]
+* 	Execution time: .293764807 seconds
+
+---New data---
+
+[Remaining: 309]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/g7jac140sc/g7jac140sc.mtx
+[File : ./suiteSparse_dataset/g7jac140sc/g7jac140sc.mtx]
+[K : 32]
+[cuSPARSE_gflops : 36.46]
+[cuSPARSE_time : 0.99]
+* 	Execution time: .392880802 seconds
+
+---New data---
+
+[Remaining: 308]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/wing/wing.mtx
+[File : ./suiteSparse_dataset/wing/wing.mtx]
+[K : 32]
+[cuSPARSE_gflops : 7.67]
+[cuSPARSE_time : 1.01]
+* 	Execution time: .286843401 seconds
+
+---New data---
+
+[Remaining: 307]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/crplat2/crplat2.mtx
+[File : ./suiteSparse_dataset/crplat2/crplat2.mtx]
+[K : 32]
+[cuSPARSE_gflops : 30.78]
+[cuSPARSE_time : 1.02]
+* 	Execution time: .327480529 seconds
+
+---New data---
+
+[Remaining: 306]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/c-60/c-60.mtx
+[File : ./suiteSparse_dataset/c-60/c-60.mtx]
+[K : 32]
+[cuSPARSE_gflops : 10.42]
+[cuSPARSE_time : 1.05]
+* 	Execution time: .283033117 seconds
+
+---New data---
+
+[Remaining: 305]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/mip1/mip1.mtx
+[File : ./suiteSparse_dataset/mip1/mip1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 801.88]
+[cuSPARSE_time : 0.42]
+* 	Execution time: 1.401854400 seconds
+
+---New data---
+
+[Remaining: 304]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/Zhao2/Zhao2.mtx
+[File : ./suiteSparse_dataset/Zhao2/Zhao2.mtx]
+[K : 32]
+[cuSPARSE_gflops : 10.33]
+[cuSPARSE_time : 1.03]
+* 	Execution time: .269803484 seconds
+
+---New data---
+
+[Remaining: 303]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/c-66/c-66.mtx
+[File : ./suiteSparse_dataset/c-66/c-66.mtx]
+[K : 32]
+[cuSPARSE_gflops : 16.57]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .311639780 seconds
+
+---New data---
+
+[Remaining: 302]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/helm3d01/helm3d01.mtx
+[File : ./suiteSparse_dataset/helm3d01/helm3d01.mtx]
+[K : 32]
+[cuSPARSE_gflops : 14.49]
+[cuSPARSE_time : 1.02]
+* 	Execution time: .294821959 seconds
+
+---New data---
+
+[Remaining: 301]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/k3plates/k3plates.mtx
+[File : ./suiteSparse_dataset/k3plates/k3plates.mtx]
+[K : 32]
+[cuSPARSE_gflops : 24.17]
+[cuSPARSE_time : 1.00]
+* 	Execution time: .296812130 seconds
+
+---New data---
+
+[Remaining: 300]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/lowThrust_6/lowThrust_6.mtx
+[File : ./suiteSparse_dataset/lowThrust_6/lowThrust_6.mtx]
+[K : 32]
+[cuSPARSE_gflops : 6.88]
+[cuSPARSE_time : 1.01]
+* 	Execution time: .249511570 seconds
+
+---New data---
+
+[Remaining: 299]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/Zd_Jac2/Zd_Jac2.mtx
+[File : ./suiteSparse_dataset/Zd_Jac2/Zd_Jac2.mtx]
+[K : 32]
+[cuSPARSE_gflops : 282.25]
+[cuSPARSE_time : 0.37]
+* 	Execution time: .652004844 seconds
+
+---New data---
+
+[Remaining: 298]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/JP/JP.mtx
+[File : ./suiteSparse_dataset/JP/JP.mtx]
+[K : 32]
+[cuSPARSE_gflops : 1296.58]
+[cuSPARSE_time : 0.68]
+* 	Execution time: 6.632475832 seconds
+
+---New data---
+
+[Remaining: 297]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/wang4/wang4.mtx
+[File : ./suiteSparse_dataset/wang4/wang4.mtx]
+[K : 32]
+[cuSPARSE_gflops : 10.92]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .274188064 seconds
+
+---New data---
+
+[Remaining: 296]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/cit-HepTh/cit-HepTh.mtx
+[File : ./suiteSparse_dataset/cit-HepTh/cit-HepTh.mtx]
+[K : 32]
+[cuSPARSE_gflops : 22.15]
+[cuSPARSE_time : 1.02]
+* 	Execution time: .342566512 seconds
+
+---New data---
+
+[Remaining: 295]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/crystm02/crystm02.mtx
+[File : ./suiteSparse_dataset/crystm02/crystm02.mtx]
+[K : 32]
+[cuSPARSE_gflops : 10.41]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .262186944 seconds
+
+---New data---
+
+[Remaining: 294]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/t3dh_a/t3dh_a.mtx
+[File : ./suiteSparse_dataset/t3dh_a/t3dh_a.mtx]
+[K : 32]
+[cuSPARSE_gflops : 366.40]
+[cuSPARSE_time : 0.39]
+* 	Execution time: .772092167 seconds
+
+---New data---
+
+[Remaining: 293]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/jan99jac100/jan99jac100.mtx
+[File : ./suiteSparse_dataset/jan99jac100/jan99jac100.mtx]
+[K : 32]
+[cuSPARSE_gflops : 13.39]
+[cuSPARSE_time : 1.03]
+* 	Execution time: .286680095 seconds
+
+---New data---
+
+[Remaining: 292]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/g7jac160/g7jac160.mtx
+[File : ./suiteSparse_dataset/g7jac160/g7jac160.mtx]
+[K : 32]
+[cuSPARSE_gflops : 41.61]
+[cuSPARSE_time : 1.01]
+* 	Execution time: .407136859 seconds
+
+---New data---
+
+[Remaining: 291]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/g7jac040sc/g7jac040sc.mtx
+[File : ./suiteSparse_dataset/g7jac040sc/g7jac040sc.mtx]
+[K : 32]
+[cuSPARSE_gflops : 6.99]
+[cuSPARSE_time : 1.05]
+* 	Execution time: .252618214 seconds
+
+---New data---
+
+[Remaining: 290]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/tandem_vtx/tandem_vtx.mtx
+[File : ./suiteSparse_dataset/tandem_vtx/tandem_vtx.mtx]
+[K : 32]
+[cuSPARSE_gflops : 8.50]
+[cuSPARSE_time : 1.02]
+* 	Execution time: .246730116 seconds
+
+---New data---
+
+[Remaining: 289]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/c-51/c-51.mtx
+[File : ./suiteSparse_dataset/c-51/c-51.mtx]
+[K : 32]
+[cuSPARSE_gflops : 6.94]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .264547770 seconds
+
+---New data---
+
+[Remaining: 288]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/human_gene1/human_gene1.mtx
+[File : ./suiteSparse_dataset/human_gene1/human_gene1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 1210.45]
+[cuSPARSE_time : 0.65]
+* 	Execution time: 6.109706911 seconds
+
+---New data---
+
+[Remaining: 287]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/wy2010/wy2010.mtx
+[File : ./suiteSparse_dataset/wy2010/wy2010.mtx]
+[K : 32]
+[cuSPARSE_gflops : 13.65]
+[cuSPARSE_time : 1.00]
+* 	Execution time: .313955982 seconds
+
+---New data---
+
+[Remaining: 286]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/TSOPF_RS_b2052_c1/TSOPF_RS_b2052_c1.mtx
+[File : ./suiteSparse_dataset/TSOPF_RS_b2052_c1/TSOPF_RS_b2052_c1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 1120.84]
+[cuSPARSE_time : 0.39]
+* 	Execution time: 1.577245817 seconds
+
+---New data---
+
+[Remaining: 285]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/c-56/c-56.mtx
+[File : ./suiteSparse_dataset/c-56/c-56.mtx]
+[K : 32]
+[cuSPARSE_gflops : 12.78]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .285686812 seconds
+
+---New data---
+
+[Remaining: 284]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/pkustk06/pkustk06.mtx
+[File : ./suiteSparse_dataset/pkustk06/pkustk06.mtx]
+[K : 32]
+[cuSPARSE_gflops : 139.89]
+[cuSPARSE_time : 0.60]
+* 	Execution time: .522332231 seconds
+
+---New data---
+
+[Remaining: 283]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/vsp_bump2_e18_aa01_model1_crew1/vsp_bump2_e18_aa01_model1_crew1.mtx
+[File : ./suiteSparse_dataset/vsp_bump2_e18_aa01_model1_crew1/vsp_bump2_e18_aa01_model1_crew1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 20.11]
+[cuSPARSE_time : 0.96]
+* 	Execution time: .324349899 seconds
+
+---New data---
+
+[Remaining: 282]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ex35/ex35.mtx
+[File : ./suiteSparse_dataset/ex35/ex35.mtx]
+[K : 32]
+[cuSPARSE_gflops : 13.36]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .275791751 seconds
+
+---New data---
+
+[Remaining: 281]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/copter1/copter1.mtx
+[File : ./suiteSparse_dataset/copter1/copter1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 7.17]
+[cuSPARSE_time : 1.02]
+* 	Execution time: .250031635 seconds
+
+---New data---
+
+[Remaining: 280]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ncvxbqp1/ncvxbqp1.mtx
+[File : ./suiteSparse_dataset/ncvxbqp1/ncvxbqp1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 12.60]
+[cuSPARSE_time : 1.02]
+* 	Execution time: .286890460 seconds
+
+---New data---
+
+[Remaining: 279]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/mark3jac060sc/mark3jac060sc.mtx
+[File : ./suiteSparse_dataset/mark3jac060sc/mark3jac060sc.mtx]
+[K : 32]
+[cuSPARSE_gflops : 10.50]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .277146050 seconds
+
+---New data---
+
+[Remaining: 278]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/bcsstk25/bcsstk25.mtx
+[File : ./suiteSparse_dataset/bcsstk25/bcsstk25.mtx]
+[K : 32]
+[cuSPARSE_gflops : 8.35]
+[cuSPARSE_time : 1.03]
+* 	Execution time: .258592335 seconds
+
+---New data---
+
+[Remaining: 277]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/TSOPF_RS_b162_c4/TSOPF_RS_b162_c4.mtx
+[File : ./suiteSparse_dataset/TSOPF_RS_b162_c4/TSOPF_RS_b162_c4.mtx]
+[K : 32]
+[cuSPARSE_gflops : 46.81]
+[cuSPARSE_time : 1.11]
+* 	Execution time: .401632090 seconds
+
+---New data---
+
+[Remaining: 276]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/loc-Brightkite/loc-Brightkite.mtx
+[File : ./suiteSparse_dataset/loc-Brightkite/loc-Brightkite.mtx]
+[K : 32]
+[cuSPARSE_gflops : 12.98]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .300974233 seconds
+
+---New data---
+
+[Remaining: 275]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/garon2/garon2.mtx
+[File : ./suiteSparse_dataset/garon2/garon2.mtx]
+[K : 32]
+[cuSPARSE_gflops : 24.03]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .304758989 seconds
+
+---New data---
+
+[Remaining: 274]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/TSOPF_RS_b39_c30/TSOPF_RS_b39_c30.mtx
+[File : ./suiteSparse_dataset/TSOPF_RS_b39_c30/TSOPF_RS_b39_c30.mtx]
+[K : 32]
+[cuSPARSE_gflops : 74.34]
+[cuSPARSE_time : 0.93]
+* 	Execution time: .475642665 seconds
+
+---New data---
+
+[Remaining: 273]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/TSOPF_RS_b300_c1/TSOPF_RS_b300_c1.mtx
+[File : ./suiteSparse_dataset/TSOPF_RS_b300_c1/TSOPF_RS_b300_c1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 217.50]
+[cuSPARSE_time : 0.43]
+* 	Execution time: .536910052 seconds
+
+---New data---
+
+[Remaining: 272]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/tube2/tube2.mtx
+[File : ./suiteSparse_dataset/tube2/tube2.mtx]
+[K : 32]
+[cuSPARSE_gflops : 27.15]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .325353690 seconds
+
+---New data---
+
+[Remaining: 271]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/lhr14c/lhr14c.mtx
+[File : ./suiteSparse_dataset/lhr14c/lhr14c.mtx]
+[K : 32]
+[cuSPARSE_gflops : 18.28]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .294195525 seconds
+
+---New data---
+
+[Remaining: 270]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/bayer01/bayer01.mtx
+[File : ./suiteSparse_dataset/bayer01/bayer01.mtx]
+[K : 32]
+[cuSPARSE_gflops : 16.39]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .285100723 seconds
+
+---New data---
+
+[Remaining: 269]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/nh2010/nh2010.mtx
+[File : ./suiteSparse_dataset/nh2010/nh2010.mtx]
+[K : 32]
+[cuSPARSE_gflops : 6.93]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .271195585 seconds
+
+---New data---
+
+[Remaining: 268]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/c-72/c-72.mtx
+[File : ./suiteSparse_dataset/c-72/c-72.mtx]
+[K : 32]
+[cuSPARSE_gflops : 21.70]
+[cuSPARSE_time : 1.17]
+* 	Execution time: .351019930 seconds
+
+---New data---
+
+[Remaining: 267]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/IG5-15/IG5-15.mtx
+[File : ./suiteSparse_dataset/IG5-15/IG5-15.mtx]
+[K : 32]
+[cuSPARSE_gflops : 20.02]
+[cuSPARSE_time : 1.03]
+* 	Execution time: .299843834 seconds
+
+---New data---
+
+[Remaining: 266]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/bauru5727/bauru5727.mtx
+[File : ./suiteSparse_dataset/bauru5727/bauru5727.mtx]
+[K : 32]
+[cuSPARSE_gflops : 8.48]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .250852044 seconds
+
+---New data---
+
+[Remaining: 265]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/Pres_Poisson/Pres_Poisson.mtx
+[File : ./suiteSparse_dataset/Pres_Poisson/Pres_Poisson.mtx]
+[K : 32]
+[cuSPARSE_gflops : 21.66]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .311077827 seconds
+
+---New data---
+
+[Remaining: 264]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/g7jac200/g7jac200.mtx
+[File : ./suiteSparse_dataset/g7jac200/g7jac200.mtx]
+[K : 32]
+[cuSPARSE_gflops : 49.32]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .449261997 seconds
+
+---New data---
+
+[Remaining: 263]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/g7jac100sc/g7jac100sc.mtx
+[File : ./suiteSparse_dataset/g7jac100sc/g7jac100sc.mtx]
+[K : 32]
+[cuSPARSE_gflops : 22.92]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .331676365 seconds
+
+---New data---
+
+[Remaining: 262]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/TSOPF_RS_b678_c2/TSOPF_RS_b678_c2.mtx
+[File : ./suiteSparse_dataset/TSOPF_RS_b678_c2/TSOPF_RS_b678_c2.mtx]
+[K : 32]
+[cuSPARSE_gflops : 1223.03]
+[cuSPARSE_time : 0.46]
+* 	Execution time: 2.052596696 seconds
+
+---New data---
+
+[Remaining: 261]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/scagr7-2r/scagr7-2r.mtx
+[File : ./suiteSparse_dataset/scagr7-2r/scagr7-2r.mtx]
+[K : 32]
+[cuSPARSE_gflops : 7.34]
+[cuSPARSE_time : 1.05]
+* 	Execution time: .260391217 seconds
+
+---New data---
+
+[Remaining: 260]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/scagr7-2r/scagr7-2r_A_11.mtx
+[File : ./suiteSparse_dataset/scagr7-2r/scagr7-2r_A_11.mtx]
+[K : 32]
+[cuSPARSE_gflops : 7.09]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .268005652 seconds
+
+---New data---
+
+[Remaining: 259]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/TF17/TF17.mtx
+[File : ./suiteSparse_dataset/TF17/TF17.mtx]
+[K : 32]
+[cuSPARSE_gflops : 34.57]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .375929271 seconds
+
+---New data---
+
+[Remaining: 258]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/soc-sign-Slashdot090221/soc-sign-Slashdot090221.mtx
+[File : ./suiteSparse_dataset/soc-sign-Slashdot090221/soc-sign-Slashdot090221.mtx]
+[K : 32]
+[cuSPARSE_gflops : 32.57]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .447139287 seconds
+
+---New data---
+
+[Remaining: 257]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/net150/net150.mtx
+[File : ./suiteSparse_dataset/net150/net150.mtx]
+[K : 32]
+[cuSPARSE_gflops : 221.68]
+[cuSPARSE_time : 0.46]
+* 	Execution time: .586333873 seconds
+
+---New data---
+
+[Remaining: 256]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/IG5-18/IG5-18.mtx
+[File : ./suiteSparse_dataset/IG5-18/IG5-18.mtx]
+[K : 32]
+[cuSPARSE_gflops : 266.13]
+[cuSPARSE_time : 0.43]
+* 	Execution time: .936497349 seconds
+
+---New data---
+
+[Remaining: 255]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/mark3jac120sc/mark3jac120sc.mtx
+[File : ./suiteSparse_dataset/mark3jac120sc/mark3jac120sc.mtx]
+[K : 32]
+[cuSPARSE_gflops : 20.19]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .323856960 seconds
+
+---New data---
+
+[Remaining: 254]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/c-64/c-64.mtx
+[File : ./suiteSparse_dataset/c-64/c-64.mtx]
+[K : 32]
+[cuSPARSE_gflops : 22.46]
+[cuSPARSE_time : 1.10]
+* 	Execution time: .315302116 seconds
+
+---New data---
+
+[Remaining: 253]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/email-Enron/email-Enron.mtx
+[File : ./suiteSparse_dataset/email-Enron/email-Enron.mtx]
+[K : 32]
+[cuSPARSE_gflops : 11.01]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .289890957 seconds
+
+---New data---
+
+[Remaining: 252]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/viscorocks/viscorocks.mtx
+[File : ./suiteSparse_dataset/viscorocks/viscorocks.mtx]
+[K : 32]
+[cuSPARSE_gflops : 111.72]
+[cuSPARSE_time : 0.67]
+* 	Execution time: .460341306 seconds
+
+---New data---
+
+[Remaining: 251]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/std1_Jac3/std1_Jac3.mtx
+[File : ./suiteSparse_dataset/std1_Jac3/std1_Jac3.mtx]
+[K : 32]
+[cuSPARSE_gflops : 230.51]
+[cuSPARSE_time : 0.40]
+* 	Execution time: .573550018 seconds
+
+---New data---
+
+[Remaining: 250]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/TSOPF_RS_b39_c7/TSOPF_RS_b39_c7.mtx
+[File : ./suiteSparse_dataset/TSOPF_RS_b39_c7/TSOPF_RS_b39_c7.mtx]
+[K : 32]
+[cuSPARSE_gflops : 15.63]
+[cuSPARSE_time : 1.03]
+* 	Execution time: .249376188 seconds
+
+---New data---
+
+[Remaining: 249]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/mark3jac140sc/mark3jac140sc.mtx
+[File : ./suiteSparse_dataset/mark3jac140sc/mark3jac140sc.mtx]
+[K : 32]
+[cuSPARSE_gflops : 24.22]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .313408398 seconds
+
+---New data---
+
+[Remaining: 248]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/gyro_m/gyro_m.mtx
+[File : ./suiteSparse_dataset/gyro_m/gyro_m.mtx]
+[K : 32]
+[cuSPARSE_gflops : 11.01]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .268986617 seconds
+
+---New data---
+
+[Remaining: 247]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/epb2/epb2.mtx
+[File : ./suiteSparse_dataset/epb2/epb2.mtx]
+[K : 32]
+[cuSPARSE_gflops : 10.60]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .268323472 seconds
+
+---New data---
+
+[Remaining: 246]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ship_001/ship_001.mtx
+[File : ./suiteSparse_dataset/ship_001/ship_001.mtx]
+[K : 32]
+[cuSPARSE_gflops : 389.67]
+[cuSPARSE_time : 0.38]
+* 	Execution time: .751599181 seconds
+
+---New data---
+
+[Remaining: 245]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ted_A_unscaled/ted_A_unscaled.mtx
+[File : ./suiteSparse_dataset/ted_A_unscaled/ted_A_unscaled.mtx]
+[K : 32]
+[cuSPARSE_gflops : 27.25]
+[cuSPARSE_time : 1.00]
+* 	Execution time: .310919214 seconds
+
+---New data---
+
+[Remaining: 244]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/vsp_msc10848_300sep_100in_1Kout/vsp_msc10848_300sep_100in_1Kout.mtx
+[File : ./suiteSparse_dataset/vsp_msc10848_300sep_100in_1Kout/vsp_msc10848_300sep_100in_1Kout.mtx]
+[K : 32]
+[cuSPARSE_gflops : 151.98]
+[cuSPARSE_time : 0.51]
+* 	Execution time: .648144562 seconds
+
+---New data---
+
+[Remaining: 243]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/k49_norm_10NN/k49_norm_10NN.mtx
+[File : ./suiteSparse_dataset/k49_norm_10NN/k49_norm_10NN.mtx]
+[K : 32]
+[cuSPARSE_gflops : 16.45]
+[cuSPARSE_time : 1.20]
+* 	Execution time: .350130946 seconds
+
+---New data---
+
+[Remaining: 242]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ct2010/ct2010.mtx
+[File : ./suiteSparse_dataset/ct2010/ct2010.mtx]
+[K : 32]
+[cuSPARSE_gflops : 10.00]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .299276566 seconds
+
+---New data---
+
+[Remaining: 241]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/conf6_0-8x8-20/conf6_0-8x8-20.mtx
+[File : ./suiteSparse_dataset/conf6_0-8x8-20/conf6_0-8x8-20.mtx]
+[K : 32]
+[cuSPARSE_gflops : 299.15]
+[cuSPARSE_time : 0.41]
+* 	Execution time: .708433144 seconds
+
+---New data---
+
+[Remaining: 240]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/fxm4_6/fxm4_6.mtx
+[File : ./suiteSparse_dataset/fxm4_6/fxm4_6.mtx]
+[K : 32]
+[cuSPARSE_gflops : 15.52]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .296161950 seconds
+
+---New data---
+
+[Remaining: 239]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/water_tank/water_tank.mtx
+[File : ./suiteSparse_dataset/water_tank/water_tank.mtx]
+[K : 32]
+[cuSPARSE_gflops : 353.77]
+[cuSPARSE_time : 0.37]
+* 	Execution time: .751315161 seconds
+
+---New data---
+
+[Remaining: 238]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/windtunnel_evap3d/windtunnel_evap3d.mtx
+[File : ./suiteSparse_dataset/windtunnel_evap3d/windtunnel_evap3d.mtx]
+[K : 32]
+[cuSPARSE_gflops : 439.99]
+[cuSPARSE_time : 0.40]
+* 	Execution time: 1.103136766 seconds
+
+---New data---
+
+[Remaining: 237]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/g7jac060sc/g7jac060sc.mtx
+[File : ./suiteSparse_dataset/g7jac060sc/g7jac060sc.mtx]
+[K : 32]
+[cuSPARSE_gflops : 12.15]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .286134261 seconds
+
+---New data---
+
+[Remaining: 236]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/c-61/c-61.mtx
+[File : ./suiteSparse_dataset/c-61/c-61.mtx]
+[K : 32]
+[cuSPARSE_gflops : 10.39]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .280177623 seconds
+
+---New data---
+
+[Remaining: 235]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/Goodwin_030/Goodwin_030.mtx
+[File : ./suiteSparse_dataset/Goodwin_030/Goodwin_030.mtx]
+[K : 32]
+[cuSPARSE_gflops : 18.89]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .290412659 seconds
+
+---New data---
+
+[Remaining: 234]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/lp_pds_10/lp_pds_10.mtx
+[File : ./suiteSparse_dataset/lp_pds_10/lp_pds_10.mtx]
+[K : 32]
+[cuSPARSE_gflops : 6.39]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .240393276 seconds
+
+---New data---
+
+[Remaining: 233]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/pkustk11/pkustk11.mtx
+[File : ./suiteSparse_dataset/pkustk11/pkustk11.mtx]
+[K : 32]
+[cuSPARSE_gflops : 436.19]
+[cuSPARSE_time : 0.39]
+* 	Execution time: .863241047 seconds
+
+---New data---
+
+[Remaining: 232]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/rgg_n_2_15_s0/rgg_n_2_15_s0.mtx
+[File : ./suiteSparse_dataset/rgg_n_2_15_s0/rgg_n_2_15_s0.mtx]
+[K : 32]
+[cuSPARSE_gflops : 9.71]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .277986029 seconds
+
+---New data---
+
+[Remaining: 231]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/cz10228/cz10228.mtx
+[File : ./suiteSparse_dataset/cz10228/cz10228.mtx]
+[K : 32]
+[cuSPARSE_gflops : 5.80]
+[cuSPARSE_time : 1.14]
+* 	Execution time: .251240830 seconds
+
+---New data---
+
+[Remaining: 230]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/bcsstk39/bcsstk39.mtx
+[File : ./suiteSparse_dataset/bcsstk39/bcsstk39.mtx]
+[K : 32]
+[cuSPARSE_gflops : 82.05]
+[cuSPARSE_time : 0.83]
+* 	Execution time: .435129042 seconds
+
+---New data---
+
+[Remaining: 229]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ted_AB_unscaled/ted_AB_unscaled.mtx
+[File : ./suiteSparse_dataset/ted_AB_unscaled/ted_AB_unscaled.mtx]
+[K : 32]
+[cuSPARSE_gflops : 32.63]
+[cuSPARSE_time : 1.02]
+* 	Execution time: .332012881 seconds
+
+---New data---
+
+[Remaining: 228]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/vsp_model1_crew1_cr42_south31/vsp_model1_crew1_cr42_south31.mtx
+[File : ./suiteSparse_dataset/vsp_model1_crew1_cr42_south31/vsp_model1_crew1_cr42_south31.mtx]
+[K : 32]
+[cuSPARSE_gflops : 11.30]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .295674470 seconds
+
+---New data---
+
+[Remaining: 227]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/pli/pli.mtx
+[File : ./suiteSparse_dataset/pli/pli.mtx]
+[K : 32]
+[cuSPARSE_gflops : 42.62]
+[cuSPARSE_time : 1.03]
+* 	Execution time: .391276159 seconds
+
+---New data---
+
+[Remaining: 226]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/bcsstk36/bcsstk36.mtx
+[File : ./suiteSparse_dataset/bcsstk36/bcsstk36.mtx]
+[K : 32]
+[cuSPARSE_gflops : 36.64]
+[cuSPARSE_time : 1.02]
+* 	Execution time: .351563336 seconds
+
+---New data---
+
+[Remaining: 225]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ncvxqp5/ncvxqp5.mtx
+[File : ./suiteSparse_dataset/ncvxqp5/ncvxqp5.mtx]
+[K : 32]
+[cuSPARSE_gflops : 14.03]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .307525869 seconds
+
+---New data---
+
+[Remaining: 224]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/mixtank_new/mixtank_new.mtx
+[File : ./suiteSparse_dataset/mixtank_new/mixtank_new.mtx]
+[K : 32]
+[cuSPARSE_gflops : 355.07]
+[cuSPARSE_time : 0.36]
+* 	Execution time: .847722047 seconds
+
+---New data---
+
+[Remaining: 223]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/TSOPF_FS_b300_c3/TSOPF_FS_b300_c3.mtx
+[File : ./suiteSparse_dataset/TSOPF_FS_b300_c3/TSOPF_FS_b300_c3.mtx]
+[K : 32]
+[cuSPARSE_gflops : 966.53]
+[cuSPARSE_time : 0.44]
+* 	Execution time: 1.689598379 seconds
+
+---New data---
+
+[Remaining: 222]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/Franz11/Franz11.mtx
+[File : ./suiteSparse_dataset/Franz11/Franz11.mtx]
+[K : 32]
+[cuSPARSE_gflops : 19.96]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .294744952 seconds
+
+---New data---
+
+[Remaining: 221]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/gas_sensor/gas_sensor.mtx
+[File : ./suiteSparse_dataset/gas_sensor/gas_sensor.mtx]
+[K : 32]
+[cuSPARSE_gflops : 55.06]
+[cuSPARSE_time : 1.03]
+* 	Execution time: .438683054 seconds
+
+---New data---
+
+[Remaining: 220]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/cz20468/cz20468.mtx
+[File : ./suiteSparse_dataset/cz20468/cz20468.mtx]
+[K : 32]
+[cuSPARSE_gflops : 12.45]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .275148359 seconds
+
+---New data---
+
+[Remaining: 219]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/denormal/denormal.mtx
+[File : ./suiteSparse_dataset/denormal/denormal.mtx]
+[K : 32]
+[cuSPARSE_gflops : 38.91]
+[cuSPARSE_time : 1.02]
+* 	Execution time: .365484726 seconds
+
+---New data---
+
+[Remaining: 218]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/conf5_4-8x8-20/conf5_4-8x8-20.mtx
+[File : ./suiteSparse_dataset/conf5_4-8x8-20/conf5_4-8x8-20.mtx]
+[K : 32]
+[cuSPARSE_gflops : 320.82]
+[cuSPARSE_time : 0.38]
+* 	Execution time: .696890280 seconds
+
+---New data---
+
+[Remaining: 217]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/pdb1HYS/pdb1HYS.mtx
+[File : ./suiteSparse_dataset/pdb1HYS/pdb1HYS.mtx]
+[K : 32]
+[cuSPARSE_gflops : 364.12]
+[cuSPARSE_time : 0.39]
+* 	Execution time: .740664953 seconds
+
+---New data---
+
+[Remaining: 216]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/mark3jac120/mark3jac120.mtx
+[File : ./suiteSparse_dataset/mark3jac120/mark3jac120.mtx]
+[K : 32]
+[cuSPARSE_gflops : 20.83]
+[cuSPARSE_time : 1.05]
+* 	Execution time: .325125911 seconds
+
+---New data---
+
+[Remaining: 215]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/scfxm1-2r/scfxm1-2r_A_9.mtx
+[File : ./suiteSparse_dataset/scfxm1-2r/scfxm1-2r_A_9.mtx]
+[K : 32]
+[cuSPARSE_gflops : 13.76]
+[cuSPARSE_time : 1.03]
+* 	Execution time: .272201527 seconds
+
+---New data---
+
+[Remaining: 214]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/scfxm1-2r/scfxm1-2r.mtx
+[File : ./suiteSparse_dataset/scfxm1-2r/scfxm1-2r.mtx]
+[K : 32]
+[cuSPARSE_gflops : 13.59]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .263236113 seconds
+
+---New data---
+
+[Remaining: 213]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/scfxm1-2r/scfxm1-2r_A_8.mtx
+[File : ./suiteSparse_dataset/scfxm1-2r/scfxm1-2r_A_8.mtx]
+[K : 32]
+[cuSPARSE_gflops : 6.54]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .264983282 seconds
+
+---New data---
+
+[Remaining: 212]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/av41092/av41092.mtx
+[File : ./suiteSparse_dataset/av41092/av41092.mtx]
+[K : 32]
+[cuSPARSE_gflops : 234.27]
+[cuSPARSE_time : 0.46]
+* 	Execution time: .657336463 seconds
+
+---New data---
+
+[Remaining: 211]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ted_AB/ted_AB.mtx
+[File : ./suiteSparse_dataset/ted_AB/ted_AB.mtx]
+[K : 32]
+[cuSPARSE_gflops : 32.90]
+[cuSPARSE_time : 1.02]
+* 	Execution time: .331397799 seconds
+
+---New data---
+
+[Remaining: 210]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/jan99jac080/jan99jac080.mtx
+[File : ./suiteSparse_dataset/jan99jac080/jan99jac080.mtx]
+[K : 32]
+[cuSPARSE_gflops : 10.19]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .273800967 seconds
+
+---New data---
+
+[Remaining: 209]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ramage02/ramage02.mtx
+[File : ./suiteSparse_dataset/ramage02/ramage02.mtx]
+[K : 32]
+[cuSPARSE_gflops : 232.92]
+[cuSPARSE_time : 0.40]
+* 	Execution time: .533829790 seconds
+
+---New data---
+
+[Remaining: 208]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/c-53/c-53.mtx
+[File : ./suiteSparse_dataset/c-53/c-53.mtx]
+[K : 32]
+[cuSPARSE_gflops : 11.96]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .273834850 seconds
+
+---New data---
+
+[Remaining: 207]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/wathen120/wathen120.mtx
+[File : ./suiteSparse_dataset/wathen120/wathen120.mtx]
+[K : 32]
+[cuSPARSE_gflops : 18.20]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .289901559 seconds
+
+---New data---
+
+[Remaining: 206]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/TSOPF_RS_b300_c3/TSOPF_RS_b300_c3.mtx
+[File : ./suiteSparse_dataset/TSOPF_RS_b300_c3/TSOPF_RS_b300_c3.mtx]
+[K : 32]
+[cuSPARSE_gflops : 688.18]
+[cuSPARSE_time : 0.41]
+* 	Execution time: 1.168153734 seconds
+
+---New data---
+
+[Remaining: 205]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/fome13/fome13.mtx
+[File : ./suiteSparse_dataset/fome13/fome13.mtx]
+[K : 32]
+[cuSPARSE_gflops : 17.65]
+[cuSPARSE_time : 1.03]
+* 	Execution time: .328510698 seconds
+
+---New data---
+
+[Remaining: 204]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ckt11752_dc_1/ckt11752_dc_1.mtx
+[File : ./suiteSparse_dataset/ckt11752_dc_1/ckt11752_dc_1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 19.42]
+[cuSPARSE_time : 1.10]
+* 	Execution time: .313533382 seconds
+
+---New data---
+
+[Remaining: 203]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/sinc18/sinc18.mtx
+[File : ./suiteSparse_dataset/sinc18/sinc18.mtx]
+[K : 32]
+[cuSPARSE_gflops : 90.09]
+[cuSPARSE_time : 0.69]
+* 	Execution time: .429837987 seconds
+
+---New data---
+
+[Remaining: 202]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ABACUS_shell_ld/ABACUS_shell_ld_M.mtx
+[File : ./suiteSparse_dataset/ABACUS_shell_ld/ABACUS_shell_ld_M.mtx]
+[K : 32]
+[cuSPARSE_gflops : 12.53]
+[cuSPARSE_time : 1.05]
+* 	Execution time: .258158652 seconds
+
+---New data---
+
+[Remaining: 201]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ABACUS_shell_ld/ABACUS_shell_ld_K.mtx
+[File : ./suiteSparse_dataset/ABACUS_shell_ld/ABACUS_shell_ld_K.mtx]
+[K : 32]
+[cuSPARSE_gflops : 12.81]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .289146991 seconds
+
+---New data---
+
+[Remaining: 200]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ABACUS_shell_ld/ABACUS_shell_ld.mtx
+[File : ./suiteSparse_dataset/ABACUS_shell_ld/ABACUS_shell_ld.mtx]
+[K : 32]
+[cuSPARSE_gflops : 12.88]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .295260852 seconds
+
+---New data---
+
+[Remaining: 199]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/TSOPF_FS_b162_c1/TSOPF_FS_b162_c1.mtx
+[File : ./suiteSparse_dataset/TSOPF_FS_b162_c1/TSOPF_FS_b162_c1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 18.94]
+[cuSPARSE_time : 1.03]
+* 	Execution time: .276565562 seconds
+
+---New data---
+
+[Remaining: 198]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/vsp_barth5_1Ksep_50in_5Kout/vsp_barth5_1Ksep_50in_5Kout.mtx
+[File : ./suiteSparse_dataset/vsp_barth5_1Ksep_50in_5Kout/vsp_barth5_1Ksep_50in_5Kout.mtx]
+[K : 32]
+[cuSPARSE_gflops : 6.19]
+[cuSPARSE_time : 1.05]
+* 	Execution time: .249388544 seconds
+
+---New data---
+
+[Remaining: 197]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/net4-1/net4-1.mtx
+[File : ./suiteSparse_dataset/net4-1/net4-1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 91.81]
+[cuSPARSE_time : 0.88]
+* 	Execution time: .528481297 seconds
+
+---New data---
+
+[Remaining: 196]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/c-57/c-57.mtx
+[File : ./suiteSparse_dataset/c-57/c-57.mtx]
+[K : 32]
+[cuSPARSE_gflops : 13.22]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .279660069 seconds
+
+---New data---
+
+[Remaining: 195]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/tube1/tube1.mtx
+[File : ./suiteSparse_dataset/tube1/tube1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 28.03]
+[cuSPARSE_time : 1.05]
+* 	Execution time: .312934226 seconds
+
+---New data---
+
+[Remaining: 194]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/cage10/cage10.mtx
+[File : ./suiteSparse_dataset/cage10/cage10.mtx]
+[K : 32]
+[cuSPARSE_gflops : 9.25]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .259409498 seconds
+
+---New data---
+
+[Remaining: 193]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ACTIVSg10K/ACTIVSg10K.mtx
+[File : ./suiteSparse_dataset/ACTIVSg10K/ACTIVSg10K.mtx]
+[K : 32]
+[cuSPARSE_gflops : 8.33]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .246407759 seconds
+
+---New data---
+
+[Remaining: 192]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/Zd_Jac3/Zd_Jac3.mtx
+[File : ./suiteSparse_dataset/Zd_Jac3/Zd_Jac3.mtx]
+[K : 32]
+[cuSPARSE_gflops : 346.61]
+[cuSPARSE_time : 0.35]
+* 	Execution time: .743976677 seconds
+
+---New data---
+
+[Remaining: 191]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/TSOPF_RS_b2383/TSOPF_RS_b2383.mtx
+[File : ./suiteSparse_dataset/TSOPF_RS_b2383/TSOPF_RS_b2383.mtx]
+[K : 32]
+[cuSPARSE_gflops : 2012.88]
+[cuSPARSE_time : 0.51]
+* 	Execution time: 3.910389792 seconds
+
+---New data---
+
+[Remaining: 190]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/bcsstk17/bcsstk17.mtx
+[File : ./suiteSparse_dataset/bcsstk17/bcsstk17.mtx]
+[K : 32]
+[cuSPARSE_gflops : 13.05]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .274963300 seconds
+
+---New data---
+
+[Remaining: 189]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/192bit/192bit.mtx
+[File : ./suiteSparse_dataset/192bit/192bit.mtx]
+[K : 32]
+[cuSPARSE_gflops : 9.21]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .272483927 seconds
+
+---New data---
+
+[Remaining: 188]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/mark3jac060/mark3jac060.mtx
+[File : ./suiteSparse_dataset/mark3jac060/mark3jac060.mtx]
+[K : 32]
+[cuSPARSE_gflops : 10.15]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .256690080 seconds
+
+---New data---
+
+[Remaining: 187]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/t3dl/t3dl.mtx
+[File : ./suiteSparse_dataset/t3dl/t3dl.mtx]
+[K : 32]
+[cuSPARSE_gflops : 16.14]
+[cuSPARSE_time : 1.05]
+* 	Execution time: .306423342 seconds
+
+---New data---
+
+[Remaining: 186]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/psse2/psse2.mtx
+[File : ./suiteSparse_dataset/psse2/psse2.mtx]
+[K : 32]
+[cuSPARSE_gflops : 7.08]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .239322761 seconds
+
+---New data---
+
+[Remaining: 185]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/inlet/inlet.mtx
+[File : ./suiteSparse_dataset/inlet/inlet.mtx]
+[K : 32]
+[cuSPARSE_gflops : 20.29]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .285878511 seconds
+
+---New data---
+
+[Remaining: 184]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/mk12-b3/mk12-b3.mtx
+[File : ./suiteSparse_dataset/mk12-b3/mk12-b3.mtx]
+[K : 32]
+[cuSPARSE_gflops : 12.46]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .282661183 seconds
+
+---New data---
+
+[Remaining: 183]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/t3dh/t3dh.mtx
+[File : ./suiteSparse_dataset/t3dh/t3dh.mtx]
+[K : 32]
+[cuSPARSE_gflops : 371.37]
+[cuSPARSE_time : 0.38]
+* 	Execution time: .769329086 seconds
+
+---New data---
+
+[Remaining: 182]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/t3dh/t3dh_E.mtx
+[File : ./suiteSparse_dataset/t3dh/t3dh_E.mtx]
+[K : 32]
+[cuSPARSE_gflops : 368.52]
+[cuSPARSE_time : 0.38]
+* 	Execution time: .759023286 seconds
+
+---New data---
+
+[Remaining: 181]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/c-55/c-55.mtx
+[File : ./suiteSparse_dataset/c-55/c-55.mtx]
+[K : 32]
+[cuSPARSE_gflops : 12.53]
+[cuSPARSE_time : 1.11]
+* 	Execution time: .287058783 seconds
+
+---New data---
+
+[Remaining: 180]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ABACUS_shell_hd/ABACUS_shell_hd_M.mtx
+[File : ./suiteSparse_dataset/ABACUS_shell_hd/ABACUS_shell_hd_M.mtx]
+[K : 32]
+[cuSPARSE_gflops : 12.37]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .280421889 seconds
+
+---New data---
+
+[Remaining: 179]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ABACUS_shell_hd/ABACUS_shell_hd_K.mtx
+[File : ./suiteSparse_dataset/ABACUS_shell_hd/ABACUS_shell_hd_K.mtx]
+[K : 32]
+[cuSPARSE_gflops : 12.82]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .285829096 seconds
+
+---New data---
+
+[Remaining: 178]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ABACUS_shell_hd/ABACUS_shell_hd.mtx
+[File : ./suiteSparse_dataset/ABACUS_shell_hd/ABACUS_shell_hd.mtx]
+[K : 32]
+[cuSPARSE_gflops : 13.16]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .278515982 seconds
+
+---New data---
+
+[Remaining: 177]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/gupta2/gupta2.mtx
+[File : ./suiteSparse_dataset/gupta2/gupta2.mtx]
+[K : 32]
+[cuSPARSE_gflops : 351.22]
+[cuSPARSE_time : 0.39]
+* 	Execution time: .836625419 seconds
+
+---New data---
+
+[Remaining: 176]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/hvdc1/hvdc1.mtx
+[File : ./suiteSparse_dataset/hvdc1/hvdc1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 9.50]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .246147324 seconds
+
+---New data---
+
+[Remaining: 175]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/waveguide3D/waveguide3D.mtx
+[File : ./suiteSparse_dataset/waveguide3D/waveguide3D.mtx]
+[K : 32]
+[cuSPARSE_gflops : 18.20]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .320549294 seconds
+
+---New data---
+
+[Remaining: 174]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/sme3Dc/sme3Dc.mtx
+[File : ./suiteSparse_dataset/sme3Dc/sme3Dc.mtx]
+[K : 32]
+[cuSPARSE_gflops : 450.56]
+[cuSPARSE_time : 0.45]
+* 	Execution time: 1.816185669 seconds
+
+---New data---
+
+[Remaining: 173]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/lowThrust_8/lowThrust_8.mtx
+[File : ./suiteSparse_dataset/lowThrust_8/lowThrust_8.mtx]
+[K : 32]
+[cuSPARSE_gflops : 6.73]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .262379230 seconds
+
+---New data---
+
+[Remaining: 172]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/psse0/psse0.mtx
+[File : ./suiteSparse_dataset/psse0/psse0.mtx]
+[K : 32]
+[cuSPARSE_gflops : 6.27]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .229786211 seconds
+
+---New data---
+
+[Remaining: 171]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/lhr71/lhr71.mtx
+[File : ./suiteSparse_dataset/lhr71/lhr71.mtx]
+[K : 32]
+[cuSPARSE_gflops : 169.60]
+[cuSPARSE_time : 0.58]
+* 	Execution time: .583795879 seconds
+
+---New data---
+
+[Remaining: 170]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/apache1/apache1.mtx
+[File : ./suiteSparse_dataset/apache1/apache1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 19.78]
+[cuSPARSE_time : 1.01]
+* 	Execution time: .299574625 seconds
+
+---New data---
+
+[Remaining: 169]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/bcsstk31/bcsstk31.mtx
+[File : ./suiteSparse_dataset/bcsstk31/bcsstk31.mtx]
+[K : 32]
+[cuSPARSE_gflops : 39.03]
+[cuSPARSE_time : 1.00]
+* 	Execution time: .360067255 seconds
+
+---New data---
+
+[Remaining: 168]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/lpl1/lpl1.mtx
+[File : ./suiteSparse_dataset/lpl1/lpl1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 11.15]
+[cuSPARSE_time : 1.03]
+* 	Execution time: .273405639 seconds
+
+---New data---
+
+[Remaining: 167]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/H2O/H2O.mtx
+[File : ./suiteSparse_dataset/H2O/H2O.mtx]
+[K : 32]
+[cuSPARSE_gflops : 82.53]
+[cuSPARSE_time : 0.89]
+* 	Execution time: .522435830 seconds
+
+---New data---
+
+[Remaining: 166]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/fe_rotor/fe_rotor.mtx
+[File : ./suiteSparse_dataset/fe_rotor/fe_rotor.mtx]
+[K : 32]
+[cuSPARSE_gflops : 41.52]
+[cuSPARSE_time : 1.02]
+* 	Execution time: .434014151 seconds
+
+---New data---
+
+[Remaining: 165]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/Goodwin_054/Goodwin_054.mtx
+[File : ./suiteSparse_dataset/Goodwin_054/Goodwin_054.mtx]
+[K : 32]
+[cuSPARSE_gflops : 83.79]
+[cuSPARSE_time : 0.79]
+* 	Execution time: .454075755 seconds
+
+---New data---
+
+[Remaining: 164]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/onera_dual/onera_dual.mtx
+[File : ./suiteSparse_dataset/onera_dual/onera_dual.mtx]
+[K : 32]
+[cuSPARSE_gflops : 15.66]
+[cuSPARSE_time : 1.03]
+* 	Execution time: .296738472 seconds
+
+---New data---
+
+[Remaining: 163]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/crystm03/crystm03.mtx
+[File : ./suiteSparse_dataset/crystm03/crystm03.mtx]
+[K : 32]
+[cuSPARSE_gflops : 18.40]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .290656819 seconds
+
+---New data---
+
+[Remaining: 162]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/bcsstk30/bcsstk30.mtx
+[File : ./suiteSparse_dataset/bcsstk30/bcsstk30.mtx]
+[K : 32]
+[cuSPARSE_gflops : 93.44]
+[cuSPARSE_time : 0.71]
+* 	Execution time: .452589695 seconds
+
+---New data---
+
+[Remaining: 161]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/soc-Slashdot0902/soc-Slashdot0902.mtx
+[File : ./suiteSparse_dataset/soc-Slashdot0902/soc-Slashdot0902.mtx]
+[K : 32]
+[cuSPARSE_gflops : 58.63]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .583406222 seconds
+
+---New data---
+
+[Remaining: 160]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/onetone1/onetone1.mtx
+[File : ./suiteSparse_dataset/onetone1/onetone1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 21.43]
+[cuSPARSE_time : 1.02]
+* 	Execution time: .298812090 seconds
+
+---New data---
+
+[Remaining: 159]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/nd12k/nd12k.mtx
+[File : ./suiteSparse_dataset/nd12k/nd12k.mtx]
+[K : 32]
+[cuSPARSE_gflops : 1064.18]
+[cuSPARSE_time : 0.43]
+* 	Execution time: 1.985427864 seconds
+
+---New data---
+
+[Remaining: 158]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/std1_Jac2_db/std1_Jac2_db.mtx
+[File : ./suiteSparse_dataset/std1_Jac2_db/std1_Jac2_db.mtx]
+[K : 32]
+[cuSPARSE_gflops : 30.73]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .341600188 seconds
+
+---New data---
+
+[Remaining: 157]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/Chevron2/Chevron2.mtx
+[File : ./suiteSparse_dataset/Chevron2/Chevron2.mtx]
+[K : 32]
+[cuSPARSE_gflops : 51.19]
+[cuSPARSE_time : 1.00]
+* 	Execution time: .412048046 seconds
+
+---New data---
+
+[Remaining: 156]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ex11/ex11.mtx
+[File : ./suiteSparse_dataset/ex11/ex11.mtx]
+[K : 32]
+[cuSPARSE_gflops : 117.53]
+[cuSPARSE_time : 0.60]
+* 	Execution time: .473836428 seconds
+
+---New data---
+
+[Remaining: 155]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/pltexpa/pltexpa_A_5.mtx
+[File : ./suiteSparse_dataset/pltexpa/pltexpa_A_5.mtx]
+[K : 32]
+[cuSPARSE_gflops : 8.77]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .278971208 seconds
+
+---New data---
+
+[Remaining: 154]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/pltexpa/pltexpa.mtx
+[File : ./suiteSparse_dataset/pltexpa/pltexpa.mtx]
+[K : 32]
+[cuSPARSE_gflops : 8.64]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .277724720 seconds
+
+---New data---
+
+[Remaining: 153]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/pltexpa/pltexpa_A_4.mtx
+[File : ./suiteSparse_dataset/pltexpa/pltexpa_A_4.mtx]
+[K : 32]
+[cuSPARSE_gflops : 9.28]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .272153003 seconds
+
+---New data---
+
+[Remaining: 152]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/msc10848/msc10848.mtx
+[File : ./suiteSparse_dataset/msc10848/msc10848.mtx]
+[K : 32]
+[cuSPARSE_gflops : 38.43]
+[cuSPARSE_time : 1.03]
+* 	Execution time: .353016767 seconds
+
+---New data---
+
+[Remaining: 151]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/Si34H36/Si34H36.mtx
+[File : ./suiteSparse_dataset/Si34H36/Si34H36.mtx]
+[K : 32]
+[cuSPARSE_gflops : 412.25]
+[cuSPARSE_time : 0.41]
+* 	Execution time: .908428202 seconds
+
+---New data---
+
+[Remaining: 150]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/TEM27623/TEM27623_M.mtx
+[File : ./suiteSparse_dataset/TEM27623/TEM27623_M.mtx]
+[K : 32]
+[cuSPARSE_gflops : 14.34]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .288803095 seconds
+
+---New data---
+
+[Remaining: 149]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/TEM27623/TEM27623.mtx
+[File : ./suiteSparse_dataset/TEM27623/TEM27623.mtx]
+[K : 32]
+[cuSPARSE_gflops : 13.63]
+[cuSPARSE_time : 1.10]
+* 	Execution time: .286552742 seconds
+
+---New data---
+
+[Remaining: 148]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/appu/appu.mtx
+[File : ./suiteSparse_dataset/appu/appu.mtx]
+[K : 32]
+[cuSPARSE_gflops : 287.93]
+[cuSPARSE_time : 0.41]
+* 	Execution time: 1.046668784 seconds
+
+---New data---
+
+[Remaining: 147]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/cage11/cage11.mtx
+[File : ./suiteSparse_dataset/cage11/cage11.mtx]
+[K : 32]
+[cuSPARSE_gflops : 33.99]
+[cuSPARSE_time : 1.05]
+* 	Execution time: .373170021 seconds
+
+---New data---
+
+[Remaining: 146]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/lhr17/lhr17.mtx
+[File : ./suiteSparse_dataset/lhr17/lhr17.mtx]
+[K : 32]
+[cuSPARSE_gflops : 23.15]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .298800994 seconds
+
+---New data---
+
+[Remaining: 145]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/consph/consph.mtx
+[File : ./suiteSparse_dataset/consph/consph.mtx]
+[K : 32]
+[cuSPARSE_gflops : 472.52]
+[cuSPARSE_time : 0.41]
+* 	Execution time: .957632161 seconds
+
+---New data---
+
+[Remaining: 144]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/mark3jac080sc/mark3jac080sc.mtx
+[File : ./suiteSparse_dataset/mark3jac080sc/mark3jac080sc.mtx]
+[K : 32]
+[cuSPARSE_gflops : 13.54]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .290890459 seconds
+
+---New data---
+
+[Remaining: 143]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/lowThrust_11/lowThrust_11.mtx
+[File : ./suiteSparse_dataset/lowThrust_11/lowThrust_11.mtx]
+[K : 32]
+[cuSPARSE_gflops : 6.97]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .259435927 seconds
+
+---New data---
+
+[Remaining: 142]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/TSOPF_FS_b162_c3/TSOPF_FS_b162_c3.mtx
+[File : ./suiteSparse_dataset/TSOPF_FS_b162_c3/TSOPF_FS_b162_c3.mtx]
+[K : 32]
+[cuSPARSE_gflops : 68.18]
+[cuSPARSE_time : 0.85]
+* 	Execution time: .409833905 seconds
+
+---New data---
+
+[Remaining: 141]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/cond-mat-2003/cond-mat-2003.mtx
+[File : ./suiteSparse_dataset/cond-mat-2003/cond-mat-2003.mtx]
+[K : 32]
+[cuSPARSE_gflops : 7.12]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .273006721 seconds
+
+---New data---
+
+[Remaining: 140]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/cfd1/cfd1.mtx
+[File : ./suiteSparse_dataset/cfd1/cfd1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 61.49]
+[cuSPARSE_time : 0.99]
+* 	Execution time: .463132435 seconds
+
+---New data---
+
+[Remaining: 139]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/lowThrust_7/lowThrust_7.mtx
+[File : ./suiteSparse_dataset/lowThrust_7/lowThrust_7.mtx]
+[K : 32]
+[cuSPARSE_gflops : 6.82]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .252871549 seconds
+
+---New data---
+
+[Remaining: 138]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/light_in_tissue/light_in_tissue.mtx
+[File : ./suiteSparse_dataset/light_in_tissue/light_in_tissue.mtx]
+[K : 32]
+[cuSPARSE_gflops : 23.90]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .317890691 seconds
+
+---New data---
+
+[Remaining: 137]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/sd2010/sd2010.mtx
+[File : ./suiteSparse_dataset/sd2010/sd2010.mtx]
+[K : 32]
+[cuSPARSE_gflops : 12.49]
+[cuSPARSE_time : 1.05]
+* 	Execution time: .306127128 seconds
+
+---New data---
+
+[Remaining: 136]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/bbmat/bbmat.mtx
+[File : ./suiteSparse_dataset/bbmat/bbmat.mtx]
+[K : 32]
+[cuSPARSE_gflops : 283.13]
+[cuSPARSE_time : 0.40]
+* 	Execution time: .632597015 seconds
+
+---New data---
+
+[Remaining: 135]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/vfem/vfem.mtx
+[File : ./suiteSparse_dataset/vfem/vfem.mtx]
+[K : 32]
+[cuSPARSE_gflops : 113.10]
+[cuSPARSE_time : 0.81]
+* 	Execution time: .581866544 seconds
+
+---New data---
+
+[Remaining: 134]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/Wordnet3/Wordnet3.mtx
+[File : ./suiteSparse_dataset/Wordnet3/Wordnet3.mtx]
+[K : 32]
+[cuSPARSE_gflops : 7.96]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .299978679 seconds
+
+---New data---
+
+[Remaining: 133]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/crankseg_1/crankseg_1.mtx
+[File : ./suiteSparse_dataset/crankseg_1/crankseg_1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 819.16]
+[cuSPARSE_time : 0.42]
+* 	Execution time: 1.573721804 seconds
+
+---New data---
+
+[Remaining: 132]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/laminar_duct3D/laminar_duct3D.mtx
+[File : ./suiteSparse_dataset/laminar_duct3D/laminar_duct3D.mtx]
+[K : 32]
+[cuSPARSE_gflops : 658.53]
+[cuSPARSE_time : 0.37]
+* 	Execution time: 1.205698222 seconds
+
+---New data---
+
+[Remaining: 131]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/n4c6-b5/n4c6-b5.mtx
+[File : ./suiteSparse_dataset/n4c6-b5/n4c6-b5.mtx]
+[K : 32]
+[cuSPARSE_gflops : 18.80]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .305891402 seconds
+
+---New data---
+
+[Remaining: 130]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/rgg_n_2_16_s0/rgg_n_2_16_s0.mtx
+[File : ./suiteSparse_dataset/rgg_n_2_16_s0/rgg_n_2_16_s0.mtx]
+[K : 32]
+[cuSPARSE_gflops : 20.10]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .331674692 seconds
+
+---New data---
+
+[Remaining: 129]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/tomographic1/tomographic1.mtx
+[File : ./suiteSparse_dataset/tomographic1/tomographic1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 38.66]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .432893836 seconds
+
+---New data---
+
+[Remaining: 128]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/soc-Epinions1/soc-Epinions1.mtx
+[File : ./suiteSparse_dataset/soc-Epinions1/soc-Epinions1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 32.15]
+[cuSPARSE_time : 1.01]
+* 	Execution time: .411534809 seconds
+
+---New data---
+
+[Remaining: 127]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/FEM_3D_thermal1/FEM_3D_thermal1.mtx
+[File : ./suiteSparse_dataset/FEM_3D_thermal1/FEM_3D_thermal1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 25.93]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .316176549 seconds
+
+---New data---
+
+[Remaining: 126]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/invextr1_new/invextr1_new.mtx
+[File : ./suiteSparse_dataset/invextr1_new/invextr1_new.mtx]
+[K : 32]
+[cuSPARSE_gflops : 342.53]
+[cuSPARSE_time : 0.34]
+* 	Execution time: .738743707 seconds
+
+---New data---
+
+[Remaining: 125]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/sc205-2r/sc205-2r_A_12.mtx
+[File : ./suiteSparse_dataset/sc205-2r/sc205-2r_A_12.mtx]
+[K : 32]
+[cuSPARSE_gflops : 7.26]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .269544869 seconds
+
+---New data---
+
+[Remaining: 124]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/sc205-2r/sc205-2r.mtx
+[File : ./suiteSparse_dataset/sc205-2r/sc205-2r.mtx]
+[K : 32]
+[cuSPARSE_gflops : 7.34]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .273696810 seconds
+
+---New data---
+
+[Remaining: 123]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/sparsine/sparsine.mtx
+[File : ./suiteSparse_dataset/sparsine/sparsine.mtx]
+[K : 32]
+[cuSPARSE_gflops : 49.35]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .519790847 seconds
+
+---New data---
+
+[Remaining: 122]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/wang3/wang3.mtx
+[File : ./suiteSparse_dataset/wang3/wang3.mtx]
+[K : 32]
+[cuSPARSE_gflops : 10.75]
+[cuSPARSE_time : 1.05]
+* 	Execution time: .268421440 seconds
+
+---New data---
+
+[Remaining: 121]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/c-47/c-47.mtx
+[File : ./suiteSparse_dataset/c-47/c-47.mtx]
+[K : 32]
+[cuSPARSE_gflops : 6.97]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .265659057 seconds
+
+---New data---
+
+[Remaining: 120]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/TSOPF_FS_b300_c2/TSOPF_FS_b300_c2.mtx
+[File : ./suiteSparse_dataset/TSOPF_FS_b300_c2/TSOPF_FS_b300_c2.mtx]
+[K : 32]
+[cuSPARSE_gflops : 705.62]
+[cuSPARSE_time : 0.40]
+* 	Execution time: 1.131329843 seconds
+
+---New data---
+
+[Remaining: 119]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/mark3jac100/mark3jac100.mtx
+[File : ./suiteSparse_dataset/mark3jac100/mark3jac100.mtx]
+[K : 32]
+[cuSPARSE_gflops : 16.80]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .305876189 seconds
+
+---New data---
+
+[Remaining: 118]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/rajat15/rajat15.mtx
+[File : ./suiteSparse_dataset/rajat15/rajat15.mtx]
+[K : 32]
+[cuSPARSE_gflops : 25.21]
+[cuSPARSE_time : 1.13]
+* 	Execution time: .347722016 seconds
+
+---New data---
+
+[Remaining: 117]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/raefsky3/raefsky3.mtx
+[File : ./suiteSparse_dataset/raefsky3/raefsky3.mtx]
+[K : 32]
+[cuSPARSE_gflops : 245.15]
+[cuSPARSE_time : 0.39]
+* 	Execution time: .520497558 seconds
+
+---New data---
+
+[Remaining: 116]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/Goodwin_040/Goodwin_040.mtx
+[File : ./suiteSparse_dataset/Goodwin_040/Goodwin_040.mtx]
+[K : 32]
+[cuSPARSE_gflops : 33.86]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .346478732 seconds
+
+---New data---
+
+[Remaining: 115]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/cvxbqp1/cvxbqp1.mtx
+[File : ./suiteSparse_dataset/cvxbqp1/cvxbqp1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 11.92]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .273424706 seconds
+
+---New data---
+
+[Remaining: 114]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/Zd_Jac6/Zd_Jac6.mtx
+[File : ./suiteSparse_dataset/Zd_Jac6/Zd_Jac6.mtx]
+[K : 32]
+[cuSPARSE_gflops : 297.11]
+[cuSPARSE_time : 0.37]
+* 	Execution time: .681101098 seconds
+
+---New data---
+
+[Remaining: 113]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/thread/thread.mtx
+[File : ./suiteSparse_dataset/thread/thread.mtx]
+[K : 32]
+[cuSPARSE_gflops : 411.54]
+[cuSPARSE_time : 0.35]
+* 	Execution time: .734297052 seconds
+
+---New data---
+
+[Remaining: 112]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/epb3/epb3.mtx
+[File : ./suiteSparse_dataset/epb3/epb3.mtx]
+[K : 32]
+[cuSPARSE_gflops : 28.47]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .351187437 seconds
+
+---New data---
+
+[Remaining: 111]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/g7jac120/g7jac120.mtx
+[File : ./suiteSparse_dataset/g7jac120/g7jac120.mtx]
+[K : 32]
+[cuSPARSE_gflops : 28.77]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .349095151 seconds
+
+---New data---
+
+[Remaining: 110]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/world/world.mtx
+[File : ./suiteSparse_dataset/world/world.mtx]
+[K : 32]
+[cuSPARSE_gflops : 11.91]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .293938467 seconds
+
+---New data---
+
+[Remaining: 109]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/south31/south31.mtx
+[File : ./suiteSparse_dataset/south31/south31.mtx]
+[K : 32]
+[cuSPARSE_gflops : 6.56]
+[cuSPARSE_time : 1.10]
+* 	Execution time: .260647239 seconds
+
+---New data---
+
+[Remaining: 108]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/Ga3As3H12/Ga3As3H12.mtx
+[File : ./suiteSparse_dataset/Ga3As3H12/Ga3As3H12.mtx]
+[K : 32]
+[cuSPARSE_gflops : 476.36]
+[cuSPARSE_time : 0.41]
+* 	Execution time: .926177416 seconds
+
+---New data---
+
+[Remaining: 107]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/mycielskian15/mycielskian15.mtx
+[File : ./suiteSparse_dataset/mycielskian15/mycielskian15.mtx]
+[K : 32]
+[cuSPARSE_gflops : 757.02]
+[cuSPARSE_time : 0.47]
+* 	Execution time: 2.085229060 seconds
+
+---New data---
+
+[Remaining: 106]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/sme3Da/sme3Da.mtx
+[File : ./suiteSparse_dataset/sme3Da/sme3Da.mtx]
+[K : 32]
+[cuSPARSE_gflops : 69.32]
+[cuSPARSE_time : 0.81]
+* 	Execution time: .500322994 seconds
+
+---New data---
+
+[Remaining: 105]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/c-68/c-68.mtx
+[File : ./suiteSparse_dataset/c-68/c-68.mtx]
+[K : 32]
+[cuSPARSE_gflops : 18.48]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .325247631 seconds
+
+---New data---
+
+[Remaining: 104]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/rim/rim.mtx
+[File : ./suiteSparse_dataset/rim/rim.mtx]
+[K : 32]
+[cuSPARSE_gflops : 92.57]
+[cuSPARSE_time : 0.70]
+* 	Execution time: .470911696 seconds
+
+---New data---
+
+[Remaining: 103]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/fome12/fome12.mtx
+[File : ./suiteSparse_dataset/fome12/fome12.mtx]
+[K : 32]
+[cuSPARSE_gflops : 8.02]
+[cuSPARSE_time : 1.14]
+* 	Execution time: .286798295 seconds
+
+---New data---
+
+[Remaining: 102]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/G_n_pin_pout/G_n_pin_pout.mtx
+[File : ./suiteSparse_dataset/G_n_pin_pout/G_n_pin_pout.mtx]
+[K : 32]
+[cuSPARSE_gflops : 32.14]
+[cuSPARSE_time : 1.00]
+* 	Execution time: .400324630 seconds
+
+---New data---
+
+[Remaining: 101]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/nd6k/nd6k.mtx
+[File : ./suiteSparse_dataset/nd6k/nd6k.mtx]
+[K : 32]
+[cuSPARSE_gflops : 593.63]
+[cuSPARSE_time : 0.37]
+* 	Execution time: 1.053860241 seconds
+
+---New data---
+
+[Remaining: 100]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/lhr10/lhr10.mtx
+[File : ./suiteSparse_dataset/lhr10/lhr10.mtx]
+[K : 32]
+[cuSPARSE_gflops : 14.10]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .272626673 seconds
+
+---New data---
+
+[Remaining: 99]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/g7jac180/g7jac180.mtx
+[File : ./suiteSparse_dataset/g7jac180/g7jac180.mtx]
+[K : 32]
+[cuSPARSE_gflops : 46.46]
+[cuSPARSE_time : 1.03]
+* 	Execution time: .438564620 seconds
+
+---New data---
+
+[Remaining: 98]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/nug08-3rd/nug08-3rd.mtx
+[File : ./suiteSparse_dataset/nug08-3rd/nug08-3rd.mtx]
+[K : 32]
+[cuSPARSE_gflops : 8.90]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .266260096 seconds
+
+---New data---
+
+[Remaining: 97]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/Si5H12/Si5H12.mtx
+[File : ./suiteSparse_dataset/Si5H12/Si5H12.mtx]
+[K : 32]
+[cuSPARSE_gflops : 22.83]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .309765477 seconds
+
+---New data---
+
+[Remaining: 96]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/smt/smt.mtx
+[File : ./suiteSparse_dataset/smt/smt.mtx]
+[K : 32]
+[cuSPARSE_gflops : 345.45]
+[cuSPARSE_time : 0.35]
+* 	Execution time: .663312413 seconds
+
+---New data---
+
+[Remaining: 95]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/t3dh_e/t3dh_e.mtx
+[File : ./suiteSparse_dataset/t3dh_e/t3dh_e.mtx]
+[K : 32]
+[cuSPARSE_gflops : 361.78]
+[cuSPARSE_time : 0.39]
+* 	Execution time: .793345388 seconds
+
+---New data---
+
+[Remaining: 94]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/Zd_Jac6_db/Zd_Jac6_db.mtx
+[File : ./suiteSparse_dataset/Zd_Jac6_db/Zd_Jac6_db.mtx]
+[K : 32]
+[cuSPARSE_gflops : 45.25]
+[cuSPARSE_time : 0.94]
+* 	Execution time: .383686427 seconds
+
+---New data---
+
+[Remaining: 93]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/c-66b/c-66b.mtx
+[File : ./suiteSparse_dataset/c-66b/c-66b.mtx]
+[K : 32]
+[cuSPARSE_gflops : 15.77]
+[cuSPARSE_time : 1.11]
+* 	Execution time: .314221327 seconds
+
+---New data---
+
+[Remaining: 92]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/vsp_sctap1-2b_and_seymourl/vsp_sctap1-2b_and_seymourl.mtx
+[File : ./suiteSparse_dataset/vsp_sctap1-2b_and_seymourl/vsp_sctap1-2b_and_seymourl.mtx]
+[K : 32]
+[cuSPARSE_gflops : 8.34]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .280008281 seconds
+
+---New data---
+
+[Remaining: 91]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/g7jac140/g7jac140.mtx
+[File : ./suiteSparse_dataset/g7jac140/g7jac140.mtx]
+[K : 32]
+[cuSPARSE_gflops : 35.50]
+[cuSPARSE_time : 1.02]
+* 	Execution time: .375828833 seconds
+
+---New data---
+
+[Remaining: 90]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/soc-sign-Slashdot081106/soc-sign-Slashdot081106.mtx
+[File : ./suiteSparse_dataset/soc-sign-Slashdot081106/soc-sign-Slashdot081106.mtx]
+[K : 32]
+[cuSPARSE_gflops : 32.56]
+[cuSPARSE_time : 1.02]
+* 	Execution time: .427668151 seconds
+
+---New data---
+
+[Remaining: 89]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/rajat22/rajat22.mtx
+[File : ./suiteSparse_dataset/rajat22/rajat22.mtx]
+[K : 32]
+[cuSPARSE_gflops : 11.59]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .259732055 seconds
+
+---New data---
+
+[Remaining: 88]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/brack2/brack2.mtx
+[File : ./suiteSparse_dataset/brack2/brack2.mtx]
+[K : 32]
+[cuSPARSE_gflops : 23.02]
+[cuSPARSE_time : 1.02]
+* 	Execution time: .306413755 seconds
+
+---New data---
+
+[Remaining: 87]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/RFdevice/RFdevice.mtx
+[File : ./suiteSparse_dataset/RFdevice/RFdevice.mtx]
+[K : 32]
+[cuSPARSE_gflops : 22.90]
+[cuSPARSE_time : 1.02]
+* 	Execution time: .323700831 seconds
+
+---New data---
+
+[Remaining: 86]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/msc23052/msc23052.mtx
+[File : ./suiteSparse_dataset/msc23052/msc23052.mtx]
+[K : 32]
+[cuSPARSE_gflops : 37.75]
+[cuSPARSE_time : 1.00]
+* 	Execution time: .350514633 seconds
+
+---New data---
+
+[Remaining: 85]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ecl32/ecl32.mtx
+[File : ./suiteSparse_dataset/ecl32/ecl32.mtx]
+[K : 32]
+[cuSPARSE_gflops : 23.58]
+[cuSPARSE_time : 1.03]
+* 	Execution time: .307889514 seconds
+
+---New data---
+
+[Remaining: 84]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/igbt3/igbt3.mtx
+[File : ./suiteSparse_dataset/igbt3/igbt3.mtx]
+[K : 32]
+[cuSPARSE_gflops : 14.27]
+[cuSPARSE_time : 1.05]
+* 	Execution time: .276164717 seconds
+
+---New data---
+
+[Remaining: 83]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/vsp_vibrobox_scagr7-2c_rlfddd/vsp_vibrobox_scagr7-2c_rlfddd.mtx
+[File : ./suiteSparse_dataset/vsp_vibrobox_scagr7-2c_rlfddd/vsp_vibrobox_scagr7-2c_rlfddd.mtx]
+[K : 32]
+[cuSPARSE_gflops : 27.88]
+[cuSPARSE_time : 1.00]
+* 	Execution time: .343737236 seconds
+
+---New data---
+
+[Remaining: 82]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/lowThrust_13/lowThrust_13.mtx
+[File : ./suiteSparse_dataset/lowThrust_13/lowThrust_13.mtx]
+[K : 32]
+[cuSPARSE_gflops : 6.87]
+[cuSPARSE_time : 1.10]
+* 	Execution time: .261156705 seconds
+
+---New data---
+
+[Remaining: 81]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/chipcool1/chipcool1.mtx
+[File : ./suiteSparse_dataset/chipcool1/chipcool1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 16.64]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .299678957 seconds
+
+---New data---
+
+[Remaining: 80]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/baxter/baxter.mtx
+[File : ./suiteSparse_dataset/baxter/baxter.mtx]
+[K : 32]
+[cuSPARSE_gflops : 6.40]
+[cuSPARSE_time : 1.12]
+* 	Execution time: .262572163 seconds
+
+---New data---
+
+[Remaining: 79]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/conf6_0-8x8-30/conf6_0-8x8-30.mtx
+[File : ./suiteSparse_dataset/conf6_0-8x8-30/conf6_0-8x8-30.mtx]
+[K : 32]
+[cuSPARSE_gflops : 324.09]
+[cuSPARSE_time : 0.38]
+* 	Execution time: .692753262 seconds
+
+---New data---
+
+[Remaining: 78]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/conf5_4-8x8-10/conf5_4-8x8-10.mtx
+[File : ./suiteSparse_dataset/conf5_4-8x8-10/conf5_4-8x8-10.mtx]
+[K : 32]
+[cuSPARSE_gflops : 319.97]
+[cuSPARSE_time : 0.38]
+* 	Execution time: .681053690 seconds
+
+---New data---
+
+[Remaining: 77]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/pcrystk03/pcrystk03.mtx
+[File : ./suiteSparse_dataset/pcrystk03/pcrystk03.mtx]
+[K : 32]
+[cuSPARSE_gflops : 67.47]
+[cuSPARSE_time : 0.84]
+* 	Execution time: .419808007 seconds
+
+---New data---
+
+[Remaining: 76]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/graphics/graphics.mtx
+[File : ./suiteSparse_dataset/graphics/graphics.mtx]
+[K : 32]
+[cuSPARSE_gflops : 7.00]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .265023711 seconds
+
+---New data---
+
+[Remaining: 75]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/lhr17c/lhr17c.mtx
+[File : ./suiteSparse_dataset/lhr17c/lhr17c.mtx]
+[K : 32]
+[cuSPARSE_gflops : 22.72]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .301468523 seconds
+
+---New data---
+
+[Remaining: 74]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/t3dl_a/t3dl_a.mtx
+[File : ./suiteSparse_dataset/t3dl_a/t3dl_a.mtx]
+[K : 32]
+[cuSPARSE_gflops : 16.39]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .266249320 seconds
+
+---New data---
+
+[Remaining: 73]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/conf5_4-8x8-15/conf5_4-8x8-15.mtx
+[File : ./suiteSparse_dataset/conf5_4-8x8-15/conf5_4-8x8-15.mtx]
+[K : 32]
+[cuSPARSE_gflops : 324.74]
+[cuSPARSE_time : 0.38]
+* 	Execution time: .685115698 seconds
+
+---New data---
+
+[Remaining: 72]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/airfoil_2d/airfoil_2d.mtx
+[File : ./suiteSparse_dataset/airfoil_2d/airfoil_2d.mtx]
+[K : 32]
+[cuSPARSE_gflops : 15.18]
+[cuSPARSE_time : 1.10]
+* 	Execution time: .291518663 seconds
+
+---New data---
+
+[Remaining: 71]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/foldoc/foldoc.mtx
+[File : ./suiteSparse_dataset/foldoc/foldoc.mtx]
+[K : 32]
+[cuSPARSE_gflops : 7.25]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .262084034 seconds
+
+---New data---
+
+[Remaining: 70]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/IG5-16/IG5-16.mtx
+[File : ./suiteSparse_dataset/IG5-16/IG5-16.mtx]
+[K : 32]
+[cuSPARSE_gflops : 37.83]
+[cuSPARSE_time : 1.00]
+* 	Execution time: .417278028 seconds
+
+---New data---
+
+[Remaining: 69]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/c-54/c-54.mtx
+[File : ./suiteSparse_dataset/c-54/c-54.mtx]
+[K : 32]
+[cuSPARSE_gflops : 12.43]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .282829700 seconds
+
+---New data---
+
+[Remaining: 68]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/lp_nug20/lp_nug20.mtx
+[File : ./suiteSparse_dataset/lp_nug20/lp_nug20.mtx]
+[K : 32]
+[cuSPARSE_gflops : 18.62]
+[cuSPARSE_time : 1.05]
+* 	Execution time: .307265909 seconds
+
+---New data---
+
+[Remaining: 67]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/me2010/me2010.mtx
+[File : ./suiteSparse_dataset/me2010/me2010.mtx]
+[K : 32]
+[cuSPARSE_gflops : 10.47]
+[cuSPARSE_time : 1.03]
+* 	Execution time: .293244830 seconds
+
+---New data---
+
+[Remaining: 66]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/pkustk07/pkustk07.mtx
+[File : ./suiteSparse_dataset/pkustk07/pkustk07.mtx]
+[K : 32]
+[cuSPARSE_gflops : 166.03]
+[cuSPARSE_time : 0.47]
+* 	Execution time: .497356327 seconds
+
+---New data---
+
+[Remaining: 65]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/Zhao1/Zhao1.mtx
+[File : ./suiteSparse_dataset/Zhao1/Zhao1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 9.74]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .276609257 seconds
+
+---New data---
+
+[Remaining: 64]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/jan99jac080sc/jan99jac080sc.mtx
+[File : ./suiteSparse_dataset/jan99jac080sc/jan99jac080sc.mtx]
+[K : 32]
+[cuSPARSE_gflops : 10.17]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .271930968 seconds
+
+---New data---
+
+[Remaining: 63]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/net100/net100.mtx
+[File : ./suiteSparse_dataset/net100/net100.mtx]
+[K : 32]
+[cuSPARSE_gflops : 89.90]
+[cuSPARSE_time : 0.73]
+* 	Execution time: .468081348 seconds
+
+---New data---
+
+[Remaining: 62]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/n4c6-b12/n4c6-b12.mtx
+[File : ./suiteSparse_dataset/n4c6-b12/n4c6-b12.mtx]
+[K : 32]
+[cuSPARSE_gflops : 20.21]
+[cuSPARSE_time : 1.05]
+* 	Execution time: .303138824 seconds
+
+---New data---
+
+[Remaining: 61]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/wathen100/wathen100.mtx
+[File : ./suiteSparse_dataset/wathen100/wathen100.mtx]
+[K : 32]
+[cuSPARSE_gflops : 14.96]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .283823912 seconds
+
+---New data---
+
+[Remaining: 60]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/lhr11/lhr11.mtx
+[File : ./suiteSparse_dataset/lhr11/lhr11.mtx]
+[K : 32]
+[cuSPARSE_gflops : 13.85]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .278683146 seconds
+
+---New data---
+
+[Remaining: 59]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/g7jac060/g7jac060.mtx
+[File : ./suiteSparse_dataset/g7jac060/g7jac060.mtx]
+[K : 32]
+[cuSPARSE_gflops : 12.06]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .276438756 seconds
+
+---New data---
+
+[Remaining: 58]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/g7jac040/g7jac040.mtx
+[File : ./suiteSparse_dataset/g7jac040/g7jac040.mtx]
+[K : 32]
+[cuSPARSE_gflops : 6.81]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .257028003 seconds
+
+---New data---
+
+[Remaining: 57]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ASIC_100ks/ASIC_100ks.mtx
+[File : ./suiteSparse_dataset/ASIC_100ks/ASIC_100ks.mtx]
+[K : 32]
+[cuSPARSE_gflops : 36.09]
+[cuSPARSE_time : 1.03]
+* 	Execution time: .379682521 seconds
+
+---New data---
+
+[Remaining: 56]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/opt1/opt1.mtx
+[File : ./suiteSparse_dataset/opt1/opt1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 85.35]
+[cuSPARSE_time : 0.73]
+* 	Execution time: .438691200 seconds
+
+---New data---
+
+[Remaining: 55]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/lhr11c/lhr11c.mtx
+[File : ./suiteSparse_dataset/lhr11c/lhr11c.mtx]
+[K : 32]
+[cuSPARSE_gflops : 13.86]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .270770398 seconds
+
+---New data---
+
+[Remaining: 54]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/vsp_bcsstk30_500sep_10in_1Kout/vsp_bcsstk30_500sep_10in_1Kout.mtx
+[File : ./suiteSparse_dataset/vsp_bcsstk30_500sep_10in_1Kout/vsp_bcsstk30_500sep_10in_1Kout.mtx]
+[K : 32]
+[cuSPARSE_gflops : 301.79]
+[cuSPARSE_time : 0.43]
+* 	Execution time: 1.113382717 seconds
+
+---New data---
+
+[Remaining: 53]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/poisson3Da/poisson3Da.mtx
+[File : ./suiteSparse_dataset/poisson3Da/poisson3Da.mtx]
+[K : 32]
+[cuSPARSE_gflops : 20.80]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .348833057 seconds
+
+---New data---
+
+[Remaining: 52]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ak2010/ak2010.mtx
+[File : ./suiteSparse_dataset/ak2010/ak2010.mtx]
+[K : 32]
+[cuSPARSE_gflops : 6.56]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .269868556 seconds
+
+---New data---
+
+[Remaining: 51]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/Chevron1/Chevron1.mtx
+[File : ./suiteSparse_dataset/Chevron1/Chevron1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 19.96]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .304324415 seconds
+
+---New data---
+
+[Remaining: 50]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/Dubcova2/Dubcova2.mtx
+[File : ./suiteSparse_dataset/Dubcova2/Dubcova2.mtx]
+[K : 32]
+[cuSPARSE_gflops : 34.01]
+[cuSPARSE_time : 1.03]
+* 	Execution time: .374730679 seconds
+
+---New data---
+
+[Remaining: 49]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/net75/net75.mtx
+[File : ./suiteSparse_dataset/net75/net75.mtx]
+[K : 32]
+[cuSPARSE_gflops : 52.23]
+[cuSPARSE_time : 0.93]
+* 	Execution time: .410172196 seconds
+
+---New data---
+
+[Remaining: 48]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/memplus/memplus.mtx
+[File : ./suiteSparse_dataset/memplus/memplus.mtx]
+[K : 32]
+[cuSPARSE_gflops : 7.48]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .254351429 seconds
+
+---New data---
+
+[Remaining: 47]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/g7jac080/g7jac080.mtx
+[File : ./suiteSparse_dataset/g7jac080/g7jac080.mtx]
+[K : 32]
+[cuSPARSE_gflops : 17.84]
+[cuSPARSE_time : 1.05]
+* 	Execution time: .304069386 seconds
+
+---New data---
+
+[Remaining: 46]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/lhr34/lhr34.mtx
+[File : ./suiteSparse_dataset/lhr34/lhr34.mtx]
+[K : 32]
+[cuSPARSE_gflops : 47.89]
+[cuSPARSE_time : 1.02]
+* 	Execution time: .394669038 seconds
+
+---New data---
+
+[Remaining: 45]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ncvxqp3/ncvxqp3.mtx
+[File : ./suiteSparse_dataset/ncvxqp3/ncvxqp3.mtx]
+[K : 32]
+[cuSPARSE_gflops : 17.05]
+[cuSPARSE_time : 1.03]
+* 	Execution time: .315968732 seconds
+
+---New data---
+
+[Remaining: 44]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/wiki-RfA/wiki-RfA.mtx
+[File : ./suiteSparse_dataset/wiki-RfA/wiki-RfA.mtx]
+[K : 32]
+[cuSPARSE_gflops : 11.01]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .301171647 seconds
+
+---New data---
+
+[Remaining: 43]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/wiki-RfA/wiki-RfA_Positive.mtx
+[File : ./suiteSparse_dataset/wiki-RfA/wiki-RfA_Positive.mtx]
+[K : 32]
+[cuSPARSE_gflops : 8.17]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .274374087 seconds
+
+---New data---
+
+[Remaining: 42]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/chipcool0/chipcool0.mtx
+[File : ./suiteSparse_dataset/chipcool0/chipcool0.mtx]
+[K : 32]
+[cuSPARSE_gflops : 16.91]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .314440373 seconds
+
+---New data---
+
+[Remaining: 41]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/lowThrust_9/lowThrust_9.mtx
+[File : ./suiteSparse_dataset/lowThrust_9/lowThrust_9.mtx]
+[K : 32]
+[cuSPARSE_gflops : 6.87]
+[cuSPARSE_time : 1.07]
+* 	Execution time: .240217829 seconds
+
+---New data---
+
+[Remaining: 40]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/net50/net50.mtx
+[File : ./suiteSparse_dataset/net50/net50.mtx]
+[K : 32]
+[cuSPARSE_gflops : 29.29]
+[cuSPARSE_time : 1.05]
+* 	Execution time: .343929523 seconds
+
+---New data---
+
+[Remaining: 39]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/LeGresley_87936/LeGresley_87936.mtx
+[File : ./suiteSparse_dataset/LeGresley_87936/LeGresley_87936.mtx]
+[K : 32]
+[cuSPARSE_gflops : 37.06]
+[cuSPARSE_time : 1.02]
+* 	Execution time: .402335419 seconds
+
+---New data---
+
+[Remaining: 38]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/Andrews/Andrews.mtx
+[File : ./suiteSparse_dataset/Andrews/Andrews.mtx]
+[K : 32]
+[cuSPARSE_gflops : 25.78]
+[cuSPARSE_time : 1.02]
+* 	Execution time: .369502725 seconds
+
+---New data---
+
+[Remaining: 37]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/crankseg_2/crankseg_2.mtx
+[File : ./suiteSparse_dataset/crankseg_2/crankseg_2.mtx]
+[K : 32]
+[cuSPARSE_gflops : 1043.47]
+[cuSPARSE_time : 0.44]
+* 	Execution time: 2.010840879 seconds
+
+---New data---
+
+[Remaining: 36]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/c-65/c-65.mtx
+[File : ./suiteSparse_dataset/c-65/c-65.mtx]
+[K : 32]
+[cuSPARSE_gflops : 12.08]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .283204453 seconds
+
+---New data---
+
+[Remaining: 35]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/lhr34c/lhr34c.mtx
+[File : ./suiteSparse_dataset/lhr34c/lhr34c.mtx]
+[K : 32]
+[cuSPARSE_gflops : 49.00]
+[cuSPARSE_time : 1.00]
+* 	Execution time: .373144476 seconds
+
+---New data---
+
+[Remaining: 34]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/TSOPF_RS_b2383_c1/TSOPF_RS_b2383_c1.mtx
+[File : ./suiteSparse_dataset/TSOPF_RS_b2383_c1/TSOPF_RS_b2383_c1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 2058.34]
+[cuSPARSE_time : 0.50]
+* 	Execution time: 3.908668508 seconds
+
+---New data---
+
+[Remaining: 33]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/venkat50/venkat50.mtx
+[File : ./suiteSparse_dataset/venkat50/venkat50.mtx]
+[K : 32]
+[cuSPARSE_gflops : 249.26]
+[cuSPARSE_time : 0.44]
+* 	Execution time: .608888433 seconds
+
+---New data---
+
+[Remaining: 32]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/sinc15/sinc15.mtx
+[File : ./suiteSparse_dataset/sinc15/sinc15.mtx]
+[K : 32]
+[cuSPARSE_gflops : 36.97]
+[cuSPARSE_time : 0.98]
+* 	Execution time: .338490310 seconds
+
+---New data---
+
+[Remaining: 31]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/TSOPF_RS_b300_c2/TSOPF_RS_b300_c2.mtx
+[File : ./suiteSparse_dataset/TSOPF_RS_b300_c2/TSOPF_RS_b300_c2.mtx]
+[K : 32]
+[cuSPARSE_gflops : 529.05]
+[cuSPARSE_time : 0.36]
+* 	Execution time: .826236073 seconds
+
+---New data---
+
+[Remaining: 30]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/bundle1/bundle1.mtx
+[File : ./suiteSparse_dataset/bundle1/bundle1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 24.69]
+[cuSPARSE_time : 1.01]
+* 	Execution time: .302276302 seconds
+
+---New data---
+
+[Remaining: 29]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/soc-sign-Slashdot090216/soc-sign-Slashdot090216.mtx
+[File : ./suiteSparse_dataset/soc-sign-Slashdot090216/soc-sign-Slashdot090216.mtx]
+[K : 32]
+[cuSPARSE_gflops : 34.83]
+[cuSPARSE_time : 1.00]
+* 	Execution time: .424186128 seconds
+
+---New data---
+
+[Remaining: 28]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/chem_master1/chem_master1.mtx
+[File : ./suiteSparse_dataset/chem_master1/chem_master1.mtx]
+[K : 32]
+[cuSPARSE_gflops : 11.96]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .280804324 seconds
+
+---New data---
+
+[Remaining: 27]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/c-62ghs/c-62ghs.mtx
+[File : ./suiteSparse_dataset/c-62ghs/c-62ghs.mtx]
+[K : 32]
+[cuSPARSE_gflops : 16.53]
+[cuSPARSE_time : 1.16]
+* 	Execution time: .321237156 seconds
+
+---New data---
+
+[Remaining: 26]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/TSOPF_FS_b300/TSOPF_FS_b300.mtx
+[File : ./suiteSparse_dataset/TSOPF_FS_b300/TSOPF_FS_b300.mtx]
+[K : 32]
+[cuSPARSE_gflops : 403.26]
+[cuSPARSE_time : 0.35]
+* 	Execution time: .676726010 seconds
+
+---New data---
+
+[Remaining: 25]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/TSOPF_RS_b39_c19/TSOPF_RS_b39_c19.mtx
+[File : ./suiteSparse_dataset/TSOPF_RS_b39_c19/TSOPF_RS_b39_c19.mtx]
+[K : 32]
+[cuSPARSE_gflops : 43.07]
+[cuSPARSE_time : 1.02]
+* 	Execution time: .382553603 seconds
+
+---New data---
+
+[Remaining: 24]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/208bit/208bit.mtx
+[File : ./suiteSparse_dataset/208bit/208bit.mtx]
+[K : 32]
+[cuSPARSE_gflops : 19.01]
+[cuSPARSE_time : 1.01]
+* 	Execution time: .299914209 seconds
+
+---New data---
+
+[Remaining: 23]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/mark3jac040sc/mark3jac040sc.mtx
+[File : ./suiteSparse_dataset/mark3jac040sc/mark3jac040sc.mtx]
+[K : 32]
+[cuSPARSE_gflops : 7.01]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .252366217 seconds
+
+---New data---
+
+[Remaining: 22]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/g7jac160sc/g7jac160sc.mtx
+[File : ./suiteSparse_dataset/g7jac160sc/g7jac160sc.mtx]
+[K : 32]
+[cuSPARSE_gflops : 43.20]
+[cuSPARSE_time : 0.97]
+* 	Execution time: .398240835 seconds
+
+---New data---
+
+[Remaining: 21]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/conf5_4-8x8-05/conf5_4-8x8-05.mtx
+[File : ./suiteSparse_dataset/conf5_4-8x8-05/conf5_4-8x8-05.mtx]
+[K : 32]
+[cuSPARSE_gflops : 329.21]
+[cuSPARSE_time : 0.37]
+* 	Execution time: .670358869 seconds
+
+---New data---
+
+[Remaining: 20]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/jan99jac120sc/jan99jac120sc.mtx
+[File : ./suiteSparse_dataset/jan99jac120sc/jan99jac120sc.mtx]
+[K : 32]
+[cuSPARSE_gflops : 16.68]
+[cuSPARSE_time : 1.00]
+* 	Execution time: .293788925 seconds
+
+---New data---
+
+[Remaining: 19]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/mosfet2/mosfet2.mtx
+[File : ./suiteSparse_dataset/mosfet2/mosfet2.mtx]
+[K : 32]
+[cuSPARSE_gflops : 195.09]
+[cuSPARSE_time : 0.49]
+* 	Execution time: .699851394 seconds
+
+---New data---
+
+[Remaining: 18]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/lowThrust_5/lowThrust_5.mtx
+[File : ./suiteSparse_dataset/lowThrust_5/lowThrust_5.mtx]
+[K : 32]
+[cuSPARSE_gflops : 6.43]
+[cuSPARSE_time : 1.03]
+* 	Execution time: .258513338 seconds
+
+---New data---
+
+[Remaining: 17]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/soc-Slashdot0811/soc-Slashdot0811.mtx
+[File : ./suiteSparse_dataset/soc-Slashdot0811/soc-Slashdot0811.mtx]
+[K : 32]
+[cuSPARSE_gflops : 54.79]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .580889860 seconds
+
+---New data---
+
+[Remaining: 16]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ex19/ex19.mtx
+[File : ./suiteSparse_dataset/ex19/ex19.mtx]
+[K : 32]
+[cuSPARSE_gflops : 16.37]
+[cuSPARSE_time : 1.02]
+* 	Execution time: .287303836 seconds
+
+---New data---
+
+[Remaining: 15]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/ca-HepPh/ca-HepPh.mtx
+[File : ./suiteSparse_dataset/ca-HepPh/ca-HepPh.mtx]
+[K : 32]
+[cuSPARSE_gflops : 7.19]
+[cuSPARSE_time : 1.06]
+* 	Execution time: .242944186 seconds
+
+---New data---
+
+[Remaining: 14]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/IG5-17/IG5-17.mtx
+[File : ./suiteSparse_dataset/IG5-17/IG5-17.mtx]
+[K : 32]
+[cuSPARSE_gflops : 90.40]
+[cuSPARSE_time : 0.73]
+* 	Execution time: .593653596 seconds
+
+---New data---
+
+[Remaining: 13]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/net125/net125.mtx
+[File : ./suiteSparse_dataset/net125/net125.mtx]
+[K : 32]
+[cuSPARSE_gflops : 161.20]
+[cuSPARSE_time : 0.52]
+* 	Execution time: .536840449 seconds
+
+---New data---
+
+[Remaining: 12]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/bcsstk32/bcsstk32.mtx
+[File : ./suiteSparse_dataset/bcsstk32/bcsstk32.mtx]
+[K : 32]
+[cuSPARSE_gflops : 75.73]
+[cuSPARSE_time : 0.87]
+* 	Execution time: .463785329 seconds
+
+---New data---
+
+[Remaining: 11]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/onetone2/onetone2.mtx
+[File : ./suiteSparse_dataset/onetone2/onetone2.mtx]
+[K : 32]
+[cuSPARSE_gflops : 14.78]
+[cuSPARSE_time : 0.99]
+* 	Execution time: .280758724 seconds
+
+---New data---
+
+[Remaining: 10]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/lhr10c/lhr10c.mtx
+[File : ./suiteSparse_dataset/lhr10c/lhr10c.mtx]
+[K : 32]
+[cuSPARSE_gflops : 13.80]
+[cuSPARSE_time : 1.08]
+* 	Execution time: .274040569 seconds
+
+---New data---
+
+[Remaining: 9]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/olafu/olafu.mtx
+[File : ./suiteSparse_dataset/olafu/olafu.mtx]
+[K : 32]
+[cuSPARSE_gflops : 33.72]
+[cuSPARSE_time : 0.98]
+* 	Execution time: .330045137 seconds
+
+---New data---
+
+[Remaining: 8]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/Trefethen_20000/Trefethen_20000.mtx
+[File : ./suiteSparse_dataset/Trefethen_20000/Trefethen_20000.mtx]
+[K : 32]
+[cuSPARSE_gflops : 16.94]
+[cuSPARSE_time : 1.09]
+* 	Execution time: .299583894 seconds
+
+---New data---
+
+[Remaining: 7]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/g7jac180sc/g7jac180sc.mtx
+[File : ./suiteSparse_dataset/g7jac180sc/g7jac180sc.mtx]
+[K : 32]
+[cuSPARSE_gflops : 46.21]
+[cuSPARSE_time : 1.03]
+* 	Execution time: .439113496 seconds
+
+---New data---
+
+[Remaining: 6]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/e40r0100/e40r0100.mtx
+[File : ./suiteSparse_dataset/e40r0100/e40r0100.mtx]
+[K : 32]
+[cuSPARSE_gflops : 35.33]
+[cuSPARSE_time : 1.00]
+* 	Execution time: .340592115 seconds
+
+---New data---
+
+[Remaining: 5]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/li/li.mtx
+[File : ./suiteSparse_dataset/li/li.mtx]
+[K : 32]
+[cuSPARSE_gflops : 199.84]
+[cuSPARSE_time : 0.43]
+* 	Execution time: .534341567 seconds
+
+---New data---
+
+[Remaining: 4]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/lhr14/lhr14.mtx
+[File : ./suiteSparse_dataset/lhr14/lhr14.mtx]
+[K : 32]
+[cuSPARSE_gflops : 19.50]
+[cuSPARSE_time : 1.01]
+* 	Execution time: .294728803 seconds
+
+---New data---
+
+[Remaining: 3]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/jan99jac060sc/jan99jac060sc.mtx
+[File : ./suiteSparse_dataset/jan99jac060sc/jan99jac060sc.mtx]
+[K : 32]
+[cuSPARSE_gflops : 7.85]
+[cuSPARSE_time : 1.04]
+* 	Execution time: .259876673 seconds
+
+---New data---
+
+[Remaining: 2]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/HEP-th/HEP-th.mtx
+[File : ./suiteSparse_dataset/HEP-th/HEP-th.mtx]
+[K : 32]
+[cuSPARSE_gflops : 21.77]
+[cuSPARSE_time : 1.01]
+* 	Execution time: .319924386 seconds
+
+---New data---
+
+[Remaining: 1]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/c-63/c-63.mtx
+[File : ./suiteSparse_dataset/c-63/c-63.mtx]
+[K : 32]
+[cuSPARSE_gflops : 14.54]
+[cuSPARSE_time : 1.05]
+* 	Execution time: .300991223 seconds
+
+---New data---
+
+[Remaining: 0]
+
+sparseMatrix::CSR initialize from file : ./suiteSparse_dataset/c-67b/c-67b.mtx
+[File : ./suiteSparse_dataset/c-67b/c-67b.mtx]
+[K : 32]
+[cuSPARSE_gflops : 18.75]
+[cuSPARSE_time : 1.01]
+* 	Execution time: .303466087 seconds
+
+---Test done---
+
+* Total time spent: 251.973264214 seconds (0 hours, 4 minutes, 11.973264214 seconds)

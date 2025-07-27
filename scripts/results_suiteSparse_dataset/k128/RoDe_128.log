@@ -1,0 +1,5058 @@
+* Start test...
+* Test program: ./build_RoDe/RoDe-sddmm
+* Test log file: ./results_suiteSparse_dataset/k128/RoDe_128.log
+* Number of test files: 505
+
+---New data---
+
+[Remaining: 504]
+
+[File : ./suiteSparse_dataset/ch7-8-b3/ch7-8-b3.mtx]
+[K : 128]
+[RoDe_gflops : 1781.82 ]
+Matrix diff: 0.019435
+* 	Execution time: .337485361 seconds
+
+---New data---
+
+[Remaining: 503]
+
+[File : ./suiteSparse_dataset/skirt/skirt.mtx]
+[K : 128]
+[RoDe_gflops : 2350.72 ]
+Matrix diff: 0.015159
+* 	Execution time: .235539693 seconds
+
+---New data---
+
+[Remaining: 502]
+
+[File : ./suiteSparse_dataset/sctap1-2r/sctap1-2r.mtx]
+[K : 128]
+[RoDe_gflops : 1558.24 ]
+Matrix diff: 0.022326
+* 	Execution time: .314612259 seconds
+
+---New data---
+
+[Remaining: 501]
+
+[File : ./suiteSparse_dataset/sctap1-2r/sctap1-2r_A_11.mtx]
+[K : 128]
+[RoDe_gflops : 1542.76 ]
+Matrix diff: 0.018390
+* 	Execution time: .306082776 seconds
+
+---New data---
+
+[Remaining: 500]
+
+[File : ./suiteSparse_dataset/OPF_6000/OPF_6000.mtx]
+[K : 128]
+[RoDe_gflops : 2769.40 ]
+Matrix diff: 0.023561
+* 	Execution time: .308722706 seconds
+
+---New data---
+
+[Remaining: 499]
+
+[File : ./suiteSparse_dataset/trdheim/trdheim.mtx]
+[K : 128]
+[RoDe_gflops : 3646.05 ]
+Matrix diff: 0.018824
+* 	Execution time: .492854379 seconds
+
+---New data---
+
+[Remaining: 498]
+
+[File : ./suiteSparse_dataset/xenon1/xenon1.mtx]
+[K : 128]
+[RoDe_gflops : 4230.37 ]
+Matrix diff: 0.010579
+* 	Execution time: .499370007 seconds
+
+---New data---
+
+[Remaining: 497]
+
+[File : ./suiteSparse_dataset/pkustk13/pkustk13.mtx]
+[K : 128]
+[RoDe_gflops : 2868.90 ]
+Matrix diff: 0.030681
+* 	Execution time: 1.367941659 seconds
+
+---New data---
+
+[Remaining: 496]
+
+[File : ./suiteSparse_dataset/ABACUS_shell_ud/ABACUS_shell_ud_M.mtx]
+[K : 128]
+[RoDe_gflops : 1811.18 ]
+Matrix diff: 0.019488
+* 	Execution time: .288930762 seconds
+
+---New data---
+
+[Remaining: 495]
+
+[File : ./suiteSparse_dataset/ABACUS_shell_ud/ABACUS_shell_ud_K.mtx]
+[K : 128]
+[RoDe_gflops : 1869.22 ]
+Matrix diff: 0.019401
+* 	Execution time: .293007827 seconds
+
+---New data---
+
+[Remaining: 494]
+
+[File : ./suiteSparse_dataset/ABACUS_shell_ud/ABACUS_shell_ud.mtx]
+[K : 128]
+[RoDe_gflops : 1903.17 ]
+Matrix diff: 0.015101
+* 	Execution time: .278260684 seconds
+
+---New data---
+
+[Remaining: 493]
+
+[File : ./suiteSparse_dataset/pattern1/pattern1.mtx]
+[K : 128]
+[RoDe_gflops : 1969.63 ]
+Matrix diff: 0.007499
+* 	Execution time: 1.618621964 seconds
+
+---New data---
+
+[Remaining: 492]
+
+[File : ./suiteSparse_dataset/nv1/nv1.mtx]
+[K : 128]
+[RoDe_gflops : 1976.43 ]
+Matrix diff: 0.012565
+* 	Execution time: .803936638 seconds
+
+---New data---
+
+[Remaining: 491]
+
+[File : ./suiteSparse_dataset/crystk03/crystk03.mtx]
+[K : 128]
+[RoDe_gflops : 3444.49 ]
+Matrix diff: 0.014558
+* 	Execution time: .477164277 seconds
+
+---New data---
+
+[Remaining: 490]
+
+[File : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_6.mtx]
+[K : 128]
+[RoDe_gflops : 2002.76 ]
+Matrix diff: 0.018386
+* 	Execution time: .333016921 seconds
+
+---New data---
+
+[Remaining: 489]
+
+[File : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_3.mtx]
+[K : 128]
+[RoDe_gflops : 1969.66 ]
+Matrix diff: 0.020135
+* 	Execution time: .333388499 seconds
+
+---New data---
+
+[Remaining: 488]
+
+[File : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_7.mtx]
+[K : 128]
+[RoDe_gflops : 1965.60 ]
+Matrix diff: 0.019807
+* 	Execution time: .339994747 seconds
+
+---New data---
+
+[Remaining: 487]
+
+[File : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_5.mtx]
+[K : 128]
+[RoDe_gflops : 1969.66 ]
+Matrix diff: 0.020379
+* 	Execution time: .329389580 seconds
+
+---New data---
+
+[Remaining: 486]
+
+[File : ./suiteSparse_dataset/viscoplastic2/viscoplastic2.mtx]
+[K : 128]
+[RoDe_gflops : 1957.53 ]
+Matrix diff: 0.020667
+* 	Execution time: .340754191 seconds
+
+---New data---
+
+[Remaining: 485]
+
+[File : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_2.mtx]
+[K : 128]
+[RoDe_gflops : 1957.53 ]
+Matrix diff: 0.019129
+* 	Execution time: .331076623 seconds
+
+---New data---
+
+[Remaining: 484]
+
+[File : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_1.mtx]
+[K : 128]
+[RoDe_gflops : 1965.60 ]
+Matrix diff: 0.018486
+* 	Execution time: .331569868 seconds
+
+---New data---
+
+[Remaining: 483]
+
+[File : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_4.mtx]
+[K : 128]
+[RoDe_gflops : 1973.74 ]
+Matrix diff: 0.022670
+* 	Execution time: .334026926 seconds
+
+---New data---
+
+[Remaining: 482]
+
+[File : ./suiteSparse_dataset/ABACUS_shell_md/ABACUS_shell_md_K.mtx]
+[K : 128]
+[RoDe_gflops : 1875.71 ]
+Matrix diff: 0.017178
+* 	Execution time: .291321805 seconds
+
+---New data---
+
+[Remaining: 481]
+
+[File : ./suiteSparse_dataset/ABACUS_shell_md/ABACUS_shell_md.mtx]
+[K : 128]
+[RoDe_gflops : 1896.56 ]
+Matrix diff: 0.013282
+* 	Execution time: .262059734 seconds
+
+---New data---
+
+[Remaining: 480]
+
+[File : ./suiteSparse_dataset/ABACUS_shell_md/ABACUS_shell_md_M.mtx]
+[K : 128]
+[RoDe_gflops : 1817.55 ]
+Matrix diff: 0.014048
+* 	Execution time: .281428824 seconds
+
+---New data---
+
+[Remaining: 479]
+
+[File : ./suiteSparse_dataset/Dubcova1/Dubcova1.mtx]
+[K : 128]
+[RoDe_gflops : 2432.78 ]
+Matrix diff: 0.022917
+* 	Execution time: .272373483 seconds
+
+---New data---
+
+[Remaining: 478]
+
+[File : ./suiteSparse_dataset/ted_A/ted_A.mtx]
+[K : 128]
+[RoDe_gflops : 2707.83 ]
+Matrix diff: 0.023219
+* 	Execution time: .280303424 seconds
+
+---New data---
+
+[Remaining: 477]
+
+[File : ./suiteSparse_dataset/mk12-b4/mk12-b4.mtx]
+[K : 128]
+[RoDe_gflops : 1856.25 ]
+Matrix diff: 0.025507
+* 	Execution time: .359208967 seconds
+
+---New data---
+
+[Remaining: 476]
+
+[File : ./suiteSparse_dataset/std1_Jac3_db/std1_Jac3_db.mtx]
+[K : 128]
+[RoDe_gflops : 2080.70 ]
+Matrix diff: 0.017609
+* 	Execution time: .334937924 seconds
+
+---New data---
+
+[Remaining: 475]
+
+[File : ./suiteSparse_dataset/OPF_10000/OPF_10000.mtx]
+[K : 128]
+[RoDe_gflops : 2804.02 ]
+Matrix diff: 0.014981
+* 	Execution time: .327780161 seconds
+
+---New data---
+
+[Remaining: 474]
+
+[File : ./suiteSparse_dataset/worms20_10NN/worms20_10NN.mtx]
+[K : 128]
+[RoDe_gflops : 1917.40 ]
+Matrix diff: 0.019520
+* 	Execution time: .283361648 seconds
+
+---New data---
+
+[Remaining: 473]
+
+[File : ./suiteSparse_dataset/cbuckle/cbuckle.mtx]
+[K : 128]
+[RoDe_gflops : 3444.58 ]
+Matrix diff: 0.025100
+* 	Execution time: .326044127 seconds
+
+---New data---
+
+[Remaining: 472]
+
+[File : ./suiteSparse_dataset/cbuckle/cbuckle_G.mtx]
+[K : 128]
+[RoDe_gflops : 3147.29 ]
+Matrix diff: 0.021767
+* 	Execution time: .307425773 seconds
+
+---New data---
+
+[Remaining: 471]
+
+[File : ./suiteSparse_dataset/c-71/c-71.mtx]
+[K : 128]
+[RoDe_gflops : 1676.20 ]
+Matrix diff: 0.031605
+* 	Execution time: .480370207 seconds
+
+---New data---
+
+[Remaining: 470]
+
+[File : ./suiteSparse_dataset/std1_Jac2/std1_Jac2.mtx]
+[K : 128]
+[RoDe_gflops : 2033.76 ]
+Matrix diff: 0.017014
+* 	Execution time: .453917504 seconds
+
+---New data---
+
+[Remaining: 469]
+
+[File : ./suiteSparse_dataset/ifiss_mat/ifiss_mat.mtx]
+[K : 128]
+[RoDe_gflops : 2201.52 ]
+Matrix diff: 0.019476
+* 	Execution time: 1.027143453 seconds
+
+---New data---
+
+[Remaining: 468]
+
+[File : ./suiteSparse_dataset/TSOPF_RS_b678_c1/TSOPF_RS_b678_c1.mtx]
+[K : 128]
+[RoDe_gflops : 2203.87 ]
+Matrix diff: 0.043349
+* 	Execution time: 1.020452325 seconds
+
+---New data---
+
+[Remaining: 467]
+
+[File : ./suiteSparse_dataset/Zd_Jac2_db/Zd_Jac2_db.mtx]
+[K : 128]
+[RoDe_gflops : 2170.86 ]
+Matrix diff: 0.019113
+* 	Execution time: .365964565 seconds
+
+---New data---
+
+[Remaining: 466]
+
+[File : ./suiteSparse_dataset/scfxm1-2b/scfxm1-2b_A_3.mtx]
+[K : 128]
+[RoDe_gflops : 1309.58 ]
+Matrix diff: 0.022154
+* 	Execution time: .270133262 seconds
+
+---New data---
+
+[Remaining: 465]
+
+[File : ./suiteSparse_dataset/scfxm1-2b/scfxm1-2b.mtx]
+[K : 128]
+[RoDe_gflops : 1334.76 ]
+Matrix diff: 0.011213
+* 	Execution time: .274043244 seconds
+
+---New data---
+
+[Remaining: 464]
+
+[File : ./suiteSparse_dataset/mario001/mario001.mtx]
+[K : 128]
+[RoDe_gflops : 1840.68 ]
+Matrix diff: 0.024668
+* 	Execution time: .276099740 seconds
+
+---New data---
+
+[Remaining: 463]
+
+[File : ./suiteSparse_dataset/e18/e18.mtx]
+[K : 128]
+[RoDe_gflops : 1845.12 ]
+Matrix diff: 0.021601
+* 	Execution time: .304737521 seconds
+
+---New data---
+
+[Remaining: 462]
+
+[File : ./suiteSparse_dataset/nsct/nsct_A_1.mtx]
+[K : 128]
+[RoDe_gflops : 2167.11 ]
+Matrix diff: 0.028228
+* 	Execution time: .379415296 seconds
+
+---New data---
+
+[Remaining: 461]
+
+[File : ./suiteSparse_dataset/nsct/nsct.mtx]
+[K : 128]
+[RoDe_gflops : 2079.08 ]
+Matrix diff: 0.021625
+* 	Execution time: .378879632 seconds
+
+---New data---
+
+[Remaining: 460]
+
+[File : ./suiteSparse_dataset/nsct/nsct_A_2.mtx]
+[K : 128]
+[RoDe_gflops : 2064.31 ]
+Matrix diff: 0.024616
+* 	Execution time: .383830996 seconds
+
+---New data---
+
+[Remaining: 459]
+
+[File : ./suiteSparse_dataset/lowThrust_10/lowThrust_10.mtx]
+[K : 128]
+[RoDe_gflops : 2110.31 ]
+Matrix diff: 0.022849
+* 	Execution time: .272353315 seconds
+
+---New data---
+
+[Remaining: 458]
+
+[File : ./suiteSparse_dataset/2D_27628_bjtcai/2D_27628_bjtcai.mtx]
+[K : 128]
+[RoDe_gflops : 3818.09 ]
+Matrix diff: 0.022483
+* 	Execution time: .314722986 seconds
+
+---New data---
+
+[Remaining: 457]
+
+[File : ./suiteSparse_dataset/Si10H16/Si10H16.mtx]
+[K : 128]
+[RoDe_gflops : 2322.17 ]
+Matrix diff: 0.015849
+* 	Execution time: .349729840 seconds
+
+---New data---
+
+[Remaining: 456]
+
+[File : ./suiteSparse_dataset/af23560/af23560.mtx]
+[K : 128]
+[RoDe_gflops : 4218.26 ]
+Matrix diff: 0.012797
+* 	Execution time: .317248561 seconds
+
+---New data---
+
+[Remaining: 455]
+
+[File : ./suiteSparse_dataset/m_t1/m_t1.mtx]
+[K : 128]
+[RoDe_gflops : 2990.42 ]
+Matrix diff: 0.010312
+* 	Execution time: 1.688208544 seconds
+
+---New data---
+
+[Remaining: 454]
+
+[File : ./suiteSparse_dataset/cit-HepPh/cit-HepPh.mtx]
+[K : 128]
+[RoDe_gflops : 1798.54 ]
+Matrix diff: 0.020113
+* 	Execution time: .348364150 seconds
+
+---New data---
+
+[Remaining: 453]
+
+[File : ./suiteSparse_dataset/rma10/rma10.mtx]
+[K : 128]
+[RoDe_gflops : 3102.46 ]
+Matrix diff: 0.018113
+* 	Execution time: .690218271 seconds
+
+---New data---
+
+[Remaining: 452]
+
+[File : ./suiteSparse_dataset/GaAsH6/GaAsH6.mtx]
+[K : 128]
+[RoDe_gflops : 1893.93 ]
+Matrix diff: 0.005321
+* 	Execution time: .779464115 seconds
+
+---New data---
+
+[Remaining: 451]
+
+[File : ./suiteSparse_dataset/c-67/c-67.mtx]
+[K : 128]
+[RoDe_gflops : 2090.94 ]
+Matrix diff: 0.012100
+* 	Execution time: .398804605 seconds
+
+---New data---
+
+[Remaining: 450]
+
+[File : ./suiteSparse_dataset/nv2010/nv2010.mtx]
+[K : 128]
+[RoDe_gflops : 1064.86 ]
+Matrix diff: 0.009699
+* 	Execution time: .382662987 seconds
+
+---New data---
+
+[Remaining: 449]
+
+[File : ./suiteSparse_dataset/bcircuit/bcircuit.mtx]
+[K : 128]
+[RoDe_gflops : 2219.61 ]
+Matrix diff: 0.005271
+* 	Execution time: .369413150 seconds
+
+---New data---
+
+[Remaining: 448]
+
+[File : ./suiteSparse_dataset/shyy161/shyy161.mtx]
+[K : 128]
+[RoDe_gflops : 1052.88 ]
+Matrix diff: 0.014300
+* 	Execution time: .375423290 seconds
+
+---New data---
+
+[Remaining: 447]
+
+[File : ./suiteSparse_dataset/c-64b/c-64b.mtx]
+[K : 128]
+[RoDe_gflops : 2451.64 ]
+Matrix diff: 0.025840
+* 	Execution time: .424336543 seconds
+
+---New data---
+
+[Remaining: 446]
+
+[File : ./suiteSparse_dataset/c-59/c-59.mtx]
+[K : 128]
+[RoDe_gflops : 2253.92 ]
+Matrix diff: 0.012499
+* 	Execution time: .352093622 seconds
+
+---New data---
+
+[Remaining: 445]
+
+[File : ./suiteSparse_dataset/vsp_c-60_data_cti_cs4/vsp_c-60_data_cti_cs4.mtx]
+[K : 128]
+[RoDe_gflops : 1159.04 ]
+Matrix diff: 0.017536
+* 	Execution time: .412206085 seconds
+
+---New data---
+
+[Remaining: 444]
+
+[File : ./suiteSparse_dataset/cond-mat-2005/cond-mat-2005.mtx]
+[K : 128]
+[RoDe_gflops : 1978.52 ]
+Matrix diff: 0.025505
+* 	Execution time: .329271347 seconds
+
+---New data---
+
+[Remaining: 443]
+
+[File : ./suiteSparse_dataset/mark3jac040/mark3jac040.mtx]
+[K : 128]
+[RoDe_gflops : 1417.94 ]
+Matrix diff: 0.025131
+* 	Execution time: .244063976 seconds
+
+---New data---
+
+[Remaining: 442]
+
+[File : ./suiteSparse_dataset/kim1/kim1.mtx]
+[K : 128]
+[RoDe_gflops : 4703.60 ]
+Matrix diff: 0.018122
+* 	Execution time: .426863942 seconds
+
+---New data---
+
+[Remaining: 441]
+
+[File : ./suiteSparse_dataset/juba40k/juba40k.mtx]
+[K : 128]
+[RoDe_gflops : 1491.20 ]
+Matrix diff: 0.022086
+* 	Execution time: .302245037 seconds
+
+---New data---
+
+[Remaining: 440]
+
+[File : ./suiteSparse_dataset/TSOPF_FS_b300_c1/TSOPF_FS_b300_c1.mtx]
+[K : 128]
+[RoDe_gflops : 2579.20 ]
+Matrix diff: 0.053605
+* 	Execution time: .912512284 seconds
+
+---New data---
+
+[Remaining: 439]
+
+[File : ./suiteSparse_dataset/pfinan512/pfinan512.mtx]
+[K : 128]
+[RoDe_gflops : 1858.63 ]
+Matrix diff: 0.024846
+* 	Execution time: .422312095 seconds
+
+---New data---
+
+[Remaining: 438]
+
+[File : ./suiteSparse_dataset/case39/case39_A_12.mtx]
+[K : 128]
+[RoDe_gflops : 2705.53 ]
+Matrix diff: 0.014533
+* 	Execution time: .459957888 seconds
+
+---New data---
+
+[Remaining: 437]
+
+[File : ./suiteSparse_dataset/case39/case39_A_13.mtx]
+[K : 128]
+[RoDe_gflops : 2702.72 ]
+Matrix diff: 0.008853
+* 	Execution time: .466304279 seconds
+
+---New data---
+
+[Remaining: 436]
+
+[File : ./suiteSparse_dataset/case39/case39_A_09.mtx]
+[K : 128]
+[RoDe_gflops : 2705.53 ]
+Matrix diff: 0.006550
+* 	Execution time: .440298183 seconds
+
+---New data---
+
+[Remaining: 435]
+
+[File : ./suiteSparse_dataset/case39/case39.mtx]
+[K : 128]
+[RoDe_gflops : 2691.53 ]
+Matrix diff: 0.009547
+* 	Execution time: .469518356 seconds
+
+---New data---
+
+[Remaining: 434]
+
+[File : ./suiteSparse_dataset/case39/case39_A_07.mtx]
+[K : 128]
+[RoDe_gflops : 2702.72 ]
+Matrix diff: 0.014937
+* 	Execution time: .466233887 seconds
+
+---New data---
+
+[Remaining: 433]
+
+[File : ./suiteSparse_dataset/case39/case39_A_03.mtx]
+[K : 128]
+[RoDe_gflops : 2708.34 ]
+Matrix diff: 0.012062
+* 	Execution time: .435529150 seconds
+
+---New data---
+
+[Remaining: 432]
+
+[File : ./suiteSparse_dataset/case39/case39_A_11.mtx]
+[K : 128]
+[RoDe_gflops : 2708.34 ]
+Matrix diff: 0.009168
+* 	Execution time: .439335126 seconds
+
+---New data---
+
+[Remaining: 431]
+
+[File : ./suiteSparse_dataset/case39/case39_A_02.mtx]
+[K : 128]
+[RoDe_gflops : 2691.55 ]
+Matrix diff: 0.009329
+* 	Execution time: .464168664 seconds
+
+---New data---
+
+[Remaining: 430]
+
+[File : ./suiteSparse_dataset/case39/case39_A_05.mtx]
+[K : 128]
+[RoDe_gflops : 2691.55 ]
+Matrix diff: 0.009889
+* 	Execution time: .465865105 seconds
+
+---New data---
+
+[Remaining: 429]
+
+[File : ./suiteSparse_dataset/case39/case39_A_04.mtx]
+[K : 128]
+[RoDe_gflops : 2691.55 ]
+Matrix diff: 0.003293
+* 	Execution time: .467535117 seconds
+
+---New data---
+
+[Remaining: 428]
+
+[File : ./suiteSparse_dataset/case39/case39_A_06.mtx]
+[K : 128]
+[RoDe_gflops : 2702.72 ]
+Matrix diff: 0.005838
+* 	Execution time: .463377080 seconds
+
+---New data---
+
+[Remaining: 427]
+
+[File : ./suiteSparse_dataset/case39/case39_A_08.mtx]
+[K : 128]
+[RoDe_gflops : 2705.53 ]
+Matrix diff: 0.003445
+* 	Execution time: .475890184 seconds
+
+---New data---
+
+[Remaining: 426]
+
+[File : ./suiteSparse_dataset/case39/case39_A_10.mtx]
+[K : 128]
+[RoDe_gflops : 2694.34 ]
+Matrix diff: 0.027938
+* 	Execution time: .465547780 seconds
+
+---New data---
+
+[Remaining: 425]
+
+[File : ./suiteSparse_dataset/case39/case39_A_01.mtx]
+[K : 128]
+[RoDe_gflops : 2702.70 ]
+Matrix diff: 0.023237
+* 	Execution time: .464834422 seconds
+
+---New data---
+
+[Remaining: 424]
+
+[File : ./suiteSparse_dataset/ncvxqp7/ncvxqp7.mtx]
+[K : 128]
+[RoDe_gflops : 1650.29 ]
+Matrix diff: 0.026285
+* 	Execution time: .434650832 seconds
+
+---New data---
+
+[Remaining: 423]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_18.mtx]
+[K : 128]
+[RoDe_gflops : 1910.86 ]
+Matrix diff: 0.015458
+* 	Execution time: .506966537 seconds
+
+---New data---
+
+[Remaining: 422]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_02.mtx]
+[K : 128]
+[RoDe_gflops : 1907.20 ]
+Matrix diff: 0.019963
+* 	Execution time: .498830341 seconds
+
+---New data---
+
+[Remaining: 421]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_14.mtx]
+[K : 128]
+[RoDe_gflops : 1835.27 ]
+Matrix diff: 0.023533
+* 	Execution time: .500397029 seconds
+
+---New data---
+
+[Remaining: 420]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_10.mtx]
+[K : 128]
+[RoDe_gflops : 1821.86 ]
+Matrix diff: 0.027408
+* 	Execution time: .521977766 seconds
+
+---New data---
+
+[Remaining: 419]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_17.mtx]
+[K : 128]
+[RoDe_gflops : 1836.96 ]
+Matrix diff: 0.032091
+* 	Execution time: .517759226 seconds
+
+---New data---
+
+[Remaining: 418]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2.mtx]
+[K : 128]
+[RoDe_gflops : 1836.96 ]
+Matrix diff: 0.018537
+* 	Execution time: .509038783 seconds
+
+---New data---
+
+[Remaining: 417]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_16.mtx]
+[K : 128]
+[RoDe_gflops : 1831.90 ]
+Matrix diff: 0.018861
+* 	Execution time: .514025945 seconds
+
+---New data---
+
+[Remaining: 416]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_07.mtx]
+[K : 128]
+[RoDe_gflops : 1820.20 ]
+Matrix diff: 0.010185
+* 	Execution time: .513935175 seconds
+
+---New data---
+
+[Remaining: 415]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_22.mtx]
+[K : 128]
+[RoDe_gflops : 1823.52 ]
+Matrix diff: 0.004021
+* 	Execution time: .514138536 seconds
+
+---New data---
+
+[Remaining: 414]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_20.mtx]
+[K : 128]
+[RoDe_gflops : 1836.96 ]
+Matrix diff: 0.041506
+* 	Execution time: .514661245 seconds
+
+---New data---
+
+[Remaining: 413]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_01.mtx]
+[K : 128]
+[RoDe_gflops : 1823.52 ]
+Matrix diff: 0.025792
+* 	Execution time: .502381871 seconds
+
+---New data---
+
+[Remaining: 412]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_19.mtx]
+[K : 128]
+[RoDe_gflops : 1831.90 ]
+Matrix diff: 0.036589
+* 	Execution time: .484981331 seconds
+
+---New data---
+
+[Remaining: 411]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_04.mtx]
+[K : 128]
+[RoDe_gflops : 1833.58 ]
+Matrix diff: 0.012134
+* 	Execution time: .484433112 seconds
+
+---New data---
+
+[Remaining: 410]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_09.mtx]
+[K : 128]
+[RoDe_gflops : 1828.54 ]
+Matrix diff: 0.016764
+* 	Execution time: .504877199 seconds
+
+---New data---
+
+[Remaining: 409]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_06.mtx]
+[K : 128]
+[RoDe_gflops : 1843.75 ]
+Matrix diff: 0.006062
+* 	Execution time: .504900422 seconds
+
+---New data---
+
+[Remaining: 408]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_13.mtx]
+[K : 128]
+[RoDe_gflops : 1836.96 ]
+Matrix diff: 0.025084
+* 	Execution time: .501443629 seconds
+
+---New data---
+
+[Remaining: 407]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_03.mtx]
+[K : 128]
+[RoDe_gflops : 1833.58 ]
+Matrix diff: 0.024943
+* 	Execution time: .506257417 seconds
+
+---New data---
+
+[Remaining: 406]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_15.mtx]
+[K : 128]
+[RoDe_gflops : 1811.93 ]
+Matrix diff: 0.026781
+* 	Execution time: .506251686 seconds
+
+---New data---
+
+[Remaining: 405]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_24.mtx]
+[K : 128]
+[RoDe_gflops : 1835.27 ]
+Matrix diff: 0.020942
+* 	Execution time: .507703537 seconds
+
+---New data---
+
+[Remaining: 404]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_05.mtx]
+[K : 128]
+[RoDe_gflops : 1836.96 ]
+Matrix diff: 0.027426
+* 	Execution time: .507329316 seconds
+
+---New data---
+
+[Remaining: 403]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_08.mtx]
+[K : 128]
+[RoDe_gflops : 1823.52 ]
+Matrix diff: 0.019476
+* 	Execution time: .506463072 seconds
+
+---New data---
+
+[Remaining: 402]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_11.mtx]
+[K : 128]
+[RoDe_gflops : 1831.90 ]
+Matrix diff: 0.027090
+* 	Execution time: .479944524 seconds
+
+---New data---
+
+[Remaining: 401]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_21.mtx]
+[K : 128]
+[RoDe_gflops : 1820.20 ]
+Matrix diff: 0.020574
+* 	Execution time: .514262166 seconds
+
+---New data---
+
+[Remaining: 400]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_12.mtx]
+[K : 128]
+[RoDe_gflops : 1830.22 ]
+Matrix diff: 0.015317
+* 	Execution time: .513377828 seconds
+
+---New data---
+
+[Remaining: 399]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_23.mtx]
+[K : 128]
+[RoDe_gflops : 1825.19 ]
+Matrix diff: 0.019394
+* 	Execution time: .513666329 seconds
+
+---New data---
+
+[Remaining: 398]
+
+[File : ./suiteSparse_dataset/venkat25/venkat25.mtx]
+[K : 128]
+[RoDe_gflops : 4153.27 ]
+Matrix diff: 0.026215
+* 	Execution time: .619846497 seconds
+
+---New data---
+
+[Remaining: 397]
+
+[File : ./suiteSparse_dataset/stokes128/stokes128.mtx]
+[K : 128]
+[RoDe_gflops : 3042.45 ]
+Matrix diff: 0.014642
+* 	Execution time: .359424127 seconds
+
+---New data---
+
+[Remaining: 396]
+
+[File : ./suiteSparse_dataset/finan512/finan512.mtx]
+[K : 128]
+[RoDe_gflops : 1891.61 ]
+Matrix diff: 0.027044
+* 	Execution time: .416212214 seconds
+
+---New data---
+
+[Remaining: 395]
+
+[File : ./suiteSparse_dataset/poisson3Db/poisson3Db.mtx]
+[K : 128]
+[RoDe_gflops : 2166.92 ]
+Matrix diff: 0.010706
+* 	Execution time: .824775646 seconds
+
+---New data---
+
+[Remaining: 394]
+
+[File : ./suiteSparse_dataset/preferentialAttachment/preferentialAttachment.mtx]
+[K : 128]
+[RoDe_gflops : 1832.79 ]
+Matrix diff: 0.021448
+* 	Execution time: .500193104 seconds
+
+---New data---
+
+[Remaining: 393]
+
+[File : ./suiteSparse_dataset/F2/F2.mtx]
+[K : 128]
+[RoDe_gflops : 2775.95 ]
+Matrix diff: 0.024376
+* 	Execution time: 1.100332647 seconds
+
+---New data---
+
+[Remaining: 392]
+
+[File : ./suiteSparse_dataset/dbir2/dbir2.mtx]
+[K : 128]
+[RoDe_gflops : 1850.09 ]
+Matrix diff: 0.025339
+* 	Execution time: .498327525 seconds
+
+---New data---
+
+[Remaining: 391]
+
+[File : ./suiteSparse_dataset/ca-AstroPh/ca-AstroPh.mtx]
+[K : 128]
+[RoDe_gflops : 1713.49 ]
+Matrix diff: 0.017463
+* 	Execution time: .305013516 seconds
+
+---New data---
+
+[Remaining: 390]
+
+[File : ./suiteSparse_dataset/g7jac080sc/g7jac080sc.mtx]
+[K : 128]
+[RoDe_gflops : 1928.98 ]
+Matrix diff: 0.024953
+* 	Execution time: .308842788 seconds
+
+---New data---
+
+[Remaining: 389]
+
+[File : ./suiteSparse_dataset/vsp_south31_slptsk/vsp_south31_slptsk.mtx]
+[K : 128]
+[RoDe_gflops : 2064.28 ]
+Matrix diff: 0.016561
+* 	Execution time: .376828562 seconds
+
+---New data---
+
+[Remaining: 388]
+
+[File : ./suiteSparse_dataset/pkustk08/pkustk08.mtx]
+[K : 128]
+[RoDe_gflops : 2424.61 ]
+Matrix diff: 0.024189
+* 	Execution time: .711080205 seconds
+
+---New data---
+
+[Remaining: 387]
+
+[File : ./suiteSparse_dataset/deltaX/deltaX.mtx]
+[K : 128]
+[RoDe_gflops : 1737.53 ]
+Matrix diff: 0.021222
+* 	Execution time: .334563898 seconds
+
+---New data---
+
+[Remaining: 386]
+
+[File : ./suiteSparse_dataset/TSOPF_FS_b39_c7/TSOPF_FS_b39_c7.mtx]
+[K : 128]
+[RoDe_gflops : 2496.85 ]
+Matrix diff: 0.010090
+* 	Execution time: .392875855 seconds
+
+---New data---
+
+[Remaining: 385]
+
+[File : ./suiteSparse_dataset/lhr71c/lhr71c.mtx]
+[K : 128]
+[RoDe_gflops : 2078.47 ]
+Matrix diff: 0.016528
+* 	Execution time: .599045650 seconds
+
+---New data---
+
+[Remaining: 384]
+
+[File : ./suiteSparse_dataset/mod2/mod2.mtx]
+[K : 128]
+[RoDe_gflops : 1659.55 ]
+Matrix diff: 0.021841
+* 	Execution time: .328306866 seconds
+
+---New data---
+
+[Remaining: 383]
+
+[File : ./suiteSparse_dataset/raefsky4/raefsky4.mtx]
+[K : 128]
+[RoDe_gflops : 3341.58 ]
+Matrix diff: 0.012257
+* 	Execution time: .417575130 seconds
+
+---New data---
+
+[Remaining: 382]
+
+[File : ./suiteSparse_dataset/cat_ears_4_4/cat_ears_4_4.mtx]
+[K : 128]
+[RoDe_gflops : 1530.97 ]
+Matrix diff: 0.019365
+* 	Execution time: .288977496 seconds
+
+---New data---
+
+[Remaining: 381]
+
+[File : ./suiteSparse_dataset/ckt11752_tr_0/ckt11752_tr_0.mtx]
+[K : 128]
+[RoDe_gflops : 2238.10 ]
+Matrix diff: 0.011388
+* 	Execution time: .339166339 seconds
+
+---New data---
+
+[Remaining: 380]
+
+[File : ./suiteSparse_dataset/gyro_k/gyro_k.mtx]
+[K : 128]
+[RoDe_gflops : 3035.55 ]
+Matrix diff: 0.023748
+* 	Execution time: .369495251 seconds
+
+---New data---
+
+[Remaining: 379]
+
+[File : ./suiteSparse_dataset/pkustk09/pkustk09.mtx]
+[K : 128]
+[RoDe_gflops : 3840.06 ]
+Matrix diff: 0.005332
+* 	Execution time: .480890858 seconds
+
+---New data---
+
+[Remaining: 378]
+
+[File : ./suiteSparse_dataset/Zd_Jac3_db/Zd_Jac3_db.mtx]
+[K : 128]
+[RoDe_gflops : 2233.75 ]
+Matrix diff: 0.013198
+* 	Execution time: .366655846 seconds
+
+---New data---
+
+[Remaining: 377]
+
+[File : ./suiteSparse_dataset/g7jac120sc/g7jac120sc.mtx]
+[K : 128]
+[RoDe_gflops : 2088.30 ]
+Matrix diff: 0.022633
+* 	Execution time: .337797731 seconds
+
+---New data---
+
+[Remaining: 376]
+
+[File : ./suiteSparse_dataset/mouse_gene/mouse_gene.mtx]
+[K : 128]
+[RoDe_gflops : 1962.55 ]
+Matrix diff: 0.016764
+* 	Execution time: 4.896254696 seconds
+
+---New data---
+
+[Remaining: 375]
+
+[File : ./suiteSparse_dataset/Trefethen_20000b/Trefethen_20000b.mtx]
+[K : 128]
+[RoDe_gflops : 2600.54 ]
+Matrix diff: 0.020259
+* 	Execution time: .316649825 seconds
+
+---New data---
+
+[Remaining: 374]
+
+[File : ./suiteSparse_dataset/3D_28984_Tetra/3D_28984_Tetra.mtx]
+[K : 128]
+[RoDe_gflops : 4219.51 ]
+Matrix diff: 0.020609
+* 	Execution time: .368305149 seconds
+
+---New data---
+
+[Remaining: 373]
+
+[File : ./suiteSparse_dataset/bcsstk29/bcsstk29.mtx]
+[K : 128]
+[RoDe_gflops : 3678.67 ]
+Matrix diff: 0.022822
+* 	Execution time: .309562476 seconds
+
+---New data---
+
+[Remaining: 372]
+
+[File : ./suiteSparse_dataset/mark3jac140/mark3jac140.mtx]
+[K : 128]
+[RoDe_gflops : 2149.11 ]
+Matrix diff: 0.015846
+* 	Execution time: .392207349 seconds
+
+---New data---
+
+[Remaining: 371]
+
+[File : ./suiteSparse_dataset/bcsstm36/bcsstm36.mtx]
+[K : 128]
+[RoDe_gflops : 3410.70 ]
+Matrix diff: 0.024483
+* 	Execution time: .295409757 seconds
+
+---New data---
+
+[Remaining: 370]
+
+[File : ./suiteSparse_dataset/mycielskian16/mycielskian16.mtx]
+[K : 128]
+[RoDe_gflops : 1896.99 ]
+Matrix diff: 0.037725
+* 	Execution time: 5.462041800 seconds
+
+---New data---
+
+[Remaining: 369]
+
+[File : ./suiteSparse_dataset/olesnik0/olesnik0.mtx]
+[K : 128]
+[RoDe_gflops : 2069.57 ]
+Matrix diff: 0.020681
+* 	Execution time: .455801199 seconds
+
+---New data---
+
+[Remaining: 368]
+
+[File : ./suiteSparse_dataset/c-52/c-52.mtx]
+[K : 128]
+[RoDe_gflops : 2068.53 ]
+Matrix diff: 0.019183
+* 	Execution time: .274221976 seconds
+
+---New data---
+
+[Remaining: 367]
+
+[File : ./suiteSparse_dataset/c-50/c-50.mtx]
+[K : 128]
+[RoDe_gflops : 1983.86 ]
+Matrix diff: 0.022358
+* 	Execution time: .260789798 seconds
+
+---New data---
+
+[Remaining: 366]
+
+[File : ./suiteSparse_dataset/pkustk05/pkustk05.mtx]
+[K : 128]
+[RoDe_gflops : 3504.68 ]
+Matrix diff: 0.012488
+* 	Execution time: .565215440 seconds
+
+---New data---
+
+[Remaining: 365]
+
+[File : ./suiteSparse_dataset/conf6_0-8x8-80/conf6_0-8x8-80.mtx]
+[K : 128]
+[RoDe_gflops : 2604.52 ]
+Matrix diff: 0.008467
+* 	Execution time: .610220513 seconds
+
+---New data---
+
+[Remaining: 364]
+
+[File : ./suiteSparse_dataset/vanbody/vanbody.mtx]
+[K : 128]
+[RoDe_gflops : 3144.37 ]
+Matrix diff: 0.003787
+* 	Execution time: .593037232 seconds
+
+---New data---
+
+[Remaining: 363]
+
+[File : ./suiteSparse_dataset/EAT_SR/EAT_SR.mtx]
+[K : 128]
+[RoDe_gflops : 1556.35 ]
+Matrix diff: 0.026127
+* 	Execution time: .316006828 seconds
+
+---New data---
+
+[Remaining: 362]
+
+[File : ./suiteSparse_dataset/c-62/c-62.mtx]
+[K : 128]
+[RoDe_gflops : 2338.39 ]
+Matrix diff: 0.012083
+* 	Execution time: .353255116 seconds
+
+---New data---
+
+[Remaining: 361]
+
+[File : ./suiteSparse_dataset/ns3Da/ns3Da.mtx]
+[K : 128]
+[RoDe_gflops : 1955.75 ]
+Matrix diff: 0.021419
+* 	Execution time: .548066052 seconds
+
+---New data---
+
+[Remaining: 360]
+
+[File : ./suiteSparse_dataset/pcrystk02/pcrystk02.mtx]
+[K : 128]
+[RoDe_gflops : 3254.65 ]
+Matrix diff: 0.021577
+* 	Execution time: .352211871 seconds
+
+---New data---
+
+[Remaining: 359]
+
+[File : ./suiteSparse_dataset/windscreen/windscreen.mtx]
+[K : 128]
+[RoDe_gflops : 3428.28 ]
+Matrix diff: 0.012168
+* 	Execution time: .441619405 seconds
+
+---New data---
+
+[Remaining: 358]
+
+[File : ./suiteSparse_dataset/windscreen/windscreen_M.mtx]
+[K : 128]
+[RoDe_gflops : 3386.63 ]
+Matrix diff: 0.018041
+* 	Execution time: .434901978 seconds
+
+---New data---
+
+[Remaining: 357]
+
+[File : ./suiteSparse_dataset/HEP-th-new/HEP-th-new.mtx]
+[K : 128]
+[RoDe_gflops : 1829.91 ]
+Matrix diff: 0.019071
+* 	Execution time: .325707499 seconds
+
+---New data---
+
+[Remaining: 356]
+
+[File : ./suiteSparse_dataset/bcsstk37/bcsstk37.mtx]
+[K : 128]
+[RoDe_gflops : 3723.82 ]
+Matrix diff: 0.013556
+* 	Execution time: .404541638 seconds
+
+---New data---
+
+[Remaining: 355]
+
+[File : ./suiteSparse_dataset/crystk02/crystk02.mtx]
+[K : 128]
+[RoDe_gflops : 3220.02 ]
+Matrix diff: 0.019302
+* 	Execution time: .363058469 seconds
+
+---New data---
+
+[Remaining: 354]
+
+[File : ./suiteSparse_dataset/dbir1/dbir1.mtx]
+[K : 128]
+[RoDe_gflops : 1804.67 ]
+Matrix diff: 0.004976
+* 	Execution time: .464936599 seconds
+
+---New data---
+
+[Remaining: 353]
+
+[File : ./suiteSparse_dataset/fem_filter/fem_filter.mtx]
+[K : 128]
+[RoDe_gflops : 2253.00 ]
+Matrix diff: 0.031700
+* 	Execution time: .654476560 seconds
+
+---New data---
+
+[Remaining: 352]
+
+[File : ./suiteSparse_dataset/flower_7_4/flower_7_4.mtx]
+[K : 128]
+[RoDe_gflops : 1707.92 ]
+Matrix diff: 0.021909
+* 	Execution time: .322569244 seconds
+
+---New data---
+
+[Remaining: 351]
+
+[File : ./suiteSparse_dataset/p2p-Gnutella31/p2p-Gnutella31.mtx]
+[K : 128]
+[RoDe_gflops : 1228.34 ]
+Matrix diff: 0.025076
+* 	Execution time: .343685421 seconds
+
+---New data---
+
+[Remaining: 350]
+
+[File : ./suiteSparse_dataset/tsyl201/tsyl201.mtx]
+[K : 128]
+[RoDe_gflops : 2737.46 ]
+Matrix diff: 0.012992
+* 	Execution time: .590686943 seconds
+
+---New data---
+
+[Remaining: 349]
+
+[File : ./suiteSparse_dataset/mark3jac100sc/mark3jac100sc.mtx]
+[K : 128]
+[RoDe_gflops : 1927.13 ]
+Matrix diff: 0.021417
+* 	Execution time: .331880405 seconds
+
+---New data---
+
+[Remaining: 348]
+
+[File : ./suiteSparse_dataset/copter2/copter2.mtx]
+[K : 128]
+[RoDe_gflops : 2613.31 ]
+Matrix diff: 0.021888
+* 	Execution time: .409416007 seconds
+
+---New data---
+
+[Remaining: 347]
+
+[File : ./suiteSparse_dataset/cz40948/cz40948.mtx]
+[K : 128]
+[RoDe_gflops : 2379.61 ]
+Matrix diff: 0.023164
+* 	Execution time: .356318350 seconds
+
+---New data---
+
+[Remaining: 346]
+
+[File : ./suiteSparse_dataset/vibrobox/vibrobox.mtx]
+[K : 128]
+[RoDe_gflops : 1956.78 ]
+Matrix diff: 0.024066
+* 	Execution time: .279570524 seconds
+
+---New data---
+
+[Remaining: 345]
+
+[File : ./suiteSparse_dataset/TF16/TF16.mtx]
+[K : 128]
+[RoDe_gflops : 1721.12 ]
+Matrix diff: 0.020658
+* 	Execution time: .284750617 seconds
+
+---New data---
+
+[Remaining: 344]
+
+[File : ./suiteSparse_dataset/TSOPF_RS_b162_c3/TSOPF_RS_b162_c3.mtx]
+[K : 128]
+[RoDe_gflops : 2968.38 ]
+Matrix diff: 0.022416
+* 	Execution time: .335101254 seconds
+
+---New data---
+
+[Remaining: 343]
+
+[File : ./suiteSparse_dataset/sme3Db/sme3Db.mtx]
+[K : 128]
+[RoDe_gflops : 1967.72 ]
+Matrix diff: 0.017414
+* 	Execution time: .676086511 seconds
+
+---New data---
+
+[Remaining: 342]
+
+[File : ./suiteSparse_dataset/venkat01/venkat01.mtx]
+[K : 128]
+[RoDe_gflops : 4404.59 ]
+Matrix diff: 0.025884
+* 	Execution time: .629147042 seconds
+
+---New data---
+
+[Remaining: 341]
+
+[File : ./suiteSparse_dataset/human_gene2/human_gene2.mtx]
+[K : 128]
+[RoDe_gflops : 1955.11 ]
+Matrix diff: 0.013672
+* 	Execution time: 3.073464196 seconds
+
+---New data---
+
+[Remaining: 340]
+
+[File : ./suiteSparse_dataset/nmos3/nmos3.mtx]
+[K : 128]
+[RoDe_gflops : 2598.08 ]
+Matrix diff: 0.022362
+* 	Execution time: .313762290 seconds
+
+---New data---
+
+[Remaining: 339]
+
+[File : ./suiteSparse_dataset/jan99jac120/jan99jac120.mtx]
+[K : 128]
+[RoDe_gflops : 2153.99 ]
+Matrix diff: 0.020456
+* 	Execution time: .300973989 seconds
+
+---New data---
+
+[Remaining: 338]
+
+[File : ./suiteSparse_dataset/p010/p010.mtx]
+[K : 128]
+[RoDe_gflops : 1244.73 ]
+Matrix diff: 0.011532
+* 	Execution time: .252142891 seconds
+
+---New data---
+
+[Remaining: 337]
+
+[File : ./suiteSparse_dataset/gyro/gyro_M.mtx]
+[K : 128]
+[RoDe_gflops : 2263.50 ]
+Matrix diff: 0.022571
+* 	Execution time: .280578886 seconds
+
+---New data---
+
+[Remaining: 336]
+
+[File : ./suiteSparse_dataset/gyro/gyro.mtx]
+[K : 128]
+[RoDe_gflops : 3195.12 ]
+Matrix diff: 0.025891
+* 	Execution time: .368595942 seconds
+
+---New data---
+
+[Remaining: 335]
+
+[File : ./suiteSparse_dataset/pkustk02/pkustk02.mtx]
+[K : 128]
+[RoDe_gflops : 3336.08 ]
+Matrix diff: 0.022871
+* 	Execution time: .325678794 seconds
+
+---New data---
+
+[Remaining: 334]
+
+[File : ./suiteSparse_dataset/jan99jac100sc/jan99jac100sc.mtx]
+[K : 128]
+[RoDe_gflops : 2036.43 ]
+Matrix diff: 0.023147
+* 	Execution time: .300541308 seconds
+
+---New data---
+
+[Remaining: 333]
+
+[File : ./suiteSparse_dataset/ch7-7-b5/ch7-7-b5.mtx]
+[K : 128]
+[RoDe_gflops : 1764.00 ]
+Matrix diff: 0.020673
+* 	Execution time: .315567104 seconds
+
+---New data---
+
+[Remaining: 332]
+
+[File : ./suiteSparse_dataset/pkustk01/pkustk01.mtx]
+[K : 128]
+[RoDe_gflops : 3410.10 ]
+Matrix diff: 0.012173
+* 	Execution time: .387640183 seconds
+
+---New data---
+
+[Remaining: 331]
+
+[File : ./suiteSparse_dataset/finance256/finance256.mtx]
+[K : 128]
+[RoDe_gflops : 2027.83 ]
+Matrix diff: 0.022009
+* 	Execution time: .319689073 seconds
+
+---New data---
+
+[Remaining: 330]
+
+[File : ./suiteSparse_dataset/fxm3_16/fxm3_16.mtx]
+[K : 128]
+[RoDe_gflops : 2001.29 ]
+Matrix diff: 0.022570
+* 	Execution time: .384943086 seconds
+
+---New data---
+
+[Remaining: 329]
+
+[File : ./suiteSparse_dataset/jan99jac060/jan99jac060.mtx]
+[K : 128]
+[RoDe_gflops : 1597.76 ]
+Matrix diff: 0.020963
+* 	Execution time: .273913675 seconds
+
+---New data---
+
+[Remaining: 328]
+
+[File : ./suiteSparse_dataset/pwt/pwt.mtx]
+[K : 128]
+[RoDe_gflops : 2596.39 ]
+Matrix diff: 0.023013
+* 	Execution time: .302468271 seconds
+
+---New data---
+
+[Remaining: 327]
+
+[File : ./suiteSparse_dataset/mark3jac080/mark3jac080.mtx]
+[K : 128]
+[RoDe_gflops : 1844.30 ]
+Matrix diff: 0.023176
+* 	Execution time: .309374141 seconds
+
+---New data---
+
+[Remaining: 326]
+
+[File : ./suiteSparse_dataset/Ill_Stokes/Ill_Stokes.mtx]
+[K : 128]
+[RoDe_gflops : 1649.72 ]
+Matrix diff: 0.020600
+* 	Execution time: .290402655 seconds
+
+---New data---
+
+[Remaining: 325]
+
+[File : ./suiteSparse_dataset/SiO/SiO.mtx]
+[K : 128]
+[RoDe_gflops : 2160.09 ]
+Matrix diff: 0.025828
+* 	Execution time: .439073920 seconds
+
+---New data---
+
+[Remaining: 324]
+
+[File : ./suiteSparse_dataset/2D_54019_highK/2D_54019_highK.mtx]
+[K : 128]
+[RoDe_gflops : 4512.74 ]
+Matrix diff: 0.029451
+* 	Execution time: .475708165 seconds
+
+---New data---
+
+[Remaining: 323]
+
+[File : ./suiteSparse_dataset/rlfprim/rlfprim.mtx]
+[K : 128]
+[RoDe_gflops : 2098.11 ]
+Matrix diff: 0.046267
+* 	Execution time: .346812875 seconds
+
+---New data---
+
+[Remaining: 322]
+
+[File : ./suiteSparse_dataset/g7jac200sc/g7jac200sc.mtx]
+[K : 128]
+[RoDe_gflops : 1928.95 ]
+Matrix diff: 0.024339
+* 	Execution time: .455951589 seconds
+
+---New data---
+
+[Remaining: 321]
+
+[File : ./suiteSparse_dataset/astro-ph/astro-ph.mtx]
+[K : 128]
+[RoDe_gflops : 1924.62 ]
+Matrix diff: 0.020791
+* 	Execution time: .275947960 seconds
+
+---New data---
+
+[Remaining: 320]
+
+[File : ./suiteSparse_dataset/TSOPF_FS_b39_c19/TSOPF_FS_b39_c19.mtx]
+[K : 128]
+[RoDe_gflops : 2027.06 ]
+Matrix diff: 0.008973
+* 	Execution time: .716207264 seconds
+
+---New data---
+
+[Remaining: 319]
+
+[File : ./suiteSparse_dataset/bcsstk35/bcsstk35.mtx]
+[K : 128]
+[RoDe_gflops : 3997.14 ]
+Matrix diff: 0.016506
+* 	Execution time: .449691119 seconds
+
+---New data---
+
+[Remaining: 318]
+
+[File : ./suiteSparse_dataset/TSOPF_FS_b162_c4/TSOPF_FS_b162_c4.mtx]
+[K : 128]
+[RoDe_gflops : 2822.76 ]
+Matrix diff: 0.012950
+* 	Execution time: .660078241 seconds
+
+---New data---
+
+[Remaining: 317]
+
+[File : ./suiteSparse_dataset/lowThrust_12/lowThrust_12.mtx]
+[K : 128]
+[RoDe_gflops : 2245.93 ]
+Matrix diff: 0.022936
+* 	Execution time: .286455593 seconds
+
+---New data---
+
+[Remaining: 316]
+
+[File : ./suiteSparse_dataset/g7jac100/g7jac100.mtx]
+[K : 128]
+[RoDe_gflops : 2118.04 ]
+Matrix diff: 0.025828
+* 	Execution time: .331653568 seconds
+
+---New data---
+
+[Remaining: 315]
+
+[File : ./suiteSparse_dataset/g7jac050sc/g7jac050sc.mtx]
+[K : 128]
+[RoDe_gflops : 1763.28 ]
+Matrix diff: 0.022101
+* 	Execution time: .274630279 seconds
+
+---New data---
+
+[Remaining: 314]
+
+[File : ./suiteSparse_dataset/mycielskian14/mycielskian14.mtx]
+[K : 128]
+[RoDe_gflops : 2069.62 ]
+Matrix diff: 0.030004
+* 	Execution time: .768887297 seconds
+
+---New data---
+
+[Remaining: 313]
+
+[File : ./suiteSparse_dataset/gupta1/gupta1.mtx]
+[K : 128]
+[RoDe_gflops : 2486.45 ]
+Matrix diff: 0.020405
+* 	Execution time: .597653994 seconds
+
+---New data---
+
+[Remaining: 312]
+
+[File : ./suiteSparse_dataset/bayer04/bayer04.mtx]
+[K : 128]
+[RoDe_gflops : 1930.61 ]
+Matrix diff: 0.020593
+* 	Execution time: .264121634 seconds
+
+---New data---
+
+[Remaining: 311]
+
+[File : ./suiteSparse_dataset/Goodwin_071/Goodwin_071.mtx]
+[K : 128]
+[RoDe_gflops : 2783.18 ]
+Matrix diff: 0.021806
+* 	Execution time: .602325485 seconds
+
+---New data---
+
+[Remaining: 310]
+
+[File : ./suiteSparse_dataset/cyl6/cyl6.mtx]
+[K : 128]
+[RoDe_gflops : 3815.39 ]
+Matrix diff: 0.021686
+* 	Execution time: .353562050 seconds
+
+---New data---
+
+[Remaining: 309]
+
+[File : ./suiteSparse_dataset/g7jac140sc/g7jac140sc.mtx]
+[K : 128]
+[RoDe_gflops : 2089.94 ]
+Matrix diff: 0.006398
+* 	Execution time: .389888479 seconds
+
+---New data---
+
+[Remaining: 308]
+
+[File : ./suiteSparse_dataset/wing/wing.mtx]
+[K : 128]
+[RoDe_gflops : 1562.26 ]
+Matrix diff: 0.017589
+* 	Execution time: .355195031 seconds
+
+---New data---
+
+[Remaining: 307]
+
+[File : ./suiteSparse_dataset/crplat2/crplat2.mtx]
+[K : 128]
+[RoDe_gflops : 3801.21 ]
+Matrix diff: 0.014668
+* 	Execution time: .350788069 seconds
+
+---New data---
+
+[Remaining: 306]
+
+[File : ./suiteSparse_dataset/c-60/c-60.mtx]
+[K : 128]
+[RoDe_gflops : 2045.05 ]
+Matrix diff: 0.017971
+* 	Execution time: .305404336 seconds
+
+---New data---
+
+[Remaining: 305]
+
+[File : ./suiteSparse_dataset/mip1/mip1.mtx]
+[K : 128]
+[RoDe_gflops : 2458.63 ]
+Matrix diff: 0.022456
+* 	Execution time: 1.982307658 seconds
+
+---New data---
+
+[Remaining: 304]
+
+[File : ./suiteSparse_dataset/Zhao2/Zhao2.mtx]
+[K : 128]
+[RoDe_gflops : 1625.52 ]
+Matrix diff: 0.022985
+* 	Execution time: .284742160 seconds
+
+---New data---
+
+[Remaining: 303]
+
+[File : ./suiteSparse_dataset/c-66/c-66.mtx]
+[K : 128]
+[RoDe_gflops : 2389.88 ]
+Matrix diff: 0.015318
+* 	Execution time: .366962307 seconds
+
+---New data---
+
+[Remaining: 302]
+
+[File : ./suiteSparse_dataset/helm3d01/helm3d01.mtx]
+[K : 128]
+[RoDe_gflops : 2374.97 ]
+Matrix diff: 0.016695
+* 	Execution time: .324559625 seconds
+
+---New data---
+
+[Remaining: 301]
+
+[File : ./suiteSparse_dataset/k3plates/k3plates.mtx]
+[K : 128]
+[RoDe_gflops : 2616.90 ]
+Matrix diff: 0.023292
+* 	Execution time: .290985318 seconds
+
+---New data---
+
+[Remaining: 300]
+
+[File : ./suiteSparse_dataset/lowThrust_6/lowThrust_6.mtx]
+[K : 128]
+[RoDe_gflops : 2115.81 ]
+Matrix diff: 0.023173
+* 	Execution time: .261941595 seconds
+
+---New data---
+
+[Remaining: 299]
+
+[File : ./suiteSparse_dataset/Zd_Jac2/Zd_Jac2.mtx]
+[K : 128]
+[RoDe_gflops : 2047.40 ]
+Matrix diff: 0.015606
+* 	Execution time: .542488379 seconds
+
+---New data---
+
+[Remaining: 298]
+
+[File : ./suiteSparse_dataset/JP/JP.mtx]
+[K : 128]
+[RoDe_gflops : 1954.26 ]
+Matrix diff: 0.016900
+* 	Execution time: 3.041682114 seconds
+
+---New data---
+
+[Remaining: 297]
+
+[File : ./suiteSparse_dataset/wang4/wang4.mtx]
+[K : 128]
+[RoDe_gflops : 1830.54 ]
+Matrix diff: 0.023168
+* 	Execution time: .280803434 seconds
+
+---New data---
+
+[Remaining: 296]
+
+[File : ./suiteSparse_dataset/cit-HepTh/cit-HepTh.mtx]
+[K : 128]
+[RoDe_gflops : 1818.59 ]
+Matrix diff: 0.022062
+* 	Execution time: .330185584 seconds
+
+---New data---
+
+[Remaining: 295]
+
+[File : ./suiteSparse_dataset/crystm02/crystm02.mtx]
+[K : 128]
+[RoDe_gflops : 2476.27 ]
+Matrix diff: 0.022635
+* 	Execution time: .277238680 seconds
+
+---New data---
+
+[Remaining: 294]
+
+[File : ./suiteSparse_dataset/t3dh_a/t3dh_a.mtx]
+[K : 128]
+[RoDe_gflops : 2623.01 ]
+Matrix diff: 0.008359
+* 	Execution time: .915451047 seconds
+
+---New data---
+
+[Remaining: 293]
+
+[File : ./suiteSparse_dataset/jan99jac100/jan99jac100.mtx]
+[K : 128]
+[RoDe_gflops : 1955.27 ]
+Matrix diff: 0.014334
+* 	Execution time: .302743586 seconds
+
+---New data---
+
+[Remaining: 292]
+
+[File : ./suiteSparse_dataset/g7jac160/g7jac160.mtx]
+[K : 128]
+[RoDe_gflops : 2129.11 ]
+Matrix diff: 0.025119
+* 	Execution time: .409758667 seconds
+
+---New data---
+
+[Remaining: 291]
+
+[File : ./suiteSparse_dataset/g7jac040sc/g7jac040sc.mtx]
+[K : 128]
+[RoDe_gflops : 1384.92 ]
+Matrix diff: 0.015594
+* 	Execution time: .255746108 seconds
+
+---New data---
+
+[Remaining: 290]
+
+[File : ./suiteSparse_dataset/tandem_vtx/tandem_vtx.mtx]
+[K : 128]
+[RoDe_gflops : 2246.01 ]
+Matrix diff: 0.021999
+* 	Execution time: .283502506 seconds
+
+---New data---
+
+[Remaining: 289]
+
+[File : ./suiteSparse_dataset/c-51/c-51.mtx]
+[K : 128]
+[RoDe_gflops : 1922.82 ]
+Matrix diff: 0.018930
+* 	Execution time: .285628802 seconds
+
+---New data---
+
+[Remaining: 288]
+
+[File : ./suiteSparse_dataset/human_gene1/human_gene1.mtx]
+[K : 128]
+[RoDe_gflops : 1941.33 ]
+Matrix diff: 0.006257
+* 	Execution time: 4.229302239 seconds
+
+---New data---
+
+[Remaining: 287]
+
+[File : ./suiteSparse_dataset/wy2010/wy2010.mtx]
+[K : 128]
+[RoDe_gflops : 1018.06 ]
+Matrix diff: 0.019753
+* 	Execution time: .412583614 seconds
+
+---New data---
+
+[Remaining: 286]
+
+[File : ./suiteSparse_dataset/TSOPF_RS_b2052_c1/TSOPF_RS_b2052_c1.mtx]
+[K : 128]
+[RoDe_gflops : 2180.16 ]
+Matrix diff: 0.009387
+* 	Execution time: 1.453886322 seconds
+
+---New data---
+
+[Remaining: 285]
+
+[File : ./suiteSparse_dataset/c-56/c-56.mtx]
+[K : 128]
+[RoDe_gflops : 2245.87 ]
+Matrix diff: 0.015661
+* 	Execution time: .334645808 seconds
+
+---New data---
+
+[Remaining: 284]
+
+[File : ./suiteSparse_dataset/pkustk06/pkustk06.mtx]
+[K : 128]
+[RoDe_gflops : 3253.76 ]
+Matrix diff: 0.017967
+* 	Execution time: .637190982 seconds
+
+---New data---
+
+[Remaining: 283]
+
+[File : ./suiteSparse_dataset/vsp_bump2_e18_aa01_model1_crew1/vsp_bump2_e18_aa01_model1_crew1.mtx]
+[K : 128]
+[RoDe_gflops : 2109.40 ]
+Matrix diff: 0.017989
+* 	Execution time: .394023160 seconds
+
+---New data---
+
+[Remaining: 282]
+
+[File : ./suiteSparse_dataset/ex35/ex35.mtx]
+[K : 128]
+[RoDe_gflops : 2367.30 ]
+Matrix diff: 0.023930
+* 	Execution time: .278825715 seconds
+
+---New data---
+
+[Remaining: 281]
+
+[File : ./suiteSparse_dataset/copter1/copter1.mtx]
+[K : 128]
+[RoDe_gflops : 2189.46 ]
+Matrix diff: 0.019141
+* 	Execution time: .243985853 seconds
+
+---New data---
+
+[Remaining: 280]
+
+[File : ./suiteSparse_dataset/ncvxbqp1/ncvxbqp1.mtx]
+[K : 128]
+[RoDe_gflops : 1774.69 ]
+Matrix diff: 0.024595
+* 	Execution time: .347554994 seconds
+
+---New data---
+
+[Remaining: 279]
+
+[File : ./suiteSparse_dataset/mark3jac060sc/mark3jac060sc.mtx]
+[K : 128]
+[RoDe_gflops : 1673.48 ]
+Matrix diff: 0.021474
+* 	Execution time: .283216518 seconds
+
+---New data---
+
+[Remaining: 278]
+
+[File : ./suiteSparse_dataset/bcsstk25/bcsstk25.mtx]
+[K : 128]
+[RoDe_gflops : 2532.54 ]
+Matrix diff: 0.025533
+* 	Execution time: .250628942 seconds
+
+---New data---
+
+[Remaining: 277]
+
+[File : ./suiteSparse_dataset/TSOPF_RS_b162_c4/TSOPF_RS_b162_c4.mtx]
+[K : 128]
+[RoDe_gflops : 3293.15 ]
+Matrix diff: 0.025555
+* 	Execution time: .348114022 seconds
+
+---New data---
+
+[Remaining: 276]
+
+[File : ./suiteSparse_dataset/loc-Brightkite/loc-Brightkite.mtx]
+[K : 128]
+[RoDe_gflops : 1677.73 ]
+Matrix diff: 0.003334
+* 	Execution time: .366767671 seconds
+
+---New data---
+
+[Remaining: 275]
+
+[File : ./suiteSparse_dataset/garon2/garon2.mtx]
+[K : 128]
+[RoDe_gflops : 2503.89 ]
+Matrix diff: 0.011021
+* 	Execution time: .295879514 seconds
+
+---New data---
+
+[Remaining: 274]
+
+[File : ./suiteSparse_dataset/TSOPF_RS_b39_c30/TSOPF_RS_b39_c30.mtx]
+[K : 128]
+[RoDe_gflops : 2535.18 ]
+Matrix diff: 0.024639
+* 	Execution time: .486017224 seconds
+
+---New data---
+
+[Remaining: 273]
+
+[File : ./suiteSparse_dataset/TSOPF_RS_b300_c1/TSOPF_RS_b300_c1.mtx]
+[K : 128]
+[RoDe_gflops : 3021.16 ]
+Matrix diff: 0.024073
+* 	Execution time: .456916014 seconds
+
+---New data---
+
+[Remaining: 272]
+
+[File : ./suiteSparse_dataset/tube2/tube2.mtx]
+[K : 128]
+[RoDe_gflops : 3423.88 ]
+Matrix diff: 0.015327
+* 	Execution time: .361953774 seconds
+
+---New data---
+
+[Remaining: 271]
+
+[File : ./suiteSparse_dataset/lhr14c/lhr14c.mtx]
+[K : 128]
+[RoDe_gflops : 2390.20 ]
+Matrix diff: 0.022902
+* 	Execution time: .282795519 seconds
+
+---New data---
+
+[Remaining: 270]
+
+[File : ./suiteSparse_dataset/bayer01/bayer01.mtx]
+[K : 128]
+[RoDe_gflops : 1967.24 ]
+Matrix diff: 0.018170
+* 	Execution time: .353250604 seconds
+
+---New data---
+
+[Remaining: 269]
+
+[File : ./suiteSparse_dataset/nh2010/nh2010.mtx]
+[K : 128]
+[RoDe_gflops : 1584.80 ]
+Matrix diff: 0.021576
+* 	Execution time: .332652810 seconds
+
+---New data---
+
+[Remaining: 268]
+
+[File : ./suiteSparse_dataset/c-72/c-72.mtx]
+[K : 128]
+[RoDe_gflops : 1469.18 ]
+Matrix diff: 0.020213
+* 	Execution time: .465802318 seconds
+
+---New data---
+
+[Remaining: 267]
+
+[File : ./suiteSparse_dataset/IG5-15/IG5-15.mtx]
+[K : 128]
+[RoDe_gflops : 1735.56 ]
+Matrix diff: 0.020928
+* 	Execution time: .293376871 seconds
+
+---New data---
+
+[Remaining: 266]
+
+[File : ./suiteSparse_dataset/bauru5727/bauru5727.mtx]
+[K : 128]
+[RoDe_gflops : 1516.94 ]
+Matrix diff: 0.018619
+* 	Execution time: .299281954 seconds
+
+---New data---
+
+[Remaining: 265]
+
+[File : ./suiteSparse_dataset/Pres_Poisson/Pres_Poisson.mtx]
+[K : 128]
+[RoDe_gflops : 3363.74 ]
+Matrix diff: 0.021278
+* 	Execution time: .331698441 seconds
+
+---New data---
+
+[Remaining: 264]
+
+[File : ./suiteSparse_dataset/g7jac200/g7jac200.mtx]
+[K : 128]
+[RoDe_gflops : 1955.97 ]
+Matrix diff: 0.015926
+* 	Execution time: .455063029 seconds
+
+---New data---
+
+[Remaining: 263]
+
+[File : ./suiteSparse_dataset/g7jac100sc/g7jac100sc.mtx]
+[K : 128]
+[RoDe_gflops : 2007.49 ]
+Matrix diff: 0.023200
+* 	Execution time: .338636640 seconds
+
+---New data---
+
+[Remaining: 262]
+
+[File : ./suiteSparse_dataset/TSOPF_RS_b678_c2/TSOPF_RS_b678_c2.mtx]
+[K : 128]
+[RoDe_gflops : 2122.06 ]
+Matrix diff: 0.030546
+* 	Execution time: 1.816958069 seconds
+
+---New data---
+
+[Remaining: 261]
+
+[File : ./suiteSparse_dataset/scagr7-2r/scagr7-2r.mtx]
+[K : 128]
+[RoDe_gflops : 1494.29 ]
+Matrix diff: 0.012340
+* 	Execution time: .291198906 seconds
+
+---New data---
+
+[Remaining: 260]
+
+[File : ./suiteSparse_dataset/scagr7-2r/scagr7-2r_A_11.mtx]
+[K : 128]
+[RoDe_gflops : 1479.57 ]
+Matrix diff: 0.021533
+* 	Execution time: .273212309 seconds
+
+---New data---
+
+[Remaining: 259]
+
+[File : ./suiteSparse_dataset/TF17/TF17.mtx]
+[K : 128]
+[RoDe_gflops : 2067.06 ]
+Matrix diff: 0.027289
+* 	Execution time: .386326055 seconds
+
+---New data---
+
+[Remaining: 258]
+
+[File : ./suiteSparse_dataset/soc-sign-Slashdot090221/soc-sign-Slashdot090221.mtx]
+[K : 128]
+[RoDe_gflops : 1264.28 ]
+Matrix diff: 0.004438
+* 	Execution time: .434300897 seconds
+
+---New data---
+
+[Remaining: 257]
+
+[File : ./suiteSparse_dataset/net150/net150.mtx]
+[K : 128]
+[RoDe_gflops : 2229.43 ]
+Matrix diff: 0.014735
+* 	Execution time: .712934359 seconds
+
+---New data---
+
+[Remaining: 256]
+
+[File : ./suiteSparse_dataset/IG5-18/IG5-18.mtx]
+[K : 128]
+[RoDe_gflops : 2126.47 ]
+Matrix diff: 0.027342
+* 	Execution time: .619773568 seconds
+
+---New data---
+
+[Remaining: 255]
+
+[File : ./suiteSparse_dataset/mark3jac120sc/mark3jac120sc.mtx]
+[K : 128]
+[RoDe_gflops : 1995.78 ]
+Matrix diff: 0.017372
+* 	Execution time: .357271843 seconds
+
+---New data---
+
+[Remaining: 254]
+
+[File : ./suiteSparse_dataset/c-64/c-64.mtx]
+[K : 128]
+[RoDe_gflops : 2458.36 ]
+Matrix diff: 0.011747
+* 	Execution time: .432768081 seconds
+
+---New data---
+
+[Remaining: 253]
+
+[File : ./suiteSparse_dataset/email-Enron/email-Enron.mtx]
+[K : 128]
+[RoDe_gflops : 1849.41 ]
+Matrix diff: 0.017013
+* 	Execution time: .339659759 seconds
+
+---New data---
+
+[Remaining: 252]
+
+[File : ./suiteSparse_dataset/viscorocks/viscorocks.mtx]
+[K : 128]
+[RoDe_gflops : 3969.41 ]
+Matrix diff: 0.022092
+* 	Execution time: .466631591 seconds
+
+---New data---
+
+[Remaining: 251]
+
+[File : ./suiteSparse_dataset/std1_Jac3/std1_Jac3.mtx]
+[K : 128]
+[RoDe_gflops : 2022.01 ]
+Matrix diff: 0.015945
+* 	Execution time: .509258554 seconds
+
+---New data---
+
+[Remaining: 250]
+
+[File : ./suiteSparse_dataset/TSOPF_RS_b39_c7/TSOPF_RS_b39_c7.mtx]
+[K : 128]
+[RoDe_gflops : 2009.92 ]
+Matrix diff: 0.016510
+* 	Execution time: .279338937 seconds
+
+---New data---
+
+[Remaining: 249]
+
+[File : ./suiteSparse_dataset/mark3jac140sc/mark3jac140sc.mtx]
+[K : 128]
+[RoDe_gflops : 2027.05 ]
+Matrix diff: 0.025795
+* 	Execution time: .390373525 seconds
+
+---New data---
+
+[Remaining: 248]
+
+[File : ./suiteSparse_dataset/gyro_m/gyro_m.mtx]
+[K : 128]
+[RoDe_gflops : 2127.69 ]
+Matrix diff: 0.022615
+* 	Execution time: .289637899 seconds
+
+---New data---
+
+[Remaining: 247]
+
+[File : ./suiteSparse_dataset/epb2/epb2.mtx]
+[K : 128]
+[RoDe_gflops : 2113.85 ]
+Matrix diff: 0.015256
+* 	Execution time: .288046394 seconds
+
+---New data---
+
+[Remaining: 246]
+
+[File : ./suiteSparse_dataset/ship_001/ship_001.mtx]
+[K : 128]
+[RoDe_gflops : 2688.88 ]
+Matrix diff: 0.057974
+* 	Execution time: .941368161 seconds
+
+---New data---
+
+[Remaining: 245]
+
+[File : ./suiteSparse_dataset/ted_A_unscaled/ted_A_unscaled.mtx]
+[K : 128]
+[RoDe_gflops : 2694.08 ]
+Matrix diff: 0.024452
+* 	Execution time: .298624671 seconds
+
+---New data---
+
+[Remaining: 244]
+
+[File : ./suiteSparse_dataset/vsp_msc10848_300sep_100in_1Kout/vsp_msc10848_300sep_100in_1Kout.mtx]
+[K : 128]
+[RoDe_gflops : 1910.24 ]
+Matrix diff: 0.014583
+* 	Execution time: .620682422 seconds
+
+---New data---
+
+[Remaining: 243]
+
+[File : ./suiteSparse_dataset/k49_norm_10NN/k49_norm_10NN.mtx]
+[K : 128]
+[RoDe_gflops : 2014.86 ]
+Matrix diff: 0.017350
+* 	Execution time: .367882951 seconds
+
+---New data---
+
+[Remaining: 242]
+
+[File : ./suiteSparse_dataset/ct2010/ct2010.mtx]
+[K : 128]
+[RoDe_gflops : 1716.08 ]
+Matrix diff: 0.023228
+* 	Execution time: .351094079 seconds
+
+---New data---
+
+[Remaining: 241]
+
+[File : ./suiteSparse_dataset/conf6_0-8x8-20/conf6_0-8x8-20.mtx]
+[K : 128]
+[RoDe_gflops : 2593.25 ]
+Matrix diff: 0.012458
+* 	Execution time: .623099724 seconds
+
+---New data---
+
+[Remaining: 240]
+
+[File : ./suiteSparse_dataset/fxm4_6/fxm4_6.mtx]
+[K : 128]
+[RoDe_gflops : 2361.58 ]
+Matrix diff: 0.022161
+* 	Execution time: .314632848 seconds
+
+---New data---
+
+[Remaining: 239]
+
+[File : ./suiteSparse_dataset/water_tank/water_tank.mtx]
+[K : 128]
+[RoDe_gflops : 3232.66 ]
+Matrix diff: 0.021489
+* 	Execution time: .668308178 seconds
+
+---New data---
+
+[Remaining: 238]
+
+[File : ./suiteSparse_dataset/windtunnel_evap3d/windtunnel_evap3d.mtx]
+[K : 128]
+[RoDe_gflops : 2413.04 ]
+Matrix diff: 0.017405
+* 	Execution time: .753940903 seconds
+
+---New data---
+
+[Remaining: 237]
+
+[File : ./suiteSparse_dataset/g7jac060sc/g7jac060sc.mtx]
+[K : 128]
+[RoDe_gflops : 1694.30 ]
+Matrix diff: 0.023209
+* 	Execution time: .289808188 seconds
+
+---New data---
+
+[Remaining: 236]
+
+[File : ./suiteSparse_dataset/c-61/c-61.mtx]
+[K : 128]
+[RoDe_gflops : 2055.81 ]
+Matrix diff: 0.017142
+* 	Execution time: .315037858 seconds
+
+---New data---
+
+[Remaining: 235]
+
+[File : ./suiteSparse_dataset/Goodwin_030/Goodwin_030.mtx]
+[K : 128]
+[RoDe_gflops : 2530.86 ]
+Matrix diff: 0.024249
+* 	Execution time: .280017919 seconds
+
+---New data---
+
+[Remaining: 234]
+
+[File : ./suiteSparse_dataset/lp_pds_10/lp_pds_10.mtx]
+[K : 128]
+[RoDe_gflops : 1245.43 ]
+Matrix diff: 0.022353
+* 	Execution time: .275207400 seconds
+
+---New data---
+
+[Remaining: 233]
+
+[File : ./suiteSparse_dataset/pkustk11/pkustk11.mtx]
+[K : 128]
+[RoDe_gflops : 3120.01 ]
+Matrix diff: 0.024135
+* 	Execution time: 1.105747668 seconds
+
+---New data---
+
+[Remaining: 232]
+
+[File : ./suiteSparse_dataset/rgg_n_2_15_s0/rgg_n_2_15_s0.mtx]
+[K : 128]
+[RoDe_gflops : 1885.18 ]
+Matrix diff: 0.023008
+* 	Execution time: .316854594 seconds
+
+---New data---
+
+[Remaining: 231]
+
+[File : ./suiteSparse_dataset/cz10228/cz10228.mtx]
+[K : 128]
+[RoDe_gflops : 1627.78 ]
+Matrix diff: 0.018144
+* 	Execution time: .247296381 seconds
+
+---New data---
+
+[Remaining: 230]
+
+[File : ./suiteSparse_dataset/bcsstk39/bcsstk39.mtx]
+[K : 128]
+[RoDe_gflops : 3015.72 ]
+Matrix diff: 0.026207
+* 	Execution time: .552321824 seconds
+
+---New data---
+
+[Remaining: 229]
+
+[File : ./suiteSparse_dataset/ted_AB_unscaled/ted_AB_unscaled.mtx]
+[K : 128]
+[RoDe_gflops : 2315.55 ]
+Matrix diff: 0.014104
+* 	Execution time: .314328026 seconds
+
+---New data---
+
+[Remaining: 228]
+
+[File : ./suiteSparse_dataset/vsp_model1_crew1_cr42_south31/vsp_model1_crew1_cr42_south31.mtx]
+[K : 128]
+[RoDe_gflops : 1987.20 ]
+Matrix diff: 0.021529
+* 	Execution time: .389608250 seconds
+
+---New data---
+
+[Remaining: 227]
+
+[File : ./suiteSparse_dataset/pli/pli.mtx]
+[K : 128]
+[RoDe_gflops : 2679.18 ]
+Matrix diff: 0.014943
+* 	Execution time: .419124908 seconds
+
+---New data---
+
+[Remaining: 226]
+
+[File : ./suiteSparse_dataset/bcsstk36/bcsstk36.mtx]
+[K : 128]
+[RoDe_gflops : 3765.28 ]
+Matrix diff: 0.023328
+* 	Execution time: .393275816 seconds
+
+---New data---
+
+[Remaining: 225]
+
+[File : ./suiteSparse_dataset/ncvxqp5/ncvxqp5.mtx]
+[K : 128]
+[RoDe_gflops : 1816.09 ]
+Matrix diff: 0.024219
+* 	Execution time: .355362142 seconds
+
+---New data---
+
+[Remaining: 224]
+
+[File : ./suiteSparse_dataset/mixtank_new/mixtank_new.mtx]
+[K : 128]
+[RoDe_gflops : 2402.51 ]
+Matrix diff: 0.014315
+* 	Execution time: .641748854 seconds
+
+---New data---
+
+[Remaining: 223]
+
+[File : ./suiteSparse_dataset/TSOPF_FS_b300_c3/TSOPF_FS_b300_c3.mtx]
+[K : 128]
+[RoDe_gflops : 2571.64 ]
+Matrix diff: 0.017511
+* 	Execution time: 2.544664130 seconds
+
+---New data---
+
+[Remaining: 222]
+
+[File : ./suiteSparse_dataset/Franz11/Franz11.mtx]
+[K : 128]
+[RoDe_gflops : 2030.34 ]
+Matrix diff: 0.019410
+* 	Execution time: .334452042 seconds
+
+---New data---
+
+[Remaining: 221]
+
+[File : ./suiteSparse_dataset/gas_sensor/gas_sensor.mtx]
+[K : 128]
+[RoDe_gflops : 3590.57 ]
+Matrix diff: 0.027782
+* 	Execution time: .540517007 seconds
+
+---New data---
+
+[Remaining: 220]
+
+[File : ./suiteSparse_dataset/cz20468/cz20468.mtx]
+[K : 128]
+[RoDe_gflops : 2183.01 ]
+Matrix diff: 0.018810
+* 	Execution time: .276217102 seconds
+
+---New data---
+
+[Remaining: 219]
+
+[File : ./suiteSparse_dataset/denormal/denormal.mtx]
+[K : 128]
+[RoDe_gflops : 2470.56 ]
+Matrix diff: 0.009055
+* 	Execution time: .500850617 seconds
+
+---New data---
+
+[Remaining: 218]
+
+[File : ./suiteSparse_dataset/conf5_4-8x8-20/conf5_4-8x8-20.mtx]
+[K : 128]
+[RoDe_gflops : 2614.47 ]
+Matrix diff: 0.009065
+* 	Execution time: .630723198 seconds
+
+---New data---
+
+[Remaining: 217]
+
+[File : ./suiteSparse_dataset/pdb1HYS/pdb1HYS.mtx]
+[K : 128]
+[RoDe_gflops : 2945.20 ]
+Matrix diff: 0.046059
+* 	Execution time: .884299234 seconds
+
+---New data---
+
+[Remaining: 216]
+
+[File : ./suiteSparse_dataset/mark3jac120/mark3jac120.mtx]
+[K : 128]
+[RoDe_gflops : 1995.78 ]
+Matrix diff: 0.020944
+* 	Execution time: .359244482 seconds
+
+---New data---
+
+[Remaining: 215]
+
+[File : ./suiteSparse_dataset/scfxm1-2r/scfxm1-2r_A_9.mtx]
+[K : 128]
+[RoDe_gflops : 1642.34 ]
+Matrix diff: 0.022502
+* 	Execution time: .325449610 seconds
+
+---New data---
+
+[Remaining: 214]
+
+[File : ./suiteSparse_dataset/scfxm1-2r/scfxm1-2r.mtx]
+[K : 128]
+[RoDe_gflops : 1662.07 ]
+Matrix diff: 0.017365
+* 	Execution time: .314990368 seconds
+
+---New data---
+
+[Remaining: 213]
+
+[File : ./suiteSparse_dataset/scfxm1-2r/scfxm1-2r_A_8.mtx]
+[K : 128]
+[RoDe_gflops : 1328.37 ]
+Matrix diff: 0.013879
+* 	Execution time: .274319183 seconds
+
+---New data---
+
+[Remaining: 212]
+
+[File : ./suiteSparse_dataset/av41092/av41092.mtx]
+[K : 128]
+[RoDe_gflops : 2043.57 ]
+Matrix diff: 0.022315
+* 	Execution time: .576858743 seconds
+
+---New data---
+
+[Remaining: 211]
+
+[File : ./suiteSparse_dataset/ted_AB/ted_AB.mtx]
+[K : 128]
+[RoDe_gflops : 2336.26 ]
+Matrix diff: 0.012816
+* 	Execution time: .328040449 seconds
+
+---New data---
+
+[Remaining: 210]
+
+[File : ./suiteSparse_dataset/jan99jac080/jan99jac080.mtx]
+[K : 128]
+[RoDe_gflops : 1801.70 ]
+Matrix diff: 0.023109
+* 	Execution time: .285405571 seconds
+
+---New data---
+
+[Remaining: 209]
+
+[File : ./suiteSparse_dataset/ramage02/ramage02.mtx]
+[K : 128]
+[RoDe_gflops : 2376.74 ]
+Matrix diff: 0.021653
+* 	Execution time: .634974880 seconds
+
+---New data---
+
+[Remaining: 208]
+
+[File : ./suiteSparse_dataset/c-53/c-53.mtx]
+[K : 128]
+[RoDe_gflops : 2314.76 ]
+Matrix diff: 0.023855
+* 	Execution time: .307495143 seconds
+
+---New data---
+
+[Remaining: 207]
+
+[File : ./suiteSparse_dataset/wathen120/wathen120.mtx]
+[K : 128]
+[RoDe_gflops : 3636.00 ]
+Matrix diff: 0.019017
+* 	Execution time: .340496265 seconds
+
+---New data---
+
+[Remaining: 206]
+
+[File : ./suiteSparse_dataset/TSOPF_RS_b300_c3/TSOPF_RS_b300_c3.mtx]
+[K : 128]
+[RoDe_gflops : 3123.90 ]
+Matrix diff: 0.018490
+* 	Execution time: 1.055861189 seconds
+
+---New data---
+
+[Remaining: 205]
+
+[File : ./suiteSparse_dataset/fome13/fome13.mtx]
+[K : 128]
+[RoDe_gflops : 1179.87 ]
+Matrix diff: 0.024369
+* 	Execution time: .391203409 seconds
+
+---New data---
+
+[Remaining: 204]
+
+[File : ./suiteSparse_dataset/ckt11752_dc_1/ckt11752_dc_1.mtx]
+[K : 128]
+[RoDe_gflops : 2226.13 ]
+Matrix diff: 0.011041
+* 	Execution time: .359487436 seconds
+
+---New data---
+
+[Remaining: 203]
+
+[File : ./suiteSparse_dataset/sinc18/sinc18.mtx]
+[K : 128]
+[RoDe_gflops : 2086.17 ]
+Matrix diff: 0.026164
+* 	Execution time: .398411356 seconds
+
+---New data---
+
+[Remaining: 202]
+
+[File : ./suiteSparse_dataset/ABACUS_shell_ld/ABACUS_shell_ld_M.mtx]
+[K : 128]
+[RoDe_gflops : 1804.84 ]
+Matrix diff: 0.021839
+* 	Execution time: .292598319 seconds
+
+---New data---
+
+[Remaining: 201]
+
+[File : ./suiteSparse_dataset/ABACUS_shell_ld/ABACUS_shell_ld_K.mtx]
+[K : 128]
+[RoDe_gflops : 1818.87 ]
+Matrix diff: 0.015829
+* 	Execution time: .285249178 seconds
+
+---New data---
+
+[Remaining: 200]
+
+[File : ./suiteSparse_dataset/ABACUS_shell_ld/ABACUS_shell_ld.mtx]
+[K : 128]
+[RoDe_gflops : 1890.00 ]
+Matrix diff: 0.025083
+* 	Execution time: .284351133 seconds
+
+---New data---
+
+[Remaining: 199]
+
+[File : ./suiteSparse_dataset/TSOPF_FS_b162_c1/TSOPF_FS_b162_c1.mtx]
+[K : 128]
+[RoDe_gflops : 2434.16 ]
+Matrix diff: 0.023931
+* 	Execution time: .333453077 seconds
+
+---New data---
+
+[Remaining: 198]
+
+[File : ./suiteSparse_dataset/vsp_barth5_1Ksep_50in_5Kout/vsp_barth5_1Ksep_50in_5Kout.mtx]
+[K : 128]
+[RoDe_gflops : 1595.69 ]
+Matrix diff: 0.022079
+* 	Execution time: .276245425 seconds
+
+---New data---
+
+[Remaining: 197]
+
+[File : ./suiteSparse_dataset/net4-1/net4-1.mtx]
+[K : 128]
+[RoDe_gflops : 2012.63 ]
+Matrix diff: 0.013553
+* 	Execution time: .739998455 seconds
+
+---New data---
+
+[Remaining: 196]
+
+[File : ./suiteSparse_dataset/c-57/c-57.mtx]
+[K : 128]
+[RoDe_gflops : 2281.51 ]
+Matrix diff: 0.012866
+* 	Execution time: .365966787 seconds
+
+---New data---
+
+[Remaining: 195]
+
+[File : ./suiteSparse_dataset/tube1/tube1.mtx]
+[K : 128]
+[RoDe_gflops : 3418.66 ]
+Matrix diff: 0.011441
+* 	Execution time: .369280660 seconds
+
+---New data---
+
+[Remaining: 194]
+
+[File : ./suiteSparse_dataset/cage10/cage10.mtx]
+[K : 128]
+[RoDe_gflops : 1776.47 ]
+Matrix diff: 0.012684
+* 	Execution time: .256920628 seconds
+
+---New data---
+
+[Remaining: 193]
+
+[File : ./suiteSparse_dataset/ACTIVSg10K/ACTIVSg10K.mtx]
+[K : 128]
+[RoDe_gflops : 1586.82 ]
+Matrix diff: 0.013894
+* 	Execution time: .268422385 seconds
+
+---New data---
+
+[Remaining: 192]
+
+[File : ./suiteSparse_dataset/Zd_Jac3/Zd_Jac3.mtx]
+[K : 128]
+[RoDe_gflops : 2110.30 ]
+Matrix diff: 0.014956
+* 	Execution time: .668278378 seconds
+
+---New data---
+
+[Remaining: 191]
+
+[File : ./suiteSparse_dataset/TSOPF_RS_b2383/TSOPF_RS_b2383.mtx]
+[K : 128]
+[RoDe_gflops : 2056.77 ]
+Matrix diff: 0.025792
+* 	Execution time: 3.165354845 seconds
+
+---New data---
+
+[Remaining: 190]
+
+[File : ./suiteSparse_dataset/bcsstk17/bcsstk17.mtx]
+[K : 128]
+[RoDe_gflops : 3227.79 ]
+Matrix diff: 0.023148
+* 	Execution time: .284307812 seconds
+
+---New data---
+
+[Remaining: 189]
+
+[File : ./suiteSparse_dataset/192bit/192bit.mtx]
+[K : 128]
+[RoDe_gflops : 1909.69 ]
+Matrix diff: 0.013749
+* 	Execution time: .255507507 seconds
+
+---New data---
+
+[Remaining: 188]
+
+[File : ./suiteSparse_dataset/mark3jac060/mark3jac060.mtx]
+[K : 128]
+[RoDe_gflops : 1686.71 ]
+Matrix diff: 0.023591
+* 	Execution time: .285298289 seconds
+
+---New data---
+
+[Remaining: 187]
+
+[File : ./suiteSparse_dataset/t3dl/t3dl.mtx]
+[K : 128]
+[RoDe_gflops : 2950.61 ]
+Matrix diff: 0.022368
+* 	Execution time: .290621792 seconds
+
+---New data---
+
+[Remaining: 186]
+
+[File : ./suiteSparse_dataset/psse2/psse2.mtx]
+[K : 128]
+[RoDe_gflops : 1665.64 ]
+Matrix diff: 0.020303
+* 	Execution time: .257590653 seconds
+
+---New data---
+
+[Remaining: 185]
+
+[File : ./suiteSparse_dataset/inlet/inlet.mtx]
+[K : 128]
+[RoDe_gflops : 3006.62 ]
+Matrix diff: 0.023715
+* 	Execution time: .283301735 seconds
+
+---New data---
+
+[Remaining: 184]
+
+[File : ./suiteSparse_dataset/mk12-b3/mk12-b3.mtx]
+[K : 128]
+[RoDe_gflops : 1715.35 ]
+Matrix diff: 0.014020
+* 	Execution time: .300908011 seconds
+
+---New data---
+
+[Remaining: 183]
+
+[File : ./suiteSparse_dataset/t3dh/t3dh.mtx]
+[K : 128]
+[RoDe_gflops : 2625.55 ]
+Matrix diff: 0.005274
+* 	Execution time: .925234412 seconds
+
+---New data---
+
+[Remaining: 182]
+
+[File : ./suiteSparse_dataset/t3dh/t3dh_E.mtx]
+[K : 128]
+[RoDe_gflops : 2609.18 ]
+Matrix diff: 0.027186
+* 	Execution time: .926380831 seconds
+
+---New data---
+
+[Remaining: 181]
+
+[File : ./suiteSparse_dataset/c-55/c-55.mtx]
+[K : 128]
+[RoDe_gflops : 2226.55 ]
+Matrix diff: 0.012236
+* 	Execution time: .309371321 seconds
+
+---New data---
+
+[Remaining: 180]
+
+[File : ./suiteSparse_dataset/ABACUS_shell_hd/ABACUS_shell_hd_M.mtx]
+[K : 128]
+[RoDe_gflops : 1798.55 ]
+Matrix diff: 0.024709
+* 	Execution time: .293855676 seconds
+
+---New data---
+
+[Remaining: 179]
+
+[File : ./suiteSparse_dataset/ABACUS_shell_hd/ABACUS_shell_hd_K.mtx]
+[K : 128]
+[RoDe_gflops : 1869.22 ]
+Matrix diff: 0.015857
+* 	Execution time: .286299968 seconds
+
+---New data---
+
+[Remaining: 178]
+
+[File : ./suiteSparse_dataset/ABACUS_shell_hd/ABACUS_shell_hd.mtx]
+[K : 128]
+[RoDe_gflops : 1883.48 ]
+Matrix diff: 0.021247
+* 	Execution time: .302086549 seconds
+
+---New data---
+
+[Remaining: 177]
+
+[File : ./suiteSparse_dataset/gupta2/gupta2.mtx]
+[K : 128]
+[RoDe_gflops : 2302.34 ]
+Matrix diff: 0.043866
+* 	Execution time: .944576641 seconds
+
+---New data---
+
+[Remaining: 176]
+
+[File : ./suiteSparse_dataset/hvdc1/hvdc1.mtx]
+[K : 128]
+[RoDe_gflops : 2009.81 ]
+Matrix diff: 0.020227
+* 	Execution time: .282004844 seconds
+
+---New data---
+
+[Remaining: 175]
+
+[File : ./suiteSparse_dataset/waveguide3D/waveguide3D.mtx]
+[K : 128]
+[RoDe_gflops : 2001.77 ]
+Matrix diff: 0.026288
+* 	Execution time: .303286049 seconds
+
+---New data---
+
+[Remaining: 174]
+
+[File : ./suiteSparse_dataset/sme3Dc/sme3Dc.mtx]
+[K : 128]
+[RoDe_gflops : 2080.24 ]
+Matrix diff: 0.007560
+* 	Execution time: .882879498 seconds
+
+---New data---
+
+[Remaining: 173]
+
+[File : ./suiteSparse_dataset/lowThrust_8/lowThrust_8.mtx]
+[K : 128]
+[RoDe_gflops : 2226.80 ]
+Matrix diff: 0.022931
+* 	Execution time: .288176115 seconds
+
+---New data---
+
+[Remaining: 172]
+
+[File : ./suiteSparse_dataset/psse0/psse0.mtx]
+[K : 128]
+[RoDe_gflops : 1718.66 ]
+Matrix diff: 0.022931
+* 	Execution time: .255979873 seconds
+
+---New data---
+
+[Remaining: 171]
+
+[File : ./suiteSparse_dataset/lhr71/lhr71.mtx]
+[K : 128]
+[RoDe_gflops : 2053.89 ]
+Matrix diff: 0.039341
+* 	Execution time: .578290014 seconds
+
+---New data---
+
+[Remaining: 170]
+
+[File : ./suiteSparse_dataset/apache1/apache1.mtx]
+[K : 128]
+[RoDe_gflops : 1283.58 ]
+Matrix diff: 0.030089
+* 	Execution time: .414665203 seconds
+
+---New data---
+
+[Remaining: 169]
+
+[File : ./suiteSparse_dataset/bcsstk31/bcsstk31.mtx]
+[K : 128]
+[RoDe_gflops : 3414.50 ]
+Matrix diff: 0.012385
+* 	Execution time: .418296562 seconds
+
+---New data---
+
+[Remaining: 168]
+
+[File : ./suiteSparse_dataset/lpl1/lpl1.mtx]
+[K : 128]
+[RoDe_gflops : 1907.19 ]
+Matrix diff: 0.021360
+* 	Execution time: .314443110 seconds
+
+---New data---
+
+[Remaining: 167]
+
+[File : ./suiteSparse_dataset/H2O/H2O.mtx]
+[K : 128]
+[RoDe_gflops : 2049.50 ]
+Matrix diff: 0.014007
+* 	Execution time: .652147469 seconds
+
+---New data---
+
+[Remaining: 166]
+
+[File : ./suiteSparse_dataset/fe_rotor/fe_rotor.mtx]
+[K : 128]
+[RoDe_gflops : 2393.18 ]
+Matrix diff: 0.031661
+* 	Execution time: .555766679 seconds
+
+---New data---
+
+[Remaining: 165]
+
+[File : ./suiteSparse_dataset/Goodwin_054/Goodwin_054.mtx]
+[K : 128]
+[RoDe_gflops : 3071.75 ]
+Matrix diff: 0.014695
+* 	Execution time: .416893721 seconds
+
+---New data---
+
+[Remaining: 164]
+
+[File : ./suiteSparse_dataset/onera_dual/onera_dual.mtx]
+[K : 128]
+[RoDe_gflops : 1180.18 ]
+Matrix diff: 0.008270
+* 	Execution time: .391531863 seconds
+
+---New data---
+
+[Remaining: 163]
+
+[File : ./suiteSparse_dataset/crystm03/crystm03.mtx]
+[K : 128]
+[RoDe_gflops : 2606.12 ]
+Matrix diff: 0.011464
+* 	Execution time: .336065085 seconds
+
+---New data---
+
+[Remaining: 162]
+
+[File : ./suiteSparse_dataset/bcsstk30/bcsstk30.mtx]
+[K : 128]
+[RoDe_gflops : 3132.27 ]
+Matrix diff: 0.017660
+* 	Execution time: .530307529 seconds
+
+---New data---
+
+[Remaining: 161]
+
+[File : ./suiteSparse_dataset/soc-Slashdot0902/soc-Slashdot0902.mtx]
+[K : 128]
+[RoDe_gflops : 1466.39 ]
+Matrix diff: 0.005168
+* 	Execution time: .532026133 seconds
+
+---New data---
+
+[Remaining: 160]
+
+[File : ./suiteSparse_dataset/onetone1/onetone1.mtx]
+[K : 128]
+[RoDe_gflops : 2126.48 ]
+Matrix diff: 0.017432
+* 	Execution time: .328193203 seconds
+
+---New data---
+
+[Remaining: 159]
+
+[File : ./suiteSparse_dataset/nd12k/nd12k.mtx]
+[K : 128]
+[RoDe_gflops : 1992.51 ]
+Matrix diff: 0.014114
+* 	Execution time: 2.458114558 seconds
+
+---New data---
+
+[Remaining: 158]
+
+[File : ./suiteSparse_dataset/std1_Jac2_db/std1_Jac2_db.mtx]
+[K : 128]
+[RoDe_gflops : 2172.35 ]
+Matrix diff: 0.026919
+* 	Execution time: .332297890 seconds
+
+---New data---
+
+[Remaining: 157]
+
+[File : ./suiteSparse_dataset/Chevron2/Chevron2.mtx]
+[K : 128]
+[RoDe_gflops : 1797.61 ]
+Matrix diff: 0.031252
+* 	Execution time: .476711679 seconds
+
+---New data---
+
+[Remaining: 156]
+
+[File : ./suiteSparse_dataset/ex11/ex11.mtx]
+[K : 128]
+[RoDe_gflops : 3364.87 ]
+Matrix diff: 0.014727
+* 	Execution time: .394212190 seconds
+
+---New data---
+
+[Remaining: 155]
+
+[File : ./suiteSparse_dataset/pltexpa/pltexpa_A_5.mtx]
+[K : 128]
+[RoDe_gflops : 1391.62 ]
+Matrix diff: 0.014760
+* 	Execution time: .312041596 seconds
+
+---New data---
+
+[Remaining: 154]
+
+[File : ./suiteSparse_dataset/pltexpa/pltexpa.mtx]
+[K : 128]
+[RoDe_gflops : 1408.06 ]
+Matrix diff: 0.013064
+* 	Execution time: .309596030 seconds
+
+---New data---
+
+[Remaining: 153]
+
+[File : ./suiteSparse_dataset/pltexpa/pltexpa_A_4.mtx]
+[K : 128]
+[RoDe_gflops : 1406.73 ]
+Matrix diff: 0.016178
+* 	Execution time: .319888560 seconds
+
+---New data---
+
+[Remaining: 152]
+
+[File : ./suiteSparse_dataset/msc10848/msc10848.mtx]
+[K : 128]
+[RoDe_gflops : 2732.84 ]
+Matrix diff: 0.023068
+* 	Execution time: .394202951 seconds
+
+---New data---
+
+[Remaining: 151]
+
+[File : ./suiteSparse_dataset/Si34H36/Si34H36.mtx]
+[K : 128]
+[RoDe_gflops : 2039.38 ]
+Matrix diff: 0.017012
+* 	Execution time: 1.100838354 seconds
+
+---New data---
+
+[Remaining: 150]
+
+[File : ./suiteSparse_dataset/TEM27623/TEM27623_M.mtx]
+[K : 128]
+[RoDe_gflops : 2767.44 ]
+Matrix diff: 0.022573
+* 	Execution time: .327518518 seconds
+
+---New data---
+
+[Remaining: 149]
+
+[File : ./suiteSparse_dataset/TEM27623/TEM27623.mtx]
+[K : 128]
+[RoDe_gflops : 2746.68 ]
+Matrix diff: 0.021906
+* 	Execution time: .318165700 seconds
+
+---New data---
+
+[Remaining: 148]
+
+[File : ./suiteSparse_dataset/appu/appu.mtx]
+[K : 128]
+[RoDe_gflops : 1884.00 ]
+Matrix diff: 0.007536
+* 	Execution time: .592943822 seconds
+
+---New data---
+
+[Remaining: 147]
+
+[File : ./suiteSparse_dataset/cage11/cage11.mtx]
+[K : 128]
+[RoDe_gflops : 2256.94 ]
+Matrix diff: 0.011697
+* 	Execution time: .380717484 seconds
+
+---New data---
+
+[Remaining: 146]
+
+[File : ./suiteSparse_dataset/lhr17/lhr17.mtx]
+[K : 128]
+[RoDe_gflops : 2329.12 ]
+Matrix diff: 0.023089
+* 	Execution time: .282677464 seconds
+
+---New data---
+
+[Remaining: 145]
+
+[File : ./suiteSparse_dataset/consph/consph.mtx]
+[K : 128]
+[RoDe_gflops : 3001.04 ]
+Matrix diff: 0.046056
+* 	Execution time: 1.159400996 seconds
+
+---New data---
+
+[Remaining: 144]
+
+[File : ./suiteSparse_dataset/mark3jac080sc/mark3jac080sc.mtx]
+[K : 128]
+[RoDe_gflops : 1809.17 ]
+Matrix diff: 0.022575
+* 	Execution time: .311723520 seconds
+
+---New data---
+
+[Remaining: 143]
+
+[File : ./suiteSparse_dataset/lowThrust_11/lowThrust_11.mtx]
+[K : 128]
+[RoDe_gflops : 2127.39 ]
+Matrix diff: 0.022915
+* 	Execution time: .293512341 seconds
+
+---New data---
+
+[Remaining: 142]
+
+[File : ./suiteSparse_dataset/TSOPF_FS_b162_c3/TSOPF_FS_b162_c3.mtx]
+[K : 128]
+[RoDe_gflops : 2706.28 ]
+Matrix diff: 0.025123
+* 	Execution time: .561755257 seconds
+
+---New data---
+
+[Remaining: 141]
+
+[File : ./suiteSparse_dataset/cond-mat-2003/cond-mat-2003.mtx]
+[K : 128]
+[RoDe_gflops : 1993.84 ]
+Matrix diff: 0.022126
+* 	Execution time: .270707649 seconds
+
+---New data---
+
+[Remaining: 140]
+
+[File : ./suiteSparse_dataset/cfd1/cfd1.mtx]
+[K : 128]
+[RoDe_gflops : 3385.86 ]
+Matrix diff: 0.017516
+* 	Execution time: .551706806 seconds
+
+---New data---
+
+[Remaining: 139]
+
+[File : ./suiteSparse_dataset/lowThrust_7/lowThrust_7.mtx]
+[K : 128]
+[RoDe_gflops : 2132.67 ]
+Matrix diff: 0.016485
+* 	Execution time: .284787110 seconds
+
+---New data---
+
+[Remaining: 138]
+
+[File : ./suiteSparse_dataset/light_in_tissue/light_in_tissue.mtx]
+[K : 128]
+[RoDe_gflops : 2917.27 ]
+Matrix diff: 0.023369
+* 	Execution time: .337433009 seconds
+
+---New data---
+
+[Remaining: 137]
+
+[File : ./suiteSparse_dataset/sd2010/sd2010.mtx]
+[K : 128]
+[RoDe_gflops : 981.65 ]
+Matrix diff: 0.019189
+* 	Execution time: .409252861 seconds
+
+---New data---
+
+[Remaining: 136]
+
+[File : ./suiteSparse_dataset/bbmat/bbmat.mtx]
+[K : 128]
+[RoDe_gflops : 3276.11 ]
+Matrix diff: 0.014371
+* 	Execution time: .577339059 seconds
+
+---New data---
+
+[Remaining: 135]
+
+[File : ./suiteSparse_dataset/vfem/vfem.mtx]
+[K : 128]
+[RoDe_gflops : 2773.85 ]
+Matrix diff: 0.005183
+* 	Execution time: .607905456 seconds
+
+---New data---
+
+[Remaining: 134]
+
+[File : ./suiteSparse_dataset/Wordnet3/Wordnet3.mtx]
+[K : 128]
+[RoDe_gflops : 1170.46 ]
+Matrix diff: 0.015097
+* 	Execution time: .366791801 seconds
+
+---New data---
+
+[Remaining: 133]
+
+[File : ./suiteSparse_dataset/crankseg_1/crankseg_1.mtx]
+[K : 128]
+[RoDe_gflops : 2386.29 ]
+Matrix diff: 0.019203
+* 	Execution time: 1.880749855 seconds
+
+---New data---
+
+[Remaining: 132]
+
+[File : ./suiteSparse_dataset/laminar_duct3D/laminar_duct3D.mtx]
+[K : 128]
+[RoDe_gflops : 2935.87 ]
+Matrix diff: 0.014497
+* 	Execution time: 1.012053956 seconds
+
+---New data---
+
+[Remaining: 131]
+
+[File : ./suiteSparse_dataset/n4c6-b5/n4c6-b5.mtx]
+[K : 128]
+[RoDe_gflops : 1933.32 ]
+Matrix diff: 0.022304
+* 	Execution time: .319677634 seconds
+
+---New data---
+
+[Remaining: 130]
+
+[File : ./suiteSparse_dataset/rgg_n_2_16_s0/rgg_n_2_16_s0.mtx]
+[K : 128]
+[RoDe_gflops : 2005.43 ]
+Matrix diff: 0.022812
+* 	Execution time: .409424082 seconds
+
+---New data---
+
+[Remaining: 129]
+
+[File : ./suiteSparse_dataset/tomographic1/tomographic1.mtx]
+[K : 128]
+[RoDe_gflops : 1964.49 ]
+Matrix diff: 0.020318
+* 	Execution time: .446820236 seconds
+
+---New data---
+
+[Remaining: 128]
+
+[File : ./suiteSparse_dataset/soc-Epinions1/soc-Epinions1.mtx]
+[K : 128]
+[RoDe_gflops : 1373.75 ]
+Matrix diff: 0.039638
+* 	Execution time: .445723130 seconds
+
+---New data---
+
+[Remaining: 127]
+
+[File : ./suiteSparse_dataset/FEM_3D_thermal1/FEM_3D_thermal1.mtx]
+[K : 128]
+[RoDe_gflops : 3542.27 ]
+Matrix diff: 0.024236
+* 	Execution time: .292130679 seconds
+
+---New data---
+
+[Remaining: 126]
+
+[File : ./suiteSparse_dataset/invextr1_new/invextr1_new.mtx]
+[K : 128]
+[RoDe_gflops : 2430.73 ]
+Matrix diff: 0.006291
+* 	Execution time: .570190003 seconds
+
+---New data---
+
+[Remaining: 125]
+
+[File : ./suiteSparse_dataset/sc205-2r/sc205-2r_A_12.mtx]
+[K : 128]
+[RoDe_gflops : 1460.18 ]
+Matrix diff: 0.021238
+* 	Execution time: .285209681 seconds
+
+---New data---
+
+[Remaining: 124]
+
+[File : ./suiteSparse_dataset/sc205-2r/sc205-2r.mtx]
+[K : 128]
+[RoDe_gflops : 1446.47 ]
+Matrix diff: 0.023057
+* 	Execution time: .319962608 seconds
+
+---New data---
+
+[Remaining: 123]
+
+[File : ./suiteSparse_dataset/sparsine/sparsine.mtx]
+[K : 128]
+[RoDe_gflops : 1901.07 ]
+Matrix diff: 0.024791
+* 	Execution time: .528552096 seconds
+
+---New data---
+
+[Remaining: 122]
+
+[File : ./suiteSparse_dataset/wang3/wang3.mtx]
+[K : 128]
+[RoDe_gflops : 1830.25 ]
+Matrix diff: 0.016262
+* 	Execution time: .282661755 seconds
+
+---New data---
+
+[Remaining: 121]
+
+[File : ./suiteSparse_dataset/c-47/c-47.mtx]
+[K : 128]
+[RoDe_gflops : 1791.53 ]
+Matrix diff: 0.016287
+* 	Execution time: .280276983 seconds
+
+---New data---
+
+[Remaining: 120]
+
+[File : ./suiteSparse_dataset/TSOPF_FS_b300_c2/TSOPF_FS_b300_c2.mtx]
+[K : 128]
+[RoDe_gflops : 2554.33 ]
+Matrix diff: 0.019727
+* 	Execution time: 1.740433369 seconds
+
+---New data---
+
+[Remaining: 119]
+
+[File : ./suiteSparse_dataset/mark3jac100/mark3jac100.mtx]
+[K : 128]
+[RoDe_gflops : 2014.23 ]
+Matrix diff: 0.023488
+* 	Execution time: .339556780 seconds
+
+---New data---
+
+[Remaining: 118]
+
+[File : ./suiteSparse_dataset/rajat15/rajat15.mtx]
+[K : 128]
+[RoDe_gflops : 2486.40 ]
+Matrix diff: 0.017869
+* 	Execution time: .358261655 seconds
+
+---New data---
+
+[Remaining: 117]
+
+[File : ./suiteSparse_dataset/raefsky3/raefsky3.mtx]
+[K : 128]
+[RoDe_gflops : 3599.54 ]
+Matrix diff: 0.013232
+* 	Execution time: .494308573 seconds
+
+---New data---
+
+[Remaining: 116]
+
+[File : ./suiteSparse_dataset/Goodwin_040/Goodwin_040.mtx]
+[K : 128]
+[RoDe_gflops : 3032.81 ]
+Matrix diff: 0.024890
+* 	Execution time: .317299325 seconds
+
+---New data---
+
+[Remaining: 115]
+
+[File : ./suiteSparse_dataset/cvxbqp1/cvxbqp1.mtx]
+[K : 128]
+[RoDe_gflops : 1861.53 ]
+Matrix diff: 0.023308
+* 	Execution time: .345476481 seconds
+
+---New data---
+
+[Remaining: 114]
+
+[File : ./suiteSparse_dataset/Zd_Jac6/Zd_Jac6.mtx]
+[K : 128]
+[RoDe_gflops : 2069.61 ]
+Matrix diff: 0.018715
+* 	Execution time: .562898410 seconds
+
+---New data---
+
+[Remaining: 113]
+
+[File : ./suiteSparse_dataset/thread/thread.mtx]
+[K : 128]
+[RoDe_gflops : 2579.67 ]
+Matrix diff: 0.045366
+* 	Execution time: .894373045 seconds
+
+---New data---
+
+[Remaining: 112]
+
+[File : ./suiteSparse_dataset/epb3/epb3.mtx]
+[K : 128]
+[RoDe_gflops : 1159.06 ]
+Matrix diff: 0.024961
+* 	Execution time: .417783387 seconds
+
+---New data---
+
+[Remaining: 111]
+
+[File : ./suiteSparse_dataset/g7jac120/g7jac120.mtx]
+[K : 128]
+[RoDe_gflops : 2095.66 ]
+Matrix diff: 0.034677
+* 	Execution time: .372345605 seconds
+
+---New data---
+
+[Remaining: 110]
+
+[File : ./suiteSparse_dataset/world/world.mtx]
+[K : 128]
+[RoDe_gflops : 1635.55 ]
+Matrix diff: 0.018126
+* 	Execution time: .341534469 seconds
+
+---New data---
+
+[Remaining: 109]
+
+[File : ./suiteSparse_dataset/south31/south31.mtx]
+[K : 128]
+[RoDe_gflops : 1756.22 ]
+Matrix diff: 0.016204
+* 	Execution time: .273713955 seconds
+
+---New data---
+
+[Remaining: 108]
+
+[File : ./suiteSparse_dataset/Ga3As3H12/Ga3As3H12.mtx]
+[K : 128]
+[RoDe_gflops : 1890.74 ]
+Matrix diff: 0.013147
+* 	Execution time: 1.201118279 seconds
+
+---New data---
+
+[Remaining: 107]
+
+[File : ./suiteSparse_dataset/mycielskian15/mycielskian15.mtx]
+[K : 128]
+[RoDe_gflops : 1856.68 ]
+Matrix diff: 0.037760
+* 	Execution time: 2.026603246 seconds
+
+---New data---
+
+[Remaining: 106]
+
+[File : ./suiteSparse_dataset/sme3Da/sme3Da.mtx]
+[K : 128]
+[RoDe_gflops : 2034.62 ]
+Matrix diff: 0.020736
+* 	Execution time: .394623860 seconds
+
+---New data---
+
+[Remaining: 105]
+
+[File : ./suiteSparse_dataset/c-68/c-68.mtx]
+[K : 128]
+[RoDe_gflops : 1811.80 ]
+Matrix diff: 0.003150
+* 	Execution time: .406310023 seconds
+
+---New data---
+
+[Remaining: 104]
+
+[File : ./suiteSparse_dataset/rim/rim.mtx]
+[K : 128]
+[RoDe_gflops : 3132.56 ]
+Matrix diff: 0.012109
+* 	Execution time: .411942214 seconds
+
+---New data---
+
+[Remaining: 103]
+
+[File : ./suiteSparse_dataset/fome12/fome12.mtx]
+[K : 128]
+[RoDe_gflops : 1402.83 ]
+Matrix diff: 0.013313
+* 	Execution time: .302204389 seconds
+
+---New data---
+
+[Remaining: 102]
+
+[File : ./suiteSparse_dataset/G_n_pin_pout/G_n_pin_pout.mtx]
+[K : 128]
+[RoDe_gflops : 1954.75 ]
+Matrix diff: 0.055296
+* 	Execution time: .500008381 seconds
+
+---New data---
+
+[Remaining: 101]
+
+[File : ./suiteSparse_dataset/nd6k/nd6k.mtx]
+[K : 128]
+[RoDe_gflops : 2007.60 ]
+Matrix diff: 0.009562
+* 	Execution time: 1.245805633 seconds
+
+---New data---
+
+[Remaining: 100]
+
+[File : ./suiteSparse_dataset/lhr10/lhr10.mtx]
+[K : 128]
+[RoDe_gflops : 2019.38 ]
+Matrix diff: 0.023608
+* 	Execution time: .270762320 seconds
+
+---New data---
+
+[Remaining: 99]
+
+[File : ./suiteSparse_dataset/g7jac180/g7jac180.mtx]
+[K : 128]
+[RoDe_gflops : 2099.09 ]
+Matrix diff: 0.015036
+* 	Execution time: .439679425 seconds
+
+---New data---
+
+[Remaining: 98]
+
+[File : ./suiteSparse_dataset/nug08-3rd/nug08-3rd.mtx]
+[K : 128]
+[RoDe_gflops : 1558.99 ]
+Matrix diff: 0.018302
+* 	Execution time: .267989321 seconds
+
+---New data---
+
+[Remaining: 97]
+
+[File : ./suiteSparse_dataset/Si5H12/Si5H12.mtx]
+[K : 128]
+[RoDe_gflops : 2169.79 ]
+Matrix diff: 0.013330
+* 	Execution time: .339980113 seconds
+
+---New data---
+
+[Remaining: 96]
+
+[File : ./suiteSparse_dataset/smt/smt.mtx]
+[K : 128]
+[RoDe_gflops : 2673.97 ]
+Matrix diff: 0.008707
+* 	Execution time: .777279034 seconds
+
+---New data---
+
+[Remaining: 95]
+
+[File : ./suiteSparse_dataset/t3dh_e/t3dh_e.mtx]
+[K : 128]
+[RoDe_gflops : 2620.49 ]
+Matrix diff: 0.017843
+* 	Execution time: .939954636 seconds
+
+---New data---
+
+[Remaining: 94]
+
+[File : ./suiteSparse_dataset/Zd_Jac6_db/Zd_Jac6_db.mtx]
+[K : 128]
+[RoDe_gflops : 2215.10 ]
+Matrix diff: 0.009993
+* 	Execution time: .349251629 seconds
+
+---New data---
+
+[Remaining: 93]
+
+[File : ./suiteSparse_dataset/c-66b/c-66b.mtx]
+[K : 128]
+[RoDe_gflops : 2297.45 ]
+Matrix diff: 0.007958
+* 	Execution time: .376468915 seconds
+
+---New data---
+
+[Remaining: 92]
+
+[File : ./suiteSparse_dataset/vsp_sctap1-2b_and_seymourl/vsp_sctap1-2b_and_seymourl.mtx]
+[K : 128]
+[RoDe_gflops : 1734.37 ]
+Matrix diff: 0.023061
+* 	Execution time: .315751020 seconds
+
+---New data---
+
+[Remaining: 91]
+
+[File : ./suiteSparse_dataset/g7jac140/g7jac140.mtx]
+[K : 128]
+[RoDe_gflops : 2096.13 ]
+Matrix diff: 0.009354
+* 	Execution time: .377325261 seconds
+
+---New data---
+
+[Remaining: 90]
+
+[File : ./suiteSparse_dataset/soc-sign-Slashdot081106/soc-sign-Slashdot081106.mtx]
+[K : 128]
+[RoDe_gflops : 1271.10 ]
+Matrix diff: 0.003447
+* 	Execution time: .441141135 seconds
+
+---New data---
+
+[Remaining: 89]
+
+[File : ./suiteSparse_dataset/rajat22/rajat22.mtx]
+[K : 128]
+[RoDe_gflops : 1896.77 ]
+Matrix diff: 0.019426
+* 	Execution time: .333189880 seconds
+
+---New data---
+
+[Remaining: 88]
+
+[File : ./suiteSparse_dataset/brack2/brack2.mtx]
+[K : 128]
+[RoDe_gflops : 2637.12 ]
+Matrix diff: 0.017988
+* 	Execution time: .418774034 seconds
+
+---New data---
+
+[Remaining: 87]
+
+[File : ./suiteSparse_dataset/RFdevice/RFdevice.mtx]
+[K : 128]
+[RoDe_gflops : 1760.98 ]
+Matrix diff: 0.013675
+* 	Execution time: .393864705 seconds
+
+---New data---
+
+[Remaining: 86]
+
+[File : ./suiteSparse_dataset/msc23052/msc23052.mtx]
+[K : 128]
+[RoDe_gflops : 3604.29 ]
+Matrix diff: 0.019055
+* 	Execution time: .377878980 seconds
+
+---New data---
+
+[Remaining: 85]
+
+[File : ./suiteSparse_dataset/ecl32/ecl32.mtx]
+[K : 128]
+[RoDe_gflops : 2104.07 ]
+Matrix diff: 0.021011
+* 	Execution time: .358132683 seconds
+
+---New data---
+
+[Remaining: 84]
+
+[File : ./suiteSparse_dataset/igbt3/igbt3.mtx]
+[K : 128]
+[RoDe_gflops : 2250.06 ]
+Matrix diff: 0.018775
+* 	Execution time: .278480874 seconds
+
+---New data---
+
+[Remaining: 83]
+
+[File : ./suiteSparse_dataset/vsp_vibrobox_scagr7-2c_rlfddd/vsp_vibrobox_scagr7-2c_rlfddd.mtx]
+[K : 128]
+[RoDe_gflops : 1714.91 ]
+Matrix diff: 0.040184
+* 	Execution time: .455678245 seconds
+
+---New data---
+
+[Remaining: 82]
+
+[File : ./suiteSparse_dataset/lowThrust_13/lowThrust_13.mtx]
+[K : 128]
+[RoDe_gflops : 2154.19 ]
+Matrix diff: 0.024814
+* 	Execution time: .302850079 seconds
+
+---New data---
+
+[Remaining: 81]
+
+[File : ./suiteSparse_dataset/chipcool1/chipcool1.mtx]
+[K : 128]
+[RoDe_gflops : 1936.29 ]
+Matrix diff: 0.025238
+* 	Execution time: .296368485 seconds
+
+---New data---
+
+[Remaining: 80]
+
+[File : ./suiteSparse_dataset/baxter/baxter.mtx]
+[K : 128]
+[RoDe_gflops : 1374.09 ]
+Matrix diff: 0.026106
+* 	Execution time: .301289502 seconds
+
+---New data---
+
+[Remaining: 79]
+
+[File : ./suiteSparse_dataset/conf6_0-8x8-30/conf6_0-8x8-30.mtx]
+[K : 128]
+[RoDe_gflops : 2628.81 ]
+Matrix diff: 0.010102
+* 	Execution time: .616445146 seconds
+
+---New data---
+
+[Remaining: 78]
+
+[File : ./suiteSparse_dataset/conf5_4-8x8-10/conf5_4-8x8-10.mtx]
+[K : 128]
+[RoDe_gflops : 2628.81 ]
+Matrix diff: 0.027150
+* 	Execution time: .620022764 seconds
+
+---New data---
+
+[Remaining: 77]
+
+[File : ./suiteSparse_dataset/pcrystk03/pcrystk03.mtx]
+[K : 128]
+[RoDe_gflops : 3401.67 ]
+Matrix diff: 0.014130
+* 	Execution time: .485570977 seconds
+
+---New data---
+
+[Remaining: 76]
+
+[File : ./suiteSparse_dataset/graphics/graphics.mtx]
+[K : 128]
+[RoDe_gflops : 2006.02 ]
+Matrix diff: 0.011041
+* 	Execution time: .269875697 seconds
+
+---New data---
+
+[Remaining: 75]
+
+[File : ./suiteSparse_dataset/lhr17c/lhr17c.mtx]
+[K : 128]
+[RoDe_gflops : 2405.38 ]
+Matrix diff: 0.023647
+* 	Execution time: .307951294 seconds
+
+---New data---
+
+[Remaining: 74]
+
+[File : ./suiteSparse_dataset/t3dl_a/t3dl_a.mtx]
+[K : 128]
+[RoDe_gflops : 3049.44 ]
+Matrix diff: 0.016999
+* 	Execution time: .303917169 seconds
+
+---New data---
+
+[Remaining: 73]
+
+[File : ./suiteSparse_dataset/conf5_4-8x8-15/conf5_4-8x8-15.mtx]
+[K : 128]
+[RoDe_gflops : 2665.36 ]
+Matrix diff: 0.008240
+* 	Execution time: .627553024 seconds
+
+---New data---
+
+[Remaining: 72]
+
+[File : ./suiteSparse_dataset/airfoil_2d/airfoil_2d.mtx]
+[K : 128]
+[RoDe_gflops : 2048.01 ]
+Matrix diff: 0.019389
+* 	Execution time: .280907873 seconds
+
+---New data---
+
+[Remaining: 71]
+
+[File : ./suiteSparse_dataset/foldoc/foldoc.mtx]
+[K : 128]
+[RoDe_gflops : 1651.62 ]
+Matrix diff: 0.020761
+* 	Execution time: .235803497 seconds
+
+---New data---
+
+[Remaining: 70]
+
+[File : ./suiteSparse_dataset/IG5-16/IG5-16.mtx]
+[K : 128]
+[RoDe_gflops : 2065.75 ]
+Matrix diff: 0.023412
+* 	Execution time: .357514392 seconds
+
+---New data---
+
+[Remaining: 69]
+
+[File : ./suiteSparse_dataset/c-54/c-54.mtx]
+[K : 128]
+[RoDe_gflops : 2441.98 ]
+Matrix diff: 0.024225
+* 	Execution time: .320025996 seconds
+
+---New data---
+
+[Remaining: 68]
+
+[File : ./suiteSparse_dataset/lp_nug20/lp_nug20.mtx]
+[K : 128]
+[RoDe_gflops : 1905.00 ]
+Matrix diff: 0.024272
+* 	Execution time: .345325487 seconds
+
+---New data---
+
+[Remaining: 67]
+
+[File : ./suiteSparse_dataset/me2010/me2010.mtx]
+[K : 128]
+[RoDe_gflops : 1634.87 ]
+Matrix diff: 0.029850
+* 	Execution time: .355450272 seconds
+
+---New data---
+
+[Remaining: 66]
+
+[File : ./suiteSparse_dataset/pkustk07/pkustk07.mtx]
+[K : 128]
+[RoDe_gflops : 2406.29 ]
+Matrix diff: 0.022145
+* 	Execution time: .587167977 seconds
+
+---New data---
+
+[Remaining: 65]
+
+[File : ./suiteSparse_dataset/Zhao1/Zhao1.mtx]
+[K : 128]
+[RoDe_gflops : 1546.96 ]
+Matrix diff: 0.023003
+* 	Execution time: .300476438 seconds
+
+---New data---
+
+[Remaining: 64]
+
+[File : ./suiteSparse_dataset/jan99jac080sc/jan99jac080sc.mtx]
+[K : 128]
+[RoDe_gflops : 1809.30 ]
+Matrix diff: 0.023164
+* 	Execution time: .287686485 seconds
+
+---New data---
+
+[Remaining: 63]
+
+[File : ./suiteSparse_dataset/net100/net100.mtx]
+[K : 128]
+[RoDe_gflops : 2227.43 ]
+Matrix diff: 0.021168
+* 	Execution time: .543732829 seconds
+
+---New data---
+
+[Remaining: 62]
+
+[File : ./suiteSparse_dataset/n4c6-b12/n4c6-b12.mtx]
+[K : 128]
+[RoDe_gflops : 1967.29 ]
+Matrix diff: 0.022966
+* 	Execution time: .355366264 seconds
+
+---New data---
+
+[Remaining: 61]
+
+[File : ./suiteSparse_dataset/wathen100/wathen100.mtx]
+[K : 128]
+[RoDe_gflops : 3508.94 ]
+Matrix diff: 0.022733
+* 	Execution time: .320699279 seconds
+
+---New data---
+
+[Remaining: 60]
+
+[File : ./suiteSparse_dataset/lhr11/lhr11.mtx]
+[K : 128]
+[RoDe_gflops : 1987.59 ]
+Matrix diff: 0.022905
+* 	Execution time: .272582322 seconds
+
+---New data---
+
+[Remaining: 59]
+
+[File : ./suiteSparse_dataset/g7jac060/g7jac060.mtx]
+[K : 128]
+[RoDe_gflops : 1699.97 ]
+Matrix diff: 0.023181
+* 	Execution time: .285238174 seconds
+
+---New data---
+
+[Remaining: 58]
+
+[File : ./suiteSparse_dataset/g7jac040/g7jac040.mtx]
+[K : 128]
+[RoDe_gflops : 1405.28 ]
+Matrix diff: 0.020993
+* 	Execution time: .255925588 seconds
+
+---New data---
+
+[Remaining: 57]
+
+[File : ./suiteSparse_dataset/ASIC_100ks/ASIC_100ks.mtx]
+[K : 128]
+[RoDe_gflops : 1224.39 ]
+Matrix diff: 0.035108
+* 	Execution time: .476829486 seconds
+
+---New data---
+
+[Remaining: 56]
+
+[File : ./suiteSparse_dataset/opt1/opt1.mtx]
+[K : 128]
+[RoDe_gflops : 2837.53 ]
+Matrix diff: 0.008290
+* 	Execution time: .481012118 seconds
+
+---New data---
+
+[Remaining: 55]
+
+[File : ./suiteSparse_dataset/lhr11c/lhr11c.mtx]
+[K : 128]
+[RoDe_gflops : 1974.16 ]
+Matrix diff: 0.023538
+* 	Execution time: .259254850 seconds
+
+---New data---
+
+[Remaining: 54]
+
+[File : ./suiteSparse_dataset/vsp_bcsstk30_500sep_10in_1Kout/vsp_bcsstk30_500sep_10in_1Kout.mtx]
+[K : 128]
+[RoDe_gflops : 1877.28 ]
+Matrix diff: 0.030165
+* 	Execution time: .915581118 seconds
+
+---New data---
+
+[Remaining: 53]
+
+[File : ./suiteSparse_dataset/poisson3Da/poisson3Da.mtx]
+[K : 128]
+[RoDe_gflops : 1972.94 ]
+Matrix diff: 0.022200
+* 	Execution time: .305838121 seconds
+
+---New data---
+
+[Remaining: 52]
+
+[File : ./suiteSparse_dataset/ak2010/ak2010.mtx]
+[K : 128]
+[RoDe_gflops : 1533.18 ]
+Matrix diff: 0.013492
+* 	Execution time: .314845641 seconds
+
+---New data---
+
+[Remaining: 51]
+
+[File : ./suiteSparse_dataset/Chevron1/Chevron1.mtx]
+[K : 128]
+[RoDe_gflops : 2870.08 ]
+Matrix diff: 0.023541
+* 	Execution time: .332856244 seconds
+
+---New data---
+
+[Remaining: 50]
+
+[File : ./suiteSparse_dataset/Dubcova2/Dubcova2.mtx]
+[K : 128]
+[RoDe_gflops : 2760.52 ]
+Matrix diff: 0.012626
+* 	Execution time: .469037805 seconds
+
+---New data---
+
+[Remaining: 49]
+
+[File : ./suiteSparse_dataset/net75/net75.mtx]
+[K : 128]
+[RoDe_gflops : 2173.38 ]
+Matrix diff: 0.015825
+* 	Execution time: .449435247 seconds
+
+---New data---
+
+[Remaining: 48]
+
+[File : ./suiteSparse_dataset/memplus/memplus.mtx]
+[K : 128]
+[RoDe_gflops : 1569.03 ]
+Matrix diff: 0.023404
+* 	Execution time: .243873940 seconds
+
+---New data---
+
+[Remaining: 47]
+
+[File : ./suiteSparse_dataset/g7jac080/g7jac080.mtx]
+[K : 128]
+[RoDe_gflops : 1908.94 ]
+Matrix diff: 0.024510
+* 	Execution time: .286601580 seconds
+
+---New data---
+
+[Remaining: 46]
+
+[File : ./suiteSparse_dataset/lhr34/lhr34.mtx]
+[K : 128]
+[RoDe_gflops : 2929.50 ]
+Matrix diff: 0.023010
+* 	Execution time: .399632869 seconds
+
+---New data---
+
+[Remaining: 45]
+
+[File : ./suiteSparse_dataset/ncvxqp3/ncvxqp3.mtx]
+[K : 128]
+[RoDe_gflops : 1702.87 ]
+Matrix diff: 0.022817
+* 	Execution time: .411663229 seconds
+
+---New data---
+
+[Remaining: 44]
+
+[File : ./suiteSparse_dataset/wiki-RfA/wiki-RfA.mtx]
+[K : 128]
+[RoDe_gflops : 1455.70 ]
+Matrix diff: 0.016659
+* 	Execution time: .285270082 seconds
+
+---New data---
+
+[Remaining: 43]
+
+[File : ./suiteSparse_dataset/wiki-RfA/wiki-RfA_Positive.mtx]
+[K : 128]
+[RoDe_gflops : 1285.30 ]
+Matrix diff: 0.011611
+* 	Execution time: .264313386 seconds
+
+---New data---
+
+[Remaining: 42]
+
+[File : ./suiteSparse_dataset/chipcool0/chipcool0.mtx]
+[K : 128]
+[RoDe_gflops : 1920.42 ]
+Matrix diff: 0.022696
+* 	Execution time: .276773851 seconds
+
+---New data---
+
+[Remaining: 41]
+
+[File : ./suiteSparse_dataset/lowThrust_9/lowThrust_9.mtx]
+[K : 128]
+[RoDe_gflops : 2127.80 ]
+Matrix diff: 0.020433
+* 	Execution time: .267019671 seconds
+
+---New data---
+
+[Remaining: 40]
+
+[File : ./suiteSparse_dataset/net50/net50.mtx]
+[K : 128]
+[RoDe_gflops : 2208.41 ]
+Matrix diff: 0.022361
+* 	Execution time: .341333741 seconds
+
+---New data---
+
+[Remaining: 39]
+
+[File : ./suiteSparse_dataset/LeGresley_87936/LeGresley_87936.mtx]
+[K : 128]
+[RoDe_gflops : 1837.91 ]
+Matrix diff: 0.031047
+* 	Execution time: .474066263 seconds
+
+---New data---
+
+[Remaining: 38]
+
+[File : ./suiteSparse_dataset/Andrews/Andrews.mtx]
+[K : 128]
+[RoDe_gflops : 2026.00 ]
+Matrix diff: 0.034647
+* 	Execution time: .435831096 seconds
+
+---New data---
+
+[Remaining: 37]
+
+[File : ./suiteSparse_dataset/crankseg_2/crankseg_2.mtx]
+[K : 128]
+[RoDe_gflops : 2209.52 ]
+Matrix diff: 0.028964
+* 	Execution time: 2.483385850 seconds
+
+---New data---
+
+[Remaining: 36]
+
+[File : ./suiteSparse_dataset/c-65/c-65.mtx]
+[K : 128]
+[RoDe_gflops : 2151.12 ]
+Matrix diff: 0.014026
+* 	Execution time: .351389106 seconds
+
+---New data---
+
+[Remaining: 35]
+
+[File : ./suiteSparse_dataset/lhr34c/lhr34c.mtx]
+[K : 128]
+[RoDe_gflops : 2867.92 ]
+Matrix diff: 0.021102
+* 	Execution time: .398411689 seconds
+
+---New data---
+
+[Remaining: 34]
+
+[File : ./suiteSparse_dataset/TSOPF_RS_b2383_c1/TSOPF_RS_b2383_c1.mtx]
+[K : 128]
+[RoDe_gflops : 2054.89 ]
+Matrix diff: 0.033515
+* 	Execution time: 3.261635248 seconds
+
+---New data---
+
+[Remaining: 33]
+
+[File : ./suiteSparse_dataset/venkat50/venkat50.mtx]
+[K : 128]
+[RoDe_gflops : 4243.56 ]
+Matrix diff: 0.026865
+* 	Execution time: .628361198 seconds
+
+---New data---
+
+[Remaining: 32]
+
+[File : ./suiteSparse_dataset/sinc15/sinc15.mtx]
+[K : 128]
+[RoDe_gflops : 2087.10 ]
+Matrix diff: 0.021228
+* 	Execution time: .314319244 seconds
+
+---New data---
+
+[Remaining: 31]
+
+[File : ./suiteSparse_dataset/TSOPF_RS_b300_c2/TSOPF_RS_b300_c2.mtx]
+[K : 128]
+[RoDe_gflops : 3368.29 ]
+Matrix diff: 0.011492
+* 	Execution time: .737555694 seconds
+
+---New data---
+
+[Remaining: 30]
+
+[File : ./suiteSparse_dataset/bundle1/bundle1.mtx]
+[K : 128]
+[RoDe_gflops : 2430.33 ]
+Matrix diff: 0.015399
+* 	Execution time: .331903928 seconds
+
+---New data---
+
+[Remaining: 29]
+
+[File : ./suiteSparse_dataset/soc-sign-Slashdot090216/soc-sign-Slashdot090216.mtx]
+[K : 128]
+[RoDe_gflops : 1225.68 ]
+Matrix diff: 0.010201
+* 	Execution time: .455627538 seconds
+
+---New data---
+
+[Remaining: 28]
+
+[File : ./suiteSparse_dataset/chem_master1/chem_master1.mtx]
+[K : 128]
+[RoDe_gflops : 1942.09 ]
+Matrix diff: 0.017299
+* 	Execution time: .304756863 seconds
+
+---New data---
+
+[Remaining: 27]
+
+[File : ./suiteSparse_dataset/c-62ghs/c-62ghs.mtx]
+[K : 128]
+[RoDe_gflops : 2307.52 ]
+Matrix diff: 0.005773
+* 	Execution time: .378342697 seconds
+
+---New data---
+
+[Remaining: 26]
+
+[File : ./suiteSparse_dataset/TSOPF_FS_b300/TSOPF_FS_b300.mtx]
+[K : 128]
+[RoDe_gflops : 2560.59 ]
+Matrix diff: 0.032267
+* 	Execution time: .946244334 seconds
+
+---New data---
+
+[Remaining: 25]
+
+[File : ./suiteSparse_dataset/TSOPF_RS_b39_c19/TSOPF_RS_b39_c19.mtx]
+[K : 128]
+[RoDe_gflops : 2904.10 ]
+Matrix diff: 0.018937
+* 	Execution time: .381409307 seconds
+
+---New data---
+
+[Remaining: 24]
+
+[File : ./suiteSparse_dataset/208bit/208bit.mtx]
+[K : 128]
+[RoDe_gflops : 2441.01 ]
+Matrix diff: 0.023557
+* 	Execution time: .299003555 seconds
+
+---New data---
+
+[Remaining: 23]
+
+[File : ./suiteSparse_dataset/mark3jac040sc/mark3jac040sc.mtx]
+[K : 128]
+[RoDe_gflops : 1461.79 ]
+Matrix diff: 0.012319
+* 	Execution time: .259255792 seconds
+
+---New data---
+
+[Remaining: 22]
+
+[File : ./suiteSparse_dataset/g7jac160sc/g7jac160sc.mtx]
+[K : 128]
+[RoDe_gflops : 2182.90 ]
+Matrix diff: 0.026430
+* 	Execution time: .400850232 seconds
+
+---New data---
+
+[Remaining: 21]
+
+[File : ./suiteSparse_dataset/conf5_4-8x8-05/conf5_4-8x8-05.mtx]
+[K : 128]
+[RoDe_gflops : 2598.87 ]
+Matrix diff: 0.023611
+* 	Execution time: .631840471 seconds
+
+---New data---
+
+[Remaining: 20]
+
+[File : ./suiteSparse_dataset/jan99jac120sc/jan99jac120sc.mtx]
+[K : 128]
+[RoDe_gflops : 2045.61 ]
+Matrix diff: 0.014612
+* 	Execution time: .338287488 seconds
+
+---New data---
+
+[Remaining: 19]
+
+[File : ./suiteSparse_dataset/mosfet2/mosfet2.mtx]
+[K : 128]
+[RoDe_gflops : 1990.79 ]
+Matrix diff: 0.005617
+* 	Execution time: .574679708 seconds
+
+---New data---
+
+[Remaining: 18]
+
+[File : ./suiteSparse_dataset/lowThrust_5/lowThrust_5.mtx]
+[K : 128]
+[RoDe_gflops : 1929.66 ]
+Matrix diff: 0.016937
+* 	Execution time: .259906522 seconds
+
+---New data---
+
+[Remaining: 17]
+
+[File : ./suiteSparse_dataset/soc-Slashdot0811/soc-Slashdot0811.mtx]
+[K : 128]
+[RoDe_gflops : 1484.37 ]
+Matrix diff: 0.017434
+* 	Execution time: .516308453 seconds
+
+---New data---
+
+[Remaining: 16]
+
+[File : ./suiteSparse_dataset/ex19/ex19.mtx]
+[K : 128]
+[RoDe_gflops : 2588.44 ]
+Matrix diff: 0.020287
+* 	Execution time: .271351824 seconds
+
+---New data---
+
+[Remaining: 15]
+
+[File : ./suiteSparse_dataset/ca-HepPh/ca-HepPh.mtx]
+[K : 128]
+[RoDe_gflops : 1434.69 ]
+Matrix diff: 0.019684
+* 	Execution time: .260306692 seconds
+
+---New data---
+
+[Remaining: 14]
+
+[File : ./suiteSparse_dataset/IG5-17/IG5-17.mtx]
+[K : 128]
+[RoDe_gflops : 2090.08 ]
+Matrix diff: 0.012810
+* 	Execution time: .456994530 seconds
+
+---New data---
+
+[Remaining: 13]
+
+[File : ./suiteSparse_dataset/net125/net125.mtx]
+[K : 128]
+[RoDe_gflops : 2210.29 ]
+Matrix diff: 0.022028
+* 	Execution time: .626327554 seconds
+
+---New data---
+
+[Remaining: 12]
+
+[File : ./suiteSparse_dataset/bcsstk32/bcsstk32.mtx]
+[K : 128]
+[RoDe_gflops : 3552.01 ]
+Matrix diff: 0.004979
+* 	Execution time: .562512883 seconds
+
+---New data---
+
+[Remaining: 11]
+
+[File : ./suiteSparse_dataset/onetone2/onetone2.mtx]
+[K : 128]
+[RoDe_gflops : 1982.82 ]
+Matrix diff: 0.019520
+* 	Execution time: .309780723 seconds
+
+---New data---
+
+[Remaining: 10]
+
+[File : ./suiteSparse_dataset/lhr10c/lhr10c.mtx]
+[K : 128]
+[RoDe_gflops : 2040.64 ]
+Matrix diff: 0.015313
+* 	Execution time: .274800470 seconds
+
+---New data---
+
+[Remaining: 9]
+
+[File : ./suiteSparse_dataset/olafu/olafu.mtx]
+[K : 128]
+[RoDe_gflops : 3262.07 ]
+Matrix diff: 0.022244
+* 	Execution time: .365903190 seconds
+
+---New data---
+
+[Remaining: 8]
+
+[File : ./suiteSparse_dataset/Trefethen_20000/Trefethen_20000.mtx]
+[K : 128]
+[RoDe_gflops : 2466.49 ]
+Matrix diff: 0.012283
+* 	Execution time: .328234256 seconds
+
+---New data---
+
+[Remaining: 7]
+
+[File : ./suiteSparse_dataset/g7jac180sc/g7jac180sc.mtx]
+[K : 128]
+[RoDe_gflops : 2103.82 ]
+Matrix diff: 0.018451
+* 	Execution time: .407360139 seconds
+
+---New data---
+
+[Remaining: 6]
+
+[File : ./suiteSparse_dataset/e40r0100/e40r0100.mtx]
+[K : 128]
+[RoDe_gflops : 2651.16 ]
+Matrix diff: 0.017455
+* 	Execution time: .333971424 seconds
+
+---New data---
+
+[Remaining: 5]
+
+[File : ./suiteSparse_dataset/li/li.mtx]
+[K : 128]
+[RoDe_gflops : 2726.80 ]
+Matrix diff: 0.012019
+* 	Execution time: .473979189 seconds
+
+---New data---
+
+[Remaining: 4]
+
+[File : ./suiteSparse_dataset/lhr14/lhr14.mtx]
+[K : 128]
+[RoDe_gflops : 2451.10 ]
+Matrix diff: 0.023399
+* 	Execution time: .284654207 seconds
+
+---New data---
+
+[Remaining: 3]
+
+[File : ./suiteSparse_dataset/jan99jac060sc/jan99jac060sc.mtx]
+[K : 128]
+[RoDe_gflops : 1574.03 ]
+Matrix diff: 0.017549
+* 	Execution time: .266306052 seconds
+
+---New data---
+
+[Remaining: 2]
+
+[File : ./suiteSparse_dataset/HEP-th/HEP-th.mtx]
+[K : 128]
+[RoDe_gflops : 1798.51 ]
+Matrix diff: 0.022743
+* 	Execution time: .304781679 seconds
+
+---New data---
+
+[Remaining: 1]
+
+[File : ./suiteSparse_dataset/c-63/c-63.mtx]
+[K : 128]
+[RoDe_gflops : 2292.74 ]
+Matrix diff: 0.011803
+* 	Execution time: .360089820 seconds
+
+---New data---
+
+[Remaining: 0]
+
+[File : ./suiteSparse_dataset/c-67b/c-67b.mtx]
+[K : 128]
+[RoDe_gflops : 2107.51 ]
+Matrix diff: 0.002981
+* 	Execution time: .380776832 seconds
+
+---Test done---
+
+* Total time spent: 254.274763349 seconds (0 hours, 4 minutes, 14.274763349 seconds)

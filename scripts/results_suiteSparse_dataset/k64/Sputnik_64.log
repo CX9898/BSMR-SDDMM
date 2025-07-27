@@ -1,0 +1,5058 @@
+* Start test...
+* Test program: ./build_Sputnik/Sputnik-sddmm
+* Test log file: ./results_suiteSparse_dataset/k64/Sputnik_64.log
+* Number of test files: 505
+
+---New data---
+
+[Remaining: 504]
+
+[File : ./suiteSparse_dataset/ch7-8-b3/ch7-8-b3.mtx]
+[K : 64]
+[Sputnik_gflops : 11.91 ]
+Matrix diff: 73019.062500
+* 	Execution time: .307861323 seconds
+
+---New data---
+
+[Remaining: 503]
+
+[File : ./suiteSparse_dataset/skirt/skirt.mtx]
+[K : 64]
+[Sputnik_gflops : 42.95 ]
+Matrix diff: 85836.070312
+* 	Execution time: .232093810 seconds
+
+---New data---
+
+[Remaining: 502]
+
+[File : ./suiteSparse_dataset/sctap1-2r/sctap1-2r.mtx]
+[K : 64]
+[Sputnik_gflops : 3.60 ]
+Matrix diff: 37973.312500
+* 	Execution time: .345195087 seconds
+
+---New data---
+
+[Remaining: 501]
+
+[File : ./suiteSparse_dataset/sctap1-2r/sctap1-2r_A_11.mtx]
+[K : 64]
+[Sputnik_gflops : 3.60 ]
+Matrix diff: 56411.113281
+* 	Execution time: .344862243 seconds
+
+---New data---
+
+[Remaining: 500]
+
+[File : ./suiteSparse_dataset/OPF_6000/OPF_6000.mtx]
+[K : 64]
+[Sputnik_gflops : 11.89 ]
+Matrix diff: 84704.187500
+* 	Execution time: .312838406 seconds
+
+---New data---
+
+[Remaining: 499]
+
+[File : ./suiteSparse_dataset/trdheim/trdheim.mtx]
+[K : 64]
+[Sputnik_gflops : 136.69 ]
+Matrix diff: 88331.078125
+* 	Execution time: .493080809 seconds
+
+---New data---
+
+[Remaining: 498]
+
+[File : ./suiteSparse_dataset/xenon1/xenon1.mtx]
+[K : 64]
+[Sputnik_gflops : 17.61 ]
+Matrix diff: 68581.109375
+* 	Execution time: .536379328 seconds
+
+---New data---
+
+[Remaining: 497]
+
+[File : ./suiteSparse_dataset/pkustk13/pkustk13.mtx]
+[K : 64]
+[Sputnik_gflops : 25.76 ]
+Matrix diff: 83463.187500
+* 	Execution time: 1.653652524 seconds
+
+---New data---
+
+[Remaining: 496]
+
+[File : ./suiteSparse_dataset/ABACUS_shell_ud/ABACUS_shell_ud_M.mtx]
+[K : 64]
+[Sputnik_gflops : 13.23 ]
+Matrix diff: 49325.531250
+* 	Execution time: .284404379 seconds
+
+---New data---
+
+[Remaining: 495]
+
+[File : ./suiteSparse_dataset/ABACUS_shell_ud/ABACUS_shell_ud_K.mtx]
+[K : 64]
+[Sputnik_gflops : 13.85 ]
+Matrix diff: 85895.273438
+* 	Execution time: .283988849 seconds
+
+---New data---
+
+[Remaining: 494]
+
+[File : ./suiteSparse_dataset/ABACUS_shell_ud/ABACUS_shell_ud.mtx]
+[K : 64]
+[Sputnik_gflops : 14.00 ]
+Matrix diff: 51602.972656
+* 	Execution time: .295313233 seconds
+
+---New data---
+
+[Remaining: 493]
+
+[File : ./suiteSparse_dataset/pattern1/pattern1.mtx]
+[K : 64]
+[Sputnik_gflops : 731.32 ]
+Matrix diff: 100073.562500
+* 	Execution time: 1.622884030 seconds
+
+---New data---
+
+[Remaining: 492]
+
+[File : ./suiteSparse_dataset/nv1/nv1.mtx]
+[K : 64]
+[Sputnik_gflops : 14.32 ]
+Matrix diff: 72627.859375
+* 	Execution time: .967670114 seconds
+
+---New data---
+
+[Remaining: 491]
+
+[File : ./suiteSparse_dataset/crystk03/crystk03.mtx]
+[K : 64]
+[Sputnik_gflops : 99.73 ]
+Matrix diff: 61601.339844
+* 	Execution time: .480855215 seconds
+
+---New data---
+
+[Remaining: 490]
+
+[File : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_6.mtx]
+[K : 64]
+[Sputnik_gflops : 12.48 ]
+Matrix diff: 78203.546875
+* 	Execution time: .339295286 seconds
+
+---New data---
+
+[Remaining: 489]
+
+[File : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_3.mtx]
+[K : 64]
+[Sputnik_gflops : 12.48 ]
+Matrix diff: 91859.226562
+* 	Execution time: .343042882 seconds
+
+---New data---
+
+[Remaining: 488]
+
+[File : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_7.mtx]
+[K : 64]
+[Sputnik_gflops : 12.48 ]
+Matrix diff: 87418.765625
+* 	Execution time: .345254909 seconds
+
+---New data---
+
+[Remaining: 487]
+
+[File : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_5.mtx]
+[K : 64]
+[Sputnik_gflops : 11.76 ]
+Matrix diff: 86825.953125
+* 	Execution time: .355358624 seconds
+
+---New data---
+
+[Remaining: 486]
+
+[File : ./suiteSparse_dataset/viscoplastic2/viscoplastic2.mtx]
+[K : 64]
+[Sputnik_gflops : 11.76 ]
+Matrix diff: 48512.195312
+* 	Execution time: .333296807 seconds
+
+---New data---
+
+[Remaining: 485]
+
+[File : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_2.mtx]
+[K : 64]
+[Sputnik_gflops : 11.79 ]
+Matrix diff: 93042.054688
+* 	Execution time: .354726160 seconds
+
+---New data---
+
+[Remaining: 484]
+
+[File : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_1.mtx]
+[K : 64]
+[Sputnik_gflops : 11.79 ]
+Matrix diff: 79113.992188
+* 	Execution time: .352536484 seconds
+
+---New data---
+
+[Remaining: 483]
+
+[File : ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_4.mtx]
+[K : 64]
+[Sputnik_gflops : 12.14 ]
+Matrix diff: 65581.398438
+* 	Execution time: .333412293 seconds
+
+---New data---
+
+[Remaining: 482]
+
+[File : ./suiteSparse_dataset/ABACUS_shell_md/ABACUS_shell_md_K.mtx]
+[K : 64]
+[Sputnik_gflops : 13.47 ]
+Matrix diff: 83041.742188
+* 	Execution time: .285279028 seconds
+
+---New data---
+
+[Remaining: 481]
+
+[File : ./suiteSparse_dataset/ABACUS_shell_md/ABACUS_shell_md.mtx]
+[K : 64]
+[Sputnik_gflops : 13.62 ]
+Matrix diff: 90504.203125
+* 	Execution time: .270536064 seconds
+
+---New data---
+
+[Remaining: 480]
+
+[File : ./suiteSparse_dataset/ABACUS_shell_md/ABACUS_shell_md_M.mtx]
+[K : 64]
+[Sputnik_gflops : 12.87 ]
+Matrix diff: 64890.558594
+* 	Execution time: .284664656 seconds
+
+---New data---
+
+[Remaining: 479]
+
+[File : ./suiteSparse_dataset/Dubcova1/Dubcova1.mtx]
+[K : 64]
+[Sputnik_gflops : 32.96 ]
+Matrix diff: 91926.867188
+* 	Execution time: .281831905 seconds
+
+---New data---
+
+[Remaining: 478]
+
+[File : ./suiteSparse_dataset/ted_A/ted_A.mtx]
+[K : 64]
+[Sputnik_gflops : 124.82 ]
+Matrix diff: 54902.781250
+* 	Execution time: .293228004 seconds
+
+---New data---
+
+[Remaining: 477]
+
+[File : ./suiteSparse_dataset/mk12-b4/mk12-b4.mtx]
+[K : 64]
+[Sputnik_gflops : 3.22 ]
+Matrix diff: 82227.078125
+* 	Execution time: .436807259 seconds
+
+---New data---
+
+[Remaining: 476]
+
+[File : ./suiteSparse_dataset/std1_Jac3_db/std1_Jac3_db.mtx]
+[K : 64]
+[Sputnik_gflops : 38.30 ]
+Matrix diff: 87980.218750
+* 	Execution time: .331392345 seconds
+
+---New data---
+
+[Remaining: 475]
+
+[File : ./suiteSparse_dataset/OPF_10000/OPF_10000.mtx]
+[K : 64]
+[Sputnik_gflops : 8.55 ]
+Matrix diff: 80060.945312
+* 	Execution time: .390272592 seconds
+
+---New data---
+
+[Remaining: 474]
+
+[File : ./suiteSparse_dataset/worms20_10NN/worms20_10NN.mtx]
+[K : 64]
+[Sputnik_gflops : 20.96 ]
+Matrix diff: 74400.281250
+* 	Execution time: .270337411 seconds
+
+---New data---
+
+[Remaining: 473]
+
+[File : ./suiteSparse_dataset/cbuckle/cbuckle.mtx]
+[K : 64]
+[Sputnik_gflops : 122.91 ]
+Matrix diff: 88032.867188
+* 	Execution time: .295299548 seconds
+
+---New data---
+
+[Remaining: 472]
+
+[File : ./suiteSparse_dataset/cbuckle/cbuckle_G.mtx]
+[K : 64]
+[Sputnik_gflops : 93.82 ]
+Matrix diff: 82435.992188
+* 	Execution time: .299472292 seconds
+
+---New data---
+
+[Remaining: 471]
+
+[File : ./suiteSparse_dataset/c-71/c-71.mtx]
+[K : 64]
+[Sputnik_gflops : 5.16 ]
+Matrix diff: 10109.362305
+* 	Execution time: .615879248 seconds
+
+---New data---
+
+[Remaining: 470]
+
+[File : ./suiteSparse_dataset/std1_Jac2/std1_Jac2.mtx]
+[K : 64]
+[Sputnik_gflops : 89.11 ]
+Matrix diff: 95131.531250
+* 	Execution time: .463163340 seconds
+
+---New data---
+
+[Remaining: 469]
+
+[File : ./suiteSparse_dataset/ifiss_mat/ifiss_mat.mtx]
+[K : 64]
+[Sputnik_gflops : 13.63 ]
+Matrix diff: 53796.972656
+* 	Execution time: 1.265090497 seconds
+
+---New data---
+
+[Remaining: 468]
+
+[File : ./suiteSparse_dataset/TSOPF_RS_b678_c1/TSOPF_RS_b678_c1.mtx]
+[K : 64]
+[Sputnik_gflops : 424.12 ]
+Matrix diff: 78159.015625
+* 	Execution time: 1.002088160 seconds
+
+---New data---
+
+[Remaining: 467]
+
+[File : ./suiteSparse_dataset/Zd_Jac2_db/Zd_Jac2_db.mtx]
+[K : 64]
+[Sputnik_gflops : 45.04 ]
+Matrix diff: 69715.101562
+* 	Execution time: .373198125 seconds
+
+---New data---
+
+[Remaining: 466]
+
+[File : ./suiteSparse_dataset/scfxm1-2b/scfxm1-2b_A_3.mtx]
+[K : 64]
+[Sputnik_gflops : 6.21 ]
+Matrix diff: 80938.390625
+* 	Execution time: .269663718 seconds
+
+---New data---
+
+[Remaining: 465]
+
+[File : ./suiteSparse_dataset/scfxm1-2b/scfxm1-2b.mtx]
+[K : 64]
+[Sputnik_gflops : 5.87 ]
+Matrix diff: 81632.718750
+* 	Execution time: .286091341 seconds
+
+---New data---
+
+[Remaining: 464]
+
+[File : ./suiteSparse_dataset/mario001/mario001.mtx]
+[K : 64]
+[Sputnik_gflops : 4.65 ]
+Matrix diff: 86019.562500
+* 	Execution time: .326109179 seconds
+
+---New data---
+
+[Remaining: 463]
+
+[File : ./suiteSparse_dataset/e18/e18.mtx]
+[K : 64]
+[Sputnik_gflops : 5.48 ]
+Matrix diff: 78736.312500
+* 	Execution time: .304498066 seconds
+
+---New data---
+
+[Remaining: 462]
+
+[File : ./suiteSparse_dataset/nsct/nsct_A_1.mtx]
+[K : 64]
+[Sputnik_gflops : 26.26 ]
+Matrix diff: 95620.078125
+* 	Execution time: .387540329 seconds
+
+---New data---
+
+[Remaining: 461]
+
+[File : ./suiteSparse_dataset/nsct/nsct.mtx]
+[K : 64]
+[Sputnik_gflops : 26.79 ]
+Matrix diff: 76273.429688
+* 	Execution time: .394122902 seconds
+
+---New data---
+
+[Remaining: 460]
+
+[File : ./suiteSparse_dataset/nsct/nsct_A_2.mtx]
+[K : 64]
+[Sputnik_gflops : 26.81 ]
+Matrix diff: 32034.638672
+* 	Execution time: .391277106 seconds
+
+---New data---
+
+[Remaining: 459]
+
+[File : ./suiteSparse_dataset/lowThrust_10/lowThrust_10.mtx]
+[K : 64]
+[Sputnik_gflops : 22.01 ]
+Matrix diff: 82637.820312
+* 	Execution time: .287397571 seconds
+
+---New data---
+
+[Remaining: 458]
+
+[File : ./suiteSparse_dataset/2D_27628_bjtcai/2D_27628_bjtcai.mtx]
+[K : 64]
+[Sputnik_gflops : 19.27 ]
+Matrix diff: 87871.593750
+* 	Execution time: .321776665 seconds
+
+---New data---
+
+[Remaining: 457]
+
+[File : ./suiteSparse_dataset/Si10H16/Si10H16.mtx]
+[K : 64]
+[Sputnik_gflops : 96.97 ]
+Matrix diff: 79177.601562
+* 	Execution time: .362899705 seconds
+
+---New data---
+
+[Remaining: 456]
+
+[File : ./suiteSparse_dataset/af23560/af23560.mtx]
+[K : 64]
+[Sputnik_gflops : 28.89 ]
+Matrix diff: 45905.984375
+* 	Execution time: .337423985 seconds
+
+---New data---
+
+[Remaining: 455]
+
+[File : ./suiteSparse_dataset/m_t1/m_t1.mtx]
+[K : 64]
+[Sputnik_gflops : 34.77 ]
+Matrix diff: 6481.153320
+* 	Execution time: 2.041186969 seconds
+
+---New data---
+
+[Remaining: 454]
+
+[File : ./suiteSparse_dataset/cit-HepPh/cit-HepPh.mtx]
+[K : 64]
+[Sputnik_gflops : 12.40 ]
+Matrix diff: 86413.796875
+* 	Execution time: .369106613 seconds
+
+---New data---
+
+[Remaining: 453]
+
+[File : ./suiteSparse_dataset/rma10/rma10.mtx]
+[K : 64]
+[Sputnik_gflops : 37.87 ]
+Matrix diff: 66839.109375
+* 	Execution time: .749917633 seconds
+
+---New data---
+
+[Remaining: 452]
+
+[File : ./suiteSparse_dataset/GaAsH6/GaAsH6.mtx]
+[K : 64]
+[Sputnik_gflops : 31.48 ]
+Matrix diff: 91477.210938
+* 	Execution time: .884765457 seconds
+
+---New data---
+
+[Remaining: 451]
+
+[File : ./suiteSparse_dataset/c-67/c-67.mtx]
+[K : 64]
+[Sputnik_gflops : 5.58 ]
+Matrix diff: 52962.988281
+* 	Execution time: .440989411 seconds
+
+---New data---
+
+[Remaining: 450]
+
+[File : ./suiteSparse_dataset/nv2010/nv2010.mtx]
+[K : 64]
+[Sputnik_gflops : 2.06 ]
+Matrix diff: 70041.640625
+* 	Execution time: .593663831 seconds
+
+---New data---
+
+[Remaining: 449]
+
+[File : ./suiteSparse_dataset/bcircuit/bcircuit.mtx]
+[K : 64]
+[Sputnik_gflops : 2.79 ]
+Matrix diff: 88013.718750
+* 	Execution time: .500443223 seconds
+
+---New data---
+
+[Remaining: 448]
+
+[File : ./suiteSparse_dataset/shyy161/shyy161.mtx]
+[K : 64]
+[Sputnik_gflops : 1.99 ]
+Matrix diff: 74037.093750
+* 	Execution time: .534771172 seconds
+
+---New data---
+
+[Remaining: 447]
+
+[File : ./suiteSparse_dataset/c-64b/c-64b.mtx]
+[K : 64]
+[Sputnik_gflops : 9.72 ]
+Matrix diff: 93776.234375
+* 	Execution time: .456247572 seconds
+
+---New data---
+
+[Remaining: 446]
+
+[File : ./suiteSparse_dataset/c-59/c-59.mtx]
+[K : 64]
+[Sputnik_gflops : 9.92 ]
+Matrix diff: 67727.937500
+* 	Execution time: .387381130 seconds
+
+---New data---
+
+[Remaining: 445]
+
+[File : ./suiteSparse_dataset/vsp_c-60_data_cti_cs4/vsp_c-60_data_cti_cs4.mtx]
+[K : 64]
+[Sputnik_gflops : 2.31 ]
+Matrix diff: 52512.984375
+* 	Execution time: .600261153 seconds
+
+---New data---
+
+[Remaining: 444]
+
+[File : ./suiteSparse_dataset/cond-mat-2005/cond-mat-2005.mtx]
+[K : 64]
+[Sputnik_gflops : 7.56 ]
+Matrix diff: 92175.898438
+* 	Execution time: .347862248 seconds
+
+---New data---
+
+[Remaining: 443]
+
+[File : ./suiteSparse_dataset/mark3jac040/mark3jac040.mtx]
+[K : 64]
+[Sputnik_gflops : 11.88 ]
+Matrix diff: 58136.183594
+* 	Execution time: .259718839 seconds
+
+---New data---
+
+[Remaining: 442]
+
+[File : ./suiteSparse_dataset/kim1/kim1.mtx]
+[K : 64]
+[Sputnik_gflops : 22.25 ]
+Matrix diff: 48957.320312
+* 	Execution time: .443101371 seconds
+
+---New data---
+
+[Remaining: 441]
+
+[File : ./suiteSparse_dataset/juba40k/juba40k.mtx]
+[K : 64]
+[Sputnik_gflops : 3.14 ]
+Matrix diff: 81716.757812
+* 	Execution time: .327235451 seconds
+
+---New data---
+
+[Remaining: 440]
+
+[File : ./suiteSparse_dataset/TSOPF_FS_b300_c1/TSOPF_FS_b300_c1.mtx]
+[K : 64]
+[Sputnik_gflops : 167.93 ]
+Matrix diff: 126997.945312
+* 	Execution time: .925274666 seconds
+
+---New data---
+
+[Remaining: 439]
+
+[File : ./suiteSparse_dataset/pfinan512/pfinan512.mtx]
+[K : 64]
+[Sputnik_gflops : 3.77 ]
+Matrix diff: 34521.539062
+* 	Execution time: .569325254 seconds
+
+---New data---
+
+[Remaining: 438]
+
+[File : ./suiteSparse_dataset/case39/case39_A_12.mtx]
+[K : 64]
+[Sputnik_gflops : 22.69 ]
+Matrix diff: 89015.539062
+* 	Execution time: .477897218 seconds
+
+---New data---
+
+[Remaining: 437]
+
+[File : ./suiteSparse_dataset/case39/case39_A_13.mtx]
+[K : 64]
+[Sputnik_gflops : 22.70 ]
+Matrix diff: 84944.976562
+* 	Execution time: .459589949 seconds
+
+---New data---
+
+[Remaining: 436]
+
+[File : ./suiteSparse_dataset/case39/case39_A_09.mtx]
+[K : 64]
+[Sputnik_gflops : 22.69 ]
+Matrix diff: 98455.046875
+* 	Execution time: .449931729 seconds
+
+---New data---
+
+[Remaining: 435]
+
+[File : ./suiteSparse_dataset/case39/case39.mtx]
+[K : 64]
+[Sputnik_gflops : 22.70 ]
+Matrix diff: 90783.820312
+* 	Execution time: .462119853 seconds
+
+---New data---
+
+[Remaining: 434]
+
+[File : ./suiteSparse_dataset/case39/case39_A_07.mtx]
+[K : 64]
+[Sputnik_gflops : 22.70 ]
+Matrix diff: 72161.359375
+* 	Execution time: .451819168 seconds
+
+---New data---
+
+[Remaining: 433]
+
+[File : ./suiteSparse_dataset/case39/case39_A_03.mtx]
+[K : 64]
+[Sputnik_gflops : 22.70 ]
+Matrix diff: 75475.453125
+* 	Execution time: .429659635 seconds
+
+---New data---
+
+[Remaining: 432]
+
+[File : ./suiteSparse_dataset/case39/case39_A_11.mtx]
+[K : 64]
+[Sputnik_gflops : 22.70 ]
+Matrix diff: 103549.757812
+* 	Execution time: .450273048 seconds
+
+---New data---
+
+[Remaining: 431]
+
+[File : ./suiteSparse_dataset/case39/case39_A_02.mtx]
+[K : 64]
+[Sputnik_gflops : 22.70 ]
+Matrix diff: 67372.578125
+* 	Execution time: .452489786 seconds
+
+---New data---
+
+[Remaining: 430]
+
+[File : ./suiteSparse_dataset/case39/case39_A_05.mtx]
+[K : 64]
+[Sputnik_gflops : 22.70 ]
+Matrix diff: 60003.792969
+* 	Execution time: .460315759 seconds
+
+---New data---
+
+[Remaining: 429]
+
+[File : ./suiteSparse_dataset/case39/case39_A_04.mtx]
+[K : 64]
+[Sputnik_gflops : 22.69 ]
+Matrix diff: 96023.945312
+* 	Execution time: .453589266 seconds
+
+---New data---
+
+[Remaining: 428]
+
+[File : ./suiteSparse_dataset/case39/case39_A_06.mtx]
+[K : 64]
+[Sputnik_gflops : 22.70 ]
+Matrix diff: 92201.984375
+* 	Execution time: .449778271 seconds
+
+---New data---
+
+[Remaining: 427]
+
+[File : ./suiteSparse_dataset/case39/case39_A_08.mtx]
+[K : 64]
+[Sputnik_gflops : 22.70 ]
+Matrix diff: 72766.281250
+* 	Execution time: .434451702 seconds
+
+---New data---
+
+[Remaining: 426]
+
+[File : ./suiteSparse_dataset/case39/case39_A_10.mtx]
+[K : 64]
+[Sputnik_gflops : 22.69 ]
+Matrix diff: 82398.734375
+* 	Execution time: .454852095 seconds
+
+---New data---
+
+[Remaining: 425]
+
+[File : ./suiteSparse_dataset/case39/case39_A_01.mtx]
+[K : 64]
+[Sputnik_gflops : 22.70 ]
+Matrix diff: 48738.812500
+* 	Execution time: .452491328 seconds
+
+---New data---
+
+[Remaining: 424]
+
+[File : ./suiteSparse_dataset/ncvxqp7/ncvxqp7.mtx]
+[K : 64]
+[Sputnik_gflops : 2.65 ]
+Matrix diff: 52488.777344
+* 	Execution time: .617674413 seconds
+
+---New data---
+
+[Remaining: 423]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_18.mtx]
+[K : 64]
+[Sputnik_gflops : 2.81 ]
+Matrix diff: 105387.460938
+* 	Execution time: .767734290 seconds
+
+---New data---
+
+[Remaining: 422]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_02.mtx]
+[K : 64]
+[Sputnik_gflops : 2.81 ]
+Matrix diff: 82997.906250
+* 	Execution time: .786751610 seconds
+
+---New data---
+
+[Remaining: 421]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_14.mtx]
+[K : 64]
+[Sputnik_gflops : 2.81 ]
+Matrix diff: 112012.453125
+* 	Execution time: .794042732 seconds
+
+---New data---
+
+[Remaining: 420]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_10.mtx]
+[K : 64]
+[Sputnik_gflops : 2.81 ]
+Matrix diff: 87560.078125
+* 	Execution time: .793094274 seconds
+
+---New data---
+
+[Remaining: 419]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_17.mtx]
+[K : 64]
+[Sputnik_gflops : 2.81 ]
+Matrix diff: 128507.250000
+* 	Execution time: .793862463 seconds
+
+---New data---
+
+[Remaining: 418]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2.mtx]
+[K : 64]
+[Sputnik_gflops : 2.81 ]
+Matrix diff: 109281.484375
+* 	Execution time: .793402461 seconds
+
+---New data---
+
+[Remaining: 417]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_16.mtx]
+[K : 64]
+[Sputnik_gflops : 2.81 ]
+Matrix diff: 106418.851562
+* 	Execution time: .792653146 seconds
+
+---New data---
+
+[Remaining: 416]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_07.mtx]
+[K : 64]
+[Sputnik_gflops : 2.81 ]
+Matrix diff: 77660.804688
+* 	Execution time: .788577233 seconds
+
+---New data---
+
+[Remaining: 415]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_22.mtx]
+[K : 64]
+[Sputnik_gflops : 2.81 ]
+Matrix diff: 146315.921875
+* 	Execution time: .784272200 seconds
+
+---New data---
+
+[Remaining: 414]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_20.mtx]
+[K : 64]
+[Sputnik_gflops : 2.81 ]
+Matrix diff: 85793.781250
+* 	Execution time: .784552535 seconds
+
+---New data---
+
+[Remaining: 413]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_01.mtx]
+[K : 64]
+[Sputnik_gflops : 2.81 ]
+Matrix diff: 129124.867188
+* 	Execution time: .801830665 seconds
+
+---New data---
+
+[Remaining: 412]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_19.mtx]
+[K : 64]
+[Sputnik_gflops : 2.81 ]
+Matrix diff: 97784.375000
+* 	Execution time: .787055990 seconds
+
+---New data---
+
+[Remaining: 411]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_04.mtx]
+[K : 64]
+[Sputnik_gflops : 2.81 ]
+Matrix diff: 111320.015625
+* 	Execution time: .793740926 seconds
+
+---New data---
+
+[Remaining: 410]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_09.mtx]
+[K : 64]
+[Sputnik_gflops : 2.81 ]
+Matrix diff: 90403.437500
+* 	Execution time: .798256582 seconds
+
+---New data---
+
+[Remaining: 409]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_06.mtx]
+[K : 64]
+[Sputnik_gflops : 2.81 ]
+Matrix diff: 164880.562500
+* 	Execution time: .792348734 seconds
+
+---New data---
+
+[Remaining: 408]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_13.mtx]
+[K : 64]
+[Sputnik_gflops : 2.81 ]
+Matrix diff: 210833.890625
+* 	Execution time: .775713282 seconds
+
+---New data---
+
+[Remaining: 407]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_03.mtx]
+[K : 64]
+[Sputnik_gflops : 2.81 ]
+Matrix diff: 102408.140625
+* 	Execution time: .787259572 seconds
+
+---New data---
+
+[Remaining: 406]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_15.mtx]
+[K : 64]
+[Sputnik_gflops : 2.81 ]
+Matrix diff: 62921.718750
+* 	Execution time: .787743558 seconds
+
+---New data---
+
+[Remaining: 405]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_24.mtx]
+[K : 64]
+[Sputnik_gflops : 2.81 ]
+Matrix diff: 90483.703125
+* 	Execution time: .773629613 seconds
+
+---New data---
+
+[Remaining: 404]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_05.mtx]
+[K : 64]
+[Sputnik_gflops : 2.81 ]
+Matrix diff: 101307.687500
+* 	Execution time: .777666353 seconds
+
+---New data---
+
+[Remaining: 403]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_08.mtx]
+[K : 64]
+[Sputnik_gflops : 2.81 ]
+Matrix diff: 139123.906250
+* 	Execution time: .784984296 seconds
+
+---New data---
+
+[Remaining: 402]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_11.mtx]
+[K : 64]
+[Sputnik_gflops : 2.81 ]
+Matrix diff: 145147.390625
+* 	Execution time: .787609337 seconds
+
+---New data---
+
+[Remaining: 401]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_21.mtx]
+[K : 64]
+[Sputnik_gflops : 2.81 ]
+Matrix diff: 113400.679688
+* 	Execution time: .800939904 seconds
+
+---New data---
+
+[Remaining: 400]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_12.mtx]
+[K : 64]
+[Sputnik_gflops : 2.81 ]
+Matrix diff: 95193.820312
+* 	Execution time: .793281713 seconds
+
+---New data---
+
+[Remaining: 399]
+
+[File : ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_23.mtx]
+[K : 64]
+[Sputnik_gflops : 2.81 ]
+Matrix diff: 106641.070312
+* 	Execution time: .767117533 seconds
+
+---New data---
+
+[Remaining: 398]
+
+[File : ./suiteSparse_dataset/venkat25/venkat25.mtx]
+[K : 64]
+[Sputnik_gflops : 15.54 ]
+Matrix diff: 72546.093750
+* 	Execution time: .694046217 seconds
+
+---New data---
+
+[Remaining: 397]
+
+[File : ./suiteSparse_dataset/stokes128/stokes128.mtx]
+[K : 64]
+[Sputnik_gflops : 7.99 ]
+Matrix diff: 75945.820312
+* 	Execution time: .420285317 seconds
+
+---New data---
+
+[Remaining: 396]
+
+[File : ./suiteSparse_dataset/finan512/finan512.mtx]
+[K : 64]
+[Sputnik_gflops : 3.77 ]
+Matrix diff: 88087.789062
+* 	Execution time: .556138806 seconds
+
+---New data---
+
+[Remaining: 395]
+
+[File : ./suiteSparse_dataset/poisson3Db/poisson3Db.mtx]
+[K : 64]
+[Sputnik_gflops : 11.38 ]
+Matrix diff: 105100.882812
+* 	Execution time: 1.034891415 seconds
+
+---New data---
+
+[Remaining: 394]
+
+[File : ./suiteSparse_dataset/preferentialAttachment/preferentialAttachment.mtx]
+[K : 64]
+[Sputnik_gflops : 3.52 ]
+Matrix diff: 112784.890625
+* 	Execution time: .811740075 seconds
+
+---New data---
+
+[Remaining: 393]
+
+[File : ./suiteSparse_dataset/F2/F2.mtx]
+[K : 64]
+[Sputnik_gflops : 36.21 ]
+Matrix diff: 135064.843750
+* 	Execution time: 1.222807768 seconds
+
+---New data---
+
+[Remaining: 392]
+
+[File : ./suiteSparse_dataset/dbir2/dbir2.mtx]
+[K : 64]
+[Sputnik_gflops : 46.70 ]
+Matrix diff: 26873.744141
+* 	Execution time: .490636092 seconds
+
+---New data---
+
+[Remaining: 391]
+
+[File : ./suiteSparse_dataset/ca-AstroPh/ca-AstroPh.mtx]
+[K : 64]
+[Sputnik_gflops : 39.04 ]
+Matrix diff: 87671.390625
+* 	Execution time: .299125350 seconds
+
+---New data---
+
+[Remaining: 390]
+
+[File : ./suiteSparse_dataset/g7jac080sc/g7jac080sc.mtx]
+[K : 64]
+[Sputnik_gflops : 18.40 ]
+Matrix diff: 88394.359375
+* 	Execution time: .306285316 seconds
+
+---New data---
+
+[Remaining: 389]
+
+[File : ./suiteSparse_dataset/vsp_south31_slptsk/vsp_south31_slptsk.mtx]
+[K : 64]
+[Sputnik_gflops : 8.50 ]
+Matrix diff: 89687.515625
+* 	Execution time: .379307661 seconds
+
+---New data---
+
+[Remaining: 388]
+
+[File : ./suiteSparse_dataset/pkustk08/pkustk08.mtx]
+[K : 64]
+[Sputnik_gflops : 208.26 ]
+Matrix diff: 17046.500000
+* 	Execution time: .711680943 seconds
+
+---New data---
+
+[Remaining: 387]
+
+[File : ./suiteSparse_dataset/deltaX/deltaX.mtx]
+[K : 64]
+[Sputnik_gflops : 5.46 ]
+Matrix diff: 60016.750000
+* 	Execution time: .358674661 seconds
+
+---New data---
+
+[Remaining: 386]
+
+[File : ./suiteSparse_dataset/TSOPF_FS_b39_c7/TSOPF_FS_b39_c7.mtx]
+[K : 64]
+[Sputnik_gflops : 30.66 ]
+Matrix diff: 81604.218750
+* 	Execution time: .372648032 seconds
+
+---New data---
+
+[Remaining: 385]
+
+[File : ./suiteSparse_dataset/lhr71c/lhr71c.mtx]
+[K : 64]
+[Sputnik_gflops : 10.36 ]
+Matrix diff: 72601.632812
+* 	Execution time: .687438796 seconds
+
+---New data---
+
+[Remaining: 384]
+
+[File : ./suiteSparse_dataset/mod2/mod2.mtx]
+[K : 64]
+[Sputnik_gflops : 3.05 ]
+Matrix diff: 92330.937500
+* 	Execution time: .378618367 seconds
+
+---New data---
+
+[Remaining: 383]
+
+[File : ./suiteSparse_dataset/raefsky4/raefsky4.mtx]
+[K : 64]
+[Sputnik_gflops : 117.04 ]
+Matrix diff: 93672.976562
+* 	Execution time: .434236368 seconds
+
+---New data---
+
+[Remaining: 382]
+
+[File : ./suiteSparse_dataset/cat_ears_4_4/cat_ears_4_4.mtx]
+[K : 64]
+[Sputnik_gflops : 5.54 ]
+Matrix diff: 73146.875000
+* 	Execution time: .292867256 seconds
+
+---New data---
+
+[Remaining: 381]
+
+[File : ./suiteSparse_dataset/ckt11752_tr_0/ckt11752_tr_0.mtx]
+[K : 64]
+[Sputnik_gflops : 4.75 ]
+Matrix diff: 55125.246094
+* 	Execution time: .408633649 seconds
+
+---New data---
+
+[Remaining: 380]
+
+[File : ./suiteSparse_dataset/gyro_k/gyro_k.mtx]
+[K : 64]
+[Sputnik_gflops : 116.13 ]
+Matrix diff: 81626.601562
+* 	Execution time: .366256568 seconds
+
+---New data---
+
+[Remaining: 379]
+
+[File : ./suiteSparse_dataset/pkustk09/pkustk09.mtx]
+[K : 64]
+[Sputnik_gflops : 48.14 ]
+Matrix diff: 84659.679688
+* 	Execution time: .499838509 seconds
+
+---New data---
+
+[Remaining: 378]
+
+[File : ./suiteSparse_dataset/Zd_Jac3_db/Zd_Jac3_db.mtx]
+[K : 64]
+[Sputnik_gflops : 47.43 ]
+Matrix diff: 78044.203125
+* 	Execution time: .375433735 seconds
+
+---New data---
+
+[Remaining: 377]
+
+[File : ./suiteSparse_dataset/g7jac120sc/g7jac120sc.mtx]
+[K : 64]
+[Sputnik_gflops : 13.23 ]
+Matrix diff: 48453.855469
+* 	Execution time: .365526328 seconds
+
+---New data---
+
+[Remaining: 376]
+
+[File : ./suiteSparse_dataset/mouse_gene/mouse_gene.mtx]
+[K : 64]
+[Sputnik_gflops : 402.92 ]
+Matrix diff: 7097.956055
+* 	Execution time: 5.046968330 seconds
+
+---New data---
+
+[Remaining: 375]
+
+[File : ./suiteSparse_dataset/Trefethen_20000b/Trefethen_20000b.mtx]
+[K : 64]
+[Sputnik_gflops : 48.19 ]
+Matrix diff: 23628.138672
+* 	Execution time: .313245868 seconds
+
+---New data---
+
+[Remaining: 374]
+
+[File : ./suiteSparse_dataset/3D_28984_Tetra/3D_28984_Tetra.mtx]
+[K : 64]
+[Sputnik_gflops : 25.06 ]
+Matrix diff: 87667.453125
+* 	Execution time: .369105791 seconds
+
+---New data---
+
+[Remaining: 373]
+
+[File : ./suiteSparse_dataset/bcsstk29/bcsstk29.mtx]
+[K : 64]
+[Sputnik_gflops : 108.08 ]
+Matrix diff: 82496.132812
+* 	Execution time: .311979463 seconds
+
+---New data---
+
+[Remaining: 372]
+
+[File : ./suiteSparse_dataset/mark3jac140/mark3jac140.mtx]
+[K : 64]
+[Sputnik_gflops : 3.43 ]
+Matrix diff: 87567.132812
+* 	Execution time: .480528409 seconds
+
+---New data---
+
+[Remaining: 371]
+
+[File : ./suiteSparse_dataset/bcsstm36/bcsstm36.mtx]
+[K : 64]
+[Sputnik_gflops : 21.18 ]
+Matrix diff: 39934.527344
+* 	Execution time: .292481983 seconds
+
+---New data---
+
+[Remaining: 370]
+
+[File : ./suiteSparse_dataset/mycielskian16/mycielskian16.mtx]
+[K : 64]
+[Sputnik_gflops : 432.96 ]
+Matrix diff: 155682.765625
+* 	Execution time: 5.502459168 seconds
+
+---New data---
+
+[Remaining: 369]
+
+[File : ./suiteSparse_dataset/olesnik0/olesnik0.mtx]
+[K : 64]
+[Sputnik_gflops : 3.37 ]
+Matrix diff: 20380.468750
+* 	Execution time: .670756246 seconds
+
+---New data---
+
+[Remaining: 368]
+
+[File : ./suiteSparse_dataset/c-52/c-52.mtx]
+[K : 64]
+[Sputnik_gflops : 12.41 ]
+Matrix diff: 93927.312500
+* 	Execution time: .275978568 seconds
+
+---New data---
+
+[Remaining: 367]
+
+[File : ./suiteSparse_dataset/c-50/c-50.mtx]
+[K : 64]
+[Sputnik_gflops : 13.54 ]
+Matrix diff: 83792.289062
+* 	Execution time: .267519145 seconds
+
+---New data---
+
+[Remaining: 366]
+
+[File : ./suiteSparse_dataset/pkustk05/pkustk05.mtx]
+[K : 64]
+[Sputnik_gflops : 55.85 ]
+Matrix diff: 35860.570312
+* 	Execution time: .573182895 seconds
+
+---New data---
+
+[Remaining: 365]
+
+[File : ./suiteSparse_dataset/conf6_0-8x8-80/conf6_0-8x8-80.mtx]
+[K : 64]
+[Sputnik_gflops : 27.90 ]
+Matrix diff: 78176.914062
+* 	Execution time: .653070041 seconds
+
+---New data---
+
+[Remaining: 364]
+
+[File : ./suiteSparse_dataset/vanbody/vanbody.mtx]
+[K : 64]
+[Sputnik_gflops : 36.96 ]
+Matrix diff: 66894.859375
+* 	Execution time: .640935888 seconds
+
+---New data---
+
+[Remaining: 363]
+
+[File : ./suiteSparse_dataset/EAT_SR/EAT_SR.mtx]
+[K : 64]
+[Sputnik_gflops : 21.14 ]
+Matrix diff: 68294.507812
+* 	Execution time: .296769862 seconds
+
+---New data---
+
+[Remaining: 362]
+
+[File : ./suiteSparse_dataset/c-62/c-62.mtx]
+[K : 64]
+[Sputnik_gflops : 11.30 ]
+Matrix diff: 59543.367188
+* 	Execution time: .397240355 seconds
+
+---New data---
+
+[Remaining: 361]
+
+[File : ./suiteSparse_dataset/ns3Da/ns3Da.mtx]
+[K : 64]
+[Sputnik_gflops : 135.56 ]
+Matrix diff: 87821.328125
+* 	Execution time: .574039891 seconds
+
+---New data---
+
+[Remaining: 360]
+
+[File : ./suiteSparse_dataset/pcrystk02/pcrystk02.mtx]
+[K : 64]
+[Sputnik_gflops : 169.69 ]
+Matrix diff: 88400.859375
+* 	Execution time: .358832776 seconds
+
+---New data---
+
+[Remaining: 359]
+
+[File : ./suiteSparse_dataset/windscreen/windscreen.mtx]
+[K : 64]
+[Sputnik_gflops : 99.97 ]
+Matrix diff: 72597.820312
+* 	Execution time: .438981514 seconds
+
+---New data---
+
+[Remaining: 358]
+
+[File : ./suiteSparse_dataset/windscreen/windscreen_M.mtx]
+[K : 64]
+[Sputnik_gflops : 97.08 ]
+Matrix diff: 90819.515625
+* 	Execution time: .455306655 seconds
+
+---New data---
+
+[Remaining: 357]
+
+[File : ./suiteSparse_dataset/HEP-th-new/HEP-th-new.mtx]
+[K : 64]
+[Sputnik_gflops : 15.17 ]
+Matrix diff: 80243.968750
+* 	Execution time: .344861359 seconds
+
+---New data---
+
+[Remaining: 356]
+
+[File : ./suiteSparse_dataset/bcsstk37/bcsstk37.mtx]
+[K : 64]
+[Sputnik_gflops : 57.81 ]
+Matrix diff: 65411.972656
+* 	Execution time: .415047916 seconds
+
+---New data---
+
+[Remaining: 355]
+
+[File : ./suiteSparse_dataset/crystk02/crystk02.mtx]
+[K : 64]
+[Sputnik_gflops : 160.15 ]
+Matrix diff: 83477.937500
+* 	Execution time: .361840036 seconds
+
+---New data---
+
+[Remaining: 354]
+
+[File : ./suiteSparse_dataset/dbir1/dbir1.mtx]
+[K : 64]
+[Sputnik_gflops : 41.38 ]
+Matrix diff: 33192.941406
+* 	Execution time: .491082799 seconds
+
+---New data---
+
+[Remaining: 353]
+
+[File : ./suiteSparse_dataset/fem_filter/fem_filter.mtx]
+[K : 64]
+[Sputnik_gflops : 10.62 ]
+Matrix diff: 7419.570801
+* 	Execution time: .792495667 seconds
+
+---New data---
+
+[Remaining: 352]
+
+[File : ./suiteSparse_dataset/flower_7_4/flower_7_4.mtx]
+[K : 64]
+[Sputnik_gflops : 3.81 ]
+Matrix diff: 81690.554688
+* 	Execution time: .330834227 seconds
+
+---New data---
+
+[Remaining: 351]
+
+[File : ./suiteSparse_dataset/p2p-Gnutella31/p2p-Gnutella31.mtx]
+[K : 64]
+[Sputnik_gflops : 1.33 ]
+Matrix diff: 99784.804688
+* 	Execution time: .439945892 seconds
+
+---New data---
+
+[Remaining: 350]
+
+[File : ./suiteSparse_dataset/tsyl201/tsyl201.mtx]
+[K : 64]
+[Sputnik_gflops : 194.97 ]
+Matrix diff: 35161.402344
+* 	Execution time: .561045375 seconds
+
+---New data---
+
+[Remaining: 349]
+
+[File : ./suiteSparse_dataset/mark3jac100sc/mark3jac100sc.mtx]
+[K : 64]
+[Sputnik_gflops : 4.79 ]
+Matrix diff: 91711.765625
+* 	Execution time: .379580400 seconds
+
+---New data---
+
+[Remaining: 348]
+
+[File : ./suiteSparse_dataset/copter2/copter2.mtx]
+[K : 64]
+[Sputnik_gflops : 8.69 ]
+Matrix diff: 86468.601562
+* 	Execution time: .488751718 seconds
+
+---New data---
+
+[Remaining: 347]
+
+[File : ./suiteSparse_dataset/cz40948/cz40948.mtx]
+[K : 64]
+[Sputnik_gflops : 8.66 ]
+Matrix diff: 92456.289062
+* 	Execution time: .360374017 seconds
+
+---New data---
+
+[Remaining: 346]
+
+[File : ./suiteSparse_dataset/vibrobox/vibrobox.mtx]
+[K : 64]
+[Sputnik_gflops : 76.92 ]
+Matrix diff: 46986.527344
+* 	Execution time: .272387433 seconds
+
+---New data---
+
+[Remaining: 345]
+
+[File : ./suiteSparse_dataset/TF16/TF16.mtx]
+[K : 64]
+[Sputnik_gflops : 25.29 ]
+Matrix diff: 84714.179688
+* 	Execution time: .277535195 seconds
+
+---New data---
+
+[Remaining: 344]
+
+[File : ./suiteSparse_dataset/TSOPF_RS_b162_c3/TSOPF_RS_b162_c3.mtx]
+[K : 64]
+[Sputnik_gflops : 89.65 ]
+Matrix diff: 90645.109375
+* 	Execution time: .315927695 seconds
+
+---New data---
+
+[Remaining: 343]
+
+[File : ./suiteSparse_dataset/sme3Db/sme3Db.mtx]
+[K : 64]
+[Sputnik_gflops : 84.30 ]
+Matrix diff: 65629.648438
+* 	Execution time: .663030477 seconds
+
+---New data---
+
+[Remaining: 342]
+
+[File : ./suiteSparse_dataset/venkat01/venkat01.mtx]
+[K : 64]
+[Sputnik_gflops : 14.68 ]
+Matrix diff: 112724.421875
+* 	Execution time: .726235002 seconds
+
+---New data---
+
+[Remaining: 341]
+
+[File : ./suiteSparse_dataset/human_gene2/human_gene2.mtx]
+[K : 64]
+[Sputnik_gflops : 1654.01 ]
+Matrix diff: 22234.857422
+* 	Execution time: 3.064582672 seconds
+
+---New data---
+
+[Remaining: 340]
+
+[File : ./suiteSparse_dataset/nmos3/nmos3.mtx]
+[K : 64]
+[Sputnik_gflops : 38.93 ]
+Matrix diff: 78969.070312
+* 	Execution time: .304105768 seconds
+
+---New data---
+
+[Remaining: 339]
+
+[File : ./suiteSparse_dataset/jan99jac120/jan99jac120.mtx]
+[K : 64]
+[Sputnik_gflops : 5.36 ]
+Matrix diff: 101703.734375
+* 	Execution time: .347557384 seconds
+
+---New data---
+
+[Remaining: 338]
+
+[File : ./suiteSparse_dataset/p010/p010.mtx]
+[K : 64]
+[Sputnik_gflops : 21.44 ]
+Matrix diff: 80939.015625
+* 	Execution time: .253167654 seconds
+
+---New data---
+
+[Remaining: 337]
+
+[File : ./suiteSparse_dataset/gyro/gyro_M.mtx]
+[K : 64]
+[Sputnik_gflops : 39.20 ]
+Matrix diff: 86811.789062
+* 	Execution time: .273915489 seconds
+
+---New data---
+
+[Remaining: 336]
+
+[File : ./suiteSparse_dataset/gyro/gyro.mtx]
+[K : 64]
+[Sputnik_gflops : 116.13 ]
+Matrix diff: 72582.476562
+* 	Execution time: .381038956 seconds
+
+---New data---
+
+[Remaining: 335]
+
+[File : ./suiteSparse_dataset/pkustk02/pkustk02.mtx]
+[K : 64]
+[Sputnik_gflops : 221.60 ]
+Matrix diff: 83809.742188
+* 	Execution time: .340631676 seconds
+
+---New data---
+
+[Remaining: 334]
+
+[File : ./suiteSparse_dataset/jan99jac100sc/jan99jac100sc.mtx]
+[K : 64]
+[Sputnik_gflops : 6.05 ]
+Matrix diff: 76671.812500
+* 	Execution time: .328091102 seconds
+
+---New data---
+
+[Remaining: 333]
+
+[File : ./suiteSparse_dataset/ch7-7-b5/ch7-7-b5.mtx]
+[K : 64]
+[Sputnik_gflops : 3.78 ]
+Matrix diff: 91516.765625
+* 	Execution time: .341443700 seconds
+
+---New data---
+
+[Remaining: 332]
+
+[File : ./suiteSparse_dataset/pkustk01/pkustk01.mtx]
+[K : 64]
+[Sputnik_gflops : 66.32 ]
+Matrix diff: 77115.296875
+* 	Execution time: .392083084 seconds
+
+---New data---
+
+[Remaining: 331]
+
+[File : ./suiteSparse_dataset/finance256/finance256.mtx]
+[K : 64]
+[Sputnik_gflops : 7.11 ]
+Matrix diff: 84389.164062
+* 	Execution time: .337799958 seconds
+
+---New data---
+
+[Remaining: 330]
+
+[File : ./suiteSparse_dataset/fxm3_16/fxm3_16.mtx]
+[K : 64]
+[Sputnik_gflops : 3.76 ]
+Matrix diff: 53566.128906
+* 	Execution time: .462748689 seconds
+
+---New data---
+
+[Remaining: 329]
+
+[File : ./suiteSparse_dataset/jan99jac060/jan99jac060.mtx]
+[K : 64]
+[Sputnik_gflops : 10.50 ]
+Matrix diff: 62658.160156
+* 	Execution time: .271330070 seconds
+
+---New data---
+
+[Remaining: 328]
+
+[File : ./suiteSparse_dataset/pwt/pwt.mtx]
+[K : 64]
+[Sputnik_gflops : 8.61 ]
+Matrix diff: 90507.937500
+* 	Execution time: .342089221 seconds
+
+---New data---
+
+[Remaining: 327]
+
+[File : ./suiteSparse_dataset/mark3jac080/mark3jac080.mtx]
+[K : 64]
+[Sputnik_gflops : 5.98 ]
+Matrix diff: 78233.515625
+* 	Execution time: .331614008 seconds
+
+---New data---
+
+[Remaining: 326]
+
+[File : ./suiteSparse_dataset/Ill_Stokes/Ill_Stokes.mtx]
+[K : 64]
+[Sputnik_gflops : 15.38 ]
+Matrix diff: 38033.101562
+* 	Execution time: .290025335 seconds
+
+---New data---
+
+[Remaining: 325]
+
+[File : ./suiteSparse_dataset/SiO/SiO.mtx]
+[K : 64]
+[Sputnik_gflops : 41.20 ]
+Matrix diff: 73120.851562
+* 	Execution time: .446741473 seconds
+
+---New data---
+
+[Remaining: 324]
+
+[File : ./suiteSparse_dataset/2D_54019_highK/2D_54019_highK.mtx]
+[K : 64]
+[Sputnik_gflops : 11.37 ]
+Matrix diff: 69977.703125
+* 	Execution time: .523738320 seconds
+
+---New data---
+
+[Remaining: 323]
+
+[File : ./suiteSparse_dataset/rlfprim/rlfprim.mtx]
+[K : 64]
+[Sputnik_gflops : 3.06 ]
+Matrix diff: 83139.179688
+* 	Execution time: .453701364 seconds
+
+---New data---
+
+[Remaining: 322]
+
+[File : ./suiteSparse_dataset/g7jac200sc/g7jac200sc.mtx]
+[K : 64]
+[Sputnik_gflops : 8.38 ]
+Matrix diff: 91533.062500
+* 	Execution time: .542882679 seconds
+
+---New data---
+
+[Remaining: 321]
+
+[File : ./suiteSparse_dataset/astro-ph/astro-ph.mtx]
+[K : 64]
+[Sputnik_gflops : 30.23 ]
+Matrix diff: 86802.093750
+* 	Execution time: .272448848 seconds
+
+---New data---
+
+[Remaining: 320]
+
+[File : ./suiteSparse_dataset/TSOPF_FS_b39_c19/TSOPF_FS_b39_c19.mtx]
+[K : 64]
+[Sputnik_gflops : 12.01 ]
+Matrix diff: 55524.632812
+* 	Execution time: .766842635 seconds
+
+---New data---
+
+[Remaining: 319]
+
+[File : ./suiteSparse_dataset/bcsstk35/bcsstk35.mtx]
+[K : 64]
+[Sputnik_gflops : 55.45 ]
+Matrix diff: 89854.546875
+* 	Execution time: .464926893 seconds
+
+---New data---
+
+[Remaining: 318]
+
+[File : ./suiteSparse_dataset/TSOPF_FS_b162_c4/TSOPF_FS_b162_c4.mtx]
+[K : 64]
+[Sputnik_gflops : 50.61 ]
+Matrix diff: 64026.394531
+* 	Execution time: .648366160 seconds
+
+---New data---
+
+[Remaining: 317]
+
+[File : ./suiteSparse_dataset/lowThrust_12/lowThrust_12.mtx]
+[K : 64]
+[Sputnik_gflops : 23.08 ]
+Matrix diff: 84682.156250
+* 	Execution time: .251273513 seconds
+
+---New data---
+
+[Remaining: 316]
+
+[File : ./suiteSparse_dataset/g7jac100/g7jac100.mtx]
+[K : 64]
+[Sputnik_gflops : 15.40 ]
+Matrix diff: 91460.710938
+* 	Execution time: .332548371 seconds
+
+---New data---
+
+[Remaining: 315]
+
+[File : ./suiteSparse_dataset/g7jac050sc/g7jac050sc.mtx]
+[K : 64]
+[Sputnik_gflops : 25.26 ]
+Matrix diff: 68784.179688
+* 	Execution time: .238535017 seconds
+
+---New data---
+
+[Remaining: 314]
+
+[File : ./suiteSparse_dataset/mycielskian14/mycielskian14.mtx]
+[K : 64]
+[Sputnik_gflops : 740.29 ]
+Matrix diff: 50083.687500
+* 	Execution time: .764356573 seconds
+
+---New data---
+
+[Remaining: 313]
+
+[File : ./suiteSparse_dataset/gupta1/gupta1.mtx]
+[K : 64]
+[Sputnik_gflops : 70.59 ]
+Matrix diff: 35235.933594
+* 	Execution time: .582377044 seconds
+
+---New data---
+
+[Remaining: 312]
+
+[File : ./suiteSparse_dataset/bayer04/bayer04.mtx]
+[K : 64]
+[Sputnik_gflops : 13.03 ]
+Matrix diff: 83683.195312
+* 	Execution time: .272839029 seconds
+
+---New data---
+
+[Remaining: 311]
+
+[File : ./suiteSparse_dataset/Goodwin_071/Goodwin_071.mtx]
+[K : 64]
+[Sputnik_gflops : 19.91 ]
+Matrix diff: 62361.882812
+* 	Execution time: .682400277 seconds
+
+---New data---
+
+[Remaining: 310]
+
+[File : ./suiteSparse_dataset/cyl6/cyl6.mtx]
+[K : 64]
+[Sputnik_gflops : 131.70 ]
+Matrix diff: 85675.210938
+* 	Execution time: .321140931 seconds
+
+---New data---
+
+[Remaining: 309]
+
+[File : ./suiteSparse_dataset/g7jac140sc/g7jac140sc.mtx]
+[K : 64]
+[Sputnik_gflops : 11.56 ]
+Matrix diff: 51793.449219
+* 	Execution time: .407287183 seconds
+
+---New data---
+
+[Remaining: 308]
+
+[File : ./suiteSparse_dataset/wing/wing.mtx]
+[K : 64]
+[Sputnik_gflops : 2.23 ]
+Matrix diff: 83484.539062
+* 	Execution time: .429809735 seconds
+
+---New data---
+
+[Remaining: 307]
+
+[File : ./suiteSparse_dataset/crplat2/crplat2.mtx]
+[K : 64]
+[Sputnik_gflops : 102.96 ]
+Matrix diff: 52722.277344
+* 	Execution time: .360794595 seconds
+
+---New data---
+
+[Remaining: 306]
+
+[File : ./suiteSparse_dataset/c-60/c-60.mtx]
+[K : 64]
+[Sputnik_gflops : 5.53 ]
+Matrix diff: 94320.648438
+* 	Execution time: .368925971 seconds
+
+---New data---
+
+[Remaining: 305]
+
+[File : ./suiteSparse_dataset/mip1/mip1.mtx]
+[K : 64]
+[Sputnik_gflops : 81.78 ]
+Matrix diff: 156721.250000
+* 	Execution time: 1.975215288 seconds
+
+---New data---
+
+[Remaining: 304]
+
+[File : ./suiteSparse_dataset/Zhao2/Zhao2.mtx]
+[K : 64]
+[Sputnik_gflops : 5.11 ]
+Matrix diff: 64481.898438
+* 	Execution time: .311428558 seconds
+
+---New data---
+
+[Remaining: 303]
+
+[File : ./suiteSparse_dataset/c-66/c-66.mtx]
+[K : 64]
+[Sputnik_gflops : 7.04 ]
+Matrix diff: 45851.078125
+* 	Execution time: .430452340 seconds
+
+---New data---
+
+[Remaining: 302]
+
+[File : ./suiteSparse_dataset/helm3d01/helm3d01.mtx]
+[K : 64]
+[Sputnik_gflops : 14.47 ]
+Matrix diff: 85776.390625
+* 	Execution time: .338770608 seconds
+
+---New data---
+
+[Remaining: 301]
+
+[File : ./suiteSparse_dataset/k3plates/k3plates.mtx]
+[K : 64]
+[Sputnik_gflops : 105.23 ]
+Matrix diff: 60931.566406
+* 	Execution time: .272615200 seconds
+
+---New data---
+
+[Remaining: 300]
+
+[File : ./suiteSparse_dataset/lowThrust_6/lowThrust_6.mtx]
+[K : 64]
+[Sputnik_gflops : 25.32 ]
+Matrix diff: 73303.328125
+* 	Execution time: .267602982 seconds
+
+---New data---
+
+[Remaining: 299]
+
+[File : ./suiteSparse_dataset/Zd_Jac2/Zd_Jac2.mtx]
+[K : 64]
+[Sputnik_gflops : 108.15 ]
+Matrix diff: 79501.132812
+* 	Execution time: .544311266 seconds
+
+---New data---
+
+[Remaining: 298]
+
+[File : ./suiteSparse_dataset/JP/JP.mtx]
+[K : 64]
+[Sputnik_gflops : 77.59 ]
+Matrix diff: 76729.546875
+* 	Execution time: 3.189308831 seconds
+
+---New data---
+
+[Remaining: 297]
+
+[File : ./suiteSparse_dataset/wang4/wang4.mtx]
+[K : 64]
+[Sputnik_gflops : 9.17 ]
+Matrix diff: 40500.527344
+* 	Execution time: .294767849 seconds
+
+---New data---
+
+[Remaining: 296]
+
+[File : ./suiteSparse_dataset/cit-HepTh/cit-HepTh.mtx]
+[K : 64]
+[Sputnik_gflops : 16.04 ]
+Matrix diff: 72470.312500
+* 	Execution time: .318150322 seconds
+
+---New data---
+
+[Remaining: 295]
+
+[File : ./suiteSparse_dataset/crystm02/crystm02.mtx]
+[K : 64]
+[Sputnik_gflops : 57.23 ]
+Matrix diff: 47978.093750
+* 	Execution time: .271463310 seconds
+
+---New data---
+
+[Remaining: 294]
+
+[File : ./suiteSparse_dataset/t3dh_a/t3dh_a.mtx]
+[K : 64]
+[Sputnik_gflops : 24.34 ]
+Matrix diff: 61027.437500
+* 	Execution time: 1.105468400 seconds
+
+---New data---
+
+[Remaining: 293]
+
+[File : ./suiteSparse_dataset/jan99jac100/jan99jac100.mtx]
+[K : 64]
+[Sputnik_gflops : 6.40 ]
+Matrix diff: 84795.445312
+* 	Execution time: .324088778 seconds
+
+---New data---
+
+[Remaining: 292]
+
+[File : ./suiteSparse_dataset/g7jac160/g7jac160.mtx]
+[K : 64]
+[Sputnik_gflops : 10.27 ]
+Matrix diff: 61044.136719
+* 	Execution time: .453943187 seconds
+
+---New data---
+
+[Remaining: 291]
+
+[File : ./suiteSparse_dataset/g7jac040sc/g7jac040sc.mtx]
+[K : 64]
+[Sputnik_gflops : 28.60 ]
+Matrix diff: 89441.140625
+* 	Execution time: .249402444 seconds
+
+---New data---
+
+[Remaining: 290]
+
+[File : ./suiteSparse_dataset/tandem_vtx/tandem_vtx.mtx]
+[K : 64]
+[Sputnik_gflops : 25.97 ]
+Matrix diff: 86591.468750
+* 	Execution time: .272534488 seconds
+
+---New data---
+
+[Remaining: 289]
+
+[File : ./suiteSparse_dataset/c-51/c-51.mtx]
+[K : 64]
+[Sputnik_gflops : 13.26 ]
+Matrix diff: 90061.281250
+* 	Execution time: .277421092 seconds
+
+---New data---
+
+[Remaining: 288]
+
+[File : ./suiteSparse_dataset/human_gene1/human_gene1.mtx]
+[K : 64]
+[Sputnik_gflops : 1129.19 ]
+Matrix diff: 144658.734375
+* 	Execution time: 4.176571621 seconds
+
+---New data---
+
+[Remaining: 287]
+
+[File : ./suiteSparse_dataset/wy2010/wy2010.mtx]
+[K : 64]
+[Sputnik_gflops : 2.03 ]
+Matrix diff: 70446.359375
+* 	Execution time: .613446020 seconds
+
+---New data---
+
+[Remaining: 286]
+
+[File : ./suiteSparse_dataset/TSOPF_RS_b2052_c1/TSOPF_RS_b2052_c1.mtx]
+[K : 64]
+[Sputnik_gflops : 347.71 ]
+Matrix diff: 101547.093750
+* 	Execution time: 1.473621321 seconds
+
+---New data---
+
+[Remaining: 285]
+
+[File : ./suiteSparse_dataset/c-56/c-56.mtx]
+[K : 64]
+[Sputnik_gflops : 10.40 ]
+Matrix diff: 94293.132812
+* 	Execution time: .346167146 seconds
+
+---New data---
+
+[Remaining: 284]
+
+[File : ./suiteSparse_dataset/pkustk06/pkustk06.mtx]
+[K : 64]
+[Sputnik_gflops : 47.67 ]
+Matrix diff: 92909.039062
+* 	Execution time: .671602678 seconds
+
+---New data---
+
+[Remaining: 283]
+
+[File : ./suiteSparse_dataset/vsp_bump2_e18_aa01_model1_crew1/vsp_bump2_e18_aa01_model1_crew1.mtx]
+[K : 64]
+[Sputnik_gflops : 6.65 ]
+Matrix diff: 39159.957031
+* 	Execution time: .461998301 seconds
+
+---New data---
+
+[Remaining: 282]
+
+[File : ./suiteSparse_dataset/ex35/ex35.mtx]
+[K : 64]
+[Sputnik_gflops : 20.55 ]
+Matrix diff: 47997.710938
+* 	Execution time: .280406649 seconds
+
+---New data---
+
+[Remaining: 281]
+
+[File : ./suiteSparse_dataset/copter1/copter1.mtx]
+[K : 64]
+[Sputnik_gflops : 24.83 ]
+Matrix diff: 51042.128906
+* 	Execution time: .268464896 seconds
+
+---New data---
+
+[Remaining: 280]
+
+[File : ./suiteSparse_dataset/ncvxbqp1/ncvxbqp1.mtx]
+[K : 64]
+[Sputnik_gflops : 4.93 ]
+Matrix diff: 78381.367188
+* 	Execution time: .393376799 seconds
+
+---New data---
+
+[Remaining: 279]
+
+[File : ./suiteSparse_dataset/mark3jac060sc/mark3jac060sc.mtx]
+[K : 64]
+[Sputnik_gflops : 7.97 ]
+Matrix diff: 67278.632812
+* 	Execution time: .288352328 seconds
+
+---New data---
+
+[Remaining: 278]
+
+[File : ./suiteSparse_dataset/bcsstk25/bcsstk25.mtx]
+[K : 64]
+[Sputnik_gflops : 36.78 ]
+Matrix diff: 92165.742188
+* 	Execution time: .249467005 seconds
+
+---New data---
+
+[Remaining: 277]
+
+[File : ./suiteSparse_dataset/TSOPF_RS_b162_c4/TSOPF_RS_b162_c4.mtx]
+[K : 64]
+[Sputnik_gflops : 68.37 ]
+Matrix diff: 85979.828125
+* 	Execution time: .375935926 seconds
+
+---New data---
+
+[Remaining: 276]
+
+[File : ./suiteSparse_dataset/loc-Brightkite/loc-Brightkite.mtx]
+[K : 64]
+[Sputnik_gflops : 4.45 ]
+Matrix diff: 85866.109375
+* 	Execution time: .452405082 seconds
+
+---New data---
+
+[Remaining: 275]
+
+[File : ./suiteSparse_dataset/garon2/garon2.mtx]
+[K : 64]
+[Sputnik_gflops : 73.61 ]
+Matrix diff: 51794.218750
+* 	Execution time: .295620557 seconds
+
+---New data---
+
+[Remaining: 274]
+
+[File : ./suiteSparse_dataset/TSOPF_RS_b39_c30/TSOPF_RS_b39_c30.mtx]
+[K : 64]
+[Sputnik_gflops : 10.55 ]
+Matrix diff: 9291.803711
+* 	Execution time: .563523219 seconds
+
+---New data---
+
+[Remaining: 273]
+
+[File : ./suiteSparse_dataset/TSOPF_RS_b300_c1/TSOPF_RS_b300_c1.mtx]
+[K : 64]
+[Sputnik_gflops : 238.72 ]
+Matrix diff: 92420.250000
+* 	Execution time: .472017798 seconds
+
+---New data---
+
+[Remaining: 272]
+
+[File : ./suiteSparse_dataset/tube2/tube2.mtx]
+[K : 64]
+[Sputnik_gflops : 67.66 ]
+Matrix diff: 73475.929688
+* 	Execution time: .364198196 seconds
+
+---New data---
+
+[Remaining: 271]
+
+[File : ./suiteSparse_dataset/lhr14c/lhr14c.mtx]
+[K : 64]
+[Sputnik_gflops : 52.49 ]
+Matrix diff: 45983.859375
+* 	Execution time: .257002525 seconds
+
+---New data---
+
+[Remaining: 270]
+
+[File : ./suiteSparse_dataset/bayer01/bayer01.mtx]
+[K : 64]
+[Sputnik_gflops : 2.94 ]
+Matrix diff: 85590.539062
+* 	Execution time: .411870096 seconds
+
+---New data---
+
+[Remaining: 269]
+
+[File : ./suiteSparse_dataset/nh2010/nh2010.mtx]
+[K : 64]
+[Sputnik_gflops : 3.46 ]
+Matrix diff: 63554.675781
+* 	Execution time: .376677235 seconds
+
+---New data---
+
+[Remaining: 268]
+
+[File : ./suiteSparse_dataset/c-72/c-72.mtx]
+[K : 64]
+[Sputnik_gflops : 3.53 ]
+Matrix diff: 48347.929688
+* 	Execution time: .644043943 seconds
+
+---New data---
+
+[Remaining: 267]
+
+[File : ./suiteSparse_dataset/IG5-15/IG5-15.mtx]
+[K : 64]
+[Sputnik_gflops : 81.10 ]
+Matrix diff: 45668.703125
+* 	Execution time: .285996250 seconds
+
+---New data---
+
+[Remaining: 266]
+
+[File : ./suiteSparse_dataset/bauru5727/bauru5727.mtx]
+[K : 64]
+[Sputnik_gflops : 3.14 ]
+Matrix diff: 68361.937500
+* 	Execution time: .313852673 seconds
+
+---New data---
+
+[Remaining: 265]
+
+[File : ./suiteSparse_dataset/Pres_Poisson/Pres_Poisson.mtx]
+[K : 64]
+[Sputnik_gflops : 112.35 ]
+Matrix diff: 84480.617188
+* 	Execution time: .308367588 seconds
+
+---New data---
+
+[Remaining: 264]
+
+[File : ./suiteSparse_dataset/g7jac200/g7jac200.mtx]
+[K : 64]
+[Sputnik_gflops : 8.38 ]
+Matrix diff: 37918.316406
+* 	Execution time: .544132761 seconds
+
+---New data---
+
+[Remaining: 263]
+
+[File : ./suiteSparse_dataset/g7jac100sc/g7jac100sc.mtx]
+[K : 64]
+[Sputnik_gflops : 15.41 ]
+Matrix diff: 86646.000000
+* 	Execution time: .331077382 seconds
+
+---New data---
+
+[Remaining: 262]
+
+[File : ./suiteSparse_dataset/TSOPF_RS_b678_c2/TSOPF_RS_b678_c2.mtx]
+[K : 64]
+[Sputnik_gflops : 223.37 ]
+Matrix diff: 83508.601562
+* 	Execution time: 1.797905273 seconds
+
+---New data---
+
+[Remaining: 261]
+
+[File : ./suiteSparse_dataset/scagr7-2r/scagr7-2r.mtx]
+[K : 64]
+[Sputnik_gflops : 2.76 ]
+Matrix diff: 66405.890625
+* 	Execution time: .320556564 seconds
+
+---New data---
+
+[Remaining: 260]
+
+[File : ./suiteSparse_dataset/scagr7-2r/scagr7-2r_A_11.mtx]
+[K : 64]
+[Sputnik_gflops : 2.76 ]
+Matrix diff: 89511.273438
+* 	Execution time: .314917470 seconds
+
+---New data---
+
+[Remaining: 259]
+
+[File : ./suiteSparse_dataset/TF17/TF17.mtx]
+[K : 64]
+[Sputnik_gflops : 11.12 ]
+Matrix diff: 50763.507812
+* 	Execution time: .432878658 seconds
+
+---New data---
+
+[Remaining: 258]
+
+[File : ./suiteSparse_dataset/soc-sign-Slashdot090221/soc-sign-Slashdot090221.mtx]
+[K : 64]
+[Sputnik_gflops : 2.87 ]
+Matrix diff: 77873.617188
+* 	Execution time: .640641082 seconds
+
+---New data---
+
+[Remaining: 257]
+
+[File : ./suiteSparse_dataset/net150/net150.mtx]
+[K : 64]
+[Sputnik_gflops : 57.38 ]
+Matrix diff: 81495.515625
+* 	Execution time: .748853221 seconds
+
+---New data---
+
+[Remaining: 256]
+
+[File : ./suiteSparse_dataset/IG5-18/IG5-18.mtx]
+[K : 64]
+[Sputnik_gflops : 31.38 ]
+Matrix diff: 75624.156250
+* 	Execution time: .636985969 seconds
+
+---New data---
+
+[Remaining: 255]
+
+[File : ./suiteSparse_dataset/mark3jac120sc/mark3jac120sc.mtx]
+[K : 64]
+[Sputnik_gflops : 4.00 ]
+Matrix diff: 70191.664062
+* 	Execution time: .426589707 seconds
+
+---New data---
+
+[Remaining: 254]
+
+[File : ./suiteSparse_dataset/c-64/c-64.mtx]
+[K : 64]
+[Sputnik_gflops : 9.72 ]
+Matrix diff: 88968.000000
+* 	Execution time: .455165729 seconds
+
+---New data---
+
+[Remaining: 253]
+
+[File : ./suiteSparse_dataset/email-Enron/email-Enron.mtx]
+[K : 64]
+[Sputnik_gflops : 9.60 ]
+Matrix diff: 88022.062500
+* 	Execution time: .339737470 seconds
+
+---New data---
+
+[Remaining: 252]
+
+[File : ./suiteSparse_dataset/viscorocks/viscorocks.mtx]
+[K : 64]
+[Sputnik_gflops : 28.61 ]
+Matrix diff: 82782.859375
+* 	Execution time: .481015108 seconds
+
+---New data---
+
+[Remaining: 251]
+
+[File : ./suiteSparse_dataset/std1_Jac3/std1_Jac3.mtx]
+[K : 64]
+[Sputnik_gflops : 103.66 ]
+Matrix diff: 92374.312500
+* 	Execution time: .488530441 seconds
+
+---New data---
+
+[Remaining: 250]
+
+[File : ./suiteSparse_dataset/TSOPF_RS_b39_c7/TSOPF_RS_b39_c7.mtx]
+[K : 64]
+[Sputnik_gflops : 44.34 ]
+Matrix diff: 93956.070312
+* 	Execution time: .269495830 seconds
+
+---New data---
+
+[Remaining: 249]
+
+[File : ./suiteSparse_dataset/mark3jac140sc/mark3jac140sc.mtx]
+[K : 64]
+[Sputnik_gflops : 3.37 ]
+Matrix diff: 86661.351562
+* 	Execution time: .481824166 seconds
+
+---New data---
+
+[Remaining: 248]
+
+[File : ./suiteSparse_dataset/gyro_m/gyro_m.mtx]
+[K : 64]
+[Sputnik_gflops : 39.20 ]
+Matrix diff: 83699.031250
+* 	Execution time: .279669837 seconds
+
+---New data---
+
+[Remaining: 247]
+
+[File : ./suiteSparse_dataset/epb2/epb2.mtx]
+[K : 64]
+[Sputnik_gflops : 9.67 ]
+Matrix diff: 90635.179688
+* 	Execution time: .280106596 seconds
+
+---New data---
+
+[Remaining: 246]
+
+[File : ./suiteSparse_dataset/ship_001/ship_001.mtx]
+[K : 64]
+[Sputnik_gflops : 131.20 ]
+Matrix diff: 167460.593750
+* 	Execution time: .951549615 seconds
+
+---New data---
+
+[Remaining: 245]
+
+[File : ./suiteSparse_dataset/ted_A_unscaled/ted_A_unscaled.mtx]
+[K : 64]
+[Sputnik_gflops : 128.23 ]
+Matrix diff: 60893.957031
+* 	Execution time: .286906978 seconds
+
+---New data---
+
+[Remaining: 244]
+
+[File : ./suiteSparse_dataset/vsp_msc10848_300sep_100in_1Kout/vsp_msc10848_300sep_100in_1Kout.mtx]
+[K : 64]
+[Sputnik_gflops : 158.39 ]
+Matrix diff: 21743.042969
+* 	Execution time: .603472198 seconds
+
+---New data---
+
+[Remaining: 243]
+
+[File : ./suiteSparse_dataset/k49_norm_10NN/k49_norm_10NN.mtx]
+[K : 64]
+[Sputnik_gflops : 13.80 ]
+Matrix diff: 86329.718750
+* 	Execution time: .392283929 seconds
+
+---New data---
+
+[Remaining: 242]
+
+[File : ./suiteSparse_dataset/ct2010/ct2010.mtx]
+[K : 64]
+[Sputnik_gflops : 2.47 ]
+Matrix diff: 84864.515625
+* 	Execution time: .492663130 seconds
+
+---New data---
+
+[Remaining: 241]
+
+[File : ./suiteSparse_dataset/conf6_0-8x8-20/conf6_0-8x8-20.mtx]
+[K : 64]
+[Sputnik_gflops : 27.90 ]
+Matrix diff: 80863.210938
+* 	Execution time: .674481505 seconds
+
+---New data---
+
+[Remaining: 240]
+
+[File : ./suiteSparse_dataset/fxm4_6/fxm4_6.mtx]
+[K : 64]
+[Sputnik_gflops : 8.84 ]
+Matrix diff: 83711.609375
+* 	Execution time: .328025047 seconds
+
+---New data---
+
+[Remaining: 239]
+
+[File : ./suiteSparse_dataset/water_tank/water_tank.mtx]
+[K : 64]
+[Sputnik_gflops : 19.37 ]
+Matrix diff: 99479.960938
+* 	Execution time: .740580758 seconds
+
+---New data---
+
+[Remaining: 238]
+
+[File : ./suiteSparse_dataset/windtunnel_evap3d/windtunnel_evap3d.mtx]
+[K : 64]
+[Sputnik_gflops : 56.99 ]
+Matrix diff: 106829.914062
+* 	Execution time: .803660148 seconds
+
+---New data---
+
+[Remaining: 237]
+
+[File : ./suiteSparse_dataset/g7jac060sc/g7jac060sc.mtx]
+[K : 64]
+[Sputnik_gflops : 22.58 ]
+Matrix diff: 62781.875000
+* 	Execution time: .269479410 seconds
+
+---New data---
+
+[Remaining: 236]
+
+[File : ./suiteSparse_dataset/c-61/c-61.mtx]
+[K : 64]
+[Sputnik_gflops : 5.74 ]
+Matrix diff: 74172.164062
+* 	Execution time: .367420858 seconds
+
+---New data---
+
+[Remaining: 235]
+
+[File : ./suiteSparse_dataset/Goodwin_030/Goodwin_030.mtx]
+[K : 64]
+[Sputnik_gflops : 103.23 ]
+Matrix diff: 49884.011719
+* 	Execution time: .273385633 seconds
+
+---New data---
+
+[Remaining: 234]
+
+[File : ./suiteSparse_dataset/lp_pds_10/lp_pds_10.mtx]
+[K : 64]
+[Sputnik_gflops : 4.58 ]
+Matrix diff: 78517.171875
+* 	Execution time: .283587042 seconds
+
+---New data---
+
+[Remaining: 233]
+
+[File : ./suiteSparse_dataset/pkustk11/pkustk11.mtx]
+[K : 64]
+[Sputnik_gflops : 23.03 ]
+Matrix diff: 91679.156250
+* 	Execution time: 1.345948889 seconds
+
+---New data---
+
+[Remaining: 232]
+
+[File : ./suiteSparse_dataset/rgg_n_2_15_s0/rgg_n_2_15_s0.mtx]
+[K : 64]
+[Sputnik_gflops : 10.50 ]
+Matrix diff: 88495.445312
+* 	Execution time: .324757290 seconds
+
+---New data---
+
+[Remaining: 231]
+
+[File : ./suiteSparse_dataset/cz10228/cz10228.mtx]
+[K : 64]
+[Sputnik_gflops : 34.00 ]
+Matrix diff: 59623.160156
+* 	Execution time: .221197215 seconds
+
+---New data---
+
+[Remaining: 230]
+
+[File : ./suiteSparse_dataset/bcsstk39/bcsstk39.mtx]
+[K : 64]
+[Sputnik_gflops : 33.57 ]
+Matrix diff: 69403.515625
+* 	Execution time: .591909616 seconds
+
+---New data---
+
+[Remaining: 229]
+
+[File : ./suiteSparse_dataset/ted_AB_unscaled/ted_AB_unscaled.mtx]
+[K : 64]
+[Sputnik_gflops : 156.52 ]
+Matrix diff: 83082.312500
+* 	Execution time: .305592916 seconds
+
+---New data---
+
+[Remaining: 228]
+
+[File : ./suiteSparse_dataset/vsp_model1_crew1_cr42_south31/vsp_model1_crew1_cr42_south31.mtx]
+[K : 64]
+[Sputnik_gflops : 6.58 ]
+Matrix diff: 91034.460938
+* 	Execution time: .389186982 seconds
+
+---New data---
+
+[Remaining: 227]
+
+[File : ./suiteSparse_dataset/pli/pli.mtx]
+[K : 64]
+[Sputnik_gflops : 89.77 ]
+Matrix diff: 77769.414062
+* 	Execution time: .420252673 seconds
+
+---New data---
+
+[Remaining: 226]
+
+[File : ./suiteSparse_dataset/bcsstk36/bcsstk36.mtx]
+[K : 64]
+[Sputnik_gflops : 74.86 ]
+Matrix diff: 66461.039062
+* 	Execution time: .407049596 seconds
+
+---New data---
+
+[Remaining: 225]
+
+[File : ./suiteSparse_dataset/ncvxqp5/ncvxqp5.mtx]
+[K : 64]
+[Sputnik_gflops : 3.83 ]
+Matrix diff: 73177.578125
+* 	Execution time: .450127501 seconds
+
+---New data---
+
+[Remaining: 224]
+
+[File : ./suiteSparse_dataset/mixtank_new/mixtank_new.mtx]
+[K : 64]
+[Sputnik_gflops : 76.92 ]
+Matrix diff: 52129.203125
+* 	Execution time: .637447834 seconds
+
+---New data---
+
+[Remaining: 223]
+
+[File : ./suiteSparse_dataset/TSOPF_FS_b300_c3/TSOPF_FS_b300_c3.mtx]
+[K : 64]
+[Sputnik_gflops : 64.42 ]
+Matrix diff: 57504.578125
+* 	Execution time: 2.558208339 seconds
+
+---New data---
+
+[Remaining: 222]
+
+[File : ./suiteSparse_dataset/Franz11/Franz11.mtx]
+[K : 64]
+[Sputnik_gflops : 8.18 ]
+Matrix diff: 90202.617188
+* 	Execution time: .345353269 seconds
+
+---New data---
+
+[Remaining: 221]
+
+[File : ./suiteSparse_dataset/gas_sensor/gas_sensor.mtx]
+[K : 64]
+[Sputnik_gflops : 13.40 ]
+Matrix diff: 13338.278320
+* 	Execution time: .643849607 seconds
+
+---New data---
+
+[Remaining: 220]
+
+[File : ./suiteSparse_dataset/cz20468/cz20468.mtx]
+[K : 64]
+[Sputnik_gflops : 17.24 ]
+Matrix diff: 95040.312500
+* 	Execution time: .272332228 seconds
+
+---New data---
+
+[Remaining: 219]
+
+[File : ./suiteSparse_dataset/denormal/denormal.mtx]
+[K : 64]
+[Sputnik_gflops : 5.11 ]
+Matrix diff: 83078.906250
+* 	Execution time: .726038570 seconds
+
+---New data---
+
+[Remaining: 218]
+
+[File : ./suiteSparse_dataset/conf5_4-8x8-20/conf5_4-8x8-20.mtx]
+[K : 64]
+[Sputnik_gflops : 27.90 ]
+Matrix diff: 95980.726562
+* 	Execution time: .673311772 seconds
+
+---New data---
+
+[Remaining: 217]
+
+[File : ./suiteSparse_dataset/pdb1HYS/pdb1HYS.mtx]
+[K : 64]
+[Sputnik_gflops : 112.39 ]
+Matrix diff: 84005.257812
+* 	Execution time: .934097660 seconds
+
+---New data---
+
+[Remaining: 216]
+
+[File : ./suiteSparse_dataset/mark3jac120/mark3jac120.mtx]
+[K : 64]
+[Sputnik_gflops : 4.00 ]
+Matrix diff: 51618.855469
+* 	Execution time: .431050099 seconds
+
+---New data---
+
+[Remaining: 215]
+
+[File : ./suiteSparse_dataset/scfxm1-2r/scfxm1-2r_A_9.mtx]
+[K : 64]
+[Sputnik_gflops : 3.12 ]
+Matrix diff: 95553.906250
+* 	Execution time: .393379122 seconds
+
+---New data---
+
+[Remaining: 214]
+
+[File : ./suiteSparse_dataset/scfxm1-2r/scfxm1-2r.mtx]
+[K : 64]
+[Sputnik_gflops : 3.12 ]
+Matrix diff: 70437.335938
+* 	Execution time: .377948999 seconds
+
+---New data---
+
+[Remaining: 213]
+
+[File : ./suiteSparse_dataset/scfxm1-2r/scfxm1-2r_A_8.mtx]
+[K : 64]
+[Sputnik_gflops : 6.21 ]
+Matrix diff: 85438.210938
+* 	Execution time: .275413386 seconds
+
+---New data---
+
+[Remaining: 212]
+
+[File : ./suiteSparse_dataset/av41092/av41092.mtx]
+[K : 64]
+[Sputnik_gflops : 35.00 ]
+Matrix diff: 75797.585938
+* 	Execution time: .595750417 seconds
+
+---New data---
+
+[Remaining: 211]
+
+[File : ./suiteSparse_dataset/ted_AB/ted_AB.mtx]
+[K : 64]
+[Sputnik_gflops : 156.67 ]
+Matrix diff: 83204.445312
+* 	Execution time: .308754283 seconds
+
+---New data---
+
+[Remaining: 210]
+
+[File : ./suiteSparse_dataset/jan99jac080/jan99jac080.mtx]
+[K : 64]
+[Sputnik_gflops : 7.96 ]
+Matrix diff: 76391.859375
+* 	Execution time: .281322305 seconds
+
+---New data---
+
+[Remaining: 209]
+
+[File : ./suiteSparse_dataset/ramage02/ramage02.mtx]
+[K : 64]
+[Sputnik_gflops : 309.81 ]
+Matrix diff: 75142.757812
+* 	Execution time: .645116553 seconds
+
+---New data---
+
+[Remaining: 208]
+
+[File : ./suiteSparse_dataset/c-53/c-53.mtx]
+[K : 64]
+[Sputnik_gflops : 13.54 ]
+Matrix diff: 88406.343750
+* 	Execution time: .321979412 seconds
+
+---New data---
+
+[Remaining: 207]
+
+[File : ./suiteSparse_dataset/wathen120/wathen120.mtx]
+[K : 64]
+[Sputnik_gflops : 14.16 ]
+Matrix diff: 57711.781250
+* 	Execution time: .366043596 seconds
+
+---New data---
+
+[Remaining: 206]
+
+[File : ./suiteSparse_dataset/TSOPF_RS_b300_c3/TSOPF_RS_b300_c3.mtx]
+[K : 64]
+[Sputnik_gflops : 82.18 ]
+Matrix diff: 61644.257812
+* 	Execution time: 1.065942661 seconds
+
+---New data---
+
+[Remaining: 205]
+
+[File : ./suiteSparse_dataset/fome13/fome13.mtx]
+[K : 64]
+[Sputnik_gflops : 2.12 ]
+Matrix diff: 62488.910156
+* 	Execution time: .500589811 seconds
+
+---New data---
+
+[Remaining: 204]
+
+[File : ./suiteSparse_dataset/ckt11752_dc_1/ckt11752_dc_1.mtx]
+[K : 64]
+[Sputnik_gflops : 4.75 ]
+Matrix diff: 89850.179688
+* 	Execution time: .413005974 seconds
+
+---New data---
+
+[Remaining: 203]
+
+[File : ./suiteSparse_dataset/sinc18/sinc18.mtx]
+[K : 64]
+[Sputnik_gflops : 122.83 ]
+Matrix diff: 87852.578125
+* 	Execution time: .379330259 seconds
+
+---New data---
+
+[Remaining: 202]
+
+[File : ./suiteSparse_dataset/ABACUS_shell_ld/ABACUS_shell_ld_M.mtx]
+[K : 64]
+[Sputnik_gflops : 13.23 ]
+Matrix diff: 80738.421875
+* 	Execution time: .288859518 seconds
+
+---New data---
+
+[Remaining: 201]
+
+[File : ./suiteSparse_dataset/ABACUS_shell_ld/ABACUS_shell_ld_K.mtx]
+[K : 64]
+[Sputnik_gflops : 13.85 ]
+Matrix diff: 72572.960938
+* 	Execution time: .293094269 seconds
+
+---New data---
+
+[Remaining: 200]
+
+[File : ./suiteSparse_dataset/ABACUS_shell_ld/ABACUS_shell_ld.mtx]
+[K : 64]
+[Sputnik_gflops : 14.00 ]
+Matrix diff: 56188.289062
+* 	Execution time: .278946270 seconds
+
+---New data---
+
+[Remaining: 199]
+
+[File : ./suiteSparse_dataset/TSOPF_FS_b162_c1/TSOPF_FS_b162_c1.mtx]
+[K : 64]
+[Sputnik_gflops : 178.56 ]
+Matrix diff: 94222.703125
+* 	Execution time: .308535723 seconds
+
+---New data---
+
+[Remaining: 198]
+
+[File : ./suiteSparse_dataset/vsp_barth5_1Ksep_50in_5Kout/vsp_barth5_1Ksep_50in_5Kout.mtx]
+[K : 64]
+[Sputnik_gflops : 6.53 ]
+Matrix diff: 95326.445312
+* 	Execution time: .316203442 seconds
+
+---New data---
+
+[Remaining: 197]
+
+[File : ./suiteSparse_dataset/net4-1/net4-1.mtx]
+[K : 64]
+[Sputnik_gflops : 10.85 ]
+Matrix diff: 46797.363281
+* 	Execution time: .909655197 seconds
+
+---New data---
+
+[Remaining: 196]
+
+[File : ./suiteSparse_dataset/c-57/c-57.mtx]
+[K : 64]
+[Sputnik_gflops : 9.97 ]
+Matrix diff: 46643.406250
+* 	Execution time: .356997754 seconds
+
+---New data---
+
+[Remaining: 195]
+
+[File : ./suiteSparse_dataset/tube1/tube1.mtx]
+[K : 64]
+[Sputnik_gflops : 67.70 ]
+Matrix diff: 80079.937500
+* 	Execution time: .359532327 seconds
+
+---New data---
+
+[Remaining: 194]
+
+[File : ./suiteSparse_dataset/cage10/cage10.mtx]
+[K : 64]
+[Sputnik_gflops : 40.03 ]
+Matrix diff: 59460.695312
+* 	Execution time: .245985084 seconds
+
+---New data---
+
+[Remaining: 193]
+
+[File : ./suiteSparse_dataset/ACTIVSg10K/ACTIVSg10K.mtx]
+[K : 64]
+[Sputnik_gflops : 12.09 ]
+Matrix diff: 38833.652344
+* 	Execution time: .269482685 seconds
+
+---New data---
+
+[Remaining: 192]
+
+[File : ./suiteSparse_dataset/Zd_Jac3/Zd_Jac3.mtx]
+[K : 64]
+[Sputnik_gflops : 125.80 ]
+Matrix diff: 55602.269531
+* 	Execution time: .586052852 seconds
+
+---New data---
+
+[Remaining: 191]
+
+[File : ./suiteSparse_dataset/TSOPF_RS_b2383/TSOPF_RS_b2383.mtx]
+[K : 64]
+[Sputnik_gflops : 357.14 ]
+Matrix diff: 94514.335938
+* 	Execution time: 3.364184605 seconds
+
+---New data---
+
+[Remaining: 190]
+
+[File : ./suiteSparse_dataset/bcsstk17/bcsstk17.mtx]
+[K : 64]
+[Sputnik_gflops : 118.88 ]
+Matrix diff: 53058.875000
+* 	Execution time: .282911656 seconds
+
+---New data---
+
+[Remaining: 189]
+
+[File : ./suiteSparse_dataset/192bit/192bit.mtx]
+[K : 64]
+[Sputnik_gflops : 28.12 ]
+Matrix diff: 67065.093750
+* 	Execution time: .262652959 seconds
+
+---New data---
+
+[Remaining: 188]
+
+[File : ./suiteSparse_dataset/mark3jac060/mark3jac060.mtx]
+[K : 64]
+[Sputnik_gflops : 7.80 ]
+Matrix diff: 77010.296875
+* 	Execution time: .287914335 seconds
+
+---New data---
+
+[Remaining: 187]
+
+[File : ./suiteSparse_dataset/t3dl/t3dl.mtx]
+[K : 64]
+[Sputnik_gflops : 41.98 ]
+Matrix diff: 56180.472656
+* 	Execution time: .309021824 seconds
+
+---New data---
+
+[Remaining: 186]
+
+[File : ./suiteSparse_dataset/psse2/psse2.mtx]
+[K : 64]
+[Sputnik_gflops : 12.49 ]
+Matrix diff: 63741.820312
+* 	Execution time: .268951418 seconds
+
+---New data---
+
+[Remaining: 185]
+
+[File : ./suiteSparse_dataset/inlet/inlet.mtx]
+[K : 64]
+[Sputnik_gflops : 80.24 ]
+Matrix diff: 37197.363281
+* 	Execution time: .281135504 seconds
+
+---New data---
+
+[Remaining: 184]
+
+[File : ./suiteSparse_dataset/mk12-b3/mk12-b3.mtx]
+[K : 64]
+[Sputnik_gflops : 9.56 ]
+Matrix diff: 77837.132812
+* 	Execution time: .306024553 seconds
+
+---New data---
+
+[Remaining: 183]
+
+[File : ./suiteSparse_dataset/t3dh/t3dh.mtx]
+[K : 64]
+[Sputnik_gflops : 23.10 ]
+Matrix diff: 44608.734375
+* 	Execution time: 1.138639022 seconds
+
+---New data---
+
+[Remaining: 182]
+
+[File : ./suiteSparse_dataset/t3dh/t3dh_E.mtx]
+[K : 64]
+[Sputnik_gflops : 24.34 ]
+Matrix diff: 124699.187500
+* 	Execution time: 1.112528773 seconds
+
+---New data---
+
+[Remaining: 181]
+
+[File : ./suiteSparse_dataset/c-55/c-55.mtx]
+[K : 64]
+[Sputnik_gflops : 13.19 ]
+Matrix diff: 86656.875000
+* 	Execution time: .337888010 seconds
+
+---New data---
+
+[Remaining: 180]
+
+[File : ./suiteSparse_dataset/ABACUS_shell_hd/ABACUS_shell_hd_M.mtx]
+[K : 64]
+[Sputnik_gflops : 13.23 ]
+Matrix diff: 85717.859375
+* 	Execution time: .290370531 seconds
+
+---New data---
+
+[Remaining: 179]
+
+[File : ./suiteSparse_dataset/ABACUS_shell_hd/ABACUS_shell_hd_K.mtx]
+[K : 64]
+[Sputnik_gflops : 13.84 ]
+Matrix diff: 88985.664062
+* 	Execution time: .291732526 seconds
+
+---New data---
+
+[Remaining: 178]
+
+[File : ./suiteSparse_dataset/ABACUS_shell_hd/ABACUS_shell_hd.mtx]
+[K : 64]
+[Sputnik_gflops : 14.00 ]
+Matrix diff: 59372.320312
+* 	Execution time: .287422634 seconds
+
+---New data---
+
+[Remaining: 177]
+
+[File : ./suiteSparse_dataset/gupta2/gupta2.mtx]
+[K : 64]
+[Sputnik_gflops : 36.44 ]
+Matrix diff: 167379.375000
+* 	Execution time: .992823494 seconds
+
+---New data---
+
+[Remaining: 176]
+
+[File : ./suiteSparse_dataset/hvdc1/hvdc1.mtx]
+[K : 64]
+[Sputnik_gflops : 9.11 ]
+Matrix diff: 81337.148438
+* 	Execution time: .277557656 seconds
+
+---New data---
+
+[Remaining: 175]
+
+[File : ./suiteSparse_dataset/waveguide3D/waveguide3D.mtx]
+[K : 64]
+[Sputnik_gflops : 23.95 ]
+Matrix diff: 87053.632812
+* 	Execution time: .304642652 seconds
+
+---New data---
+
+[Remaining: 174]
+
+[File : ./suiteSparse_dataset/sme3Dc/sme3Dc.mtx]
+[K : 64]
+[Sputnik_gflops : 59.02 ]
+Matrix diff: 69562.687500
+* 	Execution time: .959131991 seconds
+
+---New data---
+
+[Remaining: 173]
+
+[File : ./suiteSparse_dataset/lowThrust_8/lowThrust_8.mtx]
+[K : 64]
+[Sputnik_gflops : 24.14 ]
+Matrix diff: 81388.421875
+* 	Execution time: .272590843 seconds
+
+---New data---
+
+[Remaining: 172]
+
+[File : ./suiteSparse_dataset/psse0/psse0.mtx]
+[K : 64]
+[Sputnik_gflops : 12.15 ]
+Matrix diff: 58671.484375
+* 	Execution time: .261510927 seconds
+
+---New data---
+
+[Remaining: 171]
+
+[File : ./suiteSparse_dataset/lhr71/lhr71.mtx]
+[K : 64]
+[Sputnik_gflops : 10.89 ]
+Matrix diff: 79990.632812
+* 	Execution time: .671207756 seconds
+
+---New data---
+
+[Remaining: 170]
+
+[File : ./suiteSparse_dataset/apache1/apache1.mtx]
+[K : 64]
+[Sputnik_gflops : 2.93 ]
+Matrix diff: 53399.847656
+* 	Execution time: .581545571 seconds
+
+---New data---
+
+[Remaining: 169]
+
+[File : ./suiteSparse_dataset/bcsstk31/bcsstk31.mtx]
+[K : 64]
+[Sputnik_gflops : 32.64 ]
+Matrix diff: 48314.359375
+* 	Execution time: .431938483 seconds
+
+---New data---
+
+[Remaining: 168]
+
+[File : ./suiteSparse_dataset/lpl1/lpl1.mtx]
+[K : 64]
+[Sputnik_gflops : 10.95 ]
+Matrix diff: 78554.343750
+* 	Execution time: .301974330 seconds
+
+---New data---
+
+[Remaining: 167]
+
+[File : ./suiteSparse_dataset/H2O/H2O.mtx]
+[K : 64]
+[Sputnik_gflops : 17.31 ]
+Matrix diff: 56036.199219
+* 	Execution time: .723016201 seconds
+
+---New data---
+
+[Remaining: 166]
+
+[File : ./suiteSparse_dataset/fe_rotor/fe_rotor.mtx]
+[K : 64]
+[Sputnik_gflops : 4.70 ]
+Matrix diff: 48844.257812
+* 	Execution time: .840791510 seconds
+
+---New data---
+
+[Remaining: 165]
+
+[File : ./suiteSparse_dataset/Goodwin_054/Goodwin_054.mtx]
+[K : 64]
+[Sputnik_gflops : 34.06 ]
+Matrix diff: 93387.453125
+* 	Execution time: .448498586 seconds
+
+---New data---
+
+[Remaining: 164]
+
+[File : ./suiteSparse_dataset/onera_dual/onera_dual.mtx]
+[K : 64]
+[Sputnik_gflops : 2.02 ]
+Matrix diff: 88919.882812
+* 	Execution time: .618203778 seconds
+
+---New data---
+
+[Remaining: 163]
+
+[File : ./suiteSparse_dataset/crystm03/crystm03.mtx]
+[K : 64]
+[Sputnik_gflops : 33.45 ]
+Matrix diff: 81523.273438
+* 	Execution time: .328503053 seconds
+
+---New data---
+
+[Remaining: 162]
+
+[File : ./suiteSparse_dataset/bcsstk30/bcsstk30.mtx]
+[K : 64]
+[Sputnik_gflops : 84.48 ]
+Matrix diff: 57737.980469
+* 	Execution time: .536607458 seconds
+
+---New data---
+
+[Remaining: 161]
+
+[File : ./suiteSparse_dataset/soc-Slashdot0902/soc-Slashdot0902.mtx]
+[K : 64]
+[Sputnik_gflops : 4.94 ]
+Matrix diff: 70460.421875
+* 	Execution time: .706393362 seconds
+
+---New data---
+
+[Remaining: 160]
+
+[File : ./suiteSparse_dataset/onetone1/onetone1.mtx]
+[K : 64]
+[Sputnik_gflops : 9.23 ]
+Matrix diff: 84458.554688
+* 	Execution time: .337617954 seconds
+
+---New data---
+
+[Remaining: 159]
+
+[File : ./suiteSparse_dataset/nd12k/nd12k.mtx]
+[K : 64]
+[Sputnik_gflops : 319.01 ]
+Matrix diff: 73341.617188
+* 	Execution time: 2.408426117 seconds
+
+---New data---
+
+[Remaining: 158]
+
+[File : ./suiteSparse_dataset/std1_Jac2_db/std1_Jac2_db.mtx]
+[K : 64]
+[Sputnik_gflops : 35.93 ]
+Matrix diff: 87543.281250
+* 	Execution time: .329793332 seconds
+
+---New data---
+
+[Remaining: 157]
+
+[File : ./suiteSparse_dataset/Chevron2/Chevron2.mtx]
+[K : 64]
+[Sputnik_gflops : 3.48 ]
+Matrix diff: 65864.742188
+* 	Execution time: .702442183 seconds
+
+---New data---
+
+[Remaining: 156]
+
+[File : ./suiteSparse_dataset/ex11/ex11.mtx]
+[K : 64]
+[Sputnik_gflops : 135.03 ]
+Matrix diff: 94832.164062
+* 	Execution time: .418702274 seconds
+
+---New data---
+
+[Remaining: 155]
+
+[File : ./suiteSparse_dataset/pltexpa/pltexpa_A_5.mtx]
+[K : 64]
+[Sputnik_gflops : 2.67 ]
+Matrix diff: 40019.257812
+* 	Execution time: .344054103 seconds
+
+---New data---
+
+[Remaining: 154]
+
+[File : ./suiteSparse_dataset/pltexpa/pltexpa.mtx]
+[K : 64]
+[Sputnik_gflops : 2.67 ]
+Matrix diff: 42496.328125
+* 	Execution time: .339045972 seconds
+
+---New data---
+
+[Remaining: 153]
+
+[File : ./suiteSparse_dataset/pltexpa/pltexpa_A_4.mtx]
+[K : 64]
+[Sputnik_gflops : 2.53 ]
+Matrix diff: 59591.031250
+* 	Execution time: .349436264 seconds
+
+---New data---
+
+[Remaining: 152]
+
+[File : ./suiteSparse_dataset/msc10848/msc10848.mtx]
+[K : 64]
+[Sputnik_gflops : 343.21 ]
+Matrix diff: 83653.882812
+* 	Execution time: .391865032 seconds
+
+---New data---
+
+[Remaining: 151]
+
+[File : ./suiteSparse_dataset/Si34H36/Si34H36.mtx]
+[K : 64]
+[Sputnik_gflops : 18.97 ]
+Matrix diff: 63626.406250
+* 	Execution time: 1.362120689 seconds
+
+---New data---
+
+[Remaining: 150]
+
+[File : ./suiteSparse_dataset/TEM27623/TEM27623_M.mtx]
+[K : 64]
+[Sputnik_gflops : 20.19 ]
+Matrix diff: 40489.921875
+* 	Execution time: .324461896 seconds
+
+---New data---
+
+[Remaining: 149]
+
+[File : ./suiteSparse_dataset/TEM27623/TEM27623.mtx]
+[K : 64]
+[Sputnik_gflops : 20.18 ]
+Matrix diff: 62814.980469
+* 	Execution time: .299977425 seconds
+
+---New data---
+
+[Remaining: 148]
+
+[File : ./suiteSparse_dataset/appu/appu.mtx]
+[K : 64]
+[Sputnik_gflops : 296.36 ]
+Matrix diff: 95355.515625
+* 	Execution time: .578803099 seconds
+
+---New data---
+
+[Remaining: 147]
+
+[File : ./suiteSparse_dataset/cage11/cage11.mtx]
+[K : 64]
+[Sputnik_gflops : 12.88 ]
+Matrix diff: 87714.078125
+* 	Execution time: .398707773 seconds
+
+---New data---
+
+[Remaining: 146]
+
+[File : ./suiteSparse_dataset/lhr17/lhr17.mtx]
+[K : 64]
+[Sputnik_gflops : 40.65 ]
+Matrix diff: 80325.898438
+* 	Execution time: .296849620 seconds
+
+---New data---
+
+[Remaining: 145]
+
+[File : ./suiteSparse_dataset/consph/consph.mtx]
+[K : 64]
+[Sputnik_gflops : 29.30 ]
+Matrix diff: 101136.398438
+* 	Execution time: 1.385624982 seconds
+
+---New data---
+
+[Remaining: 144]
+
+[File : ./suiteSparse_dataset/mark3jac080sc/mark3jac080sc.mtx]
+[K : 64]
+[Sputnik_gflops : 5.98 ]
+Matrix diff: 88160.562500
+* 	Execution time: .332043312 seconds
+
+---New data---
+
+[Remaining: 143]
+
+[File : ./suiteSparse_dataset/lowThrust_11/lowThrust_11.mtx]
+[K : 64]
+[Sputnik_gflops : 23.23 ]
+Matrix diff: 85970.976562
+* 	Execution time: .291063269 seconds
+
+---New data---
+
+[Remaining: 142]
+
+[File : ./suiteSparse_dataset/TSOPF_FS_b162_c3/TSOPF_FS_b162_c3.mtx]
+[K : 64]
+[Sputnik_gflops : 66.49 ]
+Matrix diff: 43505.687500
+* 	Execution time: .530628346 seconds
+
+---New data---
+
+[Remaining: 141]
+
+[File : ./suiteSparse_dataset/cond-mat-2003/cond-mat-2003.mtx]
+[K : 64]
+[Sputnik_gflops : 8.69 ]
+Matrix diff: 85311.015625
+* 	Execution time: .309628140 seconds
+
+---New data---
+
+[Remaining: 140]
+
+[File : ./suiteSparse_dataset/cfd1/cfd1.mtx]
+[K : 64]
+[Sputnik_gflops : 12.91 ]
+Matrix diff: 81176.164062
+* 	Execution time: .691620181 seconds
+
+---New data---
+
+[Remaining: 139]
+
+[File : ./suiteSparse_dataset/lowThrust_7/lowThrust_7.mtx]
+[K : 64]
+[Sputnik_gflops : 24.48 ]
+Matrix diff: 56944.277344
+* 	Execution time: .270329061 seconds
+
+---New data---
+
+[Remaining: 138]
+
+[File : ./suiteSparse_dataset/light_in_tissue/light_in_tissue.mtx]
+[K : 64]
+[Sputnik_gflops : 16.61 ]
+Matrix diff: 46661.511719
+* 	Execution time: .340074790 seconds
+
+---New data---
+
+[Remaining: 137]
+
+[File : ./suiteSparse_dataset/sd2010/sd2010.mtx]
+[K : 64]
+[Sputnik_gflops : 1.85 ]
+Matrix diff: 60800.636719
+* 	Execution time: .622118267 seconds
+
+---New data---
+
+[Remaining: 136]
+
+[File : ./suiteSparse_dataset/bbmat/bbmat.mtx]
+[K : 64]
+[Sputnik_gflops : 41.12 ]
+Matrix diff: 77165.593750
+* 	Execution time: .601138669 seconds
+
+---New data---
+
+[Remaining: 135]
+
+[File : ./suiteSparse_dataset/vfem/vfem.mtx]
+[K : 64]
+[Sputnik_gflops : 5.78 ]
+Matrix diff: 56933.636719
+* 	Execution time: .878343593 seconds
+
+---New data---
+
+[Remaining: 134]
+
+[File : ./suiteSparse_dataset/Wordnet3/Wordnet3.mtx]
+[K : 64]
+[Sputnik_gflops : 0.69 ]
+Matrix diff: 82479.851562
+* 	Execution time: .553796307 seconds
+
+---New data---
+
+[Remaining: 133]
+
+[File : ./suiteSparse_dataset/crankseg_1/crankseg_1.mtx]
+[K : 64]
+[Sputnik_gflops : 123.35 ]
+Matrix diff: 93716.125000
+* 	Execution time: 1.999990541 seconds
+
+---New data---
+
+[Remaining: 132]
+
+[File : ./suiteSparse_dataset/laminar_duct3D/laminar_duct3D.mtx]
+[K : 64]
+[Sputnik_gflops : 29.87 ]
+Matrix diff: 139211.828125
+* 	Execution time: 1.130113834 seconds
+
+---New data---
+
+[Remaining: 131]
+
+[File : ./suiteSparse_dataset/n4c6-b5/n4c6-b5.mtx]
+[K : 64]
+[Sputnik_gflops : 10.52 ]
+Matrix diff: 86572.554688
+* 	Execution time: .324137036 seconds
+
+---New data---
+
+[Remaining: 130]
+
+[File : ./suiteSparse_dataset/rgg_n_2_16_s0/rgg_n_2_16_s0.mtx]
+[K : 64]
+[Sputnik_gflops : 5.61 ]
+Matrix diff: 48028.769531
+* 	Execution time: .509525786 seconds
+
+---New data---
+
+[Remaining: 129]
+
+[File : ./suiteSparse_dataset/tomographic1/tomographic1.mtx]
+[K : 64]
+[Sputnik_gflops : 5.24 ]
+Matrix diff: 72797.500000
+* 	Execution time: .550231573 seconds
+
+---New data---
+
+[Remaining: 128]
+
+[File : ./suiteSparse_dataset/soc-Epinions1/soc-Epinions1.mtx]
+[K : 64]
+[Sputnik_gflops : 3.11 ]
+Matrix diff: 54248.050781
+* 	Execution time: .577466451 seconds
+
+---New data---
+
+[Remaining: 127]
+
+[File : ./suiteSparse_dataset/FEM_3D_thermal1/FEM_3D_thermal1.mtx]
+[K : 64]
+[Sputnik_gflops : 46.96 ]
+Matrix diff: 75257.265625
+* 	Execution time: .304623466 seconds
+
+---New data---
+
+[Remaining: 126]
+
+[File : ./suiteSparse_dataset/invextr1_new/invextr1_new.mtx]
+[K : 64]
+[Sputnik_gflops : 67.21 ]
+Matrix diff: 42906.339844
+* 	Execution time: .595963846 seconds
+
+---New data---
+
+[Remaining: 125]
+
+[File : ./suiteSparse_dataset/sc205-2r/sc205-2r_A_12.mtx]
+[K : 64]
+[Sputnik_gflops : 1.98 ]
+Matrix diff: 63786.972656
+* 	Execution time: .351128618 seconds
+
+---New data---
+
+[Remaining: 124]
+
+[File : ./suiteSparse_dataset/sc205-2r/sc205-2r.mtx]
+[K : 64]
+[Sputnik_gflops : 1.98 ]
+Matrix diff: 80133.335938
+* 	Execution time: .341090355 seconds
+
+---New data---
+
+[Remaining: 123]
+
+[File : ./suiteSparse_dataset/sparsine/sparsine.mtx]
+[K : 64]
+[Sputnik_gflops : 21.69 ]
+Matrix diff: 42131.812500
+* 	Execution time: .568667333 seconds
+
+---New data---
+
+[Remaining: 122]
+
+[File : ./suiteSparse_dataset/wang3/wang3.mtx]
+[K : 64]
+[Sputnik_gflops : 9.17 ]
+Matrix diff: 88715.820312
+* 	Execution time: .286931943 seconds
+
+---New data---
+
+[Remaining: 121]
+
+[File : ./suiteSparse_dataset/c-47/c-47.mtx]
+[K : 64]
+[Sputnik_gflops : 31.33 ]
+Matrix diff: 83102.132812
+* 	Execution time: .263571922 seconds
+
+---New data---
+
+[Remaining: 120]
+
+[File : ./suiteSparse_dataset/TSOPF_FS_b300_c2/TSOPF_FS_b300_c2.mtx]
+[K : 64]
+[Sputnik_gflops : 90.73 ]
+Matrix diff: 17713.546875
+* 	Execution time: 1.748400717 seconds
+
+---New data---
+
+[Remaining: 119]
+
+[File : ./suiteSparse_dataset/mark3jac100/mark3jac100.mtx]
+[K : 64]
+[Sputnik_gflops : 4.79 ]
+Matrix diff: 93463.585938
+* 	Execution time: .382779986 seconds
+
+---New data---
+
+[Remaining: 118]
+
+[File : ./suiteSparse_dataset/rajat15/rajat15.mtx]
+[K : 64]
+[Sputnik_gflops : 11.23 ]
+Matrix diff: 81941.789062
+* 	Execution time: .379860292 seconds
+
+---New data---
+
+[Remaining: 117]
+
+[File : ./suiteSparse_dataset/raefsky3/raefsky3.mtx]
+[K : 64]
+[Sputnik_gflops : 114.88 ]
+Matrix diff: 93653.289062
+* 	Execution time: .487109223 seconds
+
+---New data---
+
+[Remaining: 116]
+
+[File : ./suiteSparse_dataset/Goodwin_040/Goodwin_040.mtx]
+[K : 64]
+[Sputnik_gflops : 60.35 ]
+Matrix diff: 85131.468750
+* 	Execution time: .324292848 seconds
+
+---New data---
+
+[Remaining: 115]
+
+[File : ./suiteSparse_dataset/cvxbqp1/cvxbqp1.mtx]
+[K : 64]
+[Sputnik_gflops : 4.66 ]
+Matrix diff: 83668.062500
+* 	Execution time: .410881971 seconds
+
+---New data---
+
+[Remaining: 114]
+
+[File : ./suiteSparse_dataset/Zd_Jac6/Zd_Jac6.mtx]
+[K : 64]
+[Sputnik_gflops : 106.48 ]
+Matrix diff: 88314.843750
+* 	Execution time: .556982731 seconds
+
+---New data---
+
+[Remaining: 113]
+
+[File : ./suiteSparse_dataset/thread/thread.mtx]
+[K : 64]
+[Sputnik_gflops : 163.08 ]
+Matrix diff: 127790.835938
+* 	Execution time: .933418041 seconds
+
+---New data---
+
+[Remaining: 112]
+
+[File : ./suiteSparse_dataset/epb3/epb3.mtx]
+[K : 64]
+[Sputnik_gflops : 2.25 ]
+Matrix diff: 64346.625000
+* 	Execution time: .626116284 seconds
+
+---New data---
+
+[Remaining: 111]
+
+[File : ./suiteSparse_dataset/g7jac120/g7jac120.mtx]
+[K : 64]
+[Sputnik_gflops : 13.22 ]
+Matrix diff: 41505.082031
+* 	Execution time: .372005724 seconds
+
+---New data---
+
+[Remaining: 110]
+
+[File : ./suiteSparse_dataset/world/world.mtx]
+[K : 64]
+[Sputnik_gflops : 3.03 ]
+Matrix diff: 83982.210938
+* 	Execution time: .368078179 seconds
+
+---New data---
+
+[Remaining: 109]
+
+[File : ./suiteSparse_dataset/south31/south31.mtx]
+[K : 64]
+[Sputnik_gflops : 5.91 ]
+Matrix diff: 74682.742188
+* 	Execution time: .255413051 seconds
+
+---New data---
+
+[Remaining: 108]
+
+[File : ./suiteSparse_dataset/Ga3As3H12/Ga3As3H12.mtx]
+[K : 64]
+[Sputnik_gflops : 55.23 ]
+Matrix diff: 38358.121094
+* 	Execution time: 1.254803637 seconds
+
+---New data---
+
+[Remaining: 107]
+
+[File : ./suiteSparse_dataset/mycielskian15/mycielskian15.mtx]
+[K : 64]
+[Sputnik_gflops : 533.16 ]
+Matrix diff: 172090.031250
+* 	Execution time: 1.926276610 seconds
+
+---New data---
+
+[Remaining: 106]
+
+[File : ./suiteSparse_dataset/sme3Da/sme3Da.mtx]
+[K : 64]
+[Sputnik_gflops : 184.48 ]
+Matrix diff: 81389.765625
+* 	Execution time: .382171958 seconds
+
+---New data---
+
+[Remaining: 105]
+
+[File : ./suiteSparse_dataset/c-68/c-68.mtx]
+[K : 64]
+[Sputnik_gflops : 4.75 ]
+Matrix diff: 86154.359375
+* 	Execution time: .506489903 seconds
+
+---New data---
+
+[Remaining: 104]
+
+[File : ./suiteSparse_dataset/rim/rim.mtx]
+[K : 64]
+[Sputnik_gflops : 68.91 ]
+Matrix diff: 80038.875000
+* 	Execution time: .393321232 seconds
+
+---New data---
+
+[Remaining: 103]
+
+[File : ./suiteSparse_dataset/fome12/fome12.mtx]
+[K : 64]
+[Sputnik_gflops : 4.23 ]
+Matrix diff: 79085.437500
+* 	Execution time: .305570211 seconds
+
+---New data---
+
+[Remaining: 102]
+
+[File : ./suiteSparse_dataset/G_n_pin_pout/G_n_pin_pout.mtx]
+[K : 64]
+[Sputnik_gflops : 3.53 ]
+Matrix diff: 109625.679688
+* 	Execution time: .800456296 seconds
+
+---New data---
+
+[Remaining: 101]
+
+[File : ./suiteSparse_dataset/nd6k/nd6k.mtx]
+[K : 64]
+[Sputnik_gflops : 588.31 ]
+Matrix diff: 38352.468750
+* 	Execution time: 1.229437223 seconds
+
+---New data---
+
+[Remaining: 100]
+
+[File : ./suiteSparse_dataset/lhr10/lhr10.mtx]
+[K : 64]
+[Sputnik_gflops : 70.51 ]
+Matrix diff: 56700.453125
+* 	Execution time: .260845107 seconds
+
+---New data---
+
+[Remaining: 99]
+
+[File : ./suiteSparse_dataset/g7jac180/g7jac180.mtx]
+[K : 64]
+[Sputnik_gflops : 8.79 ]
+Matrix diff: 37200.984375
+* 	Execution time: .491226384 seconds
+
+---New data---
+
+[Remaining: 98]
+
+[File : ./suiteSparse_dataset/nug08-3rd/nug08-3rd.mtx]
+[K : 64]
+[Sputnik_gflops : 8.87 ]
+Matrix diff: 35757.242188
+* 	Execution time: .274187786 seconds
+
+---New data---
+
+[Remaining: 97]
+
+[File : ./suiteSparse_dataset/Si5H12/Si5H12.mtx]
+[K : 64]
+[Sputnik_gflops : 64.52 ]
+Matrix diff: 85232.898438
+* 	Execution time: .343084904 seconds
+
+---New data---
+
+[Remaining: 96]
+
+[File : ./suiteSparse_dataset/smt/smt.mtx]
+[K : 64]
+[Sputnik_gflops : 192.49 ]
+Matrix diff: 41922.890625
+* 	Execution time: .783857152 seconds
+
+---New data---
+
+[Remaining: 95]
+
+[File : ./suiteSparse_dataset/t3dh_e/t3dh_e.mtx]
+[K : 64]
+[Sputnik_gflops : 23.73 ]
+Matrix diff: 91973.640625
+* 	Execution time: 1.097597863 seconds
+
+---New data---
+
+[Remaining: 94]
+
+[File : ./suiteSparse_dataset/Zd_Jac6_db/Zd_Jac6_db.mtx]
+[K : 64]
+[Sputnik_gflops : 44.21 ]
+Matrix diff: 42902.960938
+* 	Execution time: .363318845 seconds
+
+---New data---
+
+[Remaining: 93]
+
+[File : ./suiteSparse_dataset/c-66b/c-66b.mtx]
+[K : 64]
+[Sputnik_gflops : 7.04 ]
+Matrix diff: 58124.917969
+* 	Execution time: .427393791 seconds
+
+---New data---
+
+[Remaining: 92]
+
+[File : ./suiteSparse_dataset/vsp_sctap1-2b_and_seymourl/vsp_sctap1-2b_and_seymourl.mtx]
+[K : 64]
+[Sputnik_gflops : 6.14 ]
+Matrix diff: 80221.445312
+* 	Execution time: .346484548 seconds
+
+---New data---
+
+[Remaining: 91]
+
+[File : ./suiteSparse_dataset/g7jac140/g7jac140.mtx]
+[K : 64]
+[Sputnik_gflops : 11.57 ]
+Matrix diff: 58684.433594
+* 	Execution time: .394283997 seconds
+
+---New data---
+
+[Remaining: 90]
+
+[File : ./suiteSparse_dataset/soc-sign-Slashdot081106/soc-sign-Slashdot081106.mtx]
+[K : 64]
+[Sputnik_gflops : 3.04 ]
+Matrix diff: 53899.371094
+* 	Execution time: .587844609 seconds
+
+---New data---
+
+[Remaining: 89]
+
+[File : ./suiteSparse_dataset/rajat22/rajat22.mtx]
+[K : 64]
+[Sputnik_gflops : 4.37 ]
+Matrix diff: 86697.390625
+* 	Execution time: .341763626 seconds
+
+---New data---
+
+[Remaining: 88]
+
+[File : ./suiteSparse_dataset/brack2/brack2.mtx]
+[K : 64]
+[Sputnik_gflops : 6.58 ]
+Matrix diff: 69837.203125
+* 	Execution time: .496727999 seconds
+
+---New data---
+
+[Remaining: 87]
+
+[File : ./suiteSparse_dataset/RFdevice/RFdevice.mtx]
+[K : 64]
+[Sputnik_gflops : 2.35 ]
+Matrix diff: 76002.867188
+* 	Execution time: .532260406 seconds
+
+---New data---
+
+[Remaining: 86]
+
+[File : ./suiteSparse_dataset/msc23052/msc23052.mtx]
+[K : 64]
+[Sputnik_gflops : 75.59 ]
+Matrix diff: 62463.199219
+* 	Execution time: .394912536 seconds
+
+---New data---
+
+[Remaining: 85]
+
+[File : ./suiteSparse_dataset/ecl32/ecl32.mtx]
+[K : 64]
+[Sputnik_gflops : 4.96 ]
+Matrix diff: 91068.273438
+* 	Execution time: .421082226 seconds
+
+---New data---
+
+[Remaining: 84]
+
+[File : ./suiteSparse_dataset/igbt3/igbt3.mtx]
+[K : 64]
+[Sputnik_gflops : 67.09 ]
+Matrix diff: 69639.039062
+* 	Execution time: .269333774 seconds
+
+---New data---
+
+[Remaining: 83]
+
+[File : ./suiteSparse_dataset/vsp_vibrobox_scagr7-2c_rlfddd/vsp_vibrobox_scagr7-2c_rlfddd.mtx]
+[K : 64]
+[Sputnik_gflops : 5.13 ]
+Matrix diff: 71654.218750
+* 	Execution time: .620990381 seconds
+
+---New data---
+
+[Remaining: 82]
+
+[File : ./suiteSparse_dataset/lowThrust_13/lowThrust_13.mtx]
+[K : 64]
+[Sputnik_gflops : 23.05 ]
+Matrix diff: 86601.273438
+* 	Execution time: .268893569 seconds
+
+---New data---
+
+[Remaining: 81]
+
+[File : ./suiteSparse_dataset/chipcool1/chipcool1.mtx]
+[K : 64]
+[Sputnik_gflops : 24.34 ]
+Matrix diff: 92290.367188
+* 	Execution time: .288803992 seconds
+
+---New data---
+
+[Remaining: 80]
+
+[File : ./suiteSparse_dataset/baxter/baxter.mtx]
+[K : 64]
+[Sputnik_gflops : 4.66 ]
+Matrix diff: 93588.921875
+* 	Execution time: .297686459 seconds
+
+---New data---
+
+[Remaining: 79]
+
+[File : ./suiteSparse_dataset/conf6_0-8x8-30/conf6_0-8x8-30.mtx]
+[K : 64]
+[Sputnik_gflops : 27.90 ]
+Matrix diff: 91837.601562
+* 	Execution time: .676964278 seconds
+
+---New data---
+
+[Remaining: 78]
+
+[File : ./suiteSparse_dataset/conf5_4-8x8-10/conf5_4-8x8-10.mtx]
+[K : 64]
+[Sputnik_gflops : 27.90 ]
+Matrix diff: 72536.898438
+* 	Execution time: .667732207 seconds
+
+---New data---
+
+[Remaining: 77]
+
+[File : ./suiteSparse_dataset/pcrystk03/pcrystk03.mtx]
+[K : 64]
+[Sputnik_gflops : 99.71 ]
+Matrix diff: 39882.652344
+* 	Execution time: .467488221 seconds
+
+---New data---
+
+[Remaining: 76]
+
+[File : ./suiteSparse_dataset/graphics/graphics.mtx]
+[K : 64]
+[Sputnik_gflops : 11.83 ]
+Matrix diff: 96865.054688
+* 	Execution time: .256494981 seconds
+
+---New data---
+
+[Remaining: 75]
+
+[File : ./suiteSparse_dataset/lhr17c/lhr17c.mtx]
+[K : 64]
+[Sputnik_gflops : 43.10 ]
+Matrix diff: 86585.929688
+* 	Execution time: .292230248 seconds
+
+---New data---
+
+[Remaining: 74]
+
+[File : ./suiteSparse_dataset/t3dl_a/t3dl_a.mtx]
+[K : 64]
+[Sputnik_gflops : 40.43 ]
+Matrix diff: 56510.109375
+* 	Execution time: .315610938 seconds
+
+---New data---
+
+[Remaining: 73]
+
+[File : ./suiteSparse_dataset/conf5_4-8x8-15/conf5_4-8x8-15.mtx]
+[K : 64]
+[Sputnik_gflops : 26.32 ]
+Matrix diff: 98078.296875
+* 	Execution time: .673374166 seconds
+
+---New data---
+
+[Remaining: 72]
+
+[File : ./suiteSparse_dataset/airfoil_2d/airfoil_2d.mtx]
+[K : 64]
+[Sputnik_gflops : 44.43 ]
+Matrix diff: 102803.070312
+* 	Execution time: .262131340 seconds
+
+---New data---
+
+[Remaining: 71]
+
+[File : ./suiteSparse_dataset/foldoc/foldoc.mtx]
+[K : 64]
+[Sputnik_gflops : 23.46 ]
+Matrix diff: 63630.578125
+* 	Execution time: .247600883 seconds
+
+---New data---
+
+[Remaining: 70]
+
+[File : ./suiteSparse_dataset/IG5-16/IG5-16.mtx]
+[K : 64]
+[Sputnik_gflops : 58.31 ]
+Matrix diff: 85875.031250
+* 	Execution time: .350220855 seconds
+
+---New data---
+
+[Remaining: 69]
+
+[File : ./suiteSparse_dataset/c-54/c-54.mtx]
+[K : 64]
+[Sputnik_gflops : 13.63 ]
+Matrix diff: 84869.609375
+* 	Execution time: .333243160 seconds
+
+---New data---
+
+[Remaining: 68]
+
+[File : ./suiteSparse_dataset/lp_nug20/lp_nug20.mtx]
+[K : 64]
+[Sputnik_gflops : 9.70 ]
+Matrix diff: 84998.593750
+* 	Execution time: .322806811 seconds
+
+---New data---
+
+[Remaining: 67]
+
+[File : ./suiteSparse_dataset/me2010/me2010.mtx]
+[K : 64]
+[Sputnik_gflops : 2.35 ]
+Matrix diff: 86883.882812
+* 	Execution time: .498554674 seconds
+
+---New data---
+
+[Remaining: 66]
+
+[File : ./suiteSparse_dataset/pkustk07/pkustk07.mtx]
+[K : 64]
+[Sputnik_gflops : 283.07 ]
+Matrix diff: 40880.433594
+* 	Execution time: .576686588 seconds
+
+---New data---
+
+[Remaining: 65]
+
+[File : ./suiteSparse_dataset/Zhao1/Zhao1.mtx]
+[K : 64]
+[Sputnik_gflops : 5.11 ]
+Matrix diff: 86637.585938
+* 	Execution time: .309809681 seconds
+
+---New data---
+
+[Remaining: 64]
+
+[File : ./suiteSparse_dataset/jan99jac080sc/jan99jac080sc.mtx]
+[K : 64]
+[Sputnik_gflops : 7.96 ]
+Matrix diff: 83533.703125
+* 	Execution time: .294254713 seconds
+
+---New data---
+
+[Remaining: 63]
+
+[File : ./suiteSparse_dataset/net100/net100.mtx]
+[K : 64]
+[Sputnik_gflops : 78.62 ]
+Matrix diff: 23345.681641
+* 	Execution time: .538963614 seconds
+
+---New data---
+
+[Remaining: 62]
+
+[File : ./suiteSparse_dataset/n4c6-b12/n4c6-b12.mtx]
+[K : 64]
+[Sputnik_gflops : 6.25 ]
+Matrix diff: 90606.460938
+* 	Execution time: .384774285 seconds
+
+---New data---
+
+[Remaining: 61]
+
+[File : ./suiteSparse_dataset/wathen100/wathen100.mtx]
+[K : 64]
+[Sputnik_gflops : 17.68 ]
+Matrix diff: 78076.507812
+* 	Execution time: .324841976 seconds
+
+---New data---
+
+[Remaining: 60]
+
+[File : ./suiteSparse_dataset/lhr11/lhr11.mtx]
+[K : 64]
+[Sputnik_gflops : 66.31 ]
+Matrix diff: 53232.554688
+* 	Execution time: .262969821 seconds
+
+---New data---
+
+[Remaining: 59]
+
+[File : ./suiteSparse_dataset/g7jac060/g7jac060.mtx]
+[K : 64]
+[Sputnik_gflops : 22.28 ]
+Matrix diff: 70013.296875
+* 	Execution time: .268818879 seconds
+
+---New data---
+
+[Remaining: 58]
+
+[File : ./suiteSparse_dataset/g7jac040/g7jac040.mtx]
+[K : 64]
+[Sputnik_gflops : 28.22 ]
+Matrix diff: 81595.992188
+* 	Execution time: .242083298 seconds
+
+---New data---
+
+[Remaining: 57]
+
+[File : ./suiteSparse_dataset/ASIC_100ks/ASIC_100ks.mtx]
+[K : 64]
+[Sputnik_gflops : 2.06 ]
+Matrix diff: 115742.492188
+* 	Execution time: .758935781 seconds
+
+---New data---
+
+[Remaining: 56]
+
+[File : ./suiteSparse_dataset/opt1/opt1.mtx]
+[K : 64]
+[Sputnik_gflops : 270.22 ]
+Matrix diff: 93451.992188
+* 	Execution time: .476182856 seconds
+
+---New data---
+
+[Remaining: 55]
+
+[File : ./suiteSparse_dataset/lhr11c/lhr11c.mtx]
+[K : 64]
+[Sputnik_gflops : 67.14 ]
+Matrix diff: 58017.421875
+* 	Execution time: .257077402 seconds
+
+---New data---
+
+[Remaining: 54]
+
+[File : ./suiteSparse_dataset/vsp_bcsstk30_500sep_10in_1Kout/vsp_bcsstk30_500sep_10in_1Kout.mtx]
+[K : 64]
+[Sputnik_gflops : 41.11 ]
+Matrix diff: 74810.656250
+* 	Execution time: .997715504 seconds
+
+---New data---
+
+[Remaining: 53]
+
+[File : ./suiteSparse_dataset/poisson3Da/poisson3Da.mtx]
+[K : 64]
+[Sputnik_gflops : 66.18 ]
+Matrix diff: 52162.503906
+* 	Execution time: .293115518 seconds
+
+---New data---
+
+[Remaining: 52]
+
+[File : ./suiteSparse_dataset/ak2010/ak2010.mtx]
+[K : 64]
+[Sputnik_gflops : 3.73 ]
+Matrix diff: 78759.343750
+* 	Execution time: .351844399 seconds
+
+---New data---
+
+[Remaining: 51]
+
+[File : ./suiteSparse_dataset/Chevron1/Chevron1.mtx]
+[K : 64]
+[Sputnik_gflops : 8.35 ]
+Matrix diff: 89306.718750
+* 	Execution time: .346893224 seconds
+
+---New data---
+
+[Remaining: 50]
+
+[File : ./suiteSparse_dataset/Dubcova2/Dubcova2.mtx]
+[K : 64]
+[Sputnik_gflops : 8.59 ]
+Matrix diff: 93901.382812
+* 	Execution time: .553942240 seconds
+
+---New data---
+
+[Remaining: 49]
+
+[File : ./suiteSparse_dataset/net75/net75.mtx]
+[K : 64]
+[Sputnik_gflops : 95.84 ]
+Matrix diff: 54566.414062
+* 	Execution time: .456718337 seconds
+
+---New data---
+
+[Remaining: 48]
+
+[File : ./suiteSparse_dataset/memplus/memplus.mtx]
+[K : 64]
+[Sputnik_gflops : 14.02 ]
+Matrix diff: 77429.609375
+* 	Execution time: .250247657 seconds
+
+---New data---
+
+[Remaining: 47]
+
+[File : ./suiteSparse_dataset/g7jac080/g7jac080.mtx]
+[K : 64]
+[Sputnik_gflops : 18.40 ]
+Matrix diff: 92539.453125
+* 	Execution time: .307895210 seconds
+
+---New data---
+
+[Remaining: 46]
+
+[File : ./suiteSparse_dataset/lhr34/lhr34.mtx]
+[K : 64]
+[Sputnik_gflops : 21.71 ]
+Matrix diff: 38993.230469
+* 	Execution time: .386786158 seconds
+
+---New data---
+
+[Remaining: 45]
+
+[File : ./suiteSparse_dataset/ncvxqp3/ncvxqp3.mtx]
+[K : 64]
+[Sputnik_gflops : 3.13 ]
+Matrix diff: 60780.703125
+* 	Execution time: .528520783 seconds
+
+---New data---
+
+[Remaining: 44]
+
+[File : ./suiteSparse_dataset/wiki-RfA/wiki-RfA.mtx]
+[K : 64]
+[Sputnik_gflops : 50.08 ]
+Matrix diff: 100497.945312
+* 	Execution time: .260088960 seconds
+
+---New data---
+
+[Remaining: 43]
+
+[File : ./suiteSparse_dataset/wiki-RfA/wiki-RfA_Positive.mtx]
+[K : 64]
+[Sputnik_gflops : 37.24 ]
+Matrix diff: 79835.695312
+* 	Execution time: .256936909 seconds
+
+---New data---
+
+[Remaining: 42]
+
+[File : ./suiteSparse_dataset/chipcool0/chipcool0.mtx]
+[K : 64]
+[Sputnik_gflops : 24.35 ]
+Matrix diff: 82254.414062
+* 	Execution time: .308532546 seconds
+
+---New data---
+
+[Remaining: 41]
+
+[File : ./suiteSparse_dataset/lowThrust_9/lowThrust_9.mtx]
+[K : 64]
+[Sputnik_gflops : 23.61 ]
+Matrix diff: 73985.875000
+* 	Execution time: .274883862 seconds
+
+---New data---
+
+[Remaining: 40]
+
+[File : ./suiteSparse_dataset/net50/net50.mtx]
+[K : 64]
+[Sputnik_gflops : 121.20 ]
+Matrix diff: 84405.125000
+* 	Execution time: .359590093 seconds
+
+---New data---
+
+[Remaining: 39]
+
+[File : ./suiteSparse_dataset/LeGresley_87936/LeGresley_87936.mtx]
+[K : 64]
+[Sputnik_gflops : 2.67 ]
+Matrix diff: 17572.054688
+* 	Execution time: .677924618 seconds
+
+---New data---
+
+[Remaining: 38]
+
+[File : ./suiteSparse_dataset/Andrews/Andrews.mtx]
+[K : 64]
+[Sputnik_gflops : 7.43 ]
+Matrix diff: 80242.710938
+* 	Execution time: .520674630 seconds
+
+---New data---
+
+[Remaining: 37]
+
+[File : ./suiteSparse_dataset/crankseg_2/crankseg_2.mtx]
+[K : 64]
+[Sputnik_gflops : 115.11 ]
+Matrix diff: 22400.314453
+* 	Execution time: 2.519166005 seconds
+
+---New data---
+
+[Remaining: 36]
+
+[File : ./suiteSparse_dataset/c-65/c-65.mtx]
+[K : 64]
+[Sputnik_gflops : 5.50 ]
+Matrix diff: 96242.359375
+* 	Execution time: .389141544 seconds
+
+---New data---
+
+[Remaining: 35]
+
+[File : ./suiteSparse_dataset/lhr34c/lhr34c.mtx]
+[K : 64]
+[Sputnik_gflops : 21.71 ]
+Matrix diff: 95184.343750
+* 	Execution time: .409559009 seconds
+
+---New data---
+
+[Remaining: 34]
+
+[File : ./suiteSparse_dataset/TSOPF_RS_b2383_c1/TSOPF_RS_b2383_c1.mtx]
+[K : 64]
+[Sputnik_gflops : 351.25 ]
+Matrix diff: 86726.820312
+* 	Execution time: 3.259757357 seconds
+
+---New data---
+
+[Remaining: 33]
+
+[File : ./suiteSparse_dataset/venkat50/venkat50.mtx]
+[K : 64]
+[Sputnik_gflops : 15.54 ]
+Matrix diff: 97384.648438
+* 	Execution time: .713117026 seconds
+
+---New data---
+
+[Remaining: 32]
+
+[File : ./suiteSparse_dataset/sinc15/sinc15.mtx]
+[K : 64]
+[Sputnik_gflops : 144.09 ]
+Matrix diff: 90748.960938
+* 	Execution time: .325128865 seconds
+
+---New data---
+
+[Remaining: 31]
+
+[File : ./suiteSparse_dataset/TSOPF_RS_b300_c2/TSOPF_RS_b300_c2.mtx]
+[K : 64]
+[Sputnik_gflops : 127.59 ]
+Matrix diff: 74762.367188
+* 	Execution time: .766117445 seconds
+
+---New data---
+
+[Remaining: 30]
+
+[File : ./suiteSparse_dataset/bundle1/bundle1.mtx]
+[K : 64]
+[Sputnik_gflops : 236.88 ]
+Matrix diff: 86487.656250
+* 	Execution time: .318571299 seconds
+
+---New data---
+
+[Remaining: 29]
+
+[File : ./suiteSparse_dataset/soc-sign-Slashdot090216/soc-sign-Slashdot090216.mtx]
+[K : 64]
+[Sputnik_gflops : 2.87 ]
+Matrix diff: 56580.261719
+* 	Execution time: .630851100 seconds
+
+---New data---
+
+[Remaining: 28]
+
+[File : ./suiteSparse_dataset/chem_master1/chem_master1.mtx]
+[K : 64]
+[Sputnik_gflops : 4.35 ]
+Matrix diff: 86155.984375
+* 	Execution time: .320488994 seconds
+
+---New data---
+
+[Remaining: 27]
+
+[File : ./suiteSparse_dataset/c-62ghs/c-62ghs.mtx]
+[K : 64]
+[Sputnik_gflops : 11.30 ]
+Matrix diff: 84945.164062
+* 	Execution time: .399363761 seconds
+
+---New data---
+
+[Remaining: 26]
+
+[File : ./suiteSparse_dataset/TSOPF_FS_b300/TSOPF_FS_b300.mtx]
+[K : 64]
+[Sputnik_gflops : 178.02 ]
+Matrix diff: 208668.921875
+* 	Execution time: .935095866 seconds
+
+---New data---
+
+[Remaining: 25]
+
+[File : ./suiteSparse_dataset/TSOPF_RS_b39_c19/TSOPF_RS_b39_c19.mtx]
+[K : 64]
+[Sputnik_gflops : 16.61 ]
+Matrix diff: 44026.976562
+* 	Execution time: .399015489 seconds
+
+---New data---
+
+[Remaining: 24]
+
+[File : ./suiteSparse_dataset/208bit/208bit.mtx]
+[K : 64]
+[Sputnik_gflops : 17.64 ]
+Matrix diff: 78673.968750
+* 	Execution time: .312855010 seconds
+
+---New data---
+
+[Remaining: 23]
+
+[File : ./suiteSparse_dataset/mark3jac040sc/mark3jac040sc.mtx]
+[K : 64]
+[Sputnik_gflops : 11.88 ]
+Matrix diff: 63717.964844
+* 	Execution time: .263290003 seconds
+
+---New data---
+
+[Remaining: 22]
+
+[File : ./suiteSparse_dataset/g7jac160sc/g7jac160sc.mtx]
+[K : 64]
+[Sputnik_gflops : 10.27 ]
+Matrix diff: 94575.812500
+* 	Execution time: .439889190 seconds
+
+---New data---
+
+[Remaining: 21]
+
+[File : ./suiteSparse_dataset/conf5_4-8x8-05/conf5_4-8x8-05.mtx]
+[K : 64]
+[Sputnik_gflops : 26.33 ]
+Matrix diff: 91166.148438
+* 	Execution time: .696168246 seconds
+
+---New data---
+
+[Remaining: 20]
+
+[File : ./suiteSparse_dataset/jan99jac120sc/jan99jac120sc.mtx]
+[K : 64]
+[Sputnik_gflops : 5.36 ]
+Matrix diff: 97343.609375
+* 	Execution time: .353745713 seconds
+
+---New data---
+
+[Remaining: 19]
+
+[File : ./suiteSparse_dataset/mosfet2/mosfet2.mtx]
+[K : 64]
+[Sputnik_gflops : 23.73 ]
+Matrix diff: 71555.242188
+* 	Execution time: .612677723 seconds
+
+---New data---
+
+[Remaining: 18]
+
+[File : ./suiteSparse_dataset/lowThrust_5/lowThrust_5.mtx]
+[K : 64]
+[Sputnik_gflops : 26.18 ]
+Matrix diff: 77726.140625
+* 	Execution time: .267980476 seconds
+
+---New data---
+
+[Remaining: 17]
+
+[File : ./suiteSparse_dataset/soc-Slashdot0811/soc-Slashdot0811.mtx]
+[K : 64]
+[Sputnik_gflops : 5.32 ]
+Matrix diff: 61734.554688
+* 	Execution time: .674333563 seconds
+
+---New data---
+
+[Remaining: 16]
+
+[File : ./suiteSparse_dataset/ex19/ex19.mtx]
+[K : 64]
+[Sputnik_gflops : 62.12 ]
+Matrix diff: 82781.453125
+* 	Execution time: .263515103 seconds
+
+---New data---
+
+[Remaining: 15]
+
+[File : ./suiteSparse_dataset/ca-HepPh/ca-HepPh.mtx]
+[K : 64]
+[Sputnik_gflops : 56.82 ]
+Matrix diff: 91751.320312
+* 	Execution time: .255854059 seconds
+
+---New data---
+
+[Remaining: 14]
+
+[File : ./suiteSparse_dataset/IG5-17/IG5-17.mtx]
+[K : 64]
+[Sputnik_gflops : 42.67 ]
+Matrix diff: 96083.773438
+* 	Execution time: .446398416 seconds
+
+---New data---
+
+[Remaining: 13]
+
+[File : ./suiteSparse_dataset/net125/net125.mtx]
+[K : 64]
+[Sputnik_gflops : 66.31 ]
+Matrix diff: 65220.343750
+* 	Execution time: .646996312 seconds
+
+---New data---
+
+[Remaining: 12]
+
+[File : ./suiteSparse_dataset/bcsstk32/bcsstk32.mtx]
+[K : 64]
+[Sputnik_gflops : 33.46 ]
+Matrix diff: 69869.421875
+* 	Execution time: .608284665 seconds
+
+---New data---
+
+[Remaining: 11]
+
+[File : ./suiteSparse_dataset/onetone2/onetone2.mtx]
+[K : 64]
+[Sputnik_gflops : 6.16 ]
+Matrix diff: 89366.953125
+* 	Execution time: .326218006 seconds
+
+---New data---
+
+[Remaining: 10]
+
+[File : ./suiteSparse_dataset/lhr10c/lhr10c.mtx]
+[K : 64]
+[Sputnik_gflops : 70.53 ]
+Matrix diff: 92861.046875
+* 	Execution time: .261496448 seconds
+
+---New data---
+
+[Remaining: 9]
+
+[File : ./suiteSparse_dataset/olafu/olafu.mtx]
+[K : 64]
+[Sputnik_gflops : 132.03 ]
+Matrix diff: 83688.843750
+* 	Execution time: .360615475 seconds
+
+---New data---
+
+[Remaining: 8]
+
+[File : ./suiteSparse_dataset/Trefethen_20000/Trefethen_20000.mtx]
+[K : 64]
+[Sputnik_gflops : 48.18 ]
+Matrix diff: 86737.367188
+* 	Execution time: .306756986 seconds
+
+---New data---
+
+[Remaining: 7]
+
+[File : ./suiteSparse_dataset/g7jac180sc/g7jac180sc.mtx]
+[K : 64]
+[Sputnik_gflops : 9.23 ]
+Matrix diff: 88283.789062
+* 	Execution time: .483537234 seconds
+
+---New data---
+
+[Remaining: 6]
+
+[File : ./suiteSparse_dataset/e40r0100/e40r0100.mtx]
+[K : 64]
+[Sputnik_gflops : 63.92 ]
+Matrix diff: 84510.265625
+* 	Execution time: .338594513 seconds
+
+---New data---
+
+[Remaining: 5]
+
+[File : ./suiteSparse_dataset/li/li.mtx]
+[K : 64]
+[Sputnik_gflops : 89.77 ]
+Matrix diff: 44060.820312
+* 	Execution time: .478631725 seconds
+
+---New data---
+
+[Remaining: 4]
+
+[File : ./suiteSparse_dataset/lhr14/lhr14.mtx]
+[K : 64]
+[Sputnik_gflops : 52.49 ]
+Matrix diff: 42844.992188
+* 	Execution time: .282098149 seconds
+
+---New data---
+
+[Remaining: 3]
+
+[File : ./suiteSparse_dataset/jan99jac060sc/jan99jac060sc.mtx]
+[K : 64]
+[Sputnik_gflops : 10.50 ]
+Matrix diff: 50454.714844
+* 	Execution time: .260678424 seconds
+
+---New data---
+
+[Remaining: 2]
+
+[File : ./suiteSparse_dataset/HEP-th/HEP-th.mtx]
+[K : 64]
+[Sputnik_gflops : 16.18 ]
+Matrix diff: 67869.828125
+* 	Execution time: .326454310 seconds
+
+---New data---
+
+[Remaining: 1]
+
+[File : ./suiteSparse_dataset/c-63/c-63.mtx]
+[K : 64]
+[Sputnik_gflops : 7.39 ]
+Matrix diff: 92720.992188
+* 	Execution time: .380983277 seconds
+
+---New data---
+
+[Remaining: 0]
+
+[File : ./suiteSparse_dataset/c-67b/c-67b.mtx]
+[K : 64]
+[Sputnik_gflops : 5.35 ]
+Matrix diff: 84210.500000
+* 	Execution time: .448082172 seconds
+
+---Test done---
+
+* Total time spent: 278.609019666 seconds (0 hours, 4 minutes, 38.609019666 seconds)
