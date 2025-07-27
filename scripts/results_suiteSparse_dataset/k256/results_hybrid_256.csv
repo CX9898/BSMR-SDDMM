@@ -146,7 +146,6 @@ file,M,N,NNZ,Sparsity,alpha,K,BSMR,BSMR_Only_Tensor_core,BSMR_Only_CUDA_Core
 ./suiteSparse_dataset/ted_A_unscaled/ted_A_unscaled.mtx,10605,10605,424587,99.62,0.5,256,7052.94,5090.97,4368.18
 ./suiteSparse_dataset/TSOPF_RS_b2383_c1/TSOPF_RS_b2383_c1.mtx,38120,38120,16171169,98.88,0.9,256,16507.9,16285.2,5408.42
 ./suiteSparse_dataset/ship_001/ship_001.mtx,34920,34920,2339575,99.8,0.3,256,7008.91,6399.28,4407.64
-./suiteSparse_dataset/epb2/epb2.mtx,25228,25228,175027,99.97,0.3,256,2635.95,1709.25,2635.95
 ./suiteSparse_dataset/OPF_6000/OPF_6000.mtx,29902,29902,166160,99.98,0.1,256,2472.62,1641.9,2436.36
 ./suiteSparse_dataset/dbir1/dbir1.mtx,18804,45775,1077025,99.87,0.3,256,5506.26,3974.26,3980.14
 ./suiteSparse_dataset/ABACUS_shell_hd/ABACUS_shell_hd.mtx,23412,23412,218484,99.96,0.3,256,2477.14,1893.28,2406.21
@@ -250,6 +249,9 @@ file,M,N,NNZ,Sparsity,alpha,K,BSMR,BSMR_Only_Tensor_core,BSMR_Only_CUDA_Core
 ./suiteSparse_dataset/std1_Jac2_db/std1_Jac2_db.mtx,21982,21982,498771,99.89,0.3,256,6281.75,4292.35,4022.35
 ./suiteSparse_dataset/apache1/apache1.mtx,80800,80800,311492,99.99,0.5,256,823.62,736.74,823.18
 ./suiteSparse_dataset/std1_Jac3/std1_Jac3.mtx,21982,21982,1455848,99.69,0.5,256,6847.83,4779.54,4612.95
+./suiteSparse_dataset/jan99jac080sc/jan99jac080sc.mtx,27534,27534,171522,99.97,0.1,256,2299.22,1556.46,2286.96
+./suiteSparse_dataset/Franz11/Franz11.mtx,47104,30144,329728,99.97,0.5,256,2236.96,1074.03,2233.93
+./suiteSparse_dataset/shyy161/shyy161.mtx,76480,76480,329762,99.99,0.1,256,939.49,866.43,938.96
 ./suiteSparse_dataset/pdb1HYS/pdb1HYS.mtx,36417,36417,2190591,99.83,0.3,256,5975.43,5056.77,4225.68
 ./suiteSparse_dataset/c-64/c-64.mtx,51035,51035,384438,99.98,0.1,256,1793.09,1512.34,1655.63
 ./suiteSparse_dataset/lhr71c/lhr71c.mtx,70304,70304,1528092,99.96,0.1,256,3629.67,2669.62,3266.55
@@ -351,10 +353,6 @@ file,M,N,NNZ,Sparsity,alpha,K,BSMR,BSMR_Only_Tensor_core,BSMR_Only_CUDA_Core
 ./suiteSparse_dataset/sme3Db/sme3Db.mtx,29067,29067,2081063,99.75,0.3,256,5898.7,5336.06,4266.22
 ./suiteSparse_dataset/uni_chimera_i2/uni_chimera_i2_A_16.mtx,100000,100000,448987,99.99,0.1,256,715.86,586.14,715.86
 ./suiteSparse_dataset/g7jac040sc/g7jac040sc.mtx,11790,11790,114671,99.91,0.5,256,2559.62,1553.81,2559.62
-./suiteSparse_dataset/jan99jac080sc/jan99jac080sc.mtx,27534,27534,171522,99.97,0.1,256,2299.22,1556.46,2286.96
-./suiteSparse_dataset/Franz11/Franz11.mtx,47104,30144,329728,99.97,0.5,256,2236.96,1074.03,2233.93
-./suiteSparse_dataset/shyy161/shyy161.mtx,76480,76480,329762,99.99,0.1,256,939.49,866.43,938.96
-./suiteSparse_dataset/IG5-15/IG5-15.mtx,11369,11987,323509,99.76,0.3,256,2519.54,1737.43,2403.48
 ./suiteSparse_dataset/Zd_Jac6_db/Zd_Jac6_db.mtx,22835,22835,663643,99.87,0.3,256,6636.43,4879.73,4137.43
 ./suiteSparse_dataset/t3dh/t3dh.mtx,79171,79171,2215638,99.96,0.3,256,3094.47,1860.94,3090.15
 ./suiteSparse_dataset/mark3jac140/mark3jac140.mtx,64089,64089,399735,99.99,0.1,256,1327.14,975.44,1282.02
@@ -484,6 +482,7 @@ file,M,N,NNZ,Sparsity,alpha,K,BSMR,BSMR_Only_Tensor_core,BSMR_Only_CUDA_Core
 ./suiteSparse_dataset/TSOPF_RS_b162_c4/TSOPF_RS_b162_c4.mtx,20374,20374,812749,99.8,0.1,256,9277.96,7322.06,4907.9
 ./suiteSparse_dataset/lhr14c/lhr14c.mtx,14270,14270,307858,99.84,0.3,256,5897.66,3700.22,4050.76
 ./suiteSparse_dataset/c-72/c-72.mtx,84064,84064,395811,99.99,0.1,256,910.33,447.55,908.24
+./suiteSparse_dataset/IG5-15/IG5-15.mtx,11369,11987,323509,99.76,0.3,256,2519.54,1737.43,2403.48
 ./suiteSparse_dataset/Pres_Poisson/Pres_Poisson.mtx,14822,14822,365313,99.83,0.3,256,5279.09,4132.5,3869.84
 ./suiteSparse_dataset/g7jac200/g7jac200.mtx,59310,59310,837936,99.97,0.1,256,2607.14,1712.87,2381.85
 ./suiteSparse_dataset/viscoplastic2/viscoplastic2_C_5.mtx,32769,32769,381326,99.96,0.3,256,2542.17,1606.26,2502.14
@@ -502,3 +501,4 @@ file,M,N,NNZ,Sparsity,alpha,K,BSMR,BSMR_Only_Tensor_core,BSMR_Only_CUDA_Core
 ./suiteSparse_dataset/email-Enron/email-Enron.mtx,36692,36692,183831,99.98,0.3,256,2142.55,1316.84,2142.55
 ./suiteSparse_dataset/TSOPF_RS_b39_c7/TSOPF_RS_b39_c7.mtx,14098,14098,252446,99.87,0.5,256,5487.96,3555.58,4032.68
 ./suiteSparse_dataset/mark3jac140sc/mark3jac140sc.mtx,64089,64089,399735,99.99,0.1,256,1325.38,973.06,1276.29
+./suiteSparse_dataset/epb2/epb2.mtx,25228,25228,175027,99.97,0.3,256,2635.95,1709.25,2635.95

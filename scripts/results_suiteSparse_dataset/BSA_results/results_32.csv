@@ -1,4 +1,4 @@
-file,M,N,NNZ,Sparsity,K,BSMR,cuSDDMM,cuSparse,RoDe,ASpT,TCGNN,FlashSparse,Sputnik
+file,M,N,NNZ,Sparsity,K,BSMR,cuSDDMM,cuSPARSE,RoDe,ASpT,TCGNN,FlashSparse,Sputnik
 ./suiteSparse_dataset/c-63/c-63.mtx,44234,44234,239469,99.98%,32,748.34,0,0,0,0,0,0,0
 ./suiteSparse_dataset/HEP-th/HEP-th.mtx,27240,27240,342437,99.95%,32,1222.99,0,0,0,0,0,0,0
 ./suiteSparse_dataset/li/li.mtx,22695,22695,1350309,99.73%,32,2961.2,0,0,0,0,0,0,0
