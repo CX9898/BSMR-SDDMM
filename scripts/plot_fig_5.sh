@@ -35,15 +35,9 @@ echo "Analysis for k=128 results saved to ${results_path}analysis_results_k128.l
 echo "Analysis for k=256 results saved to ${results_path}analysis_results_k256.log"
 
 # plot
-python plot_sddmm.py --k32 ${k32_results_path}results_32.csv --outdir ${results_path}
-python plot_sddmm.py --k64 ${k64_results_path}results_64.csv --outdir ${results_path}
-python plot_sddmm.py --k128 ${k128_results_path}results_128.csv --outdir ${results_path}
-python plot_sddmm.py --k256 ${k256_results_path}results_256.csv --outdir ${results_path}
 python plot_sddmm.py --k32 ${k32_results_path}results_32.csv --outdir ${results_path} --k64 ${k64_results_path}results_64.csv --k128 ${k128_results_path}results_128.csv --k128 ${k128_results_path}results_128.csv --k256 ${k256_results_path}results_256.csv
 
 python plot_hybrid.py --k32 ${k32_results_path}results_hybrid_32.csv --k128 ${k128_results_path}results_hybrid_128.csv --outdir ${results_path}
-
-python plot_reordering.py --file ${results_path}analysis_results_k32.log --outdir ${results_path}
 
 # 清理临时文件
 rm ${k32_results_path}BSMR_k_32*
