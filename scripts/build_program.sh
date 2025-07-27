@@ -63,7 +63,7 @@ build_program ${Sputnik_build_folder_path} ${Sputnik_cmake_file_path}
 build_program ${cuSPARSE_build_folder_path} ${cuSPARSE_cmake_file_path}
 build_program ${BSA_build_folder_path} ${BSA_cmake_file_path}
 
-mkdir ${ASpT_build_folder_path}
-nvcc -o ${ASpT_build_folder_path}${ASpT_32_program_name} ${ASpT_file_path}sddmm_32.cu -O3 -Xcompiler -fopenmp -arch=sm_80 > /dev/null  2> /dev/null
-nvcc -o ${ASpT_build_folder_path}${ASpT_128_program_name} ${ASpT_file_path}sddmm_128.cu -O3 -Xcompiler -fopenmp -arch=sm_80 > /dev/null  2> /dev/null
+mkdir -p ${ASpT_build_folder_path}
+nvcc -o ${ASpT_build_folder_path}${ASpT_32_program_name} ${ASpT_file_path}sddmm_32.cu -O3 -Xcompiler -fopenmp -arch=sm_80 > /dev/null
+nvcc -o ${ASpT_build_folder_path}${ASpT_128_program_name} ${ASpT_file_path}sddmm_128.cu -O3 -Xcompiler -fopenmp -arch=sm_80 > /dev/null
 echo "${print_tag}Build complete : ${ASpT_build_folder_path}"
