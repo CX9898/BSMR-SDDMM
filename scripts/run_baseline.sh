@@ -25,12 +25,16 @@ bash test_script.sh -f ${matrix_list_file} -p ${program_cuSPARSE} -n "${k64_resu
 bash test_script.sh -f ${matrix_list_file} -p ${program_cuSPARSE} -n "${k128_results_path}cuSPARSE_128" -k 128
 bash test_script.sh -f ${matrix_list_file} -p ${program_cuSPARSE} -n "${k256_results_path}cuSPARSE_256" -k 256
 
+# run ASpT
+program_ASpT_32="./build_ASpT/ASpT-sddmm-32"
+program_ASpT_128="./build_ASpT/ASpT-sddmm-128"
+bash test_script.sh -f ${matrix_list_file} -p ${program_ASpT_32} -n "${k32_results_path}ASpT_32" -k 32
+bash test_script.sh -f ${matrix_list_file} -p ${program_ASpT_128} -n "${k128_results_path}ASpT_128" -k 128
+
 # run RoDe
 program_RoDe="./build_RoDe/RoDe-sddmm"
 bash test_script.sh -f ${matrix_list_file} -p ${program_RoDe} -n "${k32_results_path}RoDe_32" -k 32
-bash test_script.sh -f ${matrix_list_file} -p ${program_RoDe} -n "${k64_results_path}RoDe_64" -k 64
 bash test_script.sh -f ${matrix_list_file} -p ${program_RoDe} -n "${k128_results_path}RoDe_128" -k 128
-bash test_script.sh -f ${matrix_list_file} -p ${program_RoDe} -n "${k256_results_path}RoDe_256" -k 256
 
 # run Sputnik
 program_Sputnik="./build_Sputnik/Sputnik-sddmm"

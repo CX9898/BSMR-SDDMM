@@ -29,7 +29,7 @@ def preprocess(df, k):
         print(f"Skipping K={k} due to insufficient data points (<{window_size})")
         return None
 
-    numeric_cols = ["NNZ", "BSMR", "cuSDDMM", "cuSparse",
+    numeric_cols = ["NNZ", "BSMR", "cuSDDMM", "cuSPARSE",
                     "RoDe", "ASpT", "TCGNN", "FlashSparse", "Sputnik"]
 
     avg_df = df[numeric_cols].rolling(window=window_size).mean().dropna().reset_index(drop=True)
@@ -59,7 +59,7 @@ def plot_gflops_comparison(k_data_list, output_dir, output_name_suffix):
         "RoDe": "RoDe",
         "ASpT": "ASpT",
         "cuSDDMM": "cuSDDMM",
-        "cuSparse": "cuSparse",
+        "cuSPARSE": "cuSPARSE",
         "TCGNN": "TCGNN",
         "Sputnik": "Sputnik"
     }
@@ -70,7 +70,7 @@ def plot_gflops_comparison(k_data_list, output_dir, output_name_suffix):
         "RoDe": "#9467bd",
         "ASpT": "#F0E442",
         "cuSDDMM": "#17becf",
-        "cuSparse": "#2ca02c",
+        "cuSPARSE": "#2ca02c",
         "TCGNN": "#ff7f0e",
         "Sputnik": "#e377c2"
     }

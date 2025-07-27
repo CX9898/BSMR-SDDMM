@@ -249,11 +249,11 @@ protected:
 };
 
 // alpha -> delta -> (gflops, numDenseBlock, averageDensity, original_numDenseBlock, original_averageDensity, rowReorderingTime, colReorderingTime)
-struct reorderingData{
+struct ReorderingData{
     float gflops = 0.0f;
-    uint64_t numDenseBlock = 0;
+    int numDenseBlock = 0;
     float averageDensity = 0.0f;
-    uint64_t original_numDenseBlock = 0;
+    int original_numDenseBlock = 0;
     float original_averageDensity = 0.0f;
     float rowReorderingTime = 0.0f;
     float colReorderingTime = 0.0f;
@@ -319,22 +319,25 @@ public:
             checkResults_ = checkResults;
         }
 
-        const auto tuple = std::make_tuple(gflops, numDenseBlock, averageDensity, original_numDenseBlock,
-                                           original_averageDensity);
-        if (alpha_to_delta_to_tuple_.find(alpha) == alpha_to_delta_to_tuple_.end()){
-            std::unordered_map<float, std::tuple<float, int, float, int, float>> delta_to_tuple;
-            delta_to_tuple[delta] = tuple;
-            alpha_to_delta_to_tuple_[alpha] = std::move(delta_to_tuple);
+        const ReorderingData reordering_data = {
+            gflops, numDenseBlock, averageDensity, original_numDenseBlock,
+            original_averageDensity, rowReordering, colReordering
+        };
+        if (alpha_to_delta_to_reorderingData_.find(alpha) == alpha_to_delta_to_reorderingData_.end()){
+            std::unordered_map<float, ReorderingData> delta_to_tuple;
+            delta_to_tuple[delta] = reordering_data;
+            alpha_to_delta_to_reorderingData_[alpha] = delta_to_tuple;
         }
         else{
-            auto& delta_to_tuple = alpha_to_delta_to_tuple_[alpha];
-            if (delta_to_tuple.find(delta) == delta_to_tuple.end()){
-                delta_to_tuple[delta] = tuple;
+            auto& delta_to_reorderingData = alpha_to_delta_to_reorderingData_[alpha];
+            if (delta_to_reorderingData.find(delta) == delta_to_reorderingData.end()){
+                delta_to_reorderingData[delta] = reordering_data;
             }
             else{
-                // if the tuple is already exist, then update the tuple
-                auto& existingTuple = delta_to_tuple[delta];
-                existingTuple = std::max(existingTuple, tuple);
+                // if the reorderingData is already exist, then update the reorderingData
+                if (delta_to_reorderingData[delta].gflops < gflops){
+                    delta_to_reorderingData[delta] = reordering_data;
+                }
             }
         }
     }
@@ -348,9 +351,8 @@ public:
     float alpha() const{ return alpha_; }
     float delta() const{ return delta_; }
 
-    const std::unordered_map<float, std::unordered_map<float, std::tuple<float, int, float, int, float>>>&
-    alphaToDeltaToTuple() const{
-        return alpha_to_delta_to_tuple_;
+    const std::unordered_map<float, std::unordered_map<float, ReorderingData>>& alphaToDeltaToTuple() const{
+        return alpha_to_delta_to_reorderingData_;
     }
 
 protected:
@@ -365,8 +367,7 @@ protected:
     std::string checkResults_;
 
     // alpha -> delta -> (gflops, numDenseBlock, averageDensity, original_numDenseBlock, original_averageDensity, rowReorderingTime, colReorderingTime)
-    std::unordered_map<float, std::unordered_map<float, std::tuple<float, int, float, int, float>>>
-    alpha_to_delta_to_tuple_;
+    std::unordered_map<float, std::unordered_map<float, ReorderingData>> alpha_to_delta_to_reorderingData_;
 };
 
 struct OneTimeData{
@@ -724,12 +725,6 @@ void evaluateBSMRWithFlashSparse(
         const float FlashSparse_gflops = iter.second.oneTimeData_.FlashSparse_.gflops();
 
         evaluateBaseLine(BSMR_gflops, FlashSparse_gflops, numSpeedups, maxSpeedup, sumSpeedup, numResults);
-
-        const float speedup = BSMR_gflops / FlashSparse_gflops;
-        if (speedup < 0.6f){
-            printf(" Warning, FlashSparse is slower than BSMR for %s, speedup: %.2fx\n",
-                   iter.first.c_str(), speedup);
-        }
     }
 
     printEvaluateResults("FlashSparse", numResults, sumSpeedup, maxSpeedup, numSpeedups);
@@ -784,7 +779,7 @@ void outputCSVFile(
         return;
     }
 
-    outFile << "file,M,N,NNZ,Sparsity,K,BSMR,cuSDDMM,cuSparse,RoDe,ASpT,TCGNN,FlashSparse,Sputnik\n";
+    outFile << "file,M,N,NNZ,Sparsity,K,BSMR,cuSDDMM,cuSPARSE,RoDe,ASpT,TCGNN,FlashSparse,Sputnik\n";
 
     for (const auto& iter : matrixFileToResultsInformationMap){
         const ResultsInformation& resultsInformation = iter.second;
@@ -869,46 +864,11 @@ void printReorderingEffectiveness(
 
 void evaluateReorderingOverhead(
     const std::unordered_map<std::string, ResultsInformation>& matrixFileToResultsInformationMap){
+    for (const auto& [file,resultsInformation] : matrixFileToResultsInformationMap){
+    }
+
+
     printSeparator("Evaluate Reordering Overhead:");
-
-    const int numColAttributes = 4;
-    // print the head of the list
-    printf("\n");
-    printf("|");
-    printf(" rows |");
-    printf(" cols |");
-    printf(" rowReordering |");
-    printf(" colReordering |");
-
-    printf("\n");
-
-    // print the split line
-    const int numColData = numColAttributes;
-    printf("|");
-    for (int i = 0; i < numColData; ++i){
-        printf("-|");
-    }
-    printf("\n");
-
-    for (const auto& iter : matrixFileToResultsInformationMap){
-        const int rows = std::stoi(iter.second.M_);
-        const int cols = std::stoi(iter.second.N_);
-        const float reorderingTime = iter.second.oneTimeData_.BSMR_.reordering();
-        const float rowReorderingTime = iter.second.oneTimeData_.BSMR_.rowReordering();
-        const float colReorderingTime = iter.second.oneTimeData_.BSMR_.colReordering();
-        if (reorderingTime == std::numeric_limits<float>::max()){
-            continue;
-        }
-
-        printf("|");
-        std::cout << rows << "|";
-        std::cout << cols << "|";
-        std::cout << rowReorderingTime << "|";
-        std::cout << colReorderingTime << "|";
-        printf("\n");
-    }
-
-    printf("\n");
 }
 
 void evaluateReorderingWithBSA(
@@ -924,7 +884,7 @@ void evaluateReorderingWithBSA(
     std::map<float, std::map<float, float>> alpha_to_delta_to_BSMR_reordering;
     std::map<float, std::map<float, float>> alpha_to_delta_to_BSA_reordering;
 
-    std::map<float, std::map<float, float>> alpha_to_delta_to_numResults;
+    std::map<float, std::map<float, int>> alpha_to_delta_to_numResults;
     for (const auto& iter : matrixFileToResultsInformationMap){
         for (const auto& pair : iter.second.oneTimeData_.BSMR_.alphaToDeltaToTuple()){
             const float alpha = pair.first;
@@ -935,26 +895,33 @@ void evaluateReorderingWithBSA(
                     continue; // skip if alpha or delta is zero
                 }
 
-
-                const float BSMR_gflops = std::get<0>(deltaToTuple.second);
+                const float BSMR_gflops = deltaToTuple.second.gflops;
                 if (BSMR_gflops <= 1e-6){
                     continue; // skip if the result is not valid
                 }
 
-                const int BSMR_numDenseBlock = std::get<1>(deltaToTuple.second);
-                const float BSMR_averageDensity = std::get<2>(deltaToTuple.second);
-                const int original_numDenseBlock = std::get<3>(deltaToTuple.second);
-                const float original_averageDensity = std::get<4>(deltaToTuple.second);
+                alpha_to_delta_to_BSMR_reordering[alpha][delta] += deltaToTuple.second.rowReorderingTime +
+                    deltaToTuple.second.colReorderingTime;
 
+                const int BSMR_numDenseBlock = deltaToTuple.second.numDenseBlock;
+                const float BSMR_averageDensity = deltaToTuple.second.averageDensity;
+                const int original_numDenseBlock = deltaToTuple.second.original_numDenseBlock;
+                const float original_averageDensity = deltaToTuple.second.original_averageDensity;
+
+                float BSA_reordering = 0.0f;
                 int BSA_numDenseBlock = 0;
                 float BSA_averageDensity = 0.0f;
                 try{
-                    BSA_numDenseBlock = std::get<1>(iter.second.oneTimeData_.BSA_.alphaToDeltaToTuple()
-                                                        .at(alpha)
-                                                        .at(delta));
-                    BSA_averageDensity = std::get<2>(iter.second.oneTimeData_.BSA_.alphaToDeltaToTuple()
-                                                         .at(alpha)
-                                                         .at(delta));
+                    alpha_to_delta_to_BSA_reordering[alpha][delta] += iter
+                                                                      .second.oneTimeData_.BSA_.alphaToDeltaToTuple()
+                                                                      .at(alpha)
+                                                                      .at(delta).rowReorderingTime;
+                    BSA_numDenseBlock = iter.second.oneTimeData_.BSA_.alphaToDeltaToTuple()
+                                            .at(alpha)
+                                            .at(delta).numDenseBlock;
+                    BSA_averageDensity = iter.second.oneTimeData_.BSA_.alphaToDeltaToTuple()
+                                             .at(alpha)
+                                             .at(delta).averageDensity;
                 }
                 catch (...){
                     continue;
@@ -1002,12 +969,14 @@ void evaluateReorderingWithBSA(
             printf("Alpha: %.2f, Delta: %.2f, "
                    "BSMR average num dense blocks: %d, "
                    "BSA average num dense blocks: %d, "
-                   "original average num dense blocks: %d, "
+                   "Original average num dense blocks: %d, "
                    "BSMR average density: %.2f, "
                    "BSA average density: %.2f, "
-                   "original average density: %.2f\n",
+                   "Original average density: %.2f, "
+                   "num results: %u\n",
                    alpha, delta, BSMR_numDenseBlock, BSA_numDenseBlock, original_numDenseBlock,
-                   BSMR_averageDensity, BSA_averageDensity, original_averageDensity);
+                   BSMR_averageDensity, BSA_averageDensity, original_averageDensity,
+                   alpha_to_delta_to_numResults[alpha][delta]);
         }
     }
 
@@ -1044,11 +1013,11 @@ void evaluateHybridSddmm(
                 const float curDelta = deltaToTuple.first;
                 // Only Tensor core
                 if (curAlpha == iter.second.oneTimeData_.BSMR_.alpha() && curDelta == 0.0f){
-                    BSMR_gflops_only_Tensor_core = std::get<0>(deltaToTuple.second);
+                    BSMR_gflops_only_Tensor_core = deltaToTuple.second.gflops;
                 }
                 // Only CUDA core
                 if (curAlpha == iter.second.oneTimeData_.BSMR_.alpha() && curDelta > 1.0f){
-                    BSMR_gflops_only_CUDA_core = std::get<0>(deltaToTuple.second);
+                    BSMR_gflops_only_CUDA_core = deltaToTuple.second.gflops;
                 }
             }
             if (BSMR_gflops <= 1e-6 || BSMR_gflops_only_Tensor_core <= 1e-6 ||
@@ -1086,6 +1055,14 @@ void evaluateHybridSddmm(
                                maxSpeedupWithOnlyCudaCore, numSpeedupsWithOnlyCUDA);
     printEvaluateHybridResults("Only Tensor core", numResults, sumSpeedupWithOnlyTensorCore,
                                maxSpeedupWithOnlyTensorCore, numSpeedupsWithOnlyTC);
+
+    int numHybridBest = 0;
+    for (const auto& iter : matrixFileToResultsInformationMap){
+        if (iter.second.oneTimeData_.BSMR_.numDenseBlock() > 0){
+            ++numHybridBest;
+        }
+    }
+    printf("Number of hybrid best results: %d\n", numHybridBest);
 }
 
 void analyzeDataset(
@@ -1141,6 +1118,8 @@ void analyzeParameters(
     std::unordered_map<float, int> alphaToNumResults;
     std::unordered_map<float, int> deltaToNumResults;
 
+    std::unordered_map<float, std::unordered_map<float, int>> alphaToDeltaToNumResults;
+
     for (const auto& iter : matrixFileToResultsInformationMap){
         const float alpha = iter.second.oneTimeData_.BSMR_.alpha();
         const float delta = iter.second.oneTimeData_.BSMR_.delta();
@@ -1152,12 +1131,17 @@ void analyzeParameters(
         }
         ++alphaToNumResults[alpha];
         ++deltaToNumResults[delta];
+        ++alphaToDeltaToNumResults[alpha][delta];
     }
 
     float modeAlpha = 0.0f;
     int maxNumAlpha = 0;
+
     float modeDelta = 0.0f;
     int maxNumDelta = 0;
+
+    std::array<float, 2> modeAlphaDelta;
+    int maxNumAlphaDelta = 0;
     for (const auto& iter : alphaToNumResults){
         if (iter.second > maxNumAlpha){
             maxNumAlpha = iter.second;
@@ -1170,8 +1154,20 @@ void analyzeParameters(
             modeDelta = iter.first;
         }
     }
+    for (const auto& [alpha, deltaToNum] : alphaToDeltaToNumResults){
+        for (const auto& [delta, Num] : deltaToNum){
+            if (Num > maxNumAlphaDelta){
+                maxNumAlphaDelta = Num;
+                modeAlphaDelta[0] = alpha;
+                modeAlphaDelta[1] = delta;
+            }
+        }
+    }
     printf("Mode alpha: %.2f, number of results: %d\n", modeAlpha, maxNumAlpha);
     printf("Mode delta: %.2f, number of results: %d\n", modeDelta, maxNumDelta);
+
+    printf("Mode alpha and delta: (%.2f, %.2f), number of results: %d\n", modeAlphaDelta[0], modeAlphaDelta[1],
+           maxNumAlphaDelta);
 
     printf("\n");
 }
@@ -1231,15 +1227,9 @@ int main(const int argc, const char* argv[]){
 
     evaluateReorderingWithBSA(matrixFileToResultsInformationMap);
 
+    evaluateReorderingOverhead(matrixFileToResultsInformationMap);
+
     evaluateHybridSddmm(matrixFileToResultsInformationMap, resultsPath);
-
-    // evaluateReorderingOverhead(matrixFileToResultsInformationMap);
-
-    // Print the program setting information to Markdown format and the results information
-    // settingInformation.printInformation();
-    // for (const auto& iter : matrixFileToResultsInformationMap){
-    //     iter.second.printInformation();
-    // }
 
     return 0;
 }
