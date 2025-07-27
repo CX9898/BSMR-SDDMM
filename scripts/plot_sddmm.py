@@ -30,7 +30,7 @@ def preprocess(df, k):
         return None
 
     numeric_cols = ["NNZ", "BSMR", "cuSDDMM", "cuSparse",
-                    "RoDe", "TCGNN", "FlashSparse", "Sputnik"]
+                    "RoDe", "ASpT", "TCGNN", "FlashSparse", "Sputnik"]
 
     avg_df = df[numeric_cols].rolling(window=window_size).mean().dropna().reset_index(drop=True)
     return avg_df
@@ -57,6 +57,7 @@ def plot_gflops_comparison(k_data_list, output_dir, output_name_suffix):
         "BSMR": "BSMR",
         "FlashSparse": "FlashSparse",
         "RoDe": "RoDe",
+        "ASpT": "ASpT",
         "cuSDDMM": "cuSDDMM",
         "cuSparse": "cuSparse",
         "TCGNN": "TCGNN",
@@ -67,6 +68,7 @@ def plot_gflops_comparison(k_data_list, output_dir, output_name_suffix):
         "BSMR": "#1f77b4",
         "FlashSparse": "#d62728",
         "RoDe": "#9467bd",
+        "ASpT": "#F0E442",
         "cuSDDMM": "#17becf",
         "cuSparse": "#2ca02c",
         "TCGNN": "#ff7f0e",
@@ -90,7 +92,9 @@ def plot_gflops_comparison(k_data_list, output_dir, output_name_suffix):
                     handles_dict[label] = line
 
         ax.set_title(f"K = {k}")
-        ax.set_xlabel("NNZ")
+        # ax.set_xlabel("NNZ")
+        if idx // cols == rows - 1:  # 仅最后一行的图
+            ax.set_xlabel("NNZ")
         if idx % cols == 0:
             ax.set_ylabel("GFLOPS")
         ax.set_xscale('linear')
@@ -102,7 +106,7 @@ def plot_gflops_comparison(k_data_list, output_dir, output_name_suffix):
         fig.delaxes(axes[j])
 
     fig.legend(handles_dict.values(), handles_dict.keys(),
-               loc='upper center', bbox_to_anchor=(0.5, 1.02), ncol=7)
+               loc='upper center', bbox_to_anchor=(0.5, 1.00), ncol=8)
     plt.tight_layout(rect=[0, 0, 1, 0.97])
     fig_path = output_dir / f"sddmm_{output_name_suffix}.png"
     plt.savefig(fig_path, bbox_inches='tight')

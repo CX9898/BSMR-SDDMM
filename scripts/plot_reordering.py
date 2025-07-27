@@ -7,8 +7,8 @@ from collections import defaultdict
 def parse_data(filepath):
     pattern = re.compile(
         r"Alpha: ([\d.]+), Delta: ([\d.]+), "
-        r"BSMR average num dense blocks: (\d+), BSA average num dense blocks: (\d+), original average num dense blocks: (\d+), "
-        r"BSMR average density: ([\d.]+), BSA average density: ([\d.]+), original average density: ([\d.]+)"
+        r"BSMR average num dense blocks: (\d+), BSA average num dense blocks: (\d+), Original average num dense blocks: (\d+), "
+        r"BSMR average density: ([\d.]+), BSA average density: ([\d.]+), Original average density: ([\d.]+)"
     )
 
     data = defaultdict(list)
@@ -41,10 +41,36 @@ def plot_data(data, output_file):
     alphas = sorted(data.keys())
     num_subplots = len(alphas)
 
-    fig, axes = plt.subplots(1, num_subplots, figsize=(5 * num_subplots, 5), constrained_layout=True)
+    # fig, axes = plt.subplots(1, num_subplots, figsize=(5 * num_subplots, 5), constrained_layout=True)
+    #
+    # if num_subplots == 1:
+    #     axes = [axes]
 
-    if num_subplots == 1:
-        axes = [axes]
+    cols = 2
+    rows = (num_subplots + cols - 1) // cols  # 向上取整
+    # fig, axes = plt.subplots(rows, cols, figsize=(5 * cols, 5 * rows), constrained_layout=True)
+    #
+    # # 扁平化 axes 并转为 list，便于索引
+    # axes = axes.flatten().tolist()
+
+    fig = plt.figure(figsize=(5 * cols, 5 * rows), constrained_layout=True)
+    import matplotlib.gridspec as gridspec
+    gs = gridspec.GridSpec(rows, cols, figure=fig)
+
+    axes = []
+
+    for i in range(len(alphas)):
+        row = i // cols
+        col = i % cols
+
+        # 如果最后一行不满，重新计算 col 使其居中
+        if row == rows - 1 and num_subplots % cols != 0:
+            # 子图数在最后一行的位置偏移量
+            offset = (cols - num_subplots % cols) // 2
+            col = (i % cols) + offset
+
+        ax = fig.add_subplot(gs[row, col])
+        axes.append(ax)
 
     legend_handles = []
     legend_labels = []
@@ -95,9 +121,9 @@ def plot_data(data, output_file):
         ax.set_xticklabels([str(d) for d in deltas])
 
         for handle, label in zip(
-                [h1[0], l1,h2[0],l2, h3[0],   l3],
+                [h1[0], l1, h2[0], l2, h3[0], l3],
                 ['BSMR Average Number of Dense Blocks', 'BSMR Average Density of Dense Blocks',
-                 'BSA Average Number of Dense Blocks','BSA Average Density of Dense Blocks',
+                 'BSA Average Number of Dense Blocks', 'BSA Average Density of Dense Blocks',
                  'Original Average Number of Dense Blocks', 'Original Average Density of Dense Blocks']
         ):
             if label not in added_labels:
@@ -105,7 +131,10 @@ def plot_data(data, output_file):
                 legend_labels.append(label)
                 added_labels.add(label)
 
-    # 顶部居中图例
+    # 隐藏多余空子图（当 alpha 数量不是 3 的倍数时）
+    for j in range(num_subplots, len(axes)):
+        fig.delaxes(axes[j])
+
     fig.legend(
         legend_handles,
         legend_labels,
@@ -113,7 +142,7 @@ def plot_data(data, output_file):
         ncol=3,  # 设置一行显示几个图例项
         fontsize='medium',
         bbox_transform=fig.transFigure,
-        bbox_to_anchor=(0.5, 1.15)  # 微调高度让 legend 更居中
+        bbox_to_anchor=(0.5, 1.06)  # 微调高度让 legend 更居中
     )
 
     # 不再调用 tight_layout
@@ -127,7 +156,7 @@ if __name__ == '__main__':
     parser.add_argument('--outdir', default='./', help='输出图像文件名')
     args = parser.parse_args()
 
-    output_file = args.outdir + 'evaluateReordering.png'
+    output_file = args.outdir + 'evaluate_reordering.png'
 
     data = parse_data(args.file)
     plot_data(data, output_file)
