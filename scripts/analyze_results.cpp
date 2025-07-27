@@ -251,6 +251,7 @@ protected:
 // alpha -> delta -> (gflops, numDenseBlock, averageDensity, original_numDenseBlock, original_averageDensity, rowReorderingTime, colReorderingTime)
 struct ReorderingData{
     float gflops = 0.0f;
+    int numClusters = 0;
     int numDenseBlock = 0;
     float averageDensity = 0.0f;
     int original_numDenseBlock = 0;
@@ -269,6 +270,7 @@ public:
         float gflops = 0.0f;
         float alpha = 0.0f;
         float delta = 0.0f;
+        int numClusters = 0;
         int numDenseBlock = 0;
         float reordering = 0.0f;
         float rowReordering = 0.0f;
@@ -285,6 +287,8 @@ public:
                              tryParse<float>(getValue(line, "[" + nameToken_ + "_alpha : ")).value_or(0.0f));
             delta = std::max(delta,
                              tryParse<float>(getValue(line, "[" + nameToken_ + "_delta : ")).value_or(0.0f));
+            numClusters = std::max(numClusters,
+                                   tryParse<int>(getValue(line, "[" + nameToken_ + "_numClusters : ")).value_or(0));
             numDenseBlock = std::max(numDenseBlock,
                                      tryParse<int>(getValue(line, "[" + nameToken_ + "_numDenseBlock : ")).value_or(0));
             reordering = std::max(reordering,
@@ -312,6 +316,7 @@ public:
             gflops_ = gflops;
             alpha_ = alpha;
             delta_ = delta;
+            numClusters_ = numClusters;
             numDenseBlock_ = numDenseBlock;
             reordering_ = reordering;
             rowReordering_ = rowReordering;
@@ -320,7 +325,7 @@ public:
         }
 
         const ReorderingData reordering_data = {
-            gflops, numDenseBlock, averageDensity, original_numDenseBlock,
+            gflops, numClusters, numDenseBlock, averageDensity, original_numDenseBlock,
             original_averageDensity, rowReordering, colReordering
         };
         if (alpha_to_delta_to_reorderingData_.find(alpha) == alpha_to_delta_to_reorderingData_.end()){
@@ -351,13 +356,14 @@ public:
     float alpha() const{ return alpha_; }
     float delta() const{ return delta_; }
 
-    const std::unordered_map<float, std::unordered_map<float, ReorderingData>>& alphaToDeltaToTuple() const{
+    const std::unordered_map<float, std::unordered_map<float, ReorderingData>>& alphaToDeltaToReorderingData() const{
         return alpha_to_delta_to_reorderingData_;
     }
 
 protected:
     std::string nameToken_;
 
+    int numClusters_ = 0;
     int numDenseBlock_ = 0;
     float reordering_ = std::numeric_limits<float>::max();
     float rowReordering_ = std::numeric_limits<float>::max();
@@ -615,6 +621,10 @@ auto printEvaluateHybridResults = [](const std::string& baseLineName,
     const float averageSpeedup = sumSpeedup / numResults;
 
     printSeparator("Evaluate BSMR With " + baseLineName + ":");
+    if (numResults < 1){
+        printf("No results found\n");
+        return;
+    }
     printf("Number of results: %d\n", numResults);
     printf("Average speedup: %.2fx, maximum speedup: %.2fx\n", averageSpeedup, maxSpeedup);
 
@@ -792,9 +802,9 @@ void outputCSVFile(
         outFile << resultsInformation.NNZ_ << ","; // NNZ
         outFile << resultsInformation.sparsity_ << ","; // Sparsity
         outFile << k; // K
-        outFile << "," << oneTimeData.BSMR_.gflops(); // BSMR cuSDDMM
+        outFile << "," << oneTimeData.BSMR_.gflops(); // BSMR
         outFile << "," << oneTimeData.cuSDDMM_.gflops(); // cuSDDMM
-        outFile << "," << oneTimeData.cuSPARSE_.gflops(); // cusparse
+        outFile << "," << oneTimeData.cuSPARSE_.gflops(); // cuSPARSE
         outFile << "," << oneTimeData.RoDe_.gflops(); // RoDe
         outFile << "," << oneTimeData.ASpT_.gflops(); // ASpT
         outFile << "," << oneTimeData.TCGNN_.gflops(); // TCGNN
@@ -807,6 +817,42 @@ void outputCSVFile(
 }
 
 void eliminateInvalidData(std::unordered_map<std::string, ResultsInformation>& matrixFileToResultsInformationMap){
+    // std::unordered_set<std::string> filePathSplit = {
+    //     "./suiteSparse_dataset/3dtube/3dtube.mtx",
+    //     "./suiteSparse_dataset/shermanACb/shermanACb.mtx",
+    //     "./suiteSparse_dataset/ts-palko/ts-palko.mtx",
+    //     "./suiteSparse_dataset/Maragal_8/Maragal_8.mtx",
+    //     "./suiteSparse_dataset/Maragal_7/Maragal_7.mtx",
+    //     "./suiteSparse_dataset/mult_dcop_01/mult_dcop_01.mtx",
+    //     "./suiteSparse_dataset/co9/co9.mtx",
+    //     "./suiteSparse_dataset/Maragal_6/Maragal_6.mtx",
+    //     "./suiteSparse_dataset/gupta3/gupta3.mtx",
+    //     "./suiteSparse_dataset/sx-mathoverflow/sx-mathoverflow.mtx",
+    //     "./suiteSparse_dataset/sx-mathoverflow/sx-mathoverflow_C2Q.mtx", // 1
+    //     "./suiteSparse_dataset/lpl3/lpl3.mtx",
+    //     "./suiteSparse_dataset/route/route.mtx",
+    //     "./suiteSparse_dataset/mult_dcop_02/mult_dcop_02.mtx",
+    //     "./suiteSparse_dataset/mult_dcop_03/mult_dcop_03.mtx",
+    //     "./suiteSparse_dataset/Reuters911/Reuters911.mtx",
+    //     "./suiteSparse_dataset/EAT_RS/EAT_RS.mtx",
+    //     "./suiteSparse_dataset/c-58/c-58.mtx"
+    // };
+    //
+    // std::unordered_set<std::string> filePathSplit2 = {
+    //     "./suiteSparse_dataset/jnlbrng1/jnlbrng1.mtx",
+    //     "./suiteSparse_dataset/spmsrtls/spmsrtls.mtx",
+    //     "./suiteSparse_dataset/fe_body/fe_body.mtx",
+    //     "./suiteSparse_dataset/minsurfo/minsurfo.mtx",
+    //     "./suiteSparse_dataset/delaunay_n16/delaunay_n16.mtx",
+    //     "./suiteSparse_dataset/dixmaanl/dixmaanl.mtx",
+    //     "./suiteSparse_dataset/gridgena/gridgena.mtx",
+    //     "./suiteSparse_dataset/torsion1/torsion1.mtx",
+    //     "./suiteSparse_dataset/obstclae/obstclae.mtx",
+    //     "./suiteSparse_dataset/onera_dual/onera_dual.mtx",
+    //     "./suiteSparse_dataset/3D_28984_Tetra/3D_28984_Tetra.mtx",
+    //     "./suiteSparse_dataset/onera_dual/onera_dual.mtx"
+    // };
+
     for (auto iter = matrixFileToResultsInformationMap.begin(); iter != matrixFileToResultsInformationMap.end();){
         const int m = tryParse<int>(iter->second.M_).value_or(0);
         const int n = tryParse<int>(iter->second.N_).value_or(0);
@@ -864,11 +910,56 @@ void printReorderingEffectiveness(
 
 void evaluateReorderingOverhead(
     const std::unordered_map<std::string, ResultsInformation>& matrixFileToResultsInformationMap){
+    std::map<int, int> M10K_to_numResults;
+    std::map<int, int> N10K_to_numResults;
+
+    // alpha -> m / 10000 -> (numResults, avgClusters, avgRowReorderingTime)
+    std::map<float, std::map<int, std::tuple<int, int, float>>> alpha_to_M10K_to_tuple;
+
+    std::vector<int> ratios(4, 0); // [0.0, 100.0), [100.0, 1000.0), [1000.0, 10000.0), [10000.0, )
+    int numResults = 0;
     for (const auto& [file,resultsInformation] : matrixFileToResultsInformationMap){
+        const int m = tryParse<int>(resultsInformation.M_).value_or(0);
+        const int n = tryParse<int>(resultsInformation.N_).value_or(0);
+        if (m != n){
+            continue;
+        }
+        for (const auto& [alpha, deltaToReorderingData] : resultsInformation.oneTimeData_.BSMR_.
+                                                                             alphaToDeltaToReorderingData()){
+            const int numClusters = deltaToReorderingData.begin()->second.numClusters;
+            const float rowReorderingTime = deltaToReorderingData.begin()->second.rowReorderingTime;
+            const float colReorderingTime = deltaToReorderingData.begin()->second.colReorderingTime;
+
+            if (alpha <= 0.0f){
+                continue;
+            }
+
+            std::get<0>(alpha_to_M10K_to_tuple[alpha][m / 10000])++; // numResults
+            std::get<1>(alpha_to_M10K_to_tuple[alpha][m / 10000]) += numClusters; // avgClusters
+            std::get<2>(alpha_to_M10K_to_tuple[alpha][m / 10000]) += rowReorderingTime + colReorderingTime;
+            // avgRowReorderingTime
+
+            ++M10K_to_numResults[m / 10000];
+        }
+    }
+    for (auto& [alpha, M10K_to_tuple] : alpha_to_M10K_to_tuple){
+        for (auto& [M10K, tuple] : M10K_to_tuple){
+            std::get<1>(tuple) /= std::get<0>(tuple); // average clusters
+            std::get<2>(tuple) /= std::get<0>(tuple); // average row reordering time
+        }
     }
 
-
     printSeparator("Evaluate Reordering Overhead:");
+    for (const auto& [alpha, M10K_to_tuple] : alpha_to_M10K_to_tuple){
+        for (const auto& [M10K, tuple] : M10K_to_tuple){
+            printf(
+                "Alpha: %.2f, m in [%d, %d), Num Results: %d, Avg Clusters: %d, Avg Row Reordering Time: %.2f ms\n",
+                alpha, M10K * 10000, (M10K + 1) * 10000,
+                std::get<0>(tuple),
+                std::get<1>(tuple),
+                std::get<2>(tuple));
+        }
+    }
 }
 
 void evaluateReorderingWithBSA(
@@ -886,7 +977,7 @@ void evaluateReorderingWithBSA(
 
     std::map<float, std::map<float, int>> alpha_to_delta_to_numResults;
     for (const auto& iter : matrixFileToResultsInformationMap){
-        for (const auto& pair : iter.second.oneTimeData_.BSMR_.alphaToDeltaToTuple()){
+        for (const auto& pair : iter.second.oneTimeData_.BSMR_.alphaToDeltaToReorderingData()){
             const float alpha = pair.first;
             for (const auto& deltaToTuple : pair.second){
                 const float delta = deltaToTuple.first;
@@ -913,13 +1004,14 @@ void evaluateReorderingWithBSA(
                 float BSA_averageDensity = 0.0f;
                 try{
                     alpha_to_delta_to_BSA_reordering[alpha][delta] += iter
-                                                                      .second.oneTimeData_.BSA_.alphaToDeltaToTuple()
+                                                                      .second.oneTimeData_.BSA_.
+                                                                      alphaToDeltaToReorderingData()
                                                                       .at(alpha)
                                                                       .at(delta).rowReorderingTime;
-                    BSA_numDenseBlock = iter.second.oneTimeData_.BSA_.alphaToDeltaToTuple()
+                    BSA_numDenseBlock = iter.second.oneTimeData_.BSA_.alphaToDeltaToReorderingData()
                                             .at(alpha)
                                             .at(delta).numDenseBlock;
-                    BSA_averageDensity = iter.second.oneTimeData_.BSA_.alphaToDeltaToTuple()
+                    BSA_averageDensity = iter.second.oneTimeData_.BSA_.alphaToDeltaToReorderingData()
                                              .at(alpha)
                                              .at(delta).averageDensity;
                 }
@@ -1004,7 +1096,7 @@ void evaluateHybridSddmm(
     std::vector<int> numSpeedupsWithOnlyTC(4); // [0,1.0), [1.0,1.2), [1.2,1.5), [1.5, )
     std::vector<int> numSpeedupsWithOnlyCUDA(4); // [0,1.0), [1.0,1.2), [1.2,1.5), [1.5, )
     for (const auto& iter : matrixFileToResultsInformationMap){
-        for (const auto& pair : iter.second.oneTimeData_.BSMR_.alphaToDeltaToTuple()){
+        for (const auto& pair : iter.second.oneTimeData_.BSMR_.alphaToDeltaToReorderingData()){
             const float curAlpha = pair.first;
             const float BSMR_gflops = iter.second.oneTimeData_.BSMR_.gflops();
             float BSMR_gflops_only_Tensor_core = 0.0f;
@@ -1083,6 +1175,9 @@ void analyzeDataset(
     float minSparsity = 100.0f;
     float maxSparsity = 0.0f;
 
+    std::map<int, int> numFilesPerM10K;
+    std::map<int, int> numFilesPerN10K;
+
     for (const auto& iter : matrixFileToResultsInformationMap){
         const int M = tryParse<int>(iter.second.M_).value_or(0);
         const int N = tryParse<int>(iter.second.N_).value_or(0);
@@ -1100,12 +1195,23 @@ void analyzeDataset(
 
         minSparsity = std::min(sparsity, minSparsity);
         maxSparsity = std::max(sparsity, maxSparsity);
+
+        numFilesPerM10K[M / 10000]++;
+        numFilesPerN10K[N / 10000]++;
     }
 
     printf("Minimum m: %d, maximum m: %d\n", minM, maxM);
     printf("Minimum n: %d, maximum n: %d\n", minN, maxN);
     printf("Minimum nnz: %lu, maximum nnz: %lu\n", minNNZ, maxNNZ);
     printf("Minimum sparsity: %.2f%%, maximum sparsity: %.2f%%\n", minSparsity, maxSparsity);
+    for (const auto& iter : numFilesPerM10K){
+        printf("Number of files with m in [%d, %d): %d\n", iter.first * 10000, (iter.first + 1) * 10000,
+               iter.second);
+    }
+    for (const auto& iter : numFilesPerN10K){
+        printf("Number of files with n in [%d, %d): %d\n", iter.first * 10000, (iter.first + 1) * 10000,
+               iter.second);
+    }
 
     printf("\n");
 }
@@ -1225,11 +1331,11 @@ int main(const int argc, const char* argv[]){
 
     outputCSVFile(matrixFileToResultsInformationMap, resultsPath);
 
+    evaluateHybridSddmm(matrixFileToResultsInformationMap, resultsPath);
+
     evaluateReorderingWithBSA(matrixFileToResultsInformationMap);
 
     evaluateReorderingOverhead(matrixFileToResultsInformationMap);
-
-    evaluateHybridSddmm(matrixFileToResultsInformationMap, resultsPath);
 
     return 0;
 }
