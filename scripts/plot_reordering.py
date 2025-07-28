@@ -10,6 +10,7 @@ matplotlib.rcParams.update({
     'axes.titleweight': 'bold'
 })
 
+
 def parse_data(filepath):
     pattern = re.compile(
         r"Alpha: ([\d.]+), Delta: ([\d.]+), "
@@ -97,12 +98,23 @@ def plot_data(data, output_file):
         bar_width = 0.2
         x = range(len(deltas))
 
-        h1 = ax.bar([i - bar_width for i in x], bsmr_nums, width=bar_width, label='BSMR Average Number of Dense Blocks',
-                    color='skyblue', hatch='--')
-        h2 = ax.bar(x, bsa_nums, width=bar_width, label='BSA Average Number of Dense Blocks', color='lightgreen',
-                    hatch='////')
-        h3 = ax.bar([i + bar_width for i in x], orig_nums, width=bar_width,
-                    label='Original Average Number of Dense Blocks', color='lightgray', hatch='\\\\')
+        h1 = ax.bar(
+            [i - bar_width for i in x], bsmr_nums, width=bar_width,
+            label='BSMR Average Number of Dense Blocks',
+            color='skyblue', edgecolor='blue', hatch='--'
+        )
+
+        h2 = ax.bar(
+            x, bsa_nums, width=bar_width,
+            label='BSA Average Number of Dense Blocks',
+            color='lightgreen', edgecolor='green', hatch='////'
+        )
+
+        h3 = ax.bar(
+            [i + bar_width for i in x], orig_nums, width=bar_width,
+            label='Original Average Number of Dense Blocks',
+            color='lightgray', edgecolor='black', hatch='\\\\'
+        )
 
         ax2 = ax.twinx()
         l1, = ax2.plot(x, bsmr_density, marker='o', label='BSMR Average Density of Dense Blocks', color='blue')
