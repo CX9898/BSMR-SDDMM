@@ -13,8 +13,11 @@ matplotlib.rcParams.update({
     'xtick.labelsize': 14,
     'ytick.labelsize': 14,
     'legend.fontsize': 14,
-    'lines.linewidth': 2,
-    'lines.markersize': 6
+    'lines.linewidth': 3,
+    'lines.markersize': 6,
+    'font.weight': 'bold',
+    'axes.labelweight': 'bold',
+    'axes.titleweight': 'bold'
 })
 
 

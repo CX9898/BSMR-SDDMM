@@ -1,8 +1,14 @@
 import matplotlib.pyplot as plt
+import matplotlib
 import argparse
 import re
 from collections import defaultdict
 
+matplotlib.rcParams.update({
+    'font.weight': 'bold',
+    'axes.labelweight': 'bold',
+    'axes.titleweight': 'bold'
+})
 
 def parse_data(filepath):
     pattern = re.compile(
