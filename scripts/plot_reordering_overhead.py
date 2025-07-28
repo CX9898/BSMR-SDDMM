@@ -12,6 +12,7 @@ import warnings
 PLOT_ALPHAS = [0.1, 0.3, 0.5, 0.7, 0.9]
 BAR_WIDTH = 0.15
 
+
 def parse_text_to_dataframe(filepath):
     records = []
     with open(filepath, 'r') as f:
@@ -34,6 +35,7 @@ def parse_text_to_dataframe(filepath):
                 })
     return pd.DataFrame(records)
 
+
 def configured_plt(df, x_ticks):
     plt.rcParams.update({'font.size': 15})
     fig, time_ax = plt.subplots(figsize=(12, 6))
@@ -45,10 +47,11 @@ def configured_plt(df, x_ticks):
     time_ax.set_ylabel('Avg. Elapsed Time (ms)', fontsize=19)
     clstr_ax.set_ylabel('Avg. Number of Clusters', fontsize=19)
 
-    clstr_ax.set_ylim([4, df['cluster_cnt'].max()*4])
-    time_ax.set_ylim([1, df['avg_reordering_time'].max()*4])
+    clstr_ax.set_ylim([4, df['cluster_cnt'].max() * 4])
+    time_ax.set_ylim([1, df['avg_reordering_time'].max() * 4])
     plt.xticks([i for i in range(len(x_ticks))], x_ticks)
     return fig, time_ax, clstr_ax
+
 
 def plot_reordering_bar(plot_df, time_ax, row_vals):
     count = 0
@@ -73,6 +76,7 @@ def plot_reordering_bar(plot_df, time_ax, row_vals):
                              arrowprops=dict(arrowstyle="<->", linewidth=2, color="red"))
         count += 1
 
+
 def plot_numcluster_line(plot_df, clstr_ax, row_vals):
     color = iter(cm.Dark2(np.linspace(0, 1, len(row_vals))))
     for idx, row_size in enumerate(row_vals):
@@ -93,6 +97,7 @@ def plot_numcluster_line(plot_df, clstr_ax, row_vals):
                      color="blue", fontsize=14, weight="bold")
             clstr_ax.annotate("", (x_end, y_end), (x_start, y_start),
                               arrowprops=dict(arrowstyle="<->", linewidth=2, color="blue"))
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -116,5 +121,12 @@ if __name__ == '__main__':
         fig.texts.append(f)
     t_ax.legend(labelspacing=0.16, handlelength=1.8, fontsize=13, loc='upper left')
 
-    plt.savefig(SAVE_FIG_FNAME, format='png', bbox_inches='tight')
-    print(f"Saved figure to {SAVE_FIG_FNAME}")
+    # 保存 PNG 高分辨率版本
+    plt.savefig(SAVE_FIG_FNAME, bbox_inches='tight', dpi=300)
+
+    # 保存 PDF 矢量图版本
+    pdf_output_file = SAVE_FIG_FNAME.replace('.png', '.pdf')
+    plt.savefig(pdf_output_file, bbox_inches='tight')
+
+    print(f"Saved PNG to {SAVE_FIG_FNAME}")
+    print(f"Saved PDF to {pdf_output_file}")

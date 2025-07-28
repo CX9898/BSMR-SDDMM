@@ -53,7 +53,7 @@ def plot_data(data, output_file):
     # # 扁平化 axes 并转为 list，便于索引
     # axes = axes.flatten().tolist()
 
-    fig = plt.figure(figsize=(5 * cols, 5 * rows), constrained_layout=True)
+    fig = plt.figure(figsize=(5 * cols, 3.5 * rows), constrained_layout=True)
     import matplotlib.gridspec as gridspec
     gs = gridspec.GridSpec(rows, cols, figure=fig)
 
@@ -98,9 +98,9 @@ def plot_data(data, output_file):
                     label='Original Average Number of Dense Blocks', color='lightgray')
 
         ax2 = ax.twinx()
-        l1, = ax2.plot(x, bsmr_density, marker='o', label='BSMR Average Density of Dense Blocks', color='blue')
-        l2, = ax2.plot(x, bsa_density, marker='s', label='BSA Average Density of Dense Blocks', color='green')
-        l3, = ax2.plot(x, orig_density, marker='^', label='Original Average Density of Dense Blocks', color='gray')
+        l1, = ax2.plot(x, bsmr_density, label='BSMR Average Density of Dense Blocks', color='blue')
+        l2, = ax2.plot(x, bsa_density, label='BSA Average Density of Dense Blocks', color='green')
+        l3, = ax2.plot(x, orig_density, label='Original Average Density of Dense Blocks', color='gray')
 
         ax.set_title(f'Alpha = {alpha}')
 
@@ -142,12 +142,18 @@ def plot_data(data, output_file):
         ncol=3,  # 设置一行显示几个图例项
         fontsize='medium',
         bbox_transform=fig.transFigure,
-        bbox_to_anchor=(0.5, 1.06)  # 微调高度让 legend 更居中
+        bbox_to_anchor=(0.5, 1.055)  # 微调高度让 legend 更居中
     )
 
-    # 不再调用 tight_layout
-    fig.savefig(output_file, bbox_inches='tight')
-    print(f"图已保存为 {output_file}")
+    # 保存 PNG 高分辨率版本
+    fig.savefig(output_file, bbox_inches='tight', dpi=300)
+
+    # 保存 PDF 矢量图版本
+    pdf_output_file = output_file.replace('.png', '.pdf')
+    fig.savefig(pdf_output_file, bbox_inches='tight')
+
+    print(f"Saved PNG to {output_file}")
+    print(f"Saved PDF to {pdf_output_file}")
 
 
 if __name__ == '__main__':

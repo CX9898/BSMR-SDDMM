@@ -599,6 +599,10 @@ auto printEvaluateResults = [](const std::string& baseLineName,
 
     printSeparator("Evaluate BSMR With " + baseLineName + ":");
     printf("Number of results: %d\n", numResults);
+    if (numResults < 1){
+        printf("No results found\n");
+        return;
+    }
     printf("Average speedup: %.2fx, maximum speedup: %.2fx\n", averageSpeedup, maxSpeedup);
 
     printf("Speedup < 1.0x : %.1f%%\n", numSpeedups[0] / static_cast<float>(numResults) * 100.0f);
@@ -968,14 +972,23 @@ void evaluateReorderingWithBSA(
     std::map<float, std::map<float, uint32_t>> alpha_to_delta_to_BSA_numDenseBlock;
     std::map<float, std::map<float, uint32_t>> alpha_to_delta_to_original_numDenseBlock;
 
+    // number of times denseblock appears in all matrices
+    std::map<float, std::map<float, int>> alpha_to_delta_to_numResults;
+
     std::map<float, std::map<float, float>> alpha_to_delta_to_BSMR_averageDensity;
     std::map<float, std::map<float, float>> alpha_to_delta_to_BSA_averageDensity;
     std::map<float, std::map<float, float>> alpha_to_delta_to_original_averageDensity;
 
+    // number of times denseblock appears in BSMR
+    std::map<float, std::map<float, int>> alpha_to_delta_to_numResultsBSMR;
+    // number of times denseblock appears in BSA
+    std::map<float, std::map<float, int>> alpha_to_delta_to_numResultsBSA;
+    // number of times denseblock appears in original matrix
+    std::map<float, std::map<float, int>> alpha_to_delta_to_numResultsOriginal;
+
     std::map<float, std::map<float, float>> alpha_to_delta_to_BSMR_reordering;
     std::map<float, std::map<float, float>> alpha_to_delta_to_BSA_reordering;
 
-    std::map<float, std::map<float, int>> alpha_to_delta_to_numResults;
     for (const auto& iter : matrixFileToResultsInformationMap){
         for (const auto& pair : iter.second.oneTimeData_.BSMR_.alphaToDeltaToReorderingData()){
             const float alpha = pair.first;
@@ -1023,16 +1036,25 @@ void evaluateReorderingWithBSA(
                     continue; // skip if both BSMR and BSA have no dense blocks
                 }
 
+                alpha_to_delta_to_BSMR_numDenseBlock[alpha][delta] += BSMR_numDenseBlock;
+                alpha_to_delta_to_BSA_numDenseBlock[alpha][delta] += BSA_numDenseBlock;
+                alpha_to_delta_to_original_numDenseBlock[alpha][delta] += original_numDenseBlock;
                 ++alpha_to_delta_to_numResults[alpha][delta];
 
-                alpha_to_delta_to_BSMR_averageDensity[alpha][delta] += BSMR_averageDensity;
-                alpha_to_delta_to_BSMR_numDenseBlock[alpha][delta] += BSMR_numDenseBlock;
+                if (BSMR_numDenseBlock > 0){
+                    alpha_to_delta_to_BSMR_averageDensity[alpha][delta] += BSMR_averageDensity;
+                    ++alpha_to_delta_to_numResultsBSMR[alpha][delta];
+                }
 
-                alpha_to_delta_to_original_numDenseBlock[alpha][delta] += original_numDenseBlock;
-                alpha_to_delta_to_original_averageDensity[alpha][delta] += original_averageDensity;
+                if (BSA_numDenseBlock > 0){
+                    alpha_to_delta_to_BSA_averageDensity[alpha][delta] += BSA_averageDensity;
+                    ++alpha_to_delta_to_numResultsBSA[alpha][delta];
+                }
 
-                alpha_to_delta_to_BSA_numDenseBlock[alpha][delta] += BSA_numDenseBlock;
-                alpha_to_delta_to_BSA_averageDensity[alpha][delta] += BSA_averageDensity;
+                if (original_numDenseBlock > 0){
+                    alpha_to_delta_to_original_averageDensity[alpha][delta] += original_averageDensity;
+                    ++alpha_to_delta_to_numResultsOriginal[alpha][delta];
+                }
             }
         }
     }
@@ -1051,12 +1073,12 @@ void evaluateReorderingWithBSA(
             const uint32_t original_numDenseBlock = alpha_to_delta_to_original_numDenseBlock[alpha][delta] /
                 alpha_to_delta_to_numResults[alpha][delta];
 
-            const float BSMR_averageDensity =
-                alpha_to_delta_to_BSMR_averageDensity[alpha][delta] / alpha_to_delta_to_numResults[alpha][delta];
-            const float BSA_averageDensity =
-                alpha_to_delta_to_BSA_averageDensity[alpha][delta] / alpha_to_delta_to_numResults[alpha][delta];
-            const float original_averageDensity =
-                alpha_to_delta_to_original_averageDensity[alpha][delta] / alpha_to_delta_to_numResults[alpha][delta];
+            const float BSMR_averageDensity = alpha_to_delta_to_BSMR_averageDensity[alpha][delta] /
+                alpha_to_delta_to_numResultsBSMR[alpha][delta];
+            const float BSA_averageDensity = alpha_to_delta_to_BSA_averageDensity[alpha][delta] /
+                alpha_to_delta_to_numResultsBSA[alpha][delta];
+            const float original_averageDensity = alpha_to_delta_to_original_averageDensity[alpha][delta] /
+                alpha_to_delta_to_numResultsOriginal[alpha][delta];
 
             printf("Alpha: %.2f, Delta: %.2f, "
                    "BSMR average num dense blocks: %d, "

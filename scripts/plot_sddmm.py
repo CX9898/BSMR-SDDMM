@@ -106,13 +106,19 @@ def plot_gflops_comparison(k_data_list, output_dir, output_name_suffix):
         fig.delaxes(axes[j])
 
     fig.legend(handles_dict.values(), handles_dict.keys(),
-               loc='upper center', bbox_to_anchor=(0.5, 1.00), ncol=8)
+               loc='upper center', bbox_to_anchor=(0.5, 1.01), ncol=8)
     plt.tight_layout(rect=[0, 0, 1, 0.97])
     fig_path = output_dir / f"sddmm_{output_name_suffix}.png"
-    plt.savefig(fig_path, bbox_inches='tight')
-    plt.close()
-    print(f"图像已保存: {fig_path}")
 
+    # 保存 PNG 高分辨率版本
+    plt.savefig(fig_path, bbox_inches='tight', dpi=300)
+
+    # 保存 PDF 矢量图版本
+    pdf_output_path = fig_path.with_suffix('.pdf')
+    plt.savefig(pdf_output_path, bbox_inches='tight')
+
+    print(f"Saved PNG to {fig_path}")
+    print(f"Saved PDF to {pdf_output_path}")
 
 
 def main():

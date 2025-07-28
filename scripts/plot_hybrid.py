@@ -66,7 +66,7 @@ def plot_hybrid_subplots(k_data_list, output_dir, output_name_suffix):
     plt.savefig(fig_path)
     plt.close()
 
-    print(f"图像生成成功，保存于: {fig_path}")
+    print(f"Saved figure to {fig_path}")
 
 
 def main():
