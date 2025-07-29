@@ -1,4 +1,6 @@
 import argparse
+import matplotlib
+import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
@@ -43,14 +45,40 @@ def configured_plt(df, x_ticks):
 
     time_ax.set_yscale('log', base=2)
     clstr_ax.set_yscale('log', base=2)
-    time_ax.set_xlabel("Number of Rows,Cols", fontsize=19)
-    time_ax.set_ylabel('Avg. Elapsed Time (ms)', fontsize=19)
-    clstr_ax.set_ylabel('Avg. Number of Clusters', fontsize=19)
+    time_ax.set_xlabel("Number of Rows,Columns", fontsize=19)
+    time_ax.set_ylabel('Average Elapsed Time (ms)', fontsize=19)
+    clstr_ax.set_ylabel('Average Number of Clusters', fontsize=19)
 
     clstr_ax.set_ylim([4, df['cluster_cnt'].max() * 4])
     time_ax.set_ylim([1, df['avg_reordering_time'].max() * 4])
     plt.xticks([i for i in range(len(x_ticks))], x_ticks)
     return fig, time_ax, clstr_ax
+
+
+# 生成 5 个从浅到深的蓝色
+cmap = matplotlib.colormaps['Blues']  # 替代 cm.get_cmap('Blues')
+bar_colors = [mcolors.to_hex(cmap(i)) for i in np.linspace(0.4, 0.9, len(PLOT_ALPHAS))]
+
+# bar_colors = [
+#     '#4e79a7',  # 深蓝
+#     '#f28e2b',  # 橘橙
+#     '#76b7b2',  # 青绿色
+#     '#e15759',  # 红色
+#     '#b07aa1',  # 紫色
+# ]
+line_colors = [
+    '#1b9e77',  # 绿色
+    '#d95f02',  # 橙红
+    '#7570b3',  # 紫蓝
+    '#e7298a',  # 粉红
+    '#66a61e',  # 草绿
+    '#e6ab02',  # 黄褐
+    '#a6761d',  # 棕色
+    '#666666',  # 深灰
+    '#1f78b4',  # 蓝色
+    '#fb9a99',  # 淡粉（对比红色柱子）
+]
+hatch_styles = ['//', '\\\\', '.', 'x', 'o']
 
 
 def plot_reordering_bar(plot_df, time_ax, row_vals):
@@ -63,8 +91,10 @@ def plot_reordering_bar(plot_df, time_ax, row_vals):
         if len(PLOT_ALPHAS) % 2 == 1:
             x_offset += BAR_WIDTH / 2
 
-        c = next(color)
-        time_ax.bar(x_offset, elapsed, label=r"$\alpha$ = {}".format(alpha), width=BAR_WIDTH, color=c, zorder=-1)
+        c = bar_colors[idx]
+        hatch = hatch_styles[idx % len(hatch_styles)]
+        time_ax.bar(x_offset, elapsed, label=r"$\alpha$ = {}".format(alpha), width=BAR_WIDTH, color=c, zorder=-1,
+                    edgecolor='black')
 
         if idx == 0:
             x_start, y_start = x_offset[0], elapsed[0]
@@ -87,7 +117,8 @@ def plot_numcluster_line(plot_df, clstr_ax, row_vals):
         if len(PLOT_ALPHAS) % 2 == 1:
             x_offset += BAR_WIDTH / 2
 
-        c = next(color)
+        # c = next(color)
+        c = line_colors[idx]
         clstr_ax.plot(x_offset, cluster_arr, linestyle='--', marker='o', c=c, label=f"{row_size}", zorder=-1)
 
         if idx == 0:
