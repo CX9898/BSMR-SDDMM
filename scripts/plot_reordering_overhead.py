@@ -124,7 +124,7 @@ def plot_numcluster_line(plot_df, clstr_ax, row_vals):
         if idx == 0:
             x_start, y_start = x_offset[0], cluster_arr[0]
             x_end, y_end = x_offset[-1], cluster_arr[-1]
-            plt.text(x_end + 0.05, y_end - 140, fr"{(y_end / y_start): .0f}$\times$",
+            plt.text(x_end + 0.04, y_end - 600, fr"{(y_end / y_start): .0f}$\times$",
                      color="blue", fontsize=14, weight="bold")
             clstr_ax.annotate("", (x_end, y_end), (x_start, y_start),
                               arrowprops=dict(arrowstyle="<->", linewidth=2, color="blue"))
