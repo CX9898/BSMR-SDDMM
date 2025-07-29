@@ -13,7 +13,7 @@ matplotlib.rcParams.update({
     'xtick.labelsize': 14,
     'ytick.labelsize': 14,
     'legend.fontsize': 14,
-    'lines.linewidth': 3,
+    'lines.linewidth': 1,
     'lines.markersize': 6,
     'font.weight': 'bold',
     'axes.labelweight': 'bold',
@@ -48,7 +48,7 @@ def plot_gflops_comparison(k_data_list, output_dir, output_name_suffix):
     cols = 2  # 每行最多两个子图
     rows = (num_plots + cols - 1) // cols  # 向上取整
 
-    fig, axes = plt.subplots(rows, cols, figsize=(8 * cols, 6 * rows))
+    fig, axes = plt.subplots(rows, cols, figsize=(8 * cols, 4 * rows))
 
     # 修正 axes 结构为列表
     if isinstance(axes, np.ndarray):
@@ -78,6 +78,17 @@ def plot_gflops_comparison(k_data_list, output_dir, output_name_suffix):
         "Sputnik": "#e377c2"
     }
 
+    custom_markers = {
+        "BSMR": "o",  # 圆圈
+        "FlashSparse": "s",  # 方块
+        "RoDe": "D",  # 菱形
+        "ASpT": "^",  # 上三角
+        "cuSDDMM": "v",  # 下三角
+        "cuSPARSE": "P",  # 加粗五边形
+        "TCGNN": "X",  # X 形
+        "Sputnik": "*"  # 星形
+    }
+
     handles_dict = {}
     for idx, (k, avg_df) in enumerate(k_data_list):
         ax = axes[idx]  # 正确获取当前子图
@@ -90,7 +101,12 @@ def plot_gflops_comparison(k_data_list, output_dir, output_name_suffix):
                 y_filtered = avg_df[col][mask]
                 if len(x_filtered) == 0:
                     continue
-                line, = ax.plot(x_filtered, y_filtered, label=label, color=custom_colors[label], alpha=0.7)
+                line, = ax.plot(x_filtered, y_filtered,
+                                label=label,
+                                color=custom_colors[label],
+                                alpha=0.7,
+                                marker=custom_markers[label],
+                                markersize=3)  # 添加 marker
                 if label not in handles_dict:
                     handles_dict[label] = line
 
