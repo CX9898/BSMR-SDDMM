@@ -60,7 +60,7 @@ def plot_data(data, output_file):
     # # 扁平化 axes 并转为 list，便于索引
     # axes = axes.flatten().tolist()
 
-    fig = plt.figure(figsize=(5 * cols, 3.5 * rows), constrained_layout=True)
+    fig = plt.figure(figsize=(6 * cols, 3 * rows), constrained_layout=True)
     import matplotlib.gridspec as gridspec
     gs = gridspec.GridSpec(rows, cols, figure=fig)
 
@@ -95,23 +95,24 @@ def plot_data(data, output_file):
         bsa_density = [d['bsa_density'] for d in group]
         orig_density = [d['orig_density'] for d in group]
 
-        bar_width = 0.2
-        x = range(len(deltas))
+        bar_width = 0.15
+        group_gap = 0.025
+        x = [i * 1.0 for i in range(len(deltas))]
 
         h1 = ax.bar(
-            [i - bar_width for i in x], bsmr_nums, width=bar_width,
+            [i - bar_width - group_gap for i in x], bsmr_nums, width=bar_width,
             label='BSMR Average Number of Dense Blocks',
             color='skyblue', edgecolor='blue', hatch='--'
         )
 
         h2 = ax.bar(
-            x, bsa_nums, width=bar_width,
+            [i for i in x], bsa_nums, width=bar_width,
             label='BSA Average Number of Dense Blocks',
             color='lightgreen', edgecolor='green', hatch='////'
         )
 
         h3 = ax.bar(
-            [i + bar_width for i in x], orig_nums, width=bar_width,
+            [i + bar_width + group_gap for i in x], orig_nums, width=bar_width,
             label='Original Average Number of Dense Blocks',
             color='lightgray', edgecolor='black', hatch='\\\\'
         )
@@ -121,7 +122,7 @@ def plot_data(data, output_file):
         l2, = ax2.plot(x, bsa_density, marker='s', label='BSA Average Density of Dense Blocks', color='green')
         l3, = ax2.plot(x, orig_density, marker='^', label='Original Average Density of Dense Blocks', color='gray')
 
-        ax.set_title(f'Alpha = {alpha}')
+        ax.set_title(rf'$\alpha$ = {alpha}')
 
         # 左边柱状图 Y 轴标签
         if idx == 0:
@@ -135,7 +136,7 @@ def plot_data(data, output_file):
         else:
             ax2.set_ylabel('')  # 清除标签（但保留刻度）
 
-        ax.set_xlabel('Delta')
+        ax.set_xlabel(r'$\delta$')
         ax.set_xticks(x)
         ax.set_xticklabels([str(d) for d in deltas])
 
@@ -161,7 +162,7 @@ def plot_data(data, output_file):
         ncol=3,  # 设置一行显示几个图例项
         fontsize='medium',
         bbox_transform=fig.transFigure,
-        bbox_to_anchor=(0.5, 1.055)  # 微调高度让 legend 更居中
+        bbox_to_anchor=(0.5, 1.07)  # 微调高度让 legend 更居中
     )
 
     # 保存 PNG 高分辨率版本

@@ -125,7 +125,7 @@ def plot_gflops_comparison(k_data_list, output_dir, output_name_suffix):
         fig.delaxes(axes[j])
 
     fig.legend(handles_dict.values(), handles_dict.keys(),
-               loc='upper center', bbox_to_anchor=(0.5, 1.01), ncol=8)
+               loc='upper center', bbox_to_anchor=(0.5, 1.02), ncol=8)
     plt.tight_layout(rect=[0, 0, 1, 0.97])
     fig_path = output_dir / f"sddmm_{output_name_suffix}.png"
 
