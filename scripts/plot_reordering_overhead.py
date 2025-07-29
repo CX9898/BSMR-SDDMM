@@ -49,7 +49,7 @@ def configured_plt(df, x_ticks):
     time_ax.set_ylabel('Average Elapsed Time (ms)', fontsize=19)
     clstr_ax.set_ylabel('Average Number of Clusters', fontsize=19)
 
-    clstr_ax.set_ylim([4, df['cluster_cnt'].max() * 4])
+    clstr_ax.set_ylim([2, df['cluster_cnt'].max() * 2])
     time_ax.set_ylim([1, df['avg_reordering_time'].max() * 4])
     plt.xticks([i for i in range(len(x_ticks))], x_ticks)
     return fig, time_ax, clstr_ax
@@ -100,7 +100,7 @@ def plot_reordering_bar(plot_df, time_ax, row_vals):
             x_start, y_start = x_offset[0], elapsed[0]
         elif idx == len(PLOT_ALPHAS) - 1:
             x_end, y_end = x_offset[0], elapsed[0]
-            plt.text(x_end - 0.25, y_end + 60, fr"{(y_end / y_start): .1f}$\times$",
+            plt.text(x_end - 0.3, y_end - 700, fr"{(y_end / y_start): .1f}$\times$",
                      color="red", fontsize=14, weight="bold")
             time_ax.annotate("", (x_end + 0.1, y_end), (x_start - 0.1, y_start),
                              arrowprops=dict(arrowstyle="<->", linewidth=2, color="red"))
