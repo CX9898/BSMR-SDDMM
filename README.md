@@ -1,4 +1,4 @@
-# sddmm-gpu
+# BSMR-SDDMM
 
 ---
 
@@ -58,4 +58,37 @@ or
 
 ```shell
 ./sddmm-gpu ../dataset/nips.mtx 256
+```
+
+## Build baselines
+
+```shell
+cd scripts/
+bash build_program.sh
+bash build_TCGNN.sh
+bash build_FlashSparse.sh
+```
+
+## Preparing dataset
+
+```shell
+cd scripts/
+bash download_suiteSparse_dataset.sh
+python exclude_invalid_dataset.py
+```
+
+## Run tests
+
+```shell
+cd scripts/
+bash run_all.sh
+```
+
+## Reproduce results figures
+
+```shell
+cd scripts/
+bash plot_fig_5.sh
+bash plot_fig_6.sh
+bash plot_fig_7.sh
 ```
