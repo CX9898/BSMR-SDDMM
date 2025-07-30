@@ -329,7 +329,7 @@ public:
             original_averageDensity, rowReordering, colReordering
         };
         if (alpha_to_delta_to_reorderingData_.find(alpha) == alpha_to_delta_to_reorderingData_.end()){
-            std::unordered_map<float, ReorderingData> delta_to_tuple;
+            std::map<float, ReorderingData> delta_to_tuple;
             delta_to_tuple[delta] = reordering_data;
             alpha_to_delta_to_reorderingData_[alpha] = delta_to_tuple;
         }
@@ -356,7 +356,7 @@ public:
     float alpha() const{ return alpha_; }
     float delta() const{ return delta_; }
 
-    const std::unordered_map<float, std::unordered_map<float, ReorderingData>>& alphaToDeltaToReorderingData() const{
+    const std::map<float, std::map<float, ReorderingData>>& alphaToDeltaToReorderingData() const{
         return alpha_to_delta_to_reorderingData_;
     }
 
@@ -373,7 +373,7 @@ protected:
     std::string checkResults_;
 
     // alpha -> delta -> (gflops, numDenseBlock, averageDensity, original_numDenseBlock, original_averageDensity, rowReorderingTime, colReorderingTime)
-    std::unordered_map<float, std::unordered_map<float, ReorderingData>> alpha_to_delta_to_reorderingData_;
+    std::map<float, std::map<float, ReorderingData>> alpha_to_delta_to_reorderingData_;
 };
 
 struct OneTimeData{
@@ -913,7 +913,16 @@ void printReorderingEffectiveness(
 }
 
 void evaluateReorderingOverhead(
-    const std::unordered_map<std::string, ResultsInformation>& matrixFileToResultsInformationMap){
+    const std::unordered_map<std::string, ResultsInformation>& matrixFileToResultsInformationMap,
+    const std::string& outputFilePath = "./"){
+    // const std::string outputFileName = outputFilePath + "results_reordering_overhead.csv";
+    // std::ofstream outFile(outputFileName);
+    // if (!outFile.is_open()){
+    //     std::cerr << "Error, output file cannot be opened : " << outputFileName << std::endl;
+    //     return;
+    // }
+    // outFile << "file,alpha,M,N,NNZ,numClusters,rowReorderingTime,colReorderingTime,reorderingTime\n";
+
     std::map<int, int> M10K_to_numResults;
     std::map<int, int> N10K_to_numResults;
 
@@ -928,6 +937,7 @@ void evaluateReorderingOverhead(
         if (m != n){
             continue;
         }
+        ++numResults;
         for (const auto& [alpha, deltaToReorderingData] : resultsInformation.oneTimeData_.BSMR_.
                                                                              alphaToDeltaToReorderingData()){
             const int numClusters = deltaToReorderingData.begin()->second.numClusters;
@@ -944,8 +954,20 @@ void evaluateReorderingOverhead(
             // avgRowReorderingTime
 
             ++M10K_to_numResults[m / 10000];
+
+            // outFile << file << ","; // file
+            // outFile << alpha << ","; // alpha
+            // outFile << resultsInformation.M_ << ","; // M
+            // outFile << resultsInformation.N_ << ","; // N
+            // outFile << resultsInformation.NNZ_ << ","; // NNZ
+            // outFile << numClusters << ","; // numClusters
+            // outFile << rowReorderingTime << ","; // rowReorderingTime
+            // outFile << colReorderingTime << ","; // colReorderingTime
+            // outFile << (rowReorderingTime + colReorderingTime) << "\n"; // reorderingTime
         }
     }
+    // outFile.close();
+
     for (auto& [alpha, M10K_to_tuple] : alpha_to_M10K_to_tuple){
         for (auto& [M10K, tuple] : M10K_to_tuple){
             std::get<1>(tuple) /= std::get<0>(tuple); // average clusters
@@ -954,6 +976,7 @@ void evaluateReorderingOverhead(
     }
 
     printSeparator("Evaluate Reordering Overhead:");
+    printf("Number of results: %d\n", numResults);
     for (const auto& [alpha, M10K_to_tuple] : alpha_to_M10K_to_tuple){
         for (const auto& [M10K, tuple] : M10K_to_tuple){
             printf(
@@ -1357,7 +1380,7 @@ int main(const int argc, const char* argv[]){
 
     evaluateReorderingWithBSA(matrixFileToResultsInformationMap);
 
-    evaluateReorderingOverhead(matrixFileToResultsInformationMap);
+    evaluateReorderingOverhead(matrixFileToResultsInformationMap, resultsPath);
 
     return 0;
 }
