@@ -4,7 +4,7 @@
 
 Sampled Dense-Dense Matrix Multiplication(SDDMM) on GPU
 
-sddmm operates:
+SDDMM operates:
 
 $\mathbf{P}_{ij} = (\mathbf{A} \cdot \mathbf{B})\_{ij} \cdot \mathbf{S}\_{ij}, \quad \text{only if} \quad \mathbf{S}\_{ij} > 0$
 
@@ -51,13 +51,13 @@ Options:
 Example :
 
 ```shell
-./sddmm-gpu -f ../dataset/nips.mtx -k 256
+./BSMR-sddmm -f ../dataset/nips.mtx -k 128
 ```
 
 or
 
 ```shell
-./sddmm-gpu ../dataset/nips.mtx 256
+./BSMR-sddmm ../dataset/nips.mtx 128
 ```
 
 ## Build baselines
