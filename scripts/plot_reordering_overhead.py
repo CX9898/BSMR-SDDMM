@@ -40,17 +40,17 @@ def parse_text_to_dataframe(filepath):
 
 def configured_plt(df, x_ticks):
     plt.rcParams.update({'font.size': 15})
-    fig, time_ax = plt.subplots(figsize=(12, 6))
+    fig, time_ax = plt.subplots(figsize=(12, 4.3))
     clstr_ax = time_ax.twinx()
 
     time_ax.set_yscale('log', base=2)
     clstr_ax.set_yscale('log', base=2)
-    time_ax.set_xlabel("Number of Rows,Columns", fontsize=19)
-    time_ax.set_ylabel('Average Elapsed Time (ms)', fontsize=19)
-    clstr_ax.set_ylabel('Average Number of Clusters', fontsize=19)
+    time_ax.set_xlabel("Number of Rows,Columns", fontsize=15)
+    time_ax.set_ylabel('Average Time (ms)', fontsize=15)
+    clstr_ax.set_ylabel('Average Number of Clusters', fontsize=15)
 
-    clstr_ax.set_ylim([2, df['cluster_cnt'].max() * 2])
-    time_ax.set_ylim([1, df['avg_reordering_time'].max() * 4])
+    clstr_ax.set_ylim([64, df['cluster_cnt'].max() * 2])
+    time_ax.set_ylim([64, df['avg_reordering_time'].max() * 4])
     plt.xticks([i for i in range(len(x_ticks))], x_ticks)
     return fig, time_ax, clstr_ax
 
