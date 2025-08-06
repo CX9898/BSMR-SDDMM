@@ -2,9 +2,10 @@
 
 ---
 
-Sampled Dense-Dense Matrix Multiplication(SDDMM) on GPU
 
-SDDMM operates:
+Block-Structured Matrix Reordering for Efficient SDDMM on Tensor Cores
+
+Sampled Dense-Dense Matrix Multiplication(SDDMM) operates:
 
 $\mathbf{P}_{ij} = (\mathbf{A} \cdot \mathbf{B})\_{ij} \cdot \mathbf{S}\_{ij}, \quad \text{only if} \quad \mathbf{S}\_{ij} > 0$
 
@@ -74,7 +75,7 @@ bash build_FlashSparse.sh
 ```shell
 cd scripts/
 bash download_suiteSparse_dataset.sh
-python exclude_invalid_dataset.py
+python exclude_invalid_dataset.py  suiteSparse_dataset/
 ```
 
 ## Run tests
