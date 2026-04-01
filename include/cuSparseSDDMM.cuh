@@ -1,145 +1,132 @@
 #pragma once
 
-#include <cusparse.h>
-
-#include <iostream>
+#include <cstdio>
+#include <cstdlib>
 #include <typeinfo>
 
+#include <cusparse.h>
+
 #include "Matrix.hpp"
+#include "TensorCoreConfig.cuh"
 #include "devVector.cuh"
-#include "CudaTimeCalculator.cuh"
-#include "cudaUtil.cuh"
-#include "host.hpp"
-#include "checkData.hpp"
-#include "sddmmKernel.cuh"
-#include "Logger.hpp"
 
-#define CHECK_CUSPARSE(func)                                                   \
-{                                                                              \
-    cusparseStatus_t status = (func);                                          \
-    if (status != CUSPARSE_STATUS_SUCCESS) {                                   \
-        printf("CUSPARSE API failed at line %d with error: %s (%d)\n",         \
-               __LINE__, cusparseGetErrorString(status), status);              \
-        std::exit(EXIT_FAILURE);                                               \
-    }                                                                          \
-}
+#define CHECK_CUSPARSE_BSMR(func)                                              \
+    do {                                                                       \
+        cusparseStatus_t _st = (func);                                         \
+        if (_st != CUSPARSE_STATUS_SUCCESS) {                                  \
+            fprintf(stderr, "CUSPARSE failed at %d: %s (%d)\n", __LINE__,      \
+                    cusparseGetErrorString(_st), static_cast<int>(_st));       \
+            std::exit(EXIT_FAILURE);                                           \
+        }                                                                      \
+    } while (0)
 
-inline void cuSparseSDDMM(const Matrix<float> &matrixA,
-                   const Matrix<float> &matrixB,
-                   sparseMatrix::CSR<float> &matrixP,
-                   Logger &logger) {
+/**
+ * 在与 matrixP 相同的 CSR 结构上执行一次 cuSPARSE SDDMM（FP32），结果写回 matrixP.values()。
+ * 用于与 BSMR 输出逐元对比；A、B 须与 BSMR 所用一致。
+ */
+inline void runCuSparseSddmmFillP(const Matrix<float>& matrixA,
+                                  const Matrix<float>& matrixB,
+                                  sparseMatrix::CSR<float>& matrixP){
+    cusparseHandle_t handle{};
+    cusparseDnMatDescr_t mtxA{};
+    cusparseDnMatDescr_t mtxB{};
+    cusparseSpMatDescr_t mtxS{};
 
-    cusparseHandle_t handle;
-    cusparseDnMatDescr_t _mtxA;
-    cusparseDnMatDescr_t _mtxB;
-    cusparseSpMatDescr_t _mtxS;
+    CHECK_CUSPARSE_BSMR(cusparseCreate(&handle));
 
-    CHECK_CUSPARSE(cusparseCreate(&handle))
+    dev::vector<float> matrixA_values(matrixA.values());
+    dev::vector<float> matrixB_values(matrixB.values());
 
-    dev::vector<MATRIX_A_TYPE> matrixA_values_convertedType_dev(matrixA.size());
-    dev::vector<MATRIX_B_TYPE> matrixB_values_convertedType_dev(matrixB.size());
-    {
-        dev::vector<float> matrixA_values_dev(matrixA.values());
-        dev::vector<float> matrixB_values_dev(matrixB.values());
+    constexpr cudaDataType_t kCudaR32 = CUDA_R_32F;
+    const cusparseOrder_t orderA =
+        matrixA.storageOrder() == row_major ? CUSPARSE_ORDER_ROW : CUSPARSE_ORDER_COL;
+    const cusparseOrder_t orderB =
+        matrixB.storageOrder() == row_major ? CUSPARSE_ORDER_ROW : CUSPARSE_ORDER_COL;
 
-        const int numThreadPerBlock = 1024;
-        cuUtil::convertDataType<<< (matrixA.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
-            matrixA.size(), matrixA_values_dev.data(), matrixA_values_convertedType_dev.data());
-        cuUtil::convertDataType<<< (matrixB.size() + numThreadPerBlock - 1) / numThreadPerBlock, numThreadPerBlock>>>(
-            matrixB.size(), matrixB_values_dev.data(), matrixB_values_convertedType_dev.data());
+    CHECK_CUSPARSE_BSMR(cusparseCreateDnMat(&mtxA,
+                                            matrixA.row(),
+                                            matrixA.col(),
+                                            matrixA.leadingDimension(),
+                                            matrixA_values.data(),
+                                            kCudaR32,
+                                            orderA));
+
+    CHECK_CUSPARSE_BSMR(cusparseCreateDnMat(&mtxB,
+                                            matrixB.row(),
+                                            matrixB.col(),
+                                            matrixB.leadingDimension(),
+                                            matrixB_values.data(),
+                                            kCudaR32,
+                                            orderB));
+
+    cusparseIndexType_t idxTy = CUSPARSE_INDEX_32I;
+    if (typeid(UIN) == typeid(uint64_t)){
+        idxTy = CUSPARSE_INDEX_64I;
     }
 
-    cudaDataType_t CUSPARSE_MATRIX_A_TYPE = CUDA_R_32F;
-    if (typeid(MATRIX_A_TYPE) == typeid(half)) {
-        CUSPARSE_MATRIX_A_TYPE = CUDA_R_16F;
-    }
-    const auto CUSPARSE_ORDER_A = matrixA.storageOrder() == row_major ?
-                                  CUSPARSE_ORDER_ROW : CUSPARSE_ORDER_COL;
-
-    // Create dense matrix A
-    CHECK_CUSPARSE(cusparseCreateDnMat(&_mtxA,
-                                       matrixA.row(),
-                                       matrixA.col(),
-                                       matrixA.leadingDimension(),
-                                       matrixA_values_convertedType_dev.data(),
-                                       CUSPARSE_MATRIX_A_TYPE,
-                                       CUSPARSE_ORDER_A))
-
-    cudaDataType_t CUSPARSE_MATRIX_B_TYPE = CUDA_R_32F;
-    if (typeid(MATRIX_B_TYPE) == typeid(half)) {
-        CUSPARSE_MATRIX_B_TYPE = CUDA_R_16F;
-    }
-    const auto CUSPARSE_ORDER_B = matrixB.storageOrder() == row_major ?
-                                  CUSPARSE_ORDER_ROW : CUSPARSE_ORDER_COL;
-
-    // Create dense matrix B
-    CHECK_CUSPARSE(cusparseCreateDnMat(&_mtxB,
-                                       matrixB.row(),
-                                       matrixB.col(),
-                                       matrixB.leadingDimension(),
-                                       matrixB_values_convertedType_dev.data(),
-                                       CUSPARSE_MATRIX_B_TYPE,
-                                       CUSPARSE_ORDER_B))
-
-    cusparseIndexType_t CUSPARSE_INDEX_TYPE = CUSPARSE_INDEX_32I;
-    if (typeid(UIN) == typeid(uint64_t)) {
-        CUSPARSE_INDEX_TYPE = CUSPARSE_INDEX_64I;
-    }
-
-    // Create sparse matrix S in CSR format
     dev::vector<UIN> mtxS_offsets_dev(matrixP.rowOffsets());
     dev::vector<UIN> mtxS_colIndices_dev(matrixP.colIndices());
     dev::vector<float> mtxS_values_dev(matrixP.values());
-    CHECK_CUSPARSE(cusparseCreateCsr(&_mtxS, matrixP.row(), matrixP.col(), matrixP.nnz(),
-                                     mtxS_offsets_dev.data(), mtxS_colIndices_dev.data(), mtxS_values_dev.data(),
-                                     CUSPARSE_INDEX_TYPE, CUSPARSE_INDEX_TYPE,
-                                     CUSPARSE_INDEX_BASE_ZERO, CUDA_R_32F))
 
-    const float alpha = 1.0f, beta = 0.0f;
+    CHECK_CUSPARSE_BSMR(cusparseCreateCsr(&mtxS,
+                                          matrixP.row(),
+                                          matrixP.col(),
+                                          matrixP.nnz(),
+                                          mtxS_offsets_dev.data(),
+                                          mtxS_colIndices_dev.data(),
+                                          mtxS_values_dev.data(),
+                                          idxTy,
+                                          idxTy,
+                                          CUSPARSE_INDEX_BASE_ZERO,
+                                          kCudaR32));
+
+    const float alpha = 1.0f;
+    const float beta = 0.0f;
 
     size_t bufferSize = 0;
-    CHECK_CUSPARSE(cusparseSDDMM_bufferSize(handle,
-                                            CUSPARSE_OPERATION_NON_TRANSPOSE,
-                                            CUSPARSE_OPERATION_NON_TRANSPOSE,
-                                            &alpha, _mtxA, _mtxB, &beta, _mtxS, CUDA_R_32F,
-                                            CUSPARSE_SDDMM_ALG_DEFAULT, &bufferSize))
+    CHECK_CUSPARSE_BSMR(cusparseSDDMM_bufferSize(handle,
+                                                 CUSPARSE_OPERATION_NON_TRANSPOSE,
+                                                 CUSPARSE_OPERATION_NON_TRANSPOSE,
+                                                 &alpha,
+                                                 mtxA,
+                                                 mtxB,
+                                                 &beta,
+                                                 mtxS,
+                                                 kCudaR32,
+                                                 CUSPARSE_SDDMM_ALG_DEFAULT,
+                                                 &bufferSize));
 
-    dev::vector<void *> dBuffer(bufferSize);
+    dev::vector<char> dBuffer(bufferSize);
+    CHECK_CUSPARSE_BSMR(cusparseSDDMM_preprocess(handle,
+                                                 CUSPARSE_OPERATION_NON_TRANSPOSE,
+                                                 CUSPARSE_OPERATION_NON_TRANSPOSE,
+                                                 &alpha,
+                                                 mtxA,
+                                                 mtxB,
+                                                 &beta,
+                                                 mtxS,
+                                                 kCudaR32,
+                                                 CUSPARSE_SDDMM_ALG_DEFAULT,
+                                                 dBuffer.data()));
 
-    // execute preprocess (optional)
-    CHECK_CUSPARSE(cusparseSDDMM_preprocess(handle,
-                                            CUSPARSE_OPERATION_NON_TRANSPOSE,
-                                            CUSPARSE_OPERATION_NON_TRANSPOSE,
-                                            &alpha, _mtxA, _mtxB, &beta, _mtxS, CUDA_R_32F,
-                                            CUSPARSE_SDDMM_ALG_DEFAULT, dBuffer.data()))
+    CHECK_CUSPARSE_BSMR(cusparseSDDMM(handle,
+                                      CUSPARSE_OPERATION_NON_TRANSPOSE,
+                                      CUSPARSE_OPERATION_NON_TRANSPOSE,
+                                      &alpha,
+                                      mtxA,
+                                      mtxB,
+                                      &beta,
+                                      mtxS,
+                                      kCudaR32,
+                                      CUSPARSE_SDDMM_ALG_DEFAULT,
+                                      dBuffer.data()));
 
-    CudaTimeCalculator timer;
-    timer.startClock();
-    for (int i = 0; i < logger.numITER_; ++i) {
-
-
-        // execute SDDMM
-        CHECK_CUSPARSE(cusparseSDDMM(handle,
-                                     CUSPARSE_OPERATION_NON_TRANSPOSE,
-                                     CUSPARSE_OPERATION_NON_TRANSPOSE,
-                                     &alpha, _mtxA, _mtxB, &beta, _mtxS, CUDA_R_32F,
-                                     CUSPARSE_SDDMM_ALG_DEFAULT, dBuffer.data()))
-
-
-    }
-    timer.endClock();
-
-    logger.sddmmTime_cuSparse_ = timer.getTime() / logger.numITER_;
+    cudaDeviceSynchronize();
 
     matrixP.setValues() = d2h(mtxS_values_dev);
 
-//    // Error check
-//    sparseMatrix::CSR<float> matrixP_cpu_res(matrixP);
-//    sddmm_cpu(matrixA, matrixB, matrixP, matrixP_cpu_res);
-//    printf("check cusparseSDDMM");
-//    size_t numError = 0;
-//    if (!checkData(matrixP_cpu_res.values(), matrixP.values(), numError)) {
-//        printf("[checkData : NO PASS Error rate : %2.2f%%]\n",
-//               static_cast<float>(numError) / static_cast<float>(matrixP.values().size()) * 100);
-//    }
+    cusparseDestroySpMat(mtxS);
+    cusparseDestroyDnMat(mtxB);
+    cusparseDestroyDnMat(mtxA);
+    cusparseDestroy(handle);
 }

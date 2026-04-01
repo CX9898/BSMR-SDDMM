@@ -36,6 +36,12 @@ int main(int argc, char* argv[]){
     sparseMatrix::CSR<float> matrixP(matrixS);
     sddmm(options, matrixA, matrixB, matrixP, logger);
 
+    // CPU 参考对比（大矩阵会多一次 CPU SDDMM）；结果在 printLogInformation 中与其它字段统一格式输出
+    fillLoggerCpuGpuAccuracyCompare(logger, matrixA, matrixB, matrixP);
+
+    // 与 cuSPARSE SDDMM（同 CSR、同 A/B）对比；额外一次 GPU SDDMM
+    fillLoggerBsmrVsCuSparseAccuracyCompare(logger, matrixA, matrixB, matrixP);
+
     logger.printLogInformation();
 
     return 0;

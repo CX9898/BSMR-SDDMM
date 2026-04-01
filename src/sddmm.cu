@@ -1,5 +1,6 @@
 #include "BSMR.hpp"
 #include "checkData.hpp"
+#include "cuSparseSDDMM.cuh"
 #include "host.hpp"
 #include "sddmm.hpp"
 #include "sddmmKernel.cuh"
@@ -36,6 +37,26 @@ void sddmm(const Options& options,
     check_rphm(matrixP, bsmr, rphm, options.blockDensityThresholdDelta());
     checkSddmm(matrixA, matrixB, matrixP, matrixP);
 #endif
+}
+
+void fillLoggerCpuGpuAccuracyCompare(Logger& logger,
+                                     const Matrix<float>& matrixA,
+                                     const Matrix<float>& matrixB,
+                                     const sparseMatrix::CSR<float>& matrixP){
+    sparseMatrix::CSR<float> matrixP_cpu_res(matrixP);
+    sddmm_cpu(matrixA, matrixB, matrixP, matrixP_cpu_res);
+    logger.setAccuracyStats(
+        computeFloatVectorAccuracyStats(matrixP_cpu_res.values(), matrixP.values()));
+}
+
+void fillLoggerBsmrVsCuSparseAccuracyCompare(Logger& logger,
+                                             const Matrix<float>& matrixA,
+                                             const Matrix<float>& matrixB,
+                                             const sparseMatrix::CSR<float>& matrixP_bsmr){
+    sparseMatrix::CSR<float> matrixP_cusparse(matrixP_bsmr);
+    runCuSparseSddmmFillP(matrixA, matrixB, matrixP_cusparse);
+    logger.setAccuracyBsmrVsCuSparseStats(computeFloatVectorAccuracyStats(
+        matrixP_cusparse.values(), matrixP_bsmr.values()));
 }
 
 bool checkSddmm(const Matrix<float>& matrixA,
@@ -100,6 +121,9 @@ void sddmm_testMode(const Options& options,
                 sddmm_gpu(matrixA, matrixB, rphm, matrixP, logger);
 
                 evaluationReordering(matrixP, bsmr, logger);
+
+                fillLoggerCpuGpuAccuracyCompare(logger, matrixA, matrixB, matrixP);
+                fillLoggerBsmrVsCuSparseAccuracyCompare(logger, matrixA, matrixB, matrixP);
 
                 const std::string logFile = options.outputLogDirectory() + "BSMR_" +
                     "k_" + util::to_trimmed_string(k) + "_" +

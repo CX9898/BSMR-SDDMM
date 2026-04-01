@@ -9,6 +9,7 @@
 #include <cmath>
 
 #include "Matrix.hpp"
+#include "checkData.hpp"
 
 struct Logger{
     Logger(){
@@ -45,6 +46,10 @@ struct Logger{
     }
 
     inline void printLogInformation(std::ostream& out = std::cout) const;
+
+    inline void setAccuracyStats(const FloatVectorAccuracyStats& stats);
+
+    inline void setAccuracyBsmrVsCuSparseStats(const FloatVectorAccuracyStats& stats);
 
     std::string inputFile_;
 
@@ -102,7 +107,23 @@ struct Logger{
     float colReorderingTime_ = 0.0f;
     float reorderingTime_ = 0.0f;
 
+    bool hasAccuracyStats_ = false;
+    FloatVectorAccuracyStats accuracyStats_{};
+
+    bool hasAccuracyBsmrVsCuSparse_ = false;
+    FloatVectorAccuracyStats accuracyBsmrVsCuSparseStats_{};
+
 };
+
+inline void Logger::setAccuracyStats(const FloatVectorAccuracyStats& stats){
+    accuracyStats_ = stats;
+    hasAccuracyStats_ = true;
+}
+
+inline void Logger::setAccuracyBsmrVsCuSparseStats(const FloatVectorAccuracyStats& stats){
+    accuracyBsmrVsCuSparseStats_ = stats;
+    hasAccuracyBsmrVsCuSparse_ = true;
+}
 
 void Logger::getInformation(const Options& options){
     inputFile_ = options.inputFile();
@@ -179,6 +200,13 @@ void Logger::printLogInformation(std::ostream& out) const{
 
     out << "[bsmr_gflops : " << (flops / (sddmmTime_ * 1e6)) << "]\n";
     out << "[bsmr_sddmm : " << sddmmTime_ << "]\n";
+
+    if (hasAccuracyStats_){
+        printFloatVectorAccuracyStatsLog(out, accuracyStats_, "accuracy_vs_cpu_ref_");
+    }
+    if (hasAccuracyBsmrVsCuSparse_){
+        printFloatVectorAccuracyStatsLog(out, accuracyBsmrVsCuSparseStats_, "accuracy_bsmr_vs_cusparse_");
+    }
 
     if (errorRate_ > 0){
         out << "[checkResults : NO PASS Error rate : " << std::fixed << std::setprecision(2)
