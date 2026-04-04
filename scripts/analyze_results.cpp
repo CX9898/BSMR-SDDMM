@@ -12,6 +12,8 @@
 #include <limits>
 #include <optional>
 #include <tuple>
+#include <array>
+#include <cstdint>
 
 const std::string dataSplitSymbol("---New data---");
 
