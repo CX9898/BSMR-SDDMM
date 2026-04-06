@@ -1221,6 +1221,7 @@ void analyzeDataset(
 
     float minSparsity = 100.0f;
     float maxSparsity = 0.0f;
+    int numMatricesWithHighSparsity = 0;
 
     std::map<int, int> numFilesPerM10K;
     std::map<int, int> numFilesPerN10K;
@@ -1242,6 +1243,9 @@ void analyzeDataset(
 
         minSparsity = std::min(sparsity, minSparsity);
         maxSparsity = std::max(sparsity, maxSparsity);
+        if (sparsity >= 99.99f){
+            ++numMatricesWithHighSparsity;
+        }
 
         numFilesPerM10K[M / 10000]++;
         numFilesPerN10K[N / 10000]++;
@@ -1251,6 +1255,9 @@ void analyzeDataset(
     printf("Minimum n: %d, maximum n: %d\n", minN, maxN);
     printf("Minimum nnz: %lu, maximum nnz: %lu\n", minNNZ, maxNNZ);
     printf("Minimum sparsity: %.2f%%, maximum sparsity: %.2f%%\n", minSparsity, maxSparsity);
+    printf("Number of matrices with sparsity >= 99.99%%: %d (%.2f%%)\n",
+           numMatricesWithHighSparsity,
+           numMatricesWithHighSparsity / static_cast<float>(matrixFileToResultsInformationMap.size()) * 100.0f);
     for (const auto& iter : numFilesPerM10K){
         printf("Number of files with m in [%d, %d): %d\n", iter.first * 10000, (iter.first + 1) * 10000,
                iter.second);
