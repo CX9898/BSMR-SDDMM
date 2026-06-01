@@ -35,6 +35,7 @@ def prettify_header(text: str) -> str:
         "Range of max(M, N)": "max(M,N) range",
         "# Matrices": "# matrices",
         "Median Row Reordering Time (ms)": "Median row reorder (ms)",
+        "Median #Clusters": "Median #Clusters",
         "Median Column Reordering Time (ms)": "Median col reorder (ms)",
         "Median Total Reordering Time (ms)": "Median total (ms)",
         "Median BSMR SDDMM Time (ms)": "Median BSMR SDDMM (ms)",

@@ -26,6 +26,7 @@ from pathlib import Path
 
 VALUE_COLUMNS = [
     "bsmr_rowReordering_ms",
+    "bsmr_numClusters",
     "bsmr_colReordering_ms",
     "bsmr_reordering_ms",
     "bsmr_sddmm_ms",
@@ -81,6 +82,13 @@ def _fmt_num_for_latex(value: str, digits: int) -> str:
     return f"{fv:.{digits}f}"
 
 
+def _fmt_count(value: str | None) -> str:
+    fv = _f(value)
+    if fv is None:
+        return ""
+    return str(int(math.floor(fv + 0.5)))
+
+
 def _group_bounds(group_val: float, min_value: int, group_size: int) -> tuple[int, int] | None:
     if group_val < min_value:
         return None
@@ -129,6 +137,7 @@ def analyze(rows: list[dict[str, str]], min_value: int, group_size: int, group_b
     grouped: dict[tuple[int, int], dict[str, list[float]]] = defaultdict(
         lambda: {
             "bsmr_rowReordering_ms": [],
+            "bsmr_numClusters": [],
             "bsmr_colReordering_ms": [],
             "bsmr_reordering_ms": [],
             "bsmr_sddmm_ms": [],
@@ -194,6 +203,8 @@ def write_csv(path: Path, rows: list[dict[str, str]]) -> None:
         "count",
         "mean_bsmr_rowReordering_ms",
         "median_bsmr_rowReordering_ms",
+        "mean_bsmr_numClusters",
+        "median_bsmr_numClusters",
         "mean_bsmr_colReordering_ms",
         "median_bsmr_colReordering_ms",
         "mean_bsmr_reordering_ms",
@@ -220,6 +231,7 @@ def write_paper_csv(path: Path, rows: list[dict[str, str]], group_by: str) -> No
         group_header,
         "# Matrices",
         "Median Row Reordering Time (ms)",
+        "Median #Clusters",
         "Median Column Reordering Time (ms)",
         "Median Total Reordering Time (ms)",
         "Median BSMR SDDMM Time (ms)",
@@ -239,6 +251,7 @@ def write_paper_csv(path: Path, rows: list[dict[str, str]], group_by: str) -> No
                     group_header: row["group_range"],
                     "# Matrices": row["count"],
                     "Median Row Reordering Time (ms)": f"{row_time} ({_fmt_pct(_f(row_share))})" if row_time else "",
+                    "Median #Clusters": _fmt_count(row["median_bsmr_numClusters"]),
                     "Median Column Reordering Time (ms)": f"{col_time} ({_fmt_pct(_f(col_share))})" if col_time else "",
                     "Median Total Reordering Time (ms)": row["median_bsmr_reordering_ms"],
                     "Median BSMR SDDMM Time (ms)": row["median_bsmr_sddmm_ms"],
@@ -260,10 +273,10 @@ def write_paper_tex(path: Path, rows: list[dict[str, str]], group_by: str) -> No
         r"\begin{table}[h]",
         rf"\caption{{{caption}}}",
         rf"\label{{{label}}}",
-        r"\begin{tabular*}{\textwidth}{@{\extracolsep\fill}lcccccc}",
+        r"\begin{tabular*}{\textwidth}{@{\extracolsep\fill}lccccccc}",
         r"\toprule",
         rf"\textbf{{{group_header}}} & \textbf{{\#Matrices}} & \textbf{{Row (share)}} & "
-        r"\textbf{Col (share)} & \textbf{Total (ms)} & \textbf{BSMR (ms)} & \textbf{Break-even} \\",
+        r"\textbf{\#Clusters} & \textbf{Col (share)} & \textbf{Total (ms)} & \textbf{BSMR (ms)} & \textbf{Break-even} \\",
         r"\midrule",
     ]
 
@@ -271,6 +284,7 @@ def write_paper_tex(path: Path, rows: list[dict[str, str]], group_by: str) -> No
         row_range = "{" + row["group_range"] + "}"
         count = row["count"]
         row_time = row["median_bsmr_rowReordering_ms"]
+        clusters = _fmt_count(row["median_bsmr_numClusters"])
         col_time = row["median_bsmr_colReordering_ms"]
         total_time = row["median_bsmr_reordering_ms"]
         sddmm_time = row["median_bsmr_sddmm_ms"]
@@ -285,7 +299,7 @@ def write_paper_tex(path: Path, rows: list[dict[str, str]], group_by: str) -> No
         break_even_cell = _ceil_int_str(break_even)
 
         lines.append(
-            f"{row_range} & {count} & {row_cell} & {col_cell} & {total_cell} & {sddmm_cell} & {break_even_cell} \\\\"
+            f"{row_range} & {count} & {row_cell} & {clusters} & {col_cell} & {total_cell} & {sddmm_cell} & {break_even_cell} \\\\"
         )
 
     lines.extend(
