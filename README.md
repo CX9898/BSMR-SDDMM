@@ -89,7 +89,9 @@ bash run_all.sh
 
 ```shell
 cd scripts/
-bash plot_fig_5.sh
-bash plot_fig_6.sh
 bash plot_fig_7.sh
+bash plot_fig_8.sh
+bash plot_fig_9.sh
+bash plot_fig_10.sh
+bash plot_fig_11.sh
 ```
