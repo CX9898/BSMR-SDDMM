@@ -43,8 +43,8 @@ def configured_plt(df, x_ticks):
     fig, time_ax = plt.subplots(figsize=(12, 4.3))
     clstr_ax = time_ax.twinx()
 
-    time_ax.set_yscale('log', base=2)
-    clstr_ax.set_yscale('log', base=2)
+    time_ax.set_yscale('log', base=10)
+    clstr_ax.set_yscale('log', base=10)
     time_ax.set_xlabel("Number of Rows,Columns", fontsize=15)
     time_ax.set_ylabel('Average Time (ms)', fontsize=15)
     clstr_ax.set_ylabel('Average Number of Clusters', fontsize=15)
