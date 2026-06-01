@@ -10,6 +10,7 @@ import statistics
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+from matplotlib.ticker import LogLocator, NullLocator
 
 
 def _infer_k_from_results_csv(results_csv: Path) -> int:
@@ -284,15 +285,20 @@ def _plot_jitter_scatter_with_markers(
     p95_v: float | None,
     max_v: float | None,
 ) -> None:
-    fig, ax = plt.subplots(figsize=(7.2, 5.0))
+    # Layout tuned against docs/k128_relative_frobenius_error_distribution.pdf (reference only).
+    fig, ax = plt.subplots(figsize=(7.2, 2.4))
     rng = random.Random(0)
     ys = list(values)
     xs = [1.0 + rng.uniform(-0.34, 0.34) for _ in ys]
     ax.scatter(xs, ys, s=14, alpha=0.7, edgecolors="none", color="#4C78A8")
     ax.set_ylabel("Relative Frobenius error")
     ax.set_title(title)
-    ax.grid(True, linestyle="--", alpha=0.3)
     ax.set_yscale("log")
+    ax.yaxis.set_major_locator(LogLocator(base=10))
+    ax.yaxis.set_minor_locator(NullLocator())
+    ax.tick_params(axis="y", which="minor", left=False)
+    ax.set_axisbelow(True)
+    ax.yaxis.grid(True, which="major", linestyle="--", linewidth=0.8, color="0.6", alpha=0.75)
     ax.set_xlim(0.60, 1.40)
     ax.set_xticks([])
     marker_specs = [
@@ -302,12 +308,12 @@ def _plot_jitter_scatter_with_markers(
     ]
     added = False
     for value, label, color in marker_specs:
-        if value is None or value <= 0:
+        if value is None:
             continue
         ax.axhline(value, color=color, linestyle="--", linewidth=1.5, label=f"{label}: {value:.2e}")
         added = True
     if added:
-        ax.legend(frameon=False, loc="lower left", bbox_to_anchor=(0.58, 0.18))
+        ax.legend(frameon=False, loc="lower left", bbox_to_anchor=(0.02, 0.08))
     fig.tight_layout()
     fig.savefig(out_base.with_suffix(".pdf"), bbox_inches="tight")
     plt.close(fig)
@@ -318,7 +324,7 @@ def write_main_figure(detail_rows: list[dict[str, str]], out_dir: Path, stats: d
         _f(r.get("accuracy_bsmr_vs_cusparse_relative_frobenius_error"))
         for r in detail_rows
     ]
-    rel_err = [v for v in rel_err if v is not None and v > 0]
+    rel_err = [v for v in rel_err if v is not None]
     if not rel_err:
         return None
     figure_base = out_dir / f"k{k}_relative_frobenius_error_distribution"

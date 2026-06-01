@@ -26,8 +26,6 @@ import statistics
 from collections import defaultdict
 from pathlib import Path
 
-import matplotlib.pyplot as plt
-
 
 def _scripts_dir() -> Path:
     return Path(__file__).resolve().parent
@@ -241,179 +239,6 @@ def classify_row(row: dict[str, str], baseline: str, best: dict[str, float | str
     }
 
 
-def plot_speedup_bin_indicators(
-    out_dir: Path,
-    rows: list[dict[str, float | str | int | None]],
-    baseline: str = "FlashSparse",
-) -> None:
-    target_rows = [r for r in rows if str(r.get("baseline")) == baseline]
-    if not target_rows:
-        return
-
-    bin_order = ["<1.0x", "1.0~1.5x", "1.5~2.0x", ">=2.0x"]
-    k_order = sorted({int(r["K"]) for r in target_rows if r.get("K") is not None})
-    row_map: dict[tuple[int, str], dict[str, float | str | int | None]] = {}
-    for r in target_rows:
-        row_map[(int(r["K"]), str(r["speedup_bin"]))] = r
-
-    fig, axes = plt.subplots(2, 2, figsize=(12, 8), sharey=True)
-    axes_flat = axes.flatten()
-    colors = ["#4C78A8", "#F58518"]
-    metrics = [
-        ("improved_block_rate", "Matrices with increased\ndense-block count"),
-        ("exposed_block_rate", "Matrices with at least one\nexposed dense block"),
-    ]
-    bin_labels = {
-        "<1.0x": "<1.0x\n(BSMR slower)",
-        "1.0~1.5x": "1.0-1.5x\n(slight win)",
-        "1.5~2.0x": "1.5-2.0x\n(clear win)",
-        ">=2.0x": ">=2.0x\n(large win)",
-    }
-
-    for ax_idx, k in enumerate(k_order):
-        ax = axes_flat[ax_idx]
-        metric_values: list[list[float]] = []
-        xlabels: list[str] = []
-        for speedup_bin in bin_order:
-            row = row_map.get((k, speedup_bin), {})
-            n = int(row.get("num_cases", 0) or 0)
-            xlabels.append(f"{bin_labels[speedup_bin]}\n(n={n})")
-            vals = []
-            for metric_key, _ in metrics:
-                if metric_key == "improved_block_rate":
-                    raw = row.get("no_block_gain_rate")
-                    vals.append(100.0 * (1.0 - float(raw)) if isinstance(raw, (int, float)) else 0.0)
-                elif metric_key == "exposed_block_rate":
-                    raw = row.get("zero_dense_rate")
-                    vals.append(100.0 * (1.0 - float(raw)) if isinstance(raw, (int, float)) else 0.0)
-                else:
-                    v = row.get(metric_key)
-                    vals.append(100.0 * float(v) if isinstance(v, (int, float)) else 0.0)
-            metric_values.append(vals)
-
-        x = list(range(len(bin_order)))
-        width = 0.34
-        for metric_idx, (_, metric_label) in enumerate(metrics):
-            xs = [xi + (metric_idx - 0.5) * width for xi in x]
-            ys = [vals[metric_idx] for vals in metric_values]
-            ax.bar(xs, ys, width=width, label=metric_label, color=colors[metric_idx])
-
-        ax.set_title(f"K={k}")
-        ax.set_xticks(x)
-        ax.set_xticklabels(xlabels)
-        ax.set_ylim(0, 100)
-        ax.grid(axis="y", linestyle="--", alpha=0.35)
-        if ax_idx % 2 == 0:
-            ax.set_ylabel("Fraction of matrices (%)")
-
-    for ax in axes_flat[len(k_order):]:
-        ax.axis("off")
-
-    handles, labels = axes_flat[0].get_legend_handles_labels()
-    fig.suptitle(
-        f"Against {baseline}: dense-block formation indicators across speedup bins",
-        y=0.985,
-    )
-    fig.legend(
-        handles,
-        labels,
-        loc="upper center",
-        bbox_to_anchor=(0.5, 0.955),
-        ncol=len(metrics),
-        frameon=False,
-    )
-    fig.tight_layout(rect=(0, 0, 1, 0.90))
-
-    png_path = out_dir / f"{baseline}_speedup_bin_structural_indicators.png"
-    pdf_path = out_dir / f"{baseline}_speedup_bin_structural_indicators.pdf"
-    fig.savefig(png_path, dpi=200, bbox_inches="tight")
-    fig.savefig(pdf_path, bbox_inches="tight")
-    plt.close(fig)
-
-
-def plot_k128_extreme_bin_comparison(
-    out_dir: Path,
-    rows: list[dict[str, float | str | int | None]],
-    baselines: list[str] | None = None,
-) -> None:
-    baselines = baselines or ["FlashSparse", "RoDe", "ASpT"]
-    target_rows = [r for r in rows if int(r.get("K", 0) or 0) == 128 and str(r.get("baseline")) in baselines]
-    if not target_rows:
-        return
-
-    bin_order = ["<1.0x", ">=2.0x"]
-    row_map: dict[tuple[str, str], dict[str, float | str | int | None]] = {}
-    for r in target_rows:
-        row_map[(str(r["baseline"]), str(r["speedup_bin"]))] = r
-
-    fig, axes = plt.subplots(1, len(baselines), figsize=(12, 4.2), sharey=True)
-    if len(baselines) == 1:
-        axes = [axes]
-
-    metric_colors = ["#4C78A8", "#F58518"]
-    metrics = [
-        ("improved_block_rate", "Matrices with increased\ndense-block count"),
-        ("exposed_block_rate", "Matrices with at least one\nexposed dense block"),
-    ]
-    bin_labels = {
-        "<1.0x": "<1.0x\n(BSMR slower)",
-        ">=2.0x": ">=2.0x\n(large win)",
-    }
-
-    for ax, baseline in zip(axes, baselines):
-        metric_values: list[list[float]] = []
-        xlabels: list[str] = []
-        for speedup_bin in bin_order:
-            row = row_map.get((baseline, speedup_bin), {})
-            n = int(row.get("num_cases", 0) or 0)
-            xlabels.append(f"{bin_labels[speedup_bin]}\n(n={n})")
-            vals = []
-            for metric_key, _ in metrics:
-                if metric_key == "improved_block_rate":
-                    raw = row.get("no_block_gain_rate")
-                    vals.append(100.0 * (1.0 - float(raw)) if isinstance(raw, (int, float)) else 0.0)
-                elif metric_key == "exposed_block_rate":
-                    raw = row.get("zero_dense_rate")
-                    vals.append(100.0 * (1.0 - float(raw)) if isinstance(raw, (int, float)) else 0.0)
-                else:
-                    v = row.get(metric_key)
-                    vals.append(100.0 * float(v) if isinstance(v, (int, float)) else 0.0)
-            metric_values.append(vals)
-
-        x = list(range(len(bin_order)))
-        width = 0.34
-        for metric_idx, (_, metric_label) in enumerate(metrics):
-            xs = [xi + (metric_idx - 0.5) * width for xi in x]
-            ys = [vals[metric_idx] for vals in metric_values]
-            ax.bar(xs, ys, width=width, label=metric_label, color=metric_colors[metric_idx])
-
-        ax.set_title(baseline)
-        ax.set_xticks(x)
-        ax.set_xticklabels(xlabels)
-        ax.set_ylim(0, 100)
-        ax.grid(axis="y", linestyle="--", alpha=0.35)
-
-    axes[0].set_ylabel("Fraction of matrices (%)")
-
-    handles, labels = axes[0].get_legend_handles_labels()
-    fig.suptitle("K=128: extreme-bin comparison across baselines", y=0.995)
-    fig.legend(
-        handles,
-        labels,
-        loc="upper center",
-        bbox_to_anchor=(0.5, 0.94),
-        ncol=len(metrics),
-        frameon=False,
-    )
-    fig.tight_layout(rect=(0, 0, 1, 0.88))
-
-    png_path = out_dir / "k128_extreme_bin_baseline_comparison.png"
-    pdf_path = out_dir / "k128_extreme_bin_baseline_comparison.pdf"
-    fig.savefig(png_path, dpi=200, bbox_inches="tight")
-    fig.savefig(pdf_path, bbox_inches="tight")
-    plt.close(fig)
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description="更深入的失败/成功案例对照分析")
     parser.add_argument("--k", type=int, nargs="*", default=None, help="分析一个或多个 K")
@@ -598,8 +423,6 @@ def main() -> None:
     write_csv(out_dir / "per_group_summary.csv", per_group_rows)
     write_csv(out_dir / "per_bin_summary.csv", per_bin_rows)
     write_csv(out_dir / "cross_k_consistency.csv", crossk_rows)
-    plot_speedup_bin_indicators(out_dir, per_bin_rows, baseline="FlashSparse")
-    plot_k128_extreme_bin_comparison(out_dir, per_bin_rows, baselines=["FlashSparse", "RoDe", "ASpT"])
 
     (out_dir / "summary.txt").write_text("\n".join(summary_lines), encoding="utf-8")
     print(f"分析完成，结果已输出到: {out_dir}")
