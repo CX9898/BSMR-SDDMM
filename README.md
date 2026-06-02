@@ -4,7 +4,7 @@
 
 Official implementation for the paper:
 
-**Block-Structured Matrix Reordering for Efficient SDDMM on Tensor Cores**
+**Block-structured matrix reordering for efficient SDDMM on tensor cores**
 
 Published in *The Journal of Supercomputing*, Volume 82, Article 465, 2026.
 
@@ -30,19 +30,21 @@ The reordering procedure operates on both rows and columns. After row reordering
 
 ---
 
-## Input format
+## Input Format
 
-Supports Matrix Market (https://sparse.tamu.edu/about) input format (Suffix: `.mtx`).
+The implementation supports the Matrix Market(https://sparse.tamu.edu/about) input format (Suffix: `.mtx`).
 
 ---
 
-## Build requirements:
+## Build Requirements
 
 - C++ compiler with C++17 support
-- CUDA SDK $\ge$ 12.0
+- CUDA Toolkit $\ge$ 12.0
 - OpenMP
 - cmake $\ge$ 3.26
-- NVIDIA GPU with sm $\ge$ 80
+- NVIDIA GPU with Tensor Core support, compute capability >= 8.0
+
+The experiments in the paper were conducted on an NVIDIA GeForce RTX 4090. The default CMake configuration targets `sm_89`; update `CMAKE_CUDA_ARCHITECTURES` if you build on a different GPU architecture.
 
 ---
 
@@ -51,10 +53,9 @@ Supports Matrix Market (https://sparse.tamu.edu/about) input format (Suffix: `.m
 Linux:
 
 ```shell
-mkdir build
-cd build
-cmake ..
-make -j
+mkdir -p build
+cmake -S . -B build
+cmake --build build -j
 ```
 
 ---
@@ -63,12 +64,12 @@ make -j
 
 Options:
 
-- `-f` : Input file path
-- `-k` : K value. K must be a multiple of 32 (Default 32)
-- `-a` : Row similarity threshold alpha (Default 0.3)
-- `-d` : Block density threshold delta (Default 0.3)
+- `-f`: Input file path
+- `-k`: K value. K must be a multiple of 32 (Default 32)
+- `-a`: Row similarity threshold alpha (Default 0.3)
+- `-d`: Block density threshold delta (Default 0.3)
 
-Example :
+Example:
 
 ```shell
 ./BSMR-sddmm -f ../dataset/nips.mtx -k 128
@@ -80,7 +81,7 @@ or
 ./BSMR-sddmm ../dataset/nips.mtx 128
 ```
 
-## Build baselines
+## Build Baselines
 
 ```shell
 cd scripts/
@@ -89,7 +90,7 @@ bash build_TCGNN.sh
 bash build_FlashSparse.sh
 ```
 
-## Preparing dataset
+## Preparing Datasets
 
 ```shell
 cd scripts/
@@ -97,14 +98,16 @@ bash download_suiteSparse_dataset.sh
 python exclude_invalid_dataset.py  suiteSparse_dataset/
 ```
 
-## Run tests
+## Run Benchmarks
 
 ```shell
 cd scripts/
 bash run_all.sh
 ```
 
-## Reproduce results figures
+## Reproduce Figure Results
+
+The reported paper results were measured on an NVIDIA GeForce RTX 4090. Performance numbers may vary across GPU architectures, CUDA versions, and driver versions.
 
 ```shell
 cd scripts/
