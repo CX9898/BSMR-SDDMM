@@ -9,7 +9,7 @@ Official implementation for the paper:
 Published in *The Journal of Supercomputing*, Volume 82, Article 465, 2026.
 
 - Paper: https://link.springer.com/article/10.1007/s11227-026-08606-2
-- DOI: https://doi.org/10.1007/s11227-026-08606-2
+- DOI: 10.1007/s11227-026-08606-2
 - Authors: Chengxing Zou, Changwan Hong, Gordon Euhyun Moon, and Jinsung Kim
 
 This project implements **BSMR**, a block-structured matrix reordering framework for accelerating Sampled Dense-Dense Matrix Multiplication (SDDMM) on NVIDIA Tensor Cores. SDDMM computes:
