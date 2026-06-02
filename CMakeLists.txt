@@ -15,7 +15,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CUDA_STANDARD 17)
 
 # Specifies which GPU architectures are supported when compiling CUDA code (optional)
-set(CMAKE_CUDA_ARCHITECTURES 86)
+set(CMAKE_CUDA_ARCHITECTURES 89)
 
 # Save the folder path in a variable
 set(INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")
