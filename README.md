@@ -1,7 +1,5 @@
 # BSMR-SDDMM
 
----
-
 Official implementation for the paper:
 
 **Block-structured matrix reordering for efficient SDDMM on tensor cores**
@@ -12,22 +10,15 @@ Published in *The Journal of Supercomputing*, Volume 82, Article 465, 2026.
 - DOI: 10.1007/s11227-026-08606-2
 - Authors: Chengxing Zou, Changwan Hong, Gordon Euhyun Moon, and Jinsung Kim
 
+## Overview
+
 This project implements **BSMR**, a block-structured matrix reordering framework for accelerating Sampled Dense-Dense Matrix Multiplication (SDDMM) on NVIDIA Tensor Cores. SDDMM computes:
 
 $$
 \mathbf{P}_{ij} = (\mathbf{A} \cdot \mathbf{B})_{ij} \cdot \mathbf{S}_{ij}, \quad \text{only if} \quad \mathbf{S}_{ij} > 0
 $$
 
-## Performance Highlights
-
-Experiments on an NVIDIA GeForce RTX 4090 (CUDA $\ge$ 12.0, SuiteSparse matrices, $K=128$) show that BSMR achieves:
-
-- Up to **10.38×** speedup over the best Tensor Core baseline (FlashSparse)
-- Up to **7.31×** speedup over the best CUDA Core baseline (RoDe)
-
-## Overview
-
-BSMR achieves these speedups by reorganizing sparse matrices into denser block structures through bidirectional row and column reordering. Sparse and irregular memory accesses make it difficult to fully utilize Tensor Cores for SDDMM. Dense tiles are assigned to Tensor Cores, while sparse tiles are handled by CUDA Cores through a hybrid execution strategy.
+BSMR accelerates SDDMM by reorganizing sparse matrices into denser block structures through bidirectional row and column reordering. Sparse and irregular memory accesses make it difficult to fully utilize Tensor Cores for SDDMM. Dense tiles are assigned to Tensor Cores, while sparse tiles are handled by CUDA Cores through a hybrid execution strategy.
 
 ![BSMR-SDDMM overview](docs/BSMR_SDDMM_overview.png)
 
@@ -37,66 +28,18 @@ The overall workflow first reorders the sparse matrix to expose block-level loca
 
 The reordering procedure operates on both rows and columns. After row reordering groups rows with similar sparsity patterns, column reordering is applied inside row panels to further concentrate nonzeros into compact tiles. This produces block-structured sparse regions that better match the tile-based execution model of Tensor Cores.
 
----
-
-## Input Format
-
-The implementation supports the Matrix Market(https://sparse.tamu.edu/about) input format (Suffix: `.mtx`).
-
----
-
-## Build Requirements
-
-- C++ compiler with C++17 support
-- CUDA Toolkit $\ge$ 12.0
-- OpenMP
-- cmake $\ge$ 3.26
-- NVIDIA GPU with Tensor Core support, compute capability >= 8.0
-
-The experiments in the paper were conducted on an NVIDIA GeForce RTX 4090. The default CMake configuration targets `sm_89`; update `CMAKE_CUDA_ARCHITECTURES` if you build on a different GPU architecture.
-
----
-
-## Build
-
-Linux:
-
-```shell
-mkdir -p build
-cmake -S . -B build
-cmake --build build -j
-```
-
----
-
-## Run
-
-Options:
-
-- `-f`: Input file path
-- `-k`: K value. K must be a multiple of 32 (Default 32)
-- `-a`: Row similarity threshold alpha (Default 0.3)
-- `-d`: Block density threshold delta (Default 0.3)
-
-Example:
-
-```shell
-./BSMR-sddmm -f ../dataset/nips.mtx -k 128
-```
-
-or
-
-```shell
-./BSMR-sddmm ../dataset/nips.mtx 128
-```
-
----
-
-## Benchmark & Reproduction
+## Benchmarks
 
 Paper results were measured on an NVIDIA GeForce RTX 4090; numbers may vary on other GPUs or software versions.
 
-### Reproduce Figure Results
+### Results
+
+Experiments on an NVIDIA GeForce RTX 4090 (CUDA $\ge$ 12.0, SuiteSparse matrices, $K=128$) show that BSMR achieves:
+
+- Up to **10.38×** speedup over the best Tensor Core baseline (FlashSparse)
+- Up to **7.31×** speedup over the best CUDA Core baseline (RoDe)
+
+### Reproduce Paper Figures
 
 Pre-stored benchmark logs are included under `scripts/results_suiteSparse_dataset/`. To regenerate the paper figures directly:
 
@@ -123,7 +66,50 @@ bash run_all.sh
 
 Then run the plotting scripts above.
 
----
+## Build Requirements
+
+- C++ compiler with C++17 support
+- CUDA Toolkit $\ge$ 12.0
+- OpenMP
+- cmake $\ge$ 3.26
+- NVIDIA GPU with Tensor Core support, compute capability >= 8.0
+
+The experiments in the paper were conducted on an NVIDIA GeForce RTX 4090. The default CMake configuration targets `sm_89`; update `CMAKE_CUDA_ARCHITECTURES` if you build on a different GPU architecture.
+
+## Build
+
+Linux:
+
+```shell
+mkdir -p build
+cmake -S . -B build
+cmake --build build -j
+```
+
+## Run
+
+Options:
+
+- `-f`: Input file path
+- `-k`: K value. K must be a multiple of 32 (Default 32)
+- `-a`: Row similarity threshold alpha (Default 0.3)
+- `-d`: Block density threshold delta (Default 0.3)
+
+Example:
+
+```shell
+./BSMR-sddmm -f ../dataset/nips.mtx -k 128
+```
+
+or
+
+```shell
+./BSMR-sddmm ../dataset/nips.mtx 128
+```
+
+## Input Format
+
+The implementation supports the [Matrix Market](https://sparse.tamu.edu/about) input format (suffix: `.mtx`).
 
 ## Citation
 
