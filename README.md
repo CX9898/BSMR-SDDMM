@@ -18,7 +18,16 @@ $$
 \mathbf{P}_{ij} = (\mathbf{A} \cdot \mathbf{B})_{ij} \cdot \mathbf{S}_{ij}, \quad \text{only if} \quad \mathbf{S}_{ij} > 0
 $$
 
-Sparse and irregular memory accesses make it difficult to fully utilize Tensor Cores for SDDMM. BSMR improves Tensor Core utilization by reorganizing sparse matrices into denser block structures through bidirectional row and column reordering. Dense tiles are assigned to Tensor Cores, while sparse tiles are handled by CUDA Cores through a hybrid execution strategy.
+## Performance Highlights
+
+Experiments on an NVIDIA GeForce RTX 4090 (CUDA $\ge$ 12.0, SuiteSparse matrices, $K=128$) show that BSMR achieves:
+
+- Up to **10.38×** speedup over the best Tensor Core baseline (FlashSparse)
+- Up to **7.31×** speedup over the best CUDA Core baseline (RoDe)
+
+## Overview
+
+BSMR achieves these speedups by reorganizing sparse matrices into denser block structures through bidirectional row and column reordering. Sparse and irregular memory accesses make it difficult to fully utilize Tensor Cores for SDDMM. Dense tiles are assigned to Tensor Cores, while sparse tiles are handled by CUDA Cores through a hybrid execution strategy.
 
 ![BSMR-SDDMM overview](docs/BSMR_SDDMM_overview.png)
 
@@ -81,33 +90,15 @@ or
 ./BSMR-sddmm ../dataset/nips.mtx 128
 ```
 
-## Build Baselines
+---
 
-```shell
-cd scripts/
-bash build_program.sh
-bash build_TCGNN.sh
-bash build_FlashSparse.sh
-```
+## Benchmark & Reproduction
 
-## Preparing Datasets
+Paper results were measured on an NVIDIA GeForce RTX 4090; numbers may vary on other GPUs or software versions.
 
-```shell
-cd scripts/
-bash download_suiteSparse_dataset.sh
-python exclude_invalid_dataset.py  suiteSparse_dataset/
-```
+### Reproduce Figure Results
 
-## Run Benchmarks
-
-```shell
-cd scripts/
-bash run_all.sh
-```
-
-## Reproduce Figure Results
-
-The reported paper results were measured on an NVIDIA GeForce RTX 4090. Performance numbers may vary across GPU architectures, CUDA versions, and driver versions.
+Pre-stored benchmark logs are included under `scripts/results_suiteSparse_dataset/`. To regenerate the paper figures directly:
 
 ```shell
 cd scripts/
@@ -117,6 +108,22 @@ bash plot_fig_9.sh
 bash plot_fig_10.sh
 bash plot_fig_11.sh
 ```
+
+### Full Benchmark
+
+To rerun all experiments from scratch (baselines, BSMR, and BSA on the full SuiteSparse dataset; may take many hours):
+
+```shell
+cd scripts/
+bash build_program.sh && bash build_TCGNN.sh && bash build_FlashSparse.sh
+bash download_suiteSparse_dataset.sh
+python exclude_invalid_dataset.py suiteSparse_dataset/
+bash run_all.sh
+```
+
+Then run the plotting scripts above.
+
+---
 
 ## Citation
 
